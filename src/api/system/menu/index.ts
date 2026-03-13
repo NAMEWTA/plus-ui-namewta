@@ -35,14 +35,6 @@ export const roleMenuTreeselect = (roleId: string | number): AxiosPromise<RoleMe
   });
 };
 
-// 根据角色ID查询菜单下拉树结构
-export const tenantPackageMenuTreeselect = (packageId: string | number): AxiosPromise<RoleMenuTree> => {
-  return request({
-    url: '/system/menu/tenantPackageMenuTreeselect/' + packageId,
-    method: 'get'
-  });
-};
-
 // 新增菜单
 export const addMenu = (data: MenuForm) => {
   return request({

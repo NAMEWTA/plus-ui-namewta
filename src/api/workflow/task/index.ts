@@ -42,7 +42,7 @@ export const pageByTaskCopy = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> => 
 };
 
 /**
- * 当前租户所有待办任务
+ * 查询全部待办任务
  * @param query
  * @returns {*}
  */
@@ -55,7 +55,7 @@ export const pageByAllTaskWait = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> 
 };
 
 /**
- * 当前租户所有已办任务
+ * 查询全部已办任务
  * @param query
  * @returns {*}
  */

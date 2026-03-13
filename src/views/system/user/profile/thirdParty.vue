@@ -58,7 +58,6 @@
 <script setup lang="ts">
 import { authUnlock, authRouterUrl } from '@/api/system/social/auth';
 import { propTypes } from '@/utils/propTypes';
-import { useUserStore } from '@/store/modules/user';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -84,7 +83,7 @@ const unlockAuth = (row: any) => {
 };
 
 const authUrl = (source: string) => {
-  authRouterUrl(source, useUserStore().tenantId).then((res: any) => {
+  authRouterUrl(source).then((res: any) => {
     if (res.code === 200) {
       window.location.href = res.data;
     } else {

@@ -5,12 +5,6 @@
         <h3 class="title">{{ title }}</h3>
         <lang-select />
       </div>
-      <el-form-item v-if="tenantEnabled" prop="tenantId">
-        <el-select v-model="registerForm.tenantId" filterable :placeholder="proxy.$t('register.selectPlaceholder')" style="width: 100%">
-          <el-option v-for="item in tenantList" :key="item.tenantId" :label="item.companyName" :value="item.tenantId"> </el-option>
-          <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
-        </el-select>
-      </el-form-item>
       <el-form-item prop="username">
         <el-input v-model="registerForm.username" type="text" size="large" auto-complete="off" :placeholder="proxy.$t('register.username')">
           <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
@@ -73,8 +67,8 @@
 </template>
 
 <script setup lang="ts">
-import { getCodeImg, register, getTenantList } from '@/api/login';
-import { RegisterForm, TenantVO } from '@/api/types';
+import { getCodeImg, register } from '@/api/login';
+import { RegisterForm } from '@/api/types';
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
 
@@ -86,7 +80,6 @@ const router = useRouter();
 const { t } = useI18n();
 
 const registerForm = ref<RegisterForm>({
-  tenantId: '',
   username: '',
   password: '',
   confirmPassword: '',
@@ -94,9 +87,6 @@ const registerForm = ref<RegisterForm>({
   uuid: '',
   userType: 'sys_user'
 });
-
-// 租户开关
-const tenantEnabled = ref(true);
 
 const equalToPassword = (rule: any, value: string, callback: any) => {
   if (registerForm.value.password !== value) {
@@ -107,7 +97,6 @@ const equalToPassword = (rule: any, value: string, callback: any) => {
 };
 
 const registerRules: ElFormRules = {
-  tenantId: [{ required: true, trigger: 'blur', message: t('register.rule.tenantId.required') }],
   username: [
     { required: true, trigger: 'blur', message: t('register.rule.username.required') },
     { min: 2, max: 20, message: t('register.rule.username.length', { min: 2, max: 20 }), trigger: 'blur' }
@@ -127,8 +116,6 @@ const codeUrl = ref('');
 const loading = ref(false);
 const captchaEnabled = ref(true);
 const registerRef = ref<ElFormInstance>();
-// 租户列表
-const tenantList = ref<TenantVO[]>([]);
 
 const handleRegister = () => {
   registerRef.value?.validate(async (valid: boolean) => {
@@ -163,20 +150,8 @@ const getCode = async () => {
   }
 };
 
-const initTenantList = async () => {
-  const { data } = await getTenantList(false);
-  tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
-  if (tenantEnabled.value) {
-    tenantList.value = data.voList;
-    if (tenantList.value != null && tenantList.value.length !== 0) {
-      registerForm.value.tenantId = tenantList.value[0].tenantId;
-    }
-  }
-};
-
 onMounted(() => {
   getCode();
-  initTenantList();
 });
 </script>
 

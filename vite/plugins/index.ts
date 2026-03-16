@@ -4,7 +4,6 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 import createUnoCss from './unocss';
 import createAutoImport from './auto-import';
 import createComponents from './components';
-import createIcons from './icons';
 import createSvgIconsPlugin from './svg-icon';
 import createCompression from './compression';
 import createSetupExtend from './setup-extend';
@@ -18,7 +17,6 @@ export default (viteEnv: any, isBuild = false): [] => {
   vitePlugins.push(createAutoImport(path));
   vitePlugins.push(createComponents(path));
   vitePlugins.push(createCompression(viteEnv));
-  vitePlugins.push(createIcons());
   vitePlugins.push(createSvgIconsPlugin(path));
   vitePlugins.push(createSetupExtend());
   return vitePlugins;

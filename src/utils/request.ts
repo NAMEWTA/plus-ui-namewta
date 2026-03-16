@@ -5,15 +5,15 @@ import { tansParams, blobValidate } from '@/utils/ruoyi';
 import cache from '@/plugins/cache';
 import { HttpStatus } from '@/enums/RespEnum';
 import { errorCode } from '@/utils/errorCode';
-import { LoadingInstance } from 'element-plus/es/components/loading/src/loading';
-import FileSaver from 'file-saver';
 import { getLanguage } from '@/lang';
 import { encryptBase64, encryptWithAes, generateAesKey, decryptWithAes, decryptBase64 } from '@/utils/crypto';
 import { encrypt, decrypt } from '@/utils/jsencrypt';
 import router from '@/router';
+import { saveBlob } from '@/utils/save';
+import type { LoadingInstance } from 'element-plus';
 
 const encryptHeader = 'encrypt-key';
-let downloadLoadingInstance: LoadingInstance;
+let downloadLoadingInstance: LoadingInstance | undefined;
 // 是否显示重新登录
 export const isRelogin = { show: false };
 export const globalHeaders = () => {
@@ -193,7 +193,7 @@ export function download(url: string, params: any, fileName: string) {
       const isLogin = blobValidate(resp);
       if (isLogin) {
         const blob = new Blob([resp]);
-        FileSaver.saveAs(blob, fileName);
+        saveBlob(blob, fileName);
       } else {
         const blob = new Blob([resp]);
         const resText = await blob.text();
@@ -201,11 +201,11 @@ export function download(url: string, params: any, fileName: string) {
         const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
         ElMessage.error(errMsg);
       }
-      downloadLoadingInstance.close();
+      downloadLoadingInstance?.close();
     }).catch((r: any) => {
       console.error(r);
       ElMessage.error('下载文件出现错误，请联系管理员！');
-      downloadLoadingInstance.close();
+      downloadLoadingInstance?.close();
     });
 }
 // 导出 axios 实例

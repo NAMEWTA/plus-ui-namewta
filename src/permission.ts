@@ -1,6 +1,6 @@
 import { to as tos } from 'await-to-js';
 import router from './router';
-import NProgress from 'nprogress';
+import * as NProgressModule from 'nprogress';
 import 'nprogress/nprogress.css';
 import { getToken } from '@/utils/auth';
 import { isHttp, isPathMatch } from '@/utils/validate';
@@ -9,6 +9,8 @@ import { useUserStore } from '@/store/modules/user';
 import { useSettingsStore } from '@/store/modules/settings';
 import { usePermissionStore } from '@/store/modules/permission';
 import { ElMessage } from 'element-plus/es';
+
+const NProgress = ('default' in NProgressModule ? NProgressModule.default : NProgressModule) as typeof NProgressModule;
 
 NProgress.configure({ showSpinner: false });
 const whiteList = ['/login', '/register', '/social-callback', '/register*', '/register/*'];

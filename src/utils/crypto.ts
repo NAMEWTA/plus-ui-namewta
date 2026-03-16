@@ -1,4 +1,6 @@
-import CryptoJS from 'crypto-js';
+import * as CryptoJSModule from 'crypto-js';
+
+const CryptoJS = ('default' in CryptoJSModule ? CryptoJSModule.default : CryptoJSModule) as typeof CryptoJSModule;
 
 /**
  * 随机生成32位的字符串
@@ -26,7 +28,7 @@ export const generateAesKey = () => {
  * 加密base64
  * @returns {string}
  */
-export const encryptBase64 = (str: CryptoJS.lib.WordArray) => {
+export const encryptBase64 = (str: CryptoJSModule.lib.WordArray) => {
   return CryptoJS.enc.Base64.stringify(str);
 };
 
@@ -43,7 +45,7 @@ export const decryptBase64 = (str: string) => {
  * @param aesKey
  * @returns {string}
  */
-export const encryptWithAes = (message: string, aesKey: CryptoJS.lib.WordArray) => {
+export const encryptWithAes = (message: string, aesKey: CryptoJSModule.lib.WordArray) => {
   const encrypted = CryptoJS.AES.encrypt(message, aesKey, {
     mode: CryptoJS.mode.ECB,
     padding: CryptoJS.pad.Pkcs7
@@ -57,7 +59,7 @@ export const encryptWithAes = (message: string, aesKey: CryptoJS.lib.WordArray) 
  * @param aesKey
  * @returns {string}
  */
-export const decryptWithAes = (message: string, aesKey: CryptoJS.lib.WordArray) => {
+export const decryptWithAes = (message: string, aesKey: CryptoJSModule.lib.WordArray) => {
   const decrypted = CryptoJS.AES.decrypt(message, aesKey, {
     mode: CryptoJS.mode.ECB,
     padding: CryptoJS.pad.Pkcs7

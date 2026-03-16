@@ -85,7 +85,7 @@ import { useSettingsStore } from '@/store/modules/settings';
 import { useNoticeStore } from '@/store/modules/notice';
 import notice from './notice/index.vue';
 import router from '@/router';
-import { ElMessageBoxOptions } from 'element-plus/es/components/message-box/src/message-box.type';
+import type { ElMessageBoxOptions } from 'element-plus';
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
 import Logo from "@/layout/components/Sidebar/Logo.vue";
 import TopBar from './TopBar/index.vue';

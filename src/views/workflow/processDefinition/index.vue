@@ -211,8 +211,7 @@ import { listDefinition, deleteDefinition, active, importDef, unPublishList, pub
 import { categoryTree } from '@/api/workflow/category';
 import { CategoryTreeVO } from '@/api/workflow/category/types';
 import { FlowDefinitionQuery, FlowDefinitionVo, FlowDefinitionForm } from '@/api/workflow/definition/types';
-import { UploadRequestOptions, TabsPaneContext } from 'element-plus';
-import { ElMessageBoxOptions } from 'element-plus/es/components/message-box/src/message-box.type';
+import type { ElMessageBoxOptions, TabsPaneContext, UploadRequestOptions } from 'element-plus';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 

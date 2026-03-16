@@ -9,8 +9,8 @@
     <el-popover shadow="none" :visible="visible" placement="bottom-end" trigger="click" :width="450">
       <template #reference>
         <div class="cursor-pointer text-[#999] absolute right-[10px] top-0 height-[32px] leading-[32px]" @click="visible = !visible">
-          <i-ep-caret-top v-show="visible"></i-ep-caret-top>
-          <i-ep-caret-bottom v-show="!visible"></i-ep-caret-bottom>
+          <CaretTop v-show="visible" />
+          <CaretBottom v-show="!visible" />
         </div>
       </template>
 

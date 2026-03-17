@@ -61,7 +61,7 @@
 const products = [
   {
     name: 'RuoYi-Vue-Plus',
-    version: 'v5.5.3',
+    version: 'v6.0.0',
     summary: '面向分布式集群场景的后台管理系统，保持现有业务接口与权限逻辑，适合先完成前端壳升级。',
     tags: ['Vue 3', 'Element Plus', 'Spring Boot', 'Sa-Token'],
     primaryLabel: '访问 GitHub',
@@ -71,12 +71,12 @@ const products = [
   },
   {
     name: 'RuoYi-Cloud-Plus',
-    version: 'v2.5.3',
+    version: 'v3.0.0',
     summary: '微服务通用权限管理系统，适合更复杂的服务治理场景，也可以沿用同样的前端升级思路。',
     tags: ['Spring Cloud', 'Gateway', 'Nacos', 'Dubbo'],
     primaryLabel: '访问 GitHub',
     primaryUrl: 'https://github.com/dromara/RuoYi-Cloud-Plus',
-    secondaryLabel: '查看文档',
+    secondaryLabel: '查看更新日志',
     secondaryUrl: 'https://plus-doc.dromara.org/#/ruoyi-cloud-plus/changlog'
   }
 ];
@@ -84,7 +84,7 @@ const products = [
 const capabilityGroups = [
   {
     title: '后端基建',
-    items: ['Spring Boot / Spring Cloud', 'Sa-Token 认证与权限', 'MySQL / Redis', '代码生成器与国际化']
+    items: ['Spring Boot / Spring Cloud', 'Sa-Token 认证与权限', 'MySQL / Redis', '代码生成器']
   },
   {
     title: '平台能力',
@@ -92,7 +92,7 @@ const capabilityGroups = [
   },
   {
     title: '前端方向',
-    items: ['UI 壳层重构', '主题与布局统一', '通用页面容器规范化', '逐模块迁移业务页']
+    items: ['UI 卡片化', '主题与布局统一', '通用页面容器规范化', '企业化布局']
   }
 ];
 

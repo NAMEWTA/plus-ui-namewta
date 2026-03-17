@@ -170,8 +170,8 @@ const getDataNameList = async () => {
 const getList = async () => {
   loading.value = true;
   const res = await listTable(proxy?.addDateRange(queryParams.value, dateRange.value));
-  tableList.value = res.rows;
-  total.value = res.total;
+  tableList.value = res.data?.rows;
+  total.value = res.data?.total;
   loading.value = false;
 };
 /** 搜索按钮操作 */

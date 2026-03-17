@@ -260,8 +260,8 @@ const protocol = computed(() => (form.value.isHttps === 'Y' ? 'https://' : 'http
 const getList = async () => {
   loading.value = true;
   const res = await listOssConfig(queryParams.value);
-  ossConfigList.value = res.rows;
-  total.value = res.total;
+  ossConfigList.value = res.data?.rows;
+  total.value = res.data?.total;
   loading.value = false;
 };
 /** 取消按钮 */

@@ -210,8 +210,8 @@ const { queryParams, form, rules } = toRefs(data);
 const getList = async () => {
   loading.value = true;
   const res = await listClient(queryParams.value);
-  clientList.value = res.rows;
-  total.value = res.total;
+  clientList.value = res.data?.rows;
+  total.value = res.data?.total;
   loading.value = false;
 };
 

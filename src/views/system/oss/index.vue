@@ -198,8 +198,8 @@ const getList = async () => {
   const res = await proxy?.getConfigKey('sys.oss.previewListResource');
   previewListResource.value = res?.data === undefined ? true : res.data === 'true';
   const response = await listOss(proxy?.addDateRange(queryParams.value, dateRangeCreateTime.value, 'CreateTime'));
-  ossList.value = response.rows;
-  total.value = response.total;
+  ossList.value = response.data?.rows;
+  total.value = response.data?.total;
   loading.value = false;
   showTable.value = true;
 };

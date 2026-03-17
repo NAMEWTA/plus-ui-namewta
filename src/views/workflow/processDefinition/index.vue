@@ -354,16 +354,16 @@ const getPageList = async () => {
 const getList = async () => {
   loading.value = true;
   const resp = await listDefinition(queryParams.value);
-  processDefinitionList.value = resp.rows;
-  total.value = resp.total;
+  processDefinitionList.value = resp.data?.rows;
+  total.value = resp.data?.total;
   loading.value = false;
 };
 //查询未发布的流程定义列表
 const getUnPublishList = async () => {
   loading.value = true;
   const resp = await unPublishList(queryParams.value);
-  processDefinitionList.value = resp.rows;
-  total.value = resp.total;
+  processDefinitionList.value = resp.data?.rows;
+  total.value = resp.data?.total;
   loading.value = false;
 };
 

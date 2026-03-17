@@ -133,7 +133,7 @@ const getAuths = async () => {
 };
 const getOnlines = async () => {
   const res = await getOnline();
-  state.value.devices = res.rows;
+  state.value.devices = res.data?.rows;
 };
 
 onMounted(() => {

@@ -1,13 +1,14 @@
 import request from '@/utils/request';
 import { FlowInstanceQuery, FlowInstanceVO } from '@/api/workflow/instance/types';
 import { AxiosPromise } from 'axios';
+import { PageResult } from '@/api/types';
 
 /**
  * 查询运行中实例列表
  * @param query
  * @returns {*}
  */
-export const pageByRunning = (query: FlowInstanceQuery): AxiosPromise<FlowInstanceVO[]> => {
+export const pageByRunning = (query: FlowInstanceQuery): AxiosPromise<PageResult<FlowInstanceVO>> => {
   return request({
     url: '/workflow/instance/pageByRunning',
     method: 'get',
@@ -20,7 +21,7 @@ export const pageByRunning = (query: FlowInstanceQuery): AxiosPromise<FlowInstan
  * @param query
  * @returns {*}
  */
-export const pageByFinish = (query: FlowInstanceQuery): AxiosPromise<FlowInstanceVO[]> => {
+export const pageByFinish = (query: FlowInstanceQuery): AxiosPromise<PageResult<FlowInstanceVO>> => {
   return request({
     url: '/workflow/instance/pageByFinish',
     method: 'get',
@@ -43,7 +44,7 @@ export const flowHisTaskList = (businessId: string | number) => {
  * @param query
  * @returns {*}
  */
-export const pageByCurrent = (query: FlowInstanceQuery): AxiosPromise<FlowInstanceVO[]> => {
+export const pageByCurrent = (query: FlowInstanceQuery): AxiosPromise<PageResult<FlowInstanceVO>> => {
   return request({
     url: '/workflow/instance/pageByCurrent',
     method: 'get',

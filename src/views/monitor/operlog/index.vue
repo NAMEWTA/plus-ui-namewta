@@ -198,8 +198,8 @@ const { queryParams, form } = toRefs(data);
 const getList = async () => {
   loading.value = true;
   const res = await list(proxy?.addDateRange(queryParams.value, dateRange.value));
-  operlogList.value = res.rows;
-  total.value = res.total;
+  operlogList.value = res.data?.rows;
+  total.value = res.data?.total;
   loading.value = false;
 };
 /** 操作日志类型字典翻译 */

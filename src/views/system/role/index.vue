@@ -280,8 +280,8 @@ const dialog = reactive<DialogOption>({
 const getList = () => {
   loading.value = true;
   listRole(proxy?.addDateRange(queryParams.value, dateRange.value)).then((res) => {
-    roleList.value = res.rows;
-    total.value = res.total;
+    roleList.value = res.data?.rows;
+    total.value = res.data?.total;
     loading.value = false;
   });
 };

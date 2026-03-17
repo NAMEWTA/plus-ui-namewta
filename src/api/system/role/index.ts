@@ -3,8 +3,9 @@ import { UserQuery } from '@/api/system/user/types';
 import { AxiosPromise } from 'axios';
 import { RoleQuery, RoleVO, RoleDeptTree } from './types';
 import request from '@/utils/request';
+import { PageResult } from '@/api/types';
 
-export const listRole = (query: RoleQuery): AxiosPromise<RoleVO[]> => {
+export const listRole = (query: RoleQuery): AxiosPromise<PageResult<RoleVO>> => {
   return request({
     url: '/system/role/list',
     method: 'get',
@@ -95,7 +96,7 @@ export const delRole = (roleId: Array<string | number> | string | number) => {
 /**
  * 查询角色已授权用户列表
  */
-export const allocatedUserList = (query: UserQuery): AxiosPromise<UserVO[]> => {
+export const allocatedUserList = (query: UserQuery): AxiosPromise<PageResult<UserVO>> => {
   return request({
     url: '/system/role/authUser/allocatedList',
     method: 'get',
@@ -106,7 +107,7 @@ export const allocatedUserList = (query: UserQuery): AxiosPromise<UserVO[]> => {
 /**
  * 查询角色未授权用户列表
  */
-export const unallocatedUserList = (query: UserQuery): AxiosPromise<UserVO[]> => {
+export const unallocatedUserList = (query: UserQuery): AxiosPromise<PageResult<UserVO>> => {
   return request({
     url: '/system/role/authUser/unallocatedList',
     method: 'get',

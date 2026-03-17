@@ -212,16 +212,16 @@ const changeTab = async (data: TabsPaneContext) => {
 const getWaitingList = () => {
   loading.value = true;
   pageByAllTaskWait(queryParams.value).then((resp) => {
-    taskList.value = resp.rows;
-    total.value = resp.total;
+    taskList.value = resp.data?.rows;
+    total.value = resp.data?.total;
     loading.value = false;
   });
 };
 const getFinishList = () => {
   loading.value = true;
   pageByAllTaskFinish(queryParams.value).then((resp) => {
-    taskList.value = resp.rows;
-    total.value = resp.total;
+    taskList.value = resp.data?.rows;
+    total.value = resp.data?.total;
     loading.value = false;
   });
 };

@@ -1,9 +1,10 @@
 import request from '@/utils/request';
 import { DictTypeForm, DictTypeVO, DictTypeQuery } from './types';
 import { AxiosPromise } from 'axios';
+import { PageResult } from '@/api/types';
 
 // 查询字典类型列表
-export function listType(query: DictTypeQuery): AxiosPromise<DictTypeVO[]> {
+export function listType(query: DictTypeQuery): AxiosPromise<PageResult<DictTypeVO>> {
   return request({
     url: '/system/dict/type/list',
     method: 'get',

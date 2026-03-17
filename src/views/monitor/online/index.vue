@@ -105,8 +105,8 @@ const queryParams = ref<OnlineQuery>({
 const getList = async () => {
   loading.value = true;
   const res = await initData(queryParams.value);
-  onlineList.value = res.rows;
-  total.value = res.total;
+  onlineList.value = res.data?.rows;
+  total.value = res.data?.total;
   loading.value = false;
 };
 /** 搜索按钮操作 */

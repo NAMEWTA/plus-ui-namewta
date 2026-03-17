@@ -147,8 +147,8 @@ const queryParams = ref<LoginInfoQuery>({
 const getList = async () => {
   loading.value = true;
   const res = await list(proxy?.addDateRange(queryParams.value, dateRange.value));
-  loginInfoList.value = res.rows;
-  total.value = res.total;
+  loginInfoList.value = res.data?.rows;
+  total.value = res.data?.total;
   loading.value = false;
 };
 /** 搜索按钮操作 */

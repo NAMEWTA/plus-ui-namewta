@@ -455,8 +455,8 @@ const getList = async () => {
   loading.value = true;
   const res = await api.listUser(proxy?.addDateRange(queryParams.value, dateRange.value));
   loading.value = false;
-  userList.value = res.rows;
-  total.value = res.total;
+  userList.value = res.data?.rows;
+  total.value = res.data?.total;
 };
 
 /** 查询部门下拉树结构 */

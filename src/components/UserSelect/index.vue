@@ -218,8 +218,8 @@ const getList = async () => {
   queryParams.value.userIds = prop.userIds;
   const res = await api.listUser(proxy?.addDateRange(queryParams.value, dateRange.value));
   loading.value = false;
-  userList.value = res.rows;
-  total.value = res.total;
+  userList.value = res.data?.rows;
+  total.value = res.data?.total;
 };
 
 const pageList = async () => {

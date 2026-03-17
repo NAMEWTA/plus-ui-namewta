@@ -86,7 +86,7 @@
       <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
     </el-card>
     <!-- 添加或修改公告对话框 -->
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="780px" append-to-body>
+    <el-dialog v-model="dialog.visible" :title="dialog.title" width="780px" append-to-body destroy-on-close @closed="handleDialogClosed">
       <el-form ref="noticeFormRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
@@ -185,8 +185,11 @@ const getList = async () => {
 };
 /** 取消按钮 */
 const cancel = () => {
-  reset();
   dialog.visible = false;
+};
+/** 对话框关闭后重置 */
+const handleDialogClosed = () => {
+  reset();
 };
 /** 表单重置 */
 const reset = () => {

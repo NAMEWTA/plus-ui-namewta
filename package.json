@@ -23,8 +23,9 @@
     "@element-plus/icons-vue": "2.3.2",
     "@highlightjs/vue-plugin": "2.1.2",
     "@iconify/vue": "^5.0.0",
-    "@vueup/vue-quill": "1.2.0",
     "@vueuse/core": "14.2.1",
+    "@wangeditor-next/editor": "5.6.50",
+    "@wangeditor-next/editor-for-vue": "5.1.14",
     "animate.css": "4.1.1",
     "await-to-js": "3.0.0",
     "axios": "1.13.6",
@@ -72,9 +73,6 @@
     "vite-plugin-vue-devtools": "8.0.7",
     "vitest": "4.0.18",
     "vue-tsc": "^3.2.5"
-  },
-  "overrides": {
-    "quill": "1.3.7"
   },
   "engines": {
     "node": ">=20.19.0",

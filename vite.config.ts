@@ -55,6 +55,7 @@ export default defineConfig(({ mode, command }) => {
     },
     // 预编译
     optimizeDeps: {
+      entries: ['src/**/*.vue'],
       include: [
         'vue',
         'vue-router',
@@ -63,9 +64,10 @@ export default defineConfig(({ mode, command }) => {
         '@vueuse/core',
         'echarts',
         'vue-i18n',
-        '@vueup/vue-quill',
+        '@wangeditor-next/editor',
+        '@wangeditor-next/editor-for-vue',
         'image-conversion',
-        'element-plus/es/components/**/css'
+        'element-plus/es/components/**/style/css'
       ]
     }
   };

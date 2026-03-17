@@ -138,7 +138,7 @@ const loginRules: ElFormRules = {
 const codeUrl = ref('');
 const loading = ref(false);
 const captchaEnabled = ref(true);
-const register = ref(true);
+const register = ref(false);
 const redirect = ref('/');
 const loginRef = ref<ElFormInstance>();
 

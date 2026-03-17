@@ -2,9 +2,10 @@ import request from '@/utils/request';
 import { PostForm, PostQuery, PostVO } from './types';
 import { AxiosPromise } from 'axios';
 import { DeptTreeVO } from '../dept/types';
+import { PageResult } from '@/api/types';
 
 // 查询岗位列表
-export function listPost(query: PostQuery): AxiosPromise<PostVO[]> {
+export function listPost(query: PostQuery): AxiosPromise<PageResult<PostVO>> {
   return request({
     url: '/system/post/list',
     method: 'get',

@@ -1,6 +1,7 @@
 import request from '@/utils/request';
 import { AxiosPromise } from 'axios';
 import { SpelVO, SpelForm, SpelQuery } from '@/api/workflow/spel/types';
+import { PageResult } from '@/api/types';
 
 /**
  * 查询流程spel表达式定义列表
@@ -8,7 +9,7 @@ import { SpelVO, SpelForm, SpelQuery } from '@/api/workflow/spel/types';
  * @returns {*}
  */
 
-export const listSpel = (query?: SpelQuery): AxiosPromise<SpelVO[]> => {
+export const listSpel = (query?: SpelQuery): AxiosPromise<PageResult<SpelVO>> => {
   return request({
     url: '/workflow/spel/list',
     method: 'get',

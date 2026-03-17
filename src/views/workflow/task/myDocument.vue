@@ -212,8 +212,8 @@ const handleSelectionChange = (selection: FlowInstanceVO[]) => {
 const getList = () => {
   loading.value = true;
   pageByCurrent(queryParams.value).then((resp) => {
-    processInstanceList.value = resp.rows;
-    total.value = resp.total;
+    processInstanceList.value = resp.data?.rows;
+    total.value = resp.data?.total;
     loading.value = false;
   });
 };

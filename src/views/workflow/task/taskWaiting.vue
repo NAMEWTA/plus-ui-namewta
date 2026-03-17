@@ -158,8 +158,8 @@ const handleSelectionChange = (selection: any) => {
 const getWaitingList = () => {
   loading.value = true;
   pageByTaskWait(queryParams.value).then((resp) => {
-    taskList.value = resp.rows;
-    total.value = resp.total;
+    taskList.value = resp.data?.rows;
+    total.value = resp.data?.total;
     loading.value = false;
   });
 };

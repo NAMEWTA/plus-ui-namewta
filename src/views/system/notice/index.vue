@@ -179,8 +179,8 @@ const { queryParams, form, rules } = toRefs(data);
 const getList = async () => {
   loading.value = true;
   const res = await listNotice(queryParams.value);
-  noticeList.value = res.rows;
-  total.value = res.total;
+  noticeList.value = res.data?.rows;
+  total.value = res.data?.total;
   loading.value = false;
 };
 /** 取消按钮 */

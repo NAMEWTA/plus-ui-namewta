@@ -88,8 +88,8 @@ const handleSelectionChange = (selection: DbTableVO[]) => {
 /** 查询表数据 */
 const getList = async () => {
   const res = await listDbTable(queryParams);
-  dbTableList.value = res.rows;
-  total.value = res.total;
+  dbTableList.value = res.data?.rows;
+  total.value = res.data?.total;
 };
 /** 搜索按钮操作 */
 const handleQuery = () => {

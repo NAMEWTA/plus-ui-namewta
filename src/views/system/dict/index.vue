@@ -393,8 +393,8 @@ const { queryParams: dataQueryParams, form: dataForm, rules: dataRules } = toRef
 const getTypeList = () => {
   typeLoading.value = true;
   listType(typeQueryParams.value).then((res) => {
-    typeList.value = res.rows;
-    typeTotal.value = res.total;
+    typeList.value = res.data?.rows;
+    typeTotal.value = res.data?.total;
     typeLoading.value = false;
     ensureCurrentType();
   });
@@ -512,8 +512,8 @@ const getDataList = async () => {
   }
   dataLoading.value = true;
   const res = await listData(dataQueryParams.value);
-  dataList.value = res.rows;
-  dataTotal.value = res.total;
+  dataList.value = res.data?.rows;
+  dataTotal.value = res.data?.total;
   dataLoading.value = false;
 };
 

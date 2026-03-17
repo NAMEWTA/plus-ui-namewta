@@ -122,8 +122,8 @@ const handleSelectionChange = (selection: any) => {
 const getTaskCopyList = () => {
   loading.value = true;
   pageByTaskCopy(queryParams.value).then((resp) => {
-    taskList.value = resp.rows;
-    total.value = resp.total;
+    taskList.value = resp.data?.rows;
+    total.value = resp.data?.total;
     loading.value = false;
   });
 };

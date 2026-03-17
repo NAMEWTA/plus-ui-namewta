@@ -1,9 +1,10 @@
 import request from '@/utils/request';
 import { OssQuery, OssVO } from './types';
 import { AxiosPromise } from 'axios';
+import { PageResult } from '@/api/types';
 
 // 查询OSS对象存储列表
-export function listOss(query: OssQuery): AxiosPromise<OssVO[]> {
+export function listOss(query: OssQuery): AxiosPromise<PageResult<OssVO>> {
   return request({
     url: '/resource/oss/list',
     method: 'get',

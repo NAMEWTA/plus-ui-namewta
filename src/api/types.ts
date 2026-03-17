@@ -41,3 +41,11 @@ export interface VerifyCodeResult {
   uuid?: string;
   img?: string;
 }
+
+/**
+ * 分页返回结果
+ */
+export interface PageResult<T = any> {
+  total: number;
+  rows: T[];
+}

@@ -343,8 +343,8 @@ const handleSelectionChange = (selection: FlowInstanceVO[]) => {
 const getProcessInstanceRunningList = () => {
   loading.value = true;
   pageByRunning(queryParams.value).then((resp) => {
-    processInstanceList.value = resp.rows;
-    total.value = resp.total;
+    processInstanceList.value = resp.data?.rows;
+    total.value = resp.data?.total;
     loading.value = false;
   });
 };
@@ -352,8 +352,8 @@ const getProcessInstanceRunningList = () => {
 const getProcessInstanceFinishList = () => {
   loading.value = true;
   pageByFinish(queryParams.value).then((resp) => {
-    processInstanceList.value = resp.rows;
-    total.value = resp.total;
+    processInstanceList.value = resp.data?.rows;
+    total.value = resp.data?.total;
     loading.value = false;
   });
 };

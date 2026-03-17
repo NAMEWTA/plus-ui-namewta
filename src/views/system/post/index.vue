@@ -274,8 +274,8 @@ const handleNodeClick = (data: DeptVO) => {
 const getList = async () => {
   loading.value = true;
   const res = await listPost(queryParams.value);
-  postList.value = res.rows;
-  total.value = res.total;
+  postList.value = res.data?.rows;
+  total.value = res.data?.total;
   loading.value = false;
 };
 

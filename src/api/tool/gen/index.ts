@@ -1,9 +1,10 @@
 import request from '@/utils/request';
 import { DbTableQuery, DbTableVO, TableQuery, TableVO, GenTableVO, DbTableForm } from './types';
 import { AxiosPromise } from 'axios';
+import { PageResult } from '@/api/types';
 
 // 查询生成表数据
-export const listTable = (query: TableQuery): AxiosPromise<TableVO[]> => {
+export const listTable = (query: TableQuery): AxiosPromise<PageResult<TableVO>> => {
   return request({
     url: '/tool/gen/list',
     method: 'get',
@@ -11,7 +12,7 @@ export const listTable = (query: TableQuery): AxiosPromise<TableVO[]> => {
   });
 };
 // 查询db数据库列表
-export const listDbTable = (query: DbTableQuery): AxiosPromise<DbTableVO[]> => {
+export const listDbTable = (query: DbTableQuery): AxiosPromise<PageResult<DbTableVO>> => {
   return request({
     url: '/tool/gen/db/list',
     method: 'get',

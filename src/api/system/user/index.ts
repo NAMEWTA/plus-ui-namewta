@@ -4,12 +4,13 @@ import request from '@/utils/request';
 import { AxiosPromise } from 'axios';
 import { UserForm, UserQuery, UserVO, UserInfoVO } from './types';
 import { parseStrEmpty } from '@/utils/ruoyi';
+import { PageResult } from '@/api/types';
 
 /**
  * 查询用户列表
  * @param query
  */
-export const listUser = (query: UserQuery): AxiosPromise<UserVO[]> => {
+export const listUser = (query: UserQuery): AxiosPromise<PageResult<UserVO>> => {
   return request({
     url: '/system/user/list',
     method: 'get',

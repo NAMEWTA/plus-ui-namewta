@@ -1,13 +1,14 @@
 import request from '@/utils/request';
 import { AxiosPromise } from 'axios';
 import { TaskQuery, FlowTaskVO, TaskOperationBo } from '@/api/workflow/task/types';
+import { PageResult } from '@/api/types';
 
 /**
  * 查询待办列表
  * @param query
  * @returns {*}
  */
-export const pageByTaskWait = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> => {
+export const pageByTaskWait = (query: TaskQuery): AxiosPromise<PageResult<FlowTaskVO>> => {
   return request({
     url: '/workflow/task/pageByTaskWait',
     method: 'get',
@@ -20,7 +21,7 @@ export const pageByTaskWait = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> => 
  * @param query
  * @returns {*}
  */
-export const pageByTaskFinish = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> => {
+export const pageByTaskFinish = (query: TaskQuery): AxiosPromise<PageResult<FlowTaskVO>> => {
   return request({
     url: '/workflow/task/pageByTaskFinish',
     method: 'get',
@@ -33,7 +34,7 @@ export const pageByTaskFinish = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> =
  * @param query
  * @returns {*}
  */
-export const pageByTaskCopy = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> => {
+export const pageByTaskCopy = (query: TaskQuery): AxiosPromise<PageResult<FlowTaskVO>> => {
   return request({
     url: '/workflow/task/pageByTaskCopy',
     method: 'get',
@@ -46,7 +47,7 @@ export const pageByTaskCopy = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> => 
  * @param query
  * @returns {*}
  */
-export const pageByAllTaskWait = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> => {
+export const pageByAllTaskWait = (query: TaskQuery): AxiosPromise<PageResult<FlowTaskVO>> => {
   return request({
     url: '/workflow/task/pageByAllTaskWait',
     method: 'get',
@@ -59,7 +60,7 @@ export const pageByAllTaskWait = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> 
  * @param query
  * @returns {*}
  */
-export const pageByAllTaskFinish = (query: TaskQuery): AxiosPromise<FlowTaskVO[]> => {
+export const pageByAllTaskFinish = (query: TaskQuery): AxiosPromise<PageResult<FlowTaskVO>> => {
   return request({
     url: '/workflow/task/pageByAllTaskFinish',
     method: 'get',

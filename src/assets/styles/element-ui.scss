@@ -517,6 +517,30 @@
   opacity: 0.5;
 }
 
+.el-tree-select__popper .el-tree-node__content {
+  display: flex;
+  align-items: center;
+}
+
+.el-tree-select__popper .el-select-dropdown__item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-height: 20px;
+  height: 20px;
+  line-height: 20px;
+  margin: 0;
+  padding-left: 0;
+  background: transparent !important;
+}
+
+.el-tree-select__popper .el-tree-node__expand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+
 .el-autocomplete-suggestion li {
   display: flex;
   align-items: center;

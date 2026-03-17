@@ -178,7 +178,7 @@ const initFormData: ClientForm = {
   deviceType: undefined,
   activeTimeout: undefined,
   timeout: undefined,
-  status: undefined
+  status: '0'
 };
 const data = reactive<PageData<ClientForm, ClientQuery>>({
   form: { ...initFormData },

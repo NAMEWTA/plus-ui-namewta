@@ -1,9 +1,13 @@
 <template>
-  <div class="p-2">
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-      <div v-show="showSearch" class="mb-[10px]">
-        <el-card shadow="hover">
-          <el-form v-show="showSearch" ref="queryFormRef" :model="queryParams" :inline="true">
+  <div class="p-2 page-shell workflow-all-task-page">
+    <div class="search-wrap">
+        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+          <template #header>
+            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+              <div><h3>筛选条件</h3></div>
+            </div>
+          </template>
+          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
             <el-form-item>
               <el-badge :value="userSelectCount" :max="10" class="item">
                 <el-button type="primary" @click="openUserSelect">选择申请人</el-button>
@@ -22,25 +26,29 @@
           </el-form>
         </el-card>
       </div>
-    </transition>
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-panel">
       <template #header>
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5" v-if="tab === 'waiting'">
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <h3>全部任务</h3>
+          </div>
+          <div class="toolbar-actions">
+          <template v-if="tab === 'waiting'">
             <el-button class="todo-action-btn todo-action-btn--primary" type="primary" plain icon="Edit" :disabled="multiple" @click="handleUserOpen()"
               >修改办理人
             </el-button>
             <el-button class="todo-action-btn todo-action-btn--warning" type="warning" plain icon="Bell" :disabled="multiple" @click="handleUrgeTaskOpen()"
               >催办
             </el-button>
-          </el-col>
-          <right-toolbar v-model:show-search="showSearch" @query-table="handleQuery"></right-toolbar>
-        </el-row>
+          </template>
+            <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="handleQuery"></right-toolbar>
+          </div>
+        </div>
       </template>
       <el-tabs v-model="tab" @tab-click="changeTab">
         <el-tab-pane name="waiting" label="待办任务"> </el-tab-pane>
         <el-tab-pane name="finish" label="已办任务"> </el-tab-pane>
-        <el-table v-loading="loading" border :data="taskList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" border class="data-table" :data="taskList" @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column align="center" type="index" label="序号" width="60"></el-table-column>
           <el-table-column :show-overflow-tooltip="true" prop="businessCode" align="center" label="业务编码"></el-table-column>

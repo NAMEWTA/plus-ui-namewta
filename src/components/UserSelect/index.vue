@@ -1,14 +1,20 @@
 <template>
   <div>
-    <el-dialog v-model="userDialog.visible.value" :title="userDialog.title.value" width="80%" append-to-body>
-      <el-row :gutter="20">
+    <el-dialog v-model="userDialog.visible.value" :title="userDialog.title.value" width="80%" append-to-body class="user-select-dialog">
+      <div class="page-shell user-select-shell">
+        <el-row :gutter="12" class="selector-layout">
         <!-- 部门树 -->
-        <el-col :lg="4" :xs="24" style="">
-          <el-card shadow="hover">
-            <el-input v-model="deptName" placeholder="请输入部门名称" prefix-icon="Search" clearable />
+        <el-col :lg="5" :xs="24">
+          <el-card shadow="hover" class="side-panel selector-card selector-side-card">
+            <template #header>
+              <div class="table-heading">
+                <h3>部门结构</h3>
+              </div>
+            </template>
+            <el-input v-model="deptName" class="selector-dept-input" placeholder="请输入部门名称" prefix-icon="Search" clearable />
             <el-tree
               ref="deptTreeRef"
-              class="mt-2"
+              class="selector-tree"
               node-key="id"
               :data="deptOptions"
               :props="{ label: 'label', children: 'children' } as any"
@@ -20,11 +26,12 @@
             />
           </el-card>
         </el-col>
-        <el-col :lg="20" :xs="24">
+        <el-col :lg="19" :xs="24">
+          <div class="page-shell user-select-main">
           <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-            <div v-show="showSearch" class="mb-[10px]">
-              <el-card shadow="hover">
-                <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+            <div v-show="showSearch">
+              <el-card shadow="hover" class="search-panel selector-card">
+                <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
                   <el-form-item label="用户名称" prop="userName">
                     <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
                   </el-form-item>
@@ -40,15 +47,23 @@
             </div>
           </transition>
 
-          <el-card shadow="hover">
-            <template v-if="prop.multiple" #header>
-              <el-tag v-for="user in selectUserList" :key="user.userId" closable style="margin: 2px" @close="handleCloseTag(user)">
-                {{ user.nickName }}
-              </el-tag>
+          <el-card shadow="hover" class="table-panel selector-card">
+            <template #header>
+              <div class="toolbar-shell selector-header">
+                <div class="table-heading">
+                  <h3>用户列表</h3>
+                </div>
+                <div v-if="prop.multiple && selectUserList.length" class="selector-tags">
+                  <el-tag v-for="user in selectUserList" :key="user.userId" closable @close="handleCloseTag(user)">
+                    {{ user.nickName }}
+                  </el-tag>
+                </div>
+              </div>
             </template>
 
             <vxe-table
               ref="tableRef"
+              class="selector-table"
               height="400px"
               border
               show-overflow
@@ -86,8 +101,10 @@
               @pagination="pageList"
             />
           </el-card>
+          </div>
         </el-col>
-      </el-row>
+        </el-row>
+      </div>
 
       <template #footer>
         <el-button @click="close">取消</el-button>
@@ -309,3 +326,87 @@ defineExpose({
   close: userDialog.closeDialog
 });
 </script>
+
+<style lang="scss" scoped>
+.user-select-shell,
+.user-select-main {
+  gap: 12px;
+}
+
+.selector-layout {
+  align-items: stretch;
+}
+
+.selector-card {
+  height: 100%;
+}
+
+.selector-side-card {
+  min-height: 100%;
+}
+
+.selector-dept-input {
+  margin-bottom: 12px;
+}
+
+.selector-tree {
+  min-height: 400px;
+}
+
+.selector-header {
+  align-items: flex-start;
+}
+
+.selector-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: min(100%, 520px);
+}
+
+.selector-tags :deep(.el-tag) {
+  margin: 0;
+}
+
+.user-select-dialog :deep(.el-dialog__body) {
+  padding-top: 12px;
+}
+
+.selector-table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.selector-table :deep(.vxe-table--render-default) {
+  border-radius: 10px;
+  color: var(--app-text-title);
+}
+
+.selector-table :deep(.vxe-header--column) {
+  background: var(--tableHeaderBg);
+  color: var(--tableHeaderTextColor);
+  font-weight: 600;
+}
+
+.selector-table :deep(.vxe-body--column),
+.selector-table :deep(.vxe-header--column) {
+  border-color: var(--app-surface-border);
+}
+
+.selector-table :deep(.vxe-body--row.row--hover),
+.selector-table :deep(.vxe-body--row:hover) {
+  background-color: rgba(53, 109, 255, 0.05);
+}
+
+@media (max-width: 992px) {
+  .selector-tree {
+    min-height: 220px;
+  }
+
+  .selector-tags {
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+}
+</style>

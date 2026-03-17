@@ -31,7 +31,7 @@ const setting: DefaultSettings = {
   /**
    * 显示页签图标
    */
-  tagsIcon: false,
+  tagsIcon: true,
 
   /**
    * 是否固定头部
@@ -46,7 +46,7 @@ const setting: DefaultSettings = {
   /**
    * 是否显示动态标题
    */
-  dynamicTitle: false,
+  dynamicTitle: true,
 
   /**
    * 是否开启动画 开启随机 关闭渐进渐出

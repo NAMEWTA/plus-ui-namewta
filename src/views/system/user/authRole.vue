@@ -1,57 +1,60 @@
 <template>
-  <div class="p-2">
-    <div class="panel">
-      <h4 class="panel-title">基本信息</h4>
-      <el-form :model="form" :inline="true">
-        <el-row :gutter="10">
-          <el-col :span="2.5">
-            <el-form-item label="用户昵称" prop="nickName">
-              <el-input v-model="form.nickName" disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="2.5">
-            <el-form-item label="登录账号" prop="userName">
-              <el-input v-model="form.userName" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-    </div>
-    <div class="panel">
-      <h4 class="panel-title">角色信息</h4>
-      <div>
-        <el-table
-          ref="tableRef"
-          v-loading="loading"
-          border
-          :row-key="getRowKey"
-          :data="roles.slice((pageNum - 1) * pageSize, pageNum * pageSize)"
-          @row-click="clickRow"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column label="序号" width="55" type="index" align="center">
-            <template #default="scope">
-              <span>{{ (pageNum - 1) * pageSize + scope.$index + 1 }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column type="selection" :reserve-selection="true" :selectable="checkSelectable" width="55"></el-table-column>
-          <el-table-column label="角色编号" align="center" prop="roleId" />
-          <el-table-column label="角色名称" align="center" prop="roleName" />
-          <el-table-column label="权限字符" align="center" prop="roleKey" />
-          <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-            <template #default="scope">
-              <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
-        <pagination v-show="total > 0" v-model:page="pageNum" v-model:limit="pageSize" :total="total" />
-        <div style="text-align: center; margin-left: -120px; margin-top: 30px">
-          <el-button type="primary" @click="submitForm()">提交</el-button>
-          <el-button @click="close()">返回</el-button>
+  <div class="p-2 page-shell auth-role-page">
+    <el-card shadow="hover" class="search-panel auth-role-info">
+      <template #header>
+        <div class="panel-heading">
+          <div><h3>基本信息</h3></div>
         </div>
-        <div></div>
-      </div>
-    </div>
+      </template>
+      <el-form :model="form" :inline="true" class="query-form auth-role-form">
+        <el-form-item label="用户昵称" prop="nickName">
+          <el-input v-model="form.nickName" disabled />
+        </el-form-item>
+        <el-form-item label="登录账号" prop="userName">
+          <el-input v-model="form.userName" disabled />
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card shadow="hover" class="table-panel">
+      <template #header>
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <h3>角色信息</h3>
+          </div>
+          <div class="toolbar-actions">
+            <el-button type="primary" @click="submitForm()">提交</el-button>
+            <el-button @click="close()">返回</el-button>
+          </div>
+        </div>
+      </template>
+      <el-table
+        ref="tableRef"
+        v-loading="loading"
+        border
+        class="data-table"
+        :row-key="getRowKey"
+        :data="roles.slice((pageNum - 1) * pageSize, pageNum * pageSize)"
+        @row-click="clickRow"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column label="序号" width="55" type="index" align="center">
+          <template #default="scope">
+            <span>{{ (pageNum - 1) * pageSize + scope.$index + 1 }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column type="selection" :reserve-selection="true" :selectable="checkSelectable" width="55"></el-table-column>
+        <el-table-column label="角色编号" align="center" prop="roleId" />
+        <el-table-column label="角色名称" align="center" prop="roleName" />
+        <el-table-column label="权限字符" align="center" prop="roleKey" />
+        <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+          <template #default="scope">
+            <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <pagination v-show="total > 0" v-model:page="pageNum" v-model:limit="pageSize" :total="total" />
+    </el-card>
   </div>
 </template>
 
@@ -144,3 +147,17 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.auth-role-form :deep(.el-form-item) {
+  margin-bottom: 0;
+}
+
+.auth-role-form :deep(.el-input) {
+  width: 220px;
+}
+
+.auth-role-info :deep(.el-card__body) {
+  padding-top: 14px !important;
+}
+</style>

@@ -1,9 +1,16 @@
 <template>
-  <div class="p-2">
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-      <div v-show="showSearch" class="mb-[10px]">
-        <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+  <div class="p-2 page-shell monitor-logininfo-page">
+    <div class="search-wrap">
+        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+          <template #header>
+            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+              <div>
+                <span class="panel-kicker">Search Filters</span>
+                <h3>筛选条件</h3>
+              </div>
+            </div>
+          </template>
+          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
             <el-form-item label="登录地址" prop="ipaddr">
               <el-input v-model="queryParams.ipaddr" placeholder="请输入登录地址" clearable @keyup.enter="handleQuery" />
             </el-form-item>
@@ -33,35 +40,34 @@
           </el-form>
         </el-card>
       </div>
-    </transition>
 
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-panel">
       <template #header>
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <span class="panel-kicker">Access Logs</span>
+            <h3>登录日志</h3>
+            <p>共 {{ total }} 条记录，支持排序、批量清理、导出和账号解锁。</p>
+          </div>
+          <div class="toolbar-actions">
             <el-button v-hasPermi="['monitor:logininfo:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
               删除
             </el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['monitor:logininfo:remove']" type="danger" plain icon="Delete" @click="handleClean">清空</el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['monitor:logininfo:unlock']" type="primary" plain icon="Unlock" :disabled="single" @click="handleUnlock">
               解锁
             </el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['monitor:logininfo:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
-          </el-col>
-          <right-toolbar v-model:show-search="showSearch" @query-table="getList"></right-toolbar>
-        </el-row>
+            <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
+          </div>
+        </div>
       </template>
 
       <el-table
         ref="loginInfoTableRef"
         v-loading="loading"
         :data="loginInfoList"
+        class="data-table"
         :default-sort="defaultSort"
         border
         @selection-change="handleSelectionChange"
@@ -207,3 +213,25 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.page-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-table {
+  :deep(.el-button.is-link) {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(53, 109, 255, 0.08);
+  }
+}
+
+@media (max-width: 900px) {
+  .toolbar-shell {
+    align-items: flex-start;
+  }
+}
+</style>

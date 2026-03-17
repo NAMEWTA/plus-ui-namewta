@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <el-table :data="devices" border style="width: 100%; height: 100%; font-size: 14px">
+  <div class="profile-table-wrap">
+    <el-table :data="devices" border class="data-table profile-device-table">
       <el-table-column label="设备类型" align="center">
         <template #default="scope">
           <dict-tag :options="sys_device_type" :value="scope.row.deviceType" />
@@ -52,6 +52,12 @@ const handldDelOnline = (row: any) => {
         proxy?.$modal.msgError(res.msg);
       }
     })
-    .catch(() => {});
+.catch(() => {});
 };
 </script>
+
+<style lang="scss" scoped>
+.profile-table-wrap {
+  width: 100%;
+}
+</style>

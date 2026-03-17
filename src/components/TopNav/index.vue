@@ -1,14 +1,14 @@
 <template>
-  <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="false" @select="handleSelect">
+  <el-menu class="mix-topnav-menu" :default-active="activeMenu" mode="horizontal" :ellipsis="false" @select="handleSelect">
     <template v-for="(item, index) in topMenus">
-      <el-menu-item v-if="index < visibleNumber" :key="index" :style="{ '--theme': theme }" :index="item.path"
+      <el-menu-item v-if="index < visibleNumber" :key="index" :index="item.path"
         ><svg-icon v-if="item.meta && item.meta.icon && item.meta.icon !== '#'" :icon-class="item.meta ? item.meta.icon : ''" />
         {{ item.meta?.title }}</el-menu-item
       >
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu v-if="topMenus.length > visibleNumber" :style="{ '--theme': theme }" index="more">
+    <el-sub-menu v-if="topMenus.length > visibleNumber" class="el-sub-menu__hide-arrow" popper-class="mix-topnav-popper" index="more">
       <template #title>更多菜单</template>
       <template v-for="(item, index) in topMenus">
         <el-menu-item v-if="index >= visibleNumber" :key="index" :index="item.path"
@@ -29,8 +29,6 @@ import { RouteRecordRaw } from 'vue-router';
 
 // 顶部栏初始数
 const visibleNumber = ref<number>(-1);
-// 当前激活菜单的 index
-const currentIndex = ref<string>();
 // 隐藏侧边栏路由
 const hideList = ['/index', '/user/profile'];
 
@@ -104,12 +102,14 @@ const activeMenu = computed(() => {
 });
 
 const setVisibleNumber = () => {
-  const width = document.body.getBoundingClientRect().width / 3;
-  visibleNumber.value = parseInt(String(width / 85));
+  let width = document.body.getBoundingClientRect().width;
+  if (width >= 1000) {
+    width -= 420;
+  }
+  visibleNumber.value = Math.max(1, Math.floor(width / 3 / 92) + 2);
 };
 
 const handleSelect = (key: string) => {
-  currentIndex.value = key;
   const route = routers.value.find((item) => item.path === key);
   if (isHttp(key)) {
     // http(s):// 路径新窗口打开
@@ -161,40 +161,214 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.topmenu-container.el-menu--horizontal > .el-menu-item {
-  float: left;
-  height: 50px !important;
-  line-height: 50px !important;
-  color: #999093 !important;
-  padding: 0 5px !important;
-  margin: 0 10px !important;
+.mix-topnav-menu.el-menu--horizontal {
+  --topbar-pill-bg: rgba(255, 255, 255, 0.7);
+  --topbar-pill-hover-bg: rgba(255, 255, 255, 0.9);
+  --topbar-pill-active-bg: rgba(255, 255, 255, 0.82);
+  --topbar-pill-text: var(--app-text-title);
+  --topbar-pill-muted: var(--app-text-muted);
+  --topbar-pill-border: rgba(148, 163, 184, 0.12);
+  --topbar-pill-active-border: rgba(148, 163, 184, 0.14);
+
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  border: none !important;
+  background: transparent !important;
+
+  &::after {
+    display: none !important;
+  }
 }
 
-.topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
-.el-menu--horizontal > .el-sub-menu.is-active .el-submenu__title {
-  border-bottom: 2px solid #{'var(--theme)'} !important;
-  color: #303133;
+#app .mix-topnav-menu.el-menu--horizontal > .el-menu-item,
+#app .mix-topnav-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 36px !important;
+  line-height: 36px !important;
+  margin: 0 !important;
+  padding: 0 18px !important;
+  border: 1px solid transparent !important;
+  border-radius: 13px;
+  color: var(--topbar-pill-text) !important;
+  background: transparent !important;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
-/* sub-menu item */
-.topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
-  float: left;
-  height: 50px !important;
-  line-height: 50px !important;
-  color: #999093 !important;
-  padding: 0 5px !important;
-  margin: 0 10px !important;
+#app .mix-topnav-menu.el-menu--horizontal > .el-menu-item:hover,
+#app .mix-topnav-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title:hover {
+  background: linear-gradient(180deg, var(--topbar-pill-hover-bg), var(--topbar-pill-bg)) !important;
+  border-color: var(--topbar-pill-border) !important;
+  color: v-bind(theme) !important;
+  transform: translateY(-1px);
 }
 
-/* 背景色隐藏 */
-.topmenu-container.el-menu--horizontal > .el-menu-item:not(.is-disabled):focus,
-.topmenu-container.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
-.topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title:hover {
-  background-color: #ffffff !important;
+#app .mix-topnav-menu.el-menu--horizontal > .el-menu-item.is-active,
+#app .mix-topnav-menu.el-menu--horizontal > .el-sub-menu.is-active > .el-sub-menu__title {
+  background: linear-gradient(180deg, var(--topbar-pill-hover-bg), var(--topbar-pill-active-bg)) !important;
+  border-color: var(--topbar-pill-active-border) !important;
+  color: v-bind(theme) !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
-/* 图标右间距 */
-.topmenu-container .svg-icon {
-  margin-right: 4px;
+#app .mix-topnav-menu.el-menu--horizontal > .el-menu-item .svg-icon,
+#app .mix-topnav-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title .svg-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
+#app .mix-topnav-menu.el-menu--horizontal > .el-menu-item span,
+#app .mix-topnav-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title span {
+  color: inherit !important;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.mix-topnav-menu .el-sub-menu .el-sub-menu__icon-arrow {
+  position: static;
+  margin: 0 0 0 2px;
+  display: block !important;
+  color: inherit;
+  font-size: 11px;
+}
+
+.mix-topnav-menu.el-menu--horizontal > .el-menu-item::after,
+.mix-topnav-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title::after {
+  display: none !important;
+}
+
+.mix-topnav-menu.el-menu--horizontal > .el-sub-menu.el-sub-menu__hide-arrow > .el-sub-menu__title {
+  color: var(--topbar-pill-muted) !important;
+  padding-right: 16px !important;
+}
+
+.mix-topnav-popper.el-popper {
+  border: none !important;
+  border-radius: 18px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.mix-topnav-popper.el-popper .el-popper__arrow {
+  display: none !important;
+}
+
+.mix-topnav-popper .el-menu--popup {
+  min-width: 188px;
+  padding: 10px !important;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)) !important;
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.mix-topnav-popper .el-menu--popup .el-menu-item,
+.mix-topnav-popper .el-menu--popup .el-sub-menu__title {
+  display: flex;
+  align-items: center;
+  height: 38px;
+  line-height: 38px;
+  padding: 0 14px !important;
+  margin: 0 0 4px !important;
+  border-radius: 12px;
+  color: var(--app-text-title) !important;
+  background: transparent !important;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mix-topnav-popper .el-menu--popup .el-menu-item:last-child,
+.mix-topnav-popper .el-menu--popup .el-sub-menu:last-child > .el-sub-menu__title {
+  margin-bottom: 0 !important;
+}
+
+.mix-topnav-popper .el-menu--popup .el-menu-item:hover,
+.mix-topnav-popper .el-menu--popup .el-sub-menu__title:hover {
+  background: rgba(64, 158, 255, 0.08) !important;
+  color: v-bind(theme) !important;
+  transform: translateX(1px);
+}
+
+.mix-topnav-popper .el-menu--popup .el-menu-item.is-active,
+.mix-topnav-popper .el-menu--popup .el-sub-menu.is-active > .el-sub-menu__title {
+  background: linear-gradient(180deg, rgba(64, 158, 255, 0.16), rgba(64, 158, 255, 0.1)) !important;
+  color: v-bind(theme) !important;
+  box-shadow: inset 0 0 0 1px rgba(64, 158, 255, 0.12);
+}
+
+.mix-topnav-popper .el-menu--popup .svg-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 10px !important;
+}
+
+.mix-topnav-popper .el-menu--popup .el-sub-menu__title > span,
+.mix-topnav-popper .el-menu--popup .el-menu-item > span {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.mix-topnav-popper .el-menu--popup .el-sub-menu__icon-arrow {
+  position: static;
+  margin-left: auto;
+  margin-top: 0;
+  font-size: 11px;
+  align-self: center;
+}
+
+html.dark .mix-topnav-menu.el-menu--horizontal {
+  --topbar-pill-bg: rgba(30, 41, 59, 0.64);
+  --topbar-pill-hover-bg: rgba(51, 65, 85, 0.88);
+  --topbar-pill-active-bg: rgba(51, 65, 85, 0.78);
+  --topbar-pill-border: rgba(71, 85, 105, 0.28);
+  --topbar-pill-active-border: rgba(71, 85, 105, 0.32);
+}
+
+html.dark .mix-topnav-popper .el-menu--popup {
+  border-color: rgba(71, 85, 105, 0.34);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.94)) !important;
+  box-shadow:
+    0 20px 42px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+html.dark .mix-topnav-popper .el-menu--popup .el-menu-item,
+html.dark .mix-topnav-popper .el-menu--popup .el-sub-menu__title {
+  color: #e5edf8 !important;
+}
+
+html.dark .mix-topnav-popper .el-menu--popup .el-menu-item:hover,
+html.dark .mix-topnav-popper .el-menu--popup .el-sub-menu__title:hover {
+  background: rgba(96, 165, 250, 0.14) !important;
+}
+
+html.dark .mix-topnav-popper .el-menu--popup .el-menu-item.is-active,
+html.dark .mix-topnav-popper .el-menu--popup .el-sub-menu.is-active > .el-sub-menu__title {
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.28), rgba(59, 130, 246, 0.18)) !important;
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.16);
 }
 </style>

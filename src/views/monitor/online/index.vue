@@ -1,8 +1,16 @@
 <template>
-  <div class="p-2">
-    <div class="mb-[10px]">
-      <el-card shadow="hover">
-        <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+  <div class="p-2 page-shell monitor-online-page">
+    <div class="search-wrap">
+      <el-card shadow="hover" class="search-panel">
+        <template #header>
+          <div class="panel-heading">
+            <div>
+              <span class="panel-kicker">Search Filters</span>
+              <h3>筛选条件</h3>
+            </div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
           <el-form-item label="登录地址" prop="ipaddr">
             <el-input v-model="queryParams.ipaddr" placeholder="请输入登录地址" clearable @keyup.enter="handleQuery" />
           </el-form-item>
@@ -16,10 +24,20 @@
         </el-form>
       </el-card>
     </div>
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-panel">
+      <template #header>
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <span class="panel-kicker">Online Sessions</span>
+            <h3>在线用户</h3>
+            <p>共 {{ total }} 条记录，支持按账号或地址检索并执行会话强退。</p>
+          </div>
+        </div>
+      </template>
       <el-table
         v-loading="loading"
         border
+        class="data-table"
         :data="onlineList.slice((queryParams.pageNum - 1) * queryParams.pageSize, queryParams.pageNum * queryParams.pageSize)"
         style="width: 100%"
       >
@@ -115,3 +133,19 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.page-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-table {
+  :deep(.el-button.is-link) {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(53, 109, 255, 0.08);
+  }
+}
+</style>

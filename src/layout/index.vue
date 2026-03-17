@@ -1,21 +1,13 @@
 <template>
   <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
     <div v-if="device === 'mobile' && sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
-    <side-bar v-if="!sidebar.hide" class="sidebar-container" />
+    <side-bar v-if="showSidebar" class="sidebar-container" />
     <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="main-container">
-      <!-- <el-scrollbar>
-        <div :class="{ 'fixed-header': fixedHeader }">
-          <navbar ref="navbarRef" @setLayout="setLayout" />
-          <tags-view v-if="needTagsView" />
-        </div>
-        <app-main />
-        <settings ref="settingRef" />
-      </el-scrollbar> -->
-      <div :class="{ 'fixed-header': fixedHeader }">
-        <navbar ref="navbarRef" @set-layout="setLayout" />
+      <div :class="{ 'fixed-header': fixedHeader }" class="layout-header">
+        <navbar @set-layout="setLayout" />
         <tags-view v-if="needTagsView" />
       </div>
-      <app-main />
+      <app-main :class="{ 'with-fixed-header': fixedHeader, 'with-tags-view': needTagsView }" />
       <settings ref="settingRef" />
     </div>
   </div>
@@ -66,7 +58,6 @@ watchEffect(() => {
   }
 });
 
-const navbarRef = ref<InstanceType<typeof Navbar>>();
 const settingRef = ref<InstanceType<typeof Settings>>();
 
 onMounted(() => {
@@ -96,6 +87,7 @@ const setLayout = () => {
   position: relative;
   height: 100%;
   width: 100%;
+  background: var(--app-shell-bg);
 
   &.mobile.openSidebar {
     position: fixed;
@@ -105,7 +97,7 @@ const setLayout = () => {
 
 .drawer-bg {
   background: #000;
-  opacity: 0.3;
+  opacity: 0.4;
   width: 100%;
   top: 0;
   height: 100%;
@@ -113,18 +105,26 @@ const setLayout = () => {
   z-index: 999;
 }
 
+.layout-header {
+  position: relative;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 12px 0;
+  background: transparent;
+}
+
 .fixed-header {
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 9;
-  width: calc(100% - #{$base-sidebar-width});
+  width: calc(100% - #{$base-sidebar-width} - 12px);
   transition: width 0.28s;
-  background: $fixed-header-bg;
 }
 
 .hideSidebar .fixed-header {
-  width: calc(100% - 54px);
+  width: calc(100% - 70px);
 }
 
 .sidebarHide .fixed-header {
@@ -133,5 +133,6 @@ const setLayout = () => {
 
 .mobile .fixed-header {
   width: 100%;
+  top: 0;
 }
 </style>

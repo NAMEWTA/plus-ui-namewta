@@ -1,9 +1,16 @@
 <template>
-  <div class="p-2">
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-      <div v-show="showSearch" class="mb-[10px]">
-        <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+  <div class="page-shell system-role-page">
+    <div class="search-wrap">
+        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+          <template #header>
+            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+              <div>
+                <span class="panel-kicker">Search Filters</span>
+                <h3>筛选条件</h3>
+              </div>
+            </div>
+          </template>
+          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
             <el-form-item label="角色名称" prop="roleName">
               <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable @keyup.enter="handleQuery" />
             </el-form-item>
@@ -34,28 +41,26 @@
           </el-form>
         </el-card>
       </div>
-    </transition>
 
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-panel">
       <template #header>
-        <el-row :gutter="10">
-          <el-col :span="1.5">
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <span class="panel-kicker">Role Dataset</span>
+            <h3>角色列表</h3>
+            <p>共 {{ total }} 条记录，支持菜单权限、数据权限和分配用户等完整配置流程。</p>
+          </div>
+          <div class="toolbar-actions">
             <el-button v-hasPermi="['system:role:add']" type="primary" plain icon="Plus" @click="handleAdd()">新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['system:role:edit']" type="success" plain :disabled="single" icon="Edit" @click="handleUpdate()">修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button v-hasPermi="['system:role:remove']" type="danger" plain :disabled="ids.length === 0" @click="handleDelete()">删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
+            <el-button v-hasPermi="['system:role:remove']" type="danger" plain :disabled="ids.length === 0" icon="Delete" @click="handleDelete()">删除</el-button>
             <el-button v-hasPermi="['system:role:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
-          </el-col>
-          <right-toolbar v-model:show-search="showSearch" @query-table="getList"></right-toolbar>
-        </el-row>
+            <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
+          </div>
+        </div>
       </template>
 
-      <el-table ref="roleTableRef" border v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
+      <el-table ref="roleTableRef" border class="data-table" v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="角色编号" prop="roleId" width="120" />
         <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
@@ -501,3 +506,25 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.page-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-table {
+  :deep(.el-button.is-link) {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(53, 109, 255, 0.08);
+  }
+}
+
+@media (max-width: 900px) {
+  .toolbar-shell {
+    align-items: flex-start;
+  }
+}
+</style>

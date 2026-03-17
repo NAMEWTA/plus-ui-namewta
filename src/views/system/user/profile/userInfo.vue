@@ -1,5 +1,5 @@
 <template>
-  <el-form ref="userRef" :model="userForm" :rules="rules" label-width="80px">
+  <el-form ref="userRef" :model="userForm" :rules="rules" label-width="80px" class="profile-form">
     <el-form-item label="用户昵称" prop="nickName">
       <el-input v-model="userForm.nickName" maxlength="30" />
     </el-form-item>
@@ -15,9 +15,9 @@
         <el-radio value="1">女</el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item>
+    <el-form-item class="profile-form__actions">
       <el-button type="primary" @click="submit">保存</el-button>
-      <el-button type="danger" @click="close">关闭</el-button>
+      <el-button @click="close">关闭</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -67,3 +67,26 @@ const close = () => {
   proxy?.$tab.closePage();
 };
 </script>
+
+<style lang="scss" scoped>
+.profile-form {
+  max-width: 520px;
+}
+
+.profile-form :deep(.el-input__wrapper) {
+  border-radius: 12px;
+}
+
+.profile-form :deep(.el-radio-group) {
+  gap: 16px;
+}
+
+.profile-form :deep(.el-button) {
+  border-radius: 10px;
+}
+
+.profile-form__actions :deep(.el-form-item__content) {
+  display: flex;
+  gap: 8px;
+}
+</style>

@@ -159,7 +159,18 @@ const closeDialog = () => {
 .user-info-head {
   position: relative;
   display: inline-block;
+  width: 120px;
   height: 120px;
+  cursor: pointer;
+}
+
+.user-info-head :deep(.img-circle) {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.92);
+  box-shadow: var(--app-shadow-sm);
 }
 
 .user-info-head:hover:after {
@@ -176,7 +187,21 @@ const closeDialog = () => {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   cursor: pointer;
-  line-height: 110px;
+  line-height: 120px;
   border-radius: 50%;
+}
+
+.avatar-upload-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.avatar-upload-preview img {
+  max-width: 100%;
 }
 </style>

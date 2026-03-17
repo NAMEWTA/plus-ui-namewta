@@ -1,34 +1,31 @@
 ﻿<template>
-  <div class="p-2 dict-page">
+  <div class="p-2 page-shell dict-page">
     <el-row :gutter="16" class="dict-grid">
       <!-- 字典类型 -->
       <el-col :xs="24" :lg="12">
-        <el-card shadow="hover" class="dict-card">
+        <el-card shadow="hover" class="dict-card table-panel">
           <template #header>
-            <div class="dict-card__header">
-              <div class="dict-card__title">字典管理</div>
-              <right-toolbar v-model:show-search="showTypeSearch" @query-table="getTypeList" />
+            <div class="toolbar-shell dict-card__header">
+              <div class="table-heading">
+                <div class="panel-heading search-panel-toggle dict-title-toggle" @click.stop="showTypeSearch = !showTypeSearch">
+                  <div>
+                    <h3>字典管理</h3>
+                  </div>
+                </div>
+              </div>
+              <div class="toolbar-actions">
+                <right-toolbar v-model:show-search="showTypeSearch" :search="false" @query-table="getTypeList" />
+              </div>
             </div>
           </template>
 
-          <div v-show="showTypeSearch" class="dict-form-scroll">
-            <el-form ref="typeQueryFormRef" :model="typeQueryParams" :inline="true">
+          <div class="dict-search" :class="{ 'is-collapsed': !showTypeSearch }">
+            <el-form ref="typeQueryFormRef" :model="typeQueryParams" :inline="true" class="query-form">
               <el-form-item label="字典名称" prop="dictName">
                 <el-input v-model="typeQueryParams.dictName" placeholder="请输入字典名称" clearable @keyup.enter="handleTypeQuery" />
               </el-form-item>
               <el-form-item label="字典类型" prop="dictType">
                 <el-input v-model="typeQueryParams.dictType" placeholder="请输入字典类型" clearable @keyup.enter="handleTypeQuery" />
-              </el-form-item>
-              <el-form-item label="创建时间" style="width: 308px">
-                <el-date-picker
-                  v-model="dateRange"
-                  value-format="YYYY-MM-DD HH:mm:ss"
-                  type="daterange"
-                  range-separator="-"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-                ></el-date-picker>
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" icon="Search" @click="handleTypeQuery">搜索</el-button>
@@ -37,7 +34,7 @@
             </el-form>
           </div>
 
-          <div class="dict-actions">
+          <div class="toolbar-actions dict-actions">
             <el-button v-hasPermi="['system:dict:add']" type="primary" plain icon="Plus" @click="handleTypeAdd">新增</el-button>
             <el-button v-hasPermi="['system:dict:edit']" type="success" plain icon="Edit" :disabled="typeSingle" @click="handleTypeUpdate()"
               >修改</el-button
@@ -54,6 +51,7 @@
               ref="typeTableRef"
               v-loading="typeLoading"
               border
+              class="data-table"
               :data="typeList"
               highlight-current-row
               @row-click="handleTypeRowClick"
@@ -98,19 +96,25 @@
 
       <!-- 字典数据 -->
       <el-col :xs="24" :lg="12">
-        <el-card shadow="hover" class="dict-card">
+        <el-card shadow="hover" class="dict-card table-panel">
           <template #header>
-            <div class="dict-card__header">
-              <div class="dict-card__title">
-                字典数据
-                <span class="dict-card__subtitle">{{ currentDictLabel }}</span>
+            <div class="toolbar-shell dict-card__header">
+              <div class="table-heading">
+                <div class="panel-heading search-panel-toggle dict-title-toggle" @click.stop="showDataSearch = !showDataSearch">
+                  <div>
+                    <h3>字典数据</h3>
+                    <p v-if="hasCurrentDict" class="dict-card__subtitle">{{ currentDictLabel }}</p>
+                  </div>
+                </div>
               </div>
-              <right-toolbar v-model:show-search="showDataSearch" @query-table="getDataList" />
+              <div class="toolbar-actions">
+                <right-toolbar v-model:show-search="showDataSearch" :search="false" @query-table="getDataList" />
+              </div>
             </div>
           </template>
 
-          <div v-show="showDataSearch" class="dict-form-scroll">
-            <el-form ref="dataQueryFormRef" :model="dataQueryParams" :inline="true">
+          <div class="dict-search" :class="{ 'is-collapsed': !showDataSearch }">
+            <el-form ref="dataQueryFormRef" :model="dataQueryParams" :inline="true" class="query-form">
               <el-form-item label="字典标签" prop="dictLabel">
                 <el-input
                   v-model="dataQueryParams.dictLabel"
@@ -127,7 +131,7 @@
             </el-form>
           </div>
 
-          <div class="dict-actions">
+          <div class="toolbar-actions dict-actions">
             <el-button v-hasPermi="['system:dict:add']" type="primary" plain icon="Plus" :disabled="!hasCurrentDict" @click="handleDataAdd"
               >新增</el-button
             >
@@ -155,10 +159,10 @@
           </div>
 
           <div class="dict-table-wrap">
-            <el-table v-loading="dataLoading" border :data="dataList" @selection-change="handleDataSelectionChange">
+            <el-table v-loading="dataLoading" border class="data-table" :data="dataList" @selection-change="handleDataSelectionChange">
               <el-table-column type="selection" width="55" align="center" />
               <el-table-column v-if="false" label="字典编码" align="center" prop="dictCode" />
-              <el-table-column label="字典标签" align="center" prop="dictLabel" width="80">
+              <el-table-column label="字典标签" align="center" prop="dictLabel" width="100">
                 <template #default="scope">
                   <span
                     v-if="
@@ -174,7 +178,7 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column label="字典键值" align="center" prop="dictValue" width="80" />
+              <el-table-column label="字典键值" align="center" prop="dictValue" width="100" />
               <el-table-column label="字典排序" align="center" prop="dictSort" width="80" />
               <el-table-column label="备注" align="center" prop="remark" width="100" />
               <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -213,13 +217,15 @@
           <el-input v-model="typeForm.dictName" placeholder="请输入字典名称" />
         </el-form-item>
         <el-form-item prop="dictType">
+          <template #label>
+            <span>
+              <el-tooltip content="数据存储中的Key值，如：sys_user_sex" placement="top">
+                <i class="el-icon-question"></i>
+              </el-tooltip>
+              字典类型
+            </span>
+          </template>
           <el-input v-model="typeForm.dictType" placeholder="请输入字典类型" maxlength="100" />
-          <span slot="label">
-            <el-tooltip content="数据存储中的Key值，如：sys_user_sex" placement="top">
-              <i class="el-icon-question"></i>
-            </el-tooltip>
-            字典类型
-          </span>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="typeForm.remark" type="textarea" placeholder="请输入内容"></el-input>
@@ -291,7 +297,6 @@ const typeIds = ref<Array<number | string>>([]);
 const typeSingle = ref(true);
 const typeMultiple = ref(true);
 const typeTotal = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
 
 const typeFormRef = ref<ElFormInstance>();
 const typeQueryFormRef = ref<ElFormInstance>();
@@ -387,7 +392,7 @@ const { queryParams: dataQueryParams, form: dataForm, rules: dataRules } = toRef
 
 const getTypeList = () => {
   typeLoading.value = true;
-  listType(proxy?.addDateRange(typeQueryParams.value, dateRange.value)).then((res) => {
+  listType(typeQueryParams.value).then((res) => {
     typeList.value = res.rows;
     typeTotal.value = res.total;
     typeLoading.value = false;
@@ -438,7 +443,6 @@ const handleTypeQuery = () => {
 };
 
 const handleTypeResetQuery = () => {
-  dateRange.value = ['', ''];
   typeQueryFormRef.value?.resetFields();
   handleTypeQuery();
 };
@@ -614,54 +618,55 @@ onMounted(() => {
   row-gap: 16px;
 }
 
-.dict-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+.dict-card {
+  height: 100%;
 }
 
-.dict-card__title {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-  font-weight: 600;
+.dict-card__header {
+  gap: 12px;
+}
+
+.dict-title-toggle {
+  padding: 0 !important;
 }
 
 .dict-card__subtitle {
+  margin: 4px 0 0;
   font-size: 12px;
   color: var(--el-text-color-secondary);
 }
 
-.dict-form-scroll {
-  max-height: 200px;
-  overflow: auto;
+.dict-search {
+  overflow: hidden;
+  max-height: 240px;
+  opacity: 1;
   margin-bottom: 12px;
-  padding-right: 6px;
-  padding-bottom: 4px;
+  transition:
+    max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.24s ease,
+    margin-bottom 0.24s ease;
 }
 
-.dict-form-scroll :deep(.el-form) {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 12px;
-  row-gap: 10px;
+.dict-search.is-collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  pointer-events: none;
 }
 
-.dict-form-scroll :deep(.el-form-item) {
-  margin: 0;
+.dict-search :deep(.el-form-item) {
+  margin-bottom: 0;
 }
 
 .dict-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 8px 0 12px;
+  margin: 0 0 12px;
+  padding-bottom: 0;
 }
 
 .dict-actions :deep(.el-button) {
   height: 32px;
   padding: 0 14px;
+  border-radius: 10px !important;
 }
 
 .dict-actions :deep(.el-button + .el-button) {
@@ -671,5 +676,4 @@ onMounted(() => {
 .dict-table-wrap {
   overflow-x: auto;
 }
-
 </style>

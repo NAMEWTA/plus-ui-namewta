@@ -1,14 +1,18 @@
 <template>
-  <div class="p-2">
-    <el-row :gutter="10">
-      <el-col :span="24" class="card-box">
-        <el-card shadow="hover">
+  <div class="p-2 page-shell monitor-cache-page">
+    <el-row :gutter="12" class="cache-grid">
+      <el-col :span="24">
+        <el-card shadow="hover" class="table-panel">
           <template #header>
-            <Monitor style="width: 1em; height: 1em; vertical-align: middle" />
-            <span style="vertical-align: middle">基本信息</span>
+            <div class="toolbar-shell">
+              <div class="table-heading">
+                <h3>缓存概览</h3>
+                <p>Redis 运行状态、资源消耗与实时统计。</p>
+              </div>
+            </div>
           </template>
 
-          <div class="el-table el-table--enable-row-hover el-table--medium">
+          <div class="el-table el-table--enable-row-hover el-table--medium cache-table">
             <table style="width: 100%">
               <tbody>
                 <tr>
@@ -97,24 +101,31 @@
         </el-card>
       </el-col>
 
-      <el-col :span="12" class="card-box">
-        <el-card shadow="hover">
+      <el-col :xs="24" :lg="12">
+        <el-card shadow="hover" class="table-panel">
           <template #header>
-            <PieChart style="width: 1em; height: 1em; vertical-align: middle" />
-            <span style="vertical-align: middle">命令统计</span>
+            <div class="toolbar-shell">
+              <div class="table-heading">
+                <h3>命令统计</h3>
+              </div>
+            </div>
           </template>
-          <div class="el-table el-table--enable-row-hover el-table--medium">
+          <div class="el-table el-table--enable-row-hover el-table--medium cache-chart">
             <div ref="commandstats" style="height: 420px" />
           </div>
         </el-card>
       </el-col>
 
-      <el-col :span="12" class="card-box">
-        <el-card shadow="hover">
+      <el-col :xs="24" :lg="12">
+        <el-card shadow="hover" class="table-panel">
           <template #header>
-            <Odometer style="width: 1em; height: 1em; vertical-align: middle" /> <span style="vertical-align: middle">内存信息</span>
+            <div class="toolbar-shell">
+              <div class="table-heading">
+                <h3>内存信息</h3>
+              </div>
+            </div>
           </template>
-          <div class="el-table el-table--enable-row-hover el-table--medium">
+          <div class="el-table el-table--enable-row-hover el-table--medium cache-chart">
             <div ref="usedmemory" style="height: 420px" />
           </div>
         </el-card>
@@ -190,3 +201,25 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.cache-grid {
+  margin: 0 !important;
+  row-gap: 12px;
+}
+
+.cache-table {
+  overflow: hidden;
+  border: 1px solid var(--app-surface-border);
+  border-radius: 10px;
+}
+
+.cache-table table {
+  border-collapse: collapse;
+}
+
+.cache-chart {
+  overflow: hidden;
+  border-radius: 10px;
+}
+</style>

@@ -78,12 +78,18 @@ onMounted(() => {
 <style lang="scss" scoped>
 .app-breadcrumb.el-breadcrumb {
   display: inline-block;
-  font-size: 14px;
-  line-height: 50px;
-  margin-left: 8px;
+  font-size: 13px;
+  line-height: 1.2;
+  margin-left: 4px;
+  color: var(--app-text-muted);
+
+  :deep(.el-breadcrumb__inner) {
+    color: inherit;
+    font-weight: 500;
+  }
 
   .no-redirect {
-    color: #97a8be;
+    color: var(--app-text-title);
     cursor: text;
   }
 }

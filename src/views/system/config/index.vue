@@ -1,9 +1,16 @@
 <template>
-  <div class="p-2">
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-      <div v-show="showSearch" class="mb-[10px]">
-        <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+  <div class="p-2 page-shell system-config-page">
+    <div class="search-wrap">
+        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+          <template #header>
+            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+              <div>
+                <span class="panel-kicker">Search Filters</span>
+                <h3>筛选条件</h3>
+              </div>
+            </div>
+          </template>
+          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
             <el-form-item label="参数名称" prop="configName">
               <el-input v-model="queryParams.configName" placeholder="请输入参数名称" clearable @keyup.enter="handleQuery" />
             </el-form-item>
@@ -33,34 +40,31 @@
           </el-form>
         </el-card>
       </div>
-    </transition>
-    <el-card shadow="hover">
+
+    <el-card shadow="hover" class="table-panel">
       <template #header>
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <span class="panel-kicker">Config Dataset</span>
+            <h3>参数列表</h3>
+            <p>共 {{ total }} 条记录，支持键值维护、导出和缓存刷新。</p>
+          </div>
+          <div class="toolbar-actions">
             <el-button v-hasPermi="['system:config:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['system:config:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">
               修改
             </el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['system:config:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
               删除
             </el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['system:config:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['system:config:remove']" type="danger" plain icon="Refresh" @click="handleRefreshCache">刷新缓存</el-button>
-          </el-col>
-          <right-toolbar v-model:show-search="showSearch" @query-table="getList"></right-toolbar>
-        </el-row>
+            <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
+          </div>
+        </div>
       </template>
 
-      <el-table v-loading="loading" border :data="configList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" border class="data-table" :data="configList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="参数主键" align="center" prop="configId" />
         <el-table-column label="参数名称" align="center" prop="configName" :show-overflow-tooltip="true" />
@@ -259,3 +263,25 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.page-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-table {
+  :deep(.el-button.is-link) {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(53, 109, 255, 0.08);
+  }
+}
+
+@media (max-width: 900px) {
+  .toolbar-shell {
+    align-items: flex-start;
+  }
+}
+</style>

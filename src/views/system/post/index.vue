@@ -1,13 +1,21 @@
 <template>
-  <div class="p-2">
-    <el-row :gutter="20">
+  <div class="p-2 page-shell system-post-page">
+    <el-row :gutter="20" class="content-grid">
       <!-- 部门树 -->
-      <el-col :lg="4" :xs="24" style="">
-        <el-card shadow="hover">
+      <el-col :lg="5" :xs="24">
+        <el-card shadow="hover" class="side-panel">
+          <template #header>
+            <div class="panel-heading">
+              <div>
+                <span class="panel-kicker">Department Filter</span>
+                <h3>部门结构</h3>
+              </div>
+            </div>
+          </template>
           <el-input v-model="deptName" placeholder="请输入部门名称" prefix-icon="Search" clearable />
           <el-tree
             ref="deptTreeRef"
-            class="mt-2"
+            class="mt-2 dept-tree"
             node-key="id"
             :data="deptOptions"
             :props="{ label: 'label', children: 'children' } as any"
@@ -19,11 +27,18 @@
           />
         </el-card>
       </el-col>
-      <el-col :lg="20" :xs="24">
-        <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-          <div v-show="showSearch" class="mb-[10px]">
-            <el-card shadow="hover">
-              <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+      <el-col :lg="19" :xs="24" class="content-main">
+        <div class="search-wrap">
+            <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+              <template #header>
+                <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+                  <div>
+                    <span class="panel-kicker">Search Filters</span>
+                    <h3>筛选条件</h3>
+                  </div>
+                </div>
+              </template>
+              <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
                 <el-form-item label="岗位编码" prop="postCode">
                   <el-input v-model="queryParams.postCode" placeholder="请输入岗位编码" clearable @keyup.enter="handleQuery" />
                 </el-form-item>
@@ -61,30 +76,28 @@
               </el-form>
             </el-card>
           </div>
-        </transition>
-        <el-card shadow="hover">
+        <el-card shadow="hover" class="table-panel">
           <template #header>
-            <el-row :gutter="10" class="mb8">
-              <el-col :span="1.5">
+            <div class="toolbar-shell">
+              <div class="table-heading">
+                <span class="panel-kicker">Post Dataset</span>
+                <h3>岗位列表</h3>
+                <p>共 {{ total }} 条记录，支持按部门筛选、岗位维护和导出。</p>
+              </div>
+              <div class="toolbar-actions">
                 <el-button v-hasPermi="['system:post:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-              </el-col>
-              <el-col :span="1.5">
-                <el-button v-hasPermi="['system:post:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()"
-                  >修改</el-button
-                >
-              </el-col>
-              <el-col :span="1.5">
+                <el-button v-hasPermi="['system:post:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">
+                  修改
+                </el-button>
                 <el-button v-hasPermi="['system:post:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
                   删除
                 </el-button>
-              </el-col>
-              <el-col :span="1.5">
                 <el-button v-hasPermi="['system:post:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
-              </el-col>
-              <right-toolbar v-model:show-search="showSearch" @query-table="getList"></right-toolbar>
-            </el-row>
+                <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
+              </div>
+            </div>
           </template>
-          <el-table v-loading="loading" border :data="postList" @selection-change="handleSelectionChange">
+          <el-table v-loading="loading" border class="data-table" :data="postList" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column v-if="false" label="岗位编号" align="center" prop="postId" />
             <el-table-column label="岗位编码" align="center" prop="postCode" />
@@ -359,3 +372,39 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.page-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.content-grid {
+  margin: 0 !important;
+}
+
+.content-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dept-tree {
+  padding-top: 6px;
+}
+
+.data-table {
+  :deep(.el-button.is-link) {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(53, 109, 255, 0.08);
+  }
+}
+
+@media (max-width: 900px) {
+  .toolbar-shell {
+    align-items: flex-start;
+  }
+}
+</style>

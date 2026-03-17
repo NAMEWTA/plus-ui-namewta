@@ -11,7 +11,7 @@
       </app-link>
     </template>
 
-    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" teleported>
+    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" :popper-offset="isNest ? 4 : 12" :popper-class="popperClass" teleported>
       <template v-if="item.meta" #title>
         <svg-icon :icon-class="item.meta ? item.meta.icon : ''" />
         <span class="menu-title" :title="hasTitle(item.meta?.title)">{{ item.meta?.title }}</span>
@@ -22,6 +22,7 @@
         :key="child.path + index"
         :is-nest="true"
         :item="child"
+        :popper-class="popperClass"
         :base-path="resolvePath(child.path)"
         class="nest-menu"
       />
@@ -45,6 +46,10 @@ const props = defineProps({
     default: false
   },
   basePath: {
+    type: String,
+    default: ''
+  },
+  popperClass: {
     type: String,
     default: ''
   }

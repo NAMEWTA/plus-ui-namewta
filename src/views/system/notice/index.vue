@@ -1,9 +1,16 @@
 <template>
-  <div class="p-2">
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-      <div v-show="showSearch" class="mb-[10px]">
-        <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+  <div class="p-2 page-shell system-notice-page">
+    <div class="search-wrap">
+        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+          <template #header>
+            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+              <div>
+                <span class="panel-kicker">Search Filters</span>
+                <h3>筛选条件</h3>
+              </div>
+            </div>
+          </template>
+          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
             <el-form-item label="公告标题" prop="noticeTitle">
               <el-input v-model="queryParams.noticeTitle" placeholder="请输入公告标题" clearable @keyup.enter="handleQuery" />
             </el-form-item>
@@ -22,29 +29,29 @@
           </el-form>
         </el-card>
       </div>
-    </transition>
 
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-panel">
       <template #header>
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <span class="panel-kicker">Notice Dataset</span>
+            <h3>公告列表</h3>
+            <p>共 {{ total }} 条记录，支持类型筛选、内容编辑和状态管理。</p>
+          </div>
+          <div class="toolbar-actions">
             <el-button v-hasPermi="['system:notice:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button v-hasPermi="['system:notice:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()"
-              >修改</el-button
-            >
-          </el-col>
-          <el-col :span="1.5">
+            <el-button v-hasPermi="['system:notice:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">
+              修改
+            </el-button>
             <el-button v-hasPermi="['system:notice:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
               删除
             </el-button>
-          </el-col>
-          <right-toolbar v-model:show-search="showSearch" @query-table="getList"></right-toolbar>
-        </el-row>
+            <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
+          </div>
+        </div>
       </template>
 
-      <el-table v-loading="loading" border :data="noticeList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" border class="data-table" :data="noticeList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="序号" align="center" prop="noticeId" width="100" />
         <el-table-column label="公告标题" align="center" prop="noticeTitle" :show-overflow-tooltip="true" />
@@ -241,3 +248,25 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.page-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-table {
+  :deep(.el-button.is-link) {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(53, 109, 255, 0.08);
+  }
+}
+
+@media (max-width: 900px) {
+  .toolbar-shell {
+    align-items: flex-start;
+  }
+}
+</style>

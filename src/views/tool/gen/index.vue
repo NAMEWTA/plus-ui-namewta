@@ -1,9 +1,16 @@
 <template>
-  <div class="p-2">
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-      <div v-show="showSearch" class="mb-[10px]">
-        <el-card shadow="hover">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+  <div class="p-2 page-shell tool-gen-page">
+    <div class="search-wrap">
+        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+          <template #header>
+            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+              <div>
+                <span class="panel-kicker">Search Filters</span>
+                <h3>筛选条件</h3>
+              </div>
+            </div>
+          </template>
+          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
             <el-form-item label="数据源" prop="dataName">
               <el-select v-model="queryParams.dataName" filterable clearable placeholder="请选择/输入数据源名称">
                 <el-option key="" label="全部" value="" />
@@ -33,30 +40,28 @@
           </el-form>
         </el-card>
       </div>
-    </transition>
 
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-panel">
       <template #header>
-        <el-row :gutter="10" class="mb8">
-          <el-col :span="1.5">
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <span class="panel-kicker">Code Generator</span>
+            <h3>数据表列表</h3>
+            <p>共 {{ total }} 条记录，支持导入表结构、同步数据库和代码预览生成。</p>
+          </div>
+          <div class="toolbar-actions">
             <el-button v-hasPermi="['tool:gen:code']" type="primary" plain icon="Download" @click="handleGenTable()">生成</el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['tool:gen:import']" type="info" plain icon="Upload" @click="openImportTable">导入</el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['tool:gen:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleEditTable()">修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
             <el-button v-hasPermi="['tool:gen:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
               删除
             </el-button>
-          </el-col>
-          <right-toolbar v-model:show-search="showSearch" @query-table="getList"></right-toolbar>
-        </el-row>
+            <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
+          </div>
+        </div>
       </template>
 
-      <el-table v-loading="loading" border :data="tableList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" border class="data-table" :data="tableList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" align="center" width="55"></el-table-column>
         <el-table-column label="序号" type="index" width="50" align="center">
           <template #default="scope">
@@ -250,10 +255,30 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.page-shell {
+  display: flex;
+  flex-direction: column;
+}
+
+.data-table {
+  :deep(.el-button.is-link) {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(53, 109, 255, 0.08);
+  }
+}
+
 .el-tab-pane {
   background-color: #282c34;
   .el-link {
     color: #fff;
+  }
+}
+
+@media (max-width: 900px) {
+  .toolbar-shell {
+    align-items: flex-start;
   }
 }
 </style>

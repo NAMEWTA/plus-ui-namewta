@@ -14,7 +14,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  background: var(--el-bg-color-page);
+  background: var(--app-shell-bg);
   font-family:
     'MiSans',
     'HarmonyOS Sans SC',
@@ -42,6 +42,12 @@ html.dark svg {
 
 #app {
   height: 100%;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
 }
 
 *,
@@ -147,7 +153,7 @@ aside {
 
 //main-container全局样式
 .app-container {
-  padding: 20px;
+  padding: 16px;
   background: var(--app-surface-bg);
   border: 1px solid var(--app-surface-border);
   border-radius: var(--app-radius-lg);
@@ -159,17 +165,60 @@ aside {
 .search {
   margin-bottom: 0.75rem;
   border-radius: var(--app-radius-lg);
-  border: 1px solid var(--el-border-color-light);
-  background-color: var(--el-bg-color-overlay);
+  border: 1px solid var(--app-surface-border);
+  background-color: var(--app-surface-bg);
   padding: 0.75rem;
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
   &:hover {
     box-shadow: var(--app-shadow-sm);
-    border-color: var(--el-border-color);
-    transform: translateY(-1px);
+    border-color: rgba(64, 158, 255, 0.2);
   }
+}
+
+.el-card,
+.el-dialog,
+.el-drawer,
+.el-popover.el-popper,
+.el-dropdown__popper .el-dropdown-menu,
+.el-picker__popper,
+.el-select__popper.el-popper {
+  border-radius: var(--app-radius-lg);
+  border-color: var(--app-surface-border);
+  box-shadow: var(--app-shadow-md);
+}
+
+.el-card,
+.el-dialog,
+.el-drawer {
+  background: var(--app-surface-bg);
+}
+
+.el-button {
+  font-weight: 500;
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--app-accent-strong);
+  --el-button-border-color: var(--app-accent-strong);
+  --el-button-hover-bg-color: #4a7cff;
+  --el-button-hover-border-color: #4a7cff;
+  --el-button-active-bg-color: #2e5ce0;
+  --el-button-active-border-color: #2e5ce0;
+}
+
+.el-table {
+  --el-table-border-color: var(--app-surface-border);
+  --el-table-header-bg-color: var(--tableHeaderBg);
+  --el-table-tr-bg-color: transparent;
+  background: transparent;
+}
+
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  box-shadow: 0 0 0 1px transparent inset;
 }
 
 .components-container {

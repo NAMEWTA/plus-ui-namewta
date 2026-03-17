@@ -1,9 +1,13 @@
 <template>
-  <div class="p-2">
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-      <div v-show="showSearch" class="mb-[10px]">
-        <el-card shadow="hover">
-          <el-form v-show="showSearch" ref="queryFormRef" :model="queryParams" :inline="true">
+  <div class="p-2 page-shell workflow-task-waiting-page">
+    <div class="search-wrap">
+        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+          <template #header>
+            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+              <div><h3>筛选条件</h3></div>
+            </div>
+          </template>
+          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
             <el-form-item>
               <el-badge :value="userSelectCount" :max="10" class="item">
                 <el-button type="primary" @click="openUserSelect">选择申请人</el-button>
@@ -25,15 +29,19 @@
           </el-form>
         </el-card>
       </div>
-    </transition>
-    <el-card shadow="hover">
+    <el-card shadow="hover" class="table-panel">
       <template #header>
-        <el-row :gutter="10" class="mb8">
-          <right-toolbar v-model:show-search="showSearch" @query-table="handleQuery"></right-toolbar>
-        </el-row>
+        <div class="toolbar-shell">
+          <div class="table-heading">
+            <h3>待办任务</h3>
+          </div>
+          <div class="toolbar-actions">
+            <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="handleQuery"></right-toolbar>
+          </div>
+        </div>
       </template>
 
-      <el-table v-loading="loading" border :data="taskList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" border class="data-table" :data="taskList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column align="center" type="index" label="序号" width="60"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="businessCode" align="center" label="业务编码"></el-table-column>

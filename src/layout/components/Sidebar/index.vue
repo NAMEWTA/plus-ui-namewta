@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'has-logo': showLogo }" :style="{ backgroundColor: bgColor }">
+  <div class="sidebar-shell" :class="{ 'has-logo': showLogo }" :style="{ backgroundColor: bgColor }">
     <logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar :class="sideTheme" wrap-class="scrollbar-wrapper">
       <transition :enter-active-class="proxy?.animate.menuSearchAnimate.enter" mode="out-in">
@@ -24,7 +24,6 @@
 <script setup lang="ts">
 import Logo from './Logo.vue';
 import SidebarItem from './SidebarItem.vue';
-import variables from '@/assets/styles/variables.module.scss';
 import { useAppStore } from '@/store/modules/app';
 import { useSettingsStore } from '@/store/modules/settings';
 import { usePermissionStore } from '@/store/modules/permission';
@@ -51,6 +50,37 @@ const activeMenu = computed(() => {
   return path;
 });
 
-const bgColor = computed(() => (sideTheme.value === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground));
-const textColor = computed(() => (sideTheme.value === 'theme-dark' ? variables.menuColor : variables.menuLightColor));
+const bgColor = computed(() => (sideTheme.value === 'theme-dark' ? '#111827' : '#ffffff'));
+const textColor = computed(() => (sideTheme.value === 'theme-dark' ? '#e5edf8' : '#1f2937'));
 </script>
+
+<style lang="scss" scoped>
+.sidebar-shell {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 8px 12px;
+  border: 1px solid var(--app-sidebar-border);
+  border-radius: 22px;
+  box-shadow: var(--app-shadow-sm);
+  background: v-bind(bgColor) !important;
+  overflow: hidden;
+}
+
+:deep(.el-scrollbar__view) {
+  min-height: 0;
+  padding-bottom: 12px;
+}
+
+:deep(.el-scrollbar) {
+  flex: 1;
+  min-height: 0;
+  height: auto !important;
+}
+
+:deep(.el-scrollbar__wrap) {
+  height: 100%;
+  overflow-x: hidden;
+}
+</style>

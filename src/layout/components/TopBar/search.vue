@@ -145,6 +145,9 @@ defineExpose({
       left: 50%;
       transform: translateX(-50%);
       top: -53vh;
+      padding: 0;
+      border-top: none;
+      background: transparent;
     }
   }
   :deep(.el-autocomplete) {

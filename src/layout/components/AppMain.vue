@@ -22,11 +22,9 @@ const tagsViewStore = useTagsViewStore();
 
 // 随机动画集合
 const animate = ref<string>('');
-const animationEnable = ref(useSettingsStore().animationEnable);
 watch(
   () => useSettingsStore().animationEnable,
   (val: boolean) => {
-    animationEnable.value = val;
     if (val) {
       animate.value = proxy?.animate.animateList[Math.round(Math.random() * proxy?.animate.animateList.length)] as string;
     } else {
@@ -35,10 +33,6 @@ watch(
   },
   { immediate: true }
 );
-
-onMounted(() => {
-  addIframe();
-});
 
 watchEffect(() => {
   addIframe();
@@ -53,26 +47,21 @@ function addIframe() {
 
 <style lang="scss" scoped>
 .app-main {
-  /* 50= navbar  50  */
-  min-height: calc(100vh - 50px);
+  min-height: 100vh;
   width: 100%;
   position: relative;
   overflow: hidden;
+  padding: 12px;
 }
 
-.fixed-header + .app-main {
-  padding-top: 50px;
+.app-main.with-fixed-header {
+  padding-top: 76px;
+  min-height: calc(100vh - 76px);
 }
 
-.hasTagsView {
-  .app-main {
-    /* 84 = navbar + tags-view = 50 + 34 */
-    min-height: calc(100vh - 84px);
-  }
-
-  .fixed-header + .app-main {
-    padding-top: 84px;
-  }
+.app-main.with-fixed-header.with-tags-view {
+  min-height: calc(100vh - 111px);
+  padding-top: 111px;
 }
 </style>
 <style lang="scss">

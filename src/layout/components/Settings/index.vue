@@ -1,5 +1,5 @@
 <template>
-  <el-drawer v-model="showSettings" :with-header="false" direction="rtl" size="300px" close-on-click-modal>
+  <el-drawer v-model="showSettings" class="settings-drawer" :with-header="false" direction="rtl" size="300px" close-on-click-modal>
     <h3 class="drawer-title">菜单导航设置</h3>
     <div class="nav-wrap">
       <el-tooltip content="左侧菜单" placement="bottom">
@@ -229,6 +229,15 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+.settings-drawer {
+  :deep(.el-drawer__body) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 18px 18px 20px;
+  }
+}
+
 .setting-drawer-title {
   margin-bottom: 12px;
   color: rgba(0, 0, 0, 0.85);
@@ -248,12 +257,23 @@ defineExpose({
   .setting-drawer-block-checbox-item {
     position: relative;
     margin-right: 16px;
-    border-radius: 2px;
+    border-radius: 12px;
     cursor: pointer;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    transition:
+      border-color 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover {
+      border-color: rgba(64, 158, 255, 0.28);
+      transform: translateY(-1px);
+    }
 
     img {
       width: 48px;
       height: 48px;
+      display: block;
     }
 
     .custom-img {
@@ -281,6 +301,8 @@ defineExpose({
 .drawer-item {
   padding: 12px 0;
   font-size: 14px;
+  color: var(--app-text-title);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
 
   .comp-style {
     float: right;
@@ -306,9 +328,16 @@ defineExpose({
     cursor: pointer;
     width: 56px;
     height: 48px;
-    border-radius: 4px;
-    background: #f0f2f5;
+    border-radius: 12px;
+    background: var(--app-elevated-soft-bg);
     border: 2px solid transparent;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
   }
 
   .left {
@@ -317,6 +346,7 @@ defineExpose({
       height: 30%;
       background: #fff;
     }
+
     b:last-child {
       width: 30%;
       background: #1b2a47;
@@ -326,6 +356,7 @@ defineExpose({
       border-radius: 4px 0 0 4px;
     }
   }
+
   .mix {
     b:first-child {
       border-radius: 4px 4px 0 0;
@@ -333,6 +364,7 @@ defineExpose({
       height: 30%;
       background: #1b2a47;
     }
+
     b:last-child {
       width: 30%;
       background: #1b2a47;
@@ -341,12 +373,17 @@ defineExpose({
       border-radius: 0 0 0 4px;
     }
   }
+
   .top {
     b:first-child {
       display: block;
       height: 30%;
       background: #1b2a47;
       border-radius: 4px 4px 0 0;
+    }
+
+    b:last-child {
+      display: none;
     }
   }
 }

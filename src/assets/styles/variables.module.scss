@@ -1,14 +1,14 @@
 // 全局SCSS变量
 :root {
-  --menuBg: #1f2d3d;
-  --menuColor: #bfcbd9;
-  --menuActiveText: #f4f4f5;
-  --menuHover: #263445;
+  --menuBg: #ffffff;
+  --menuColor: #1f2937;
+  --menuActiveText: #111827;
+  --menuHover: rgba(64, 158, 255, 0.12);
 
-  --subMenuBg: #1f2d3d;
-  --subMenuActiveText: #f4f4f5;
-  --subMenuHover: #001528;
-  --subMenuTitleHover: #293444;
+  --subMenuBg: #ffffff;
+  --subMenuActiveText: #111827;
+  --subMenuHover: rgba(64, 158, 255, 0.12);
+  --subMenuTitleHover: rgba(64, 158, 255, 0.08);
 
   // 菜单栏缩进
   --el-menu-base-level-padding: 12px;
@@ -16,8 +16,8 @@
   --el-menu-item-height: 50px;
 
   --fixedHeaderBg: #ffffff;
-  --tableHeaderBg: #f8f8f9;
-  --tableHeaderTextColor: #515a6e;
+  --tableHeaderBg: #f8fafc;
+  --tableHeaderTextColor: #475569;
 
   // ele
   --brder-color: #e8e8e8;
@@ -28,13 +28,28 @@
 
   // Modern rounded style + soft shadows
   --app-radius-sm: 6px;
-  --app-radius-md: 10px;
-  --app-radius-lg: 14px;
-  --app-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08), 0 6px 16px rgba(15, 23, 42, 0.08);
-  --app-shadow-md: 0 8px 24px rgba(15, 23, 42, 0.12);
-  --app-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.16);
+  --app-radius-md: 12px;
+  --app-radius-lg: 18px;
+  --app-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --app-shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --app-shadow-lg: 0 14px 36px rgba(15, 23, 42, 0.1);
   --app-surface-bg: #ffffff;
-  --app-surface-border: var(--el-border-color-lighter);
+  --app-surface-border: #e5e7eb;
+  --app-shell-bg: #f5f7fa;
+  --app-shell-spot-1: rgba(64, 158, 255, 0.08);
+  --app-shell-spot-2: rgba(64, 158, 255, 0.04);
+  --app-sidebar-border: #e5e7eb;
+  --app-navbar-bg: #ffffff;
+  --app-navbar-border: #e5e7eb;
+  --app-navbar-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --app-accent-soft: rgba(64, 158, 255, 0.08);
+  --app-accent-strong: #409eff;
+  --app-text-title: #1f2937;
+  --app-text-muted: #6b7280;
+  --app-overlay-mask: rgba(15, 23, 42, 0.22);
+  --app-elevated-soft-bg: #f8fafc;
+  --app-elevated-close-bg: rgba(148, 163, 184, 0.14);
+  --app-elevated-close-hover-bg: rgba(64, 158, 255, 0.14);
 
   // Element Plus tokens
   --el-border-radius-base: var(--app-radius-md);
@@ -42,21 +57,21 @@
   --el-border-radius-round: 999px;
   --el-box-shadow-light: var(--app-shadow-sm);
   --el-box-shadow: var(--app-shadow-md);
-  --el-bg-color-page: #f5f7fb;
+  --el-bg-color-page: var(--app-shell-bg);
 }
 
 html.dark {
-  --menuBg: #1d1e1f;
-  --menuColor: #bfcbd9;
-  --menuActiveText: #f4f4f5;
-  --menuHover: #171819;
+  --menuBg: #111827;
+  --menuColor: #e5edf8;
+  --menuActiveText: #f8fbff;
+  --menuHover: rgba(85, 129, 255, 0.2);
 
-  --subMenuBg: #1d1e1f;
-  --subMenuActiveText: #1d1e1f;
-  --subMenuHover: #171819;
-  --subMenuTitleHover: #171819;
+  --subMenuBg: #111827;
+  --subMenuActiveText: #f8fbff;
+  --subMenuHover: rgba(85, 129, 255, 0.18);
+  --subMenuTitleHover: rgba(148, 163, 184, 0.12);
 
-  --fixedHeaderBg: #171819;
+  --fixedHeaderBg: #0f172a;
   --tableHeaderBg: var(--el-bg-color);
   --tableHeaderTextColor: var(--el-text-color);
 
@@ -204,12 +219,27 @@ html.dark {
   --tags-view-active-border-color: var(--el-color-primary-light-2);
 
   // Modern rounded style + soft shadows (dark)
-  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 18px rgba(0, 0, 0, 0.25);
-  --app-shadow-md: 0 10px 26px rgba(0, 0, 0, 0.35);
-  --app-shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.4);
-  --app-surface-bg: #151922;
-  --app-surface-border: var(--el-border-color);
-  --el-bg-color-page: #0f1115;
+  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --app-shadow-md: 0 12px 28px rgba(0, 0, 0, 0.28);
+  --app-shadow-lg: 0 20px 44px rgba(0, 0, 0, 0.32);
+  --app-surface-bg: #111827;
+  --app-surface-border: rgba(71, 85, 105, 0.5);
+  --app-shell-bg: #060b16;
+  --app-shell-spot-1: rgba(69, 120, 255, 0.18);
+  --app-shell-spot-2: rgba(45, 212, 191, 0.14);
+  --app-sidebar-border: rgba(148, 163, 184, 0.1);
+  --app-navbar-bg: #111827;
+  --app-navbar-border: rgba(71, 85, 105, 0.48);
+  --app-navbar-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+  --app-accent-soft: rgba(64, 158, 255, 0.14);
+  --app-accent-strong: #60a5fa;
+  --app-text-title: #f3f7ff;
+  --app-text-muted: #8ea0bd;
+  --app-overlay-mask: rgba(2, 6, 23, 0.58);
+  --app-elevated-soft-bg: rgba(148, 163, 184, 0.08);
+  --app-elevated-close-bg: rgba(148, 163, 184, 0.18);
+  --app-elevated-close-hover-bg: rgba(96, 165, 250, 0.18);
+  --el-bg-color-page: var(--app-shell-bg);
   // vxe-table 主题
   --vxe-font-color: #98989e;
   --vxe-primary-color: #2c7ecf;

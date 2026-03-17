@@ -1,6 +1,6 @@
 <template>
   <div class="top-right-btn" :style="style">
-    <el-row>
+    <el-row class="toolbar-row">
       <el-tooltip v-if="search" class="item" effect="dark" :content="showSearch ? '隐藏搜索' : '显示搜索'" placement="top">
         <el-button circle icon="Search" @click="toggleSearch()" />
       </el-tooltip>
@@ -79,6 +79,27 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+:deep(.el-button.is-circle) {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  color: var(--app-text-muted);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    background 0.25s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    color: var(--app-accent-strong);
+    background: var(--app-accent-soft);
+    border-color: rgba(53, 109, 255, 0.2);
+  }
+}
+
 :deep(.el-transfer__button) {
   border-radius: 50%;
   display: block;
@@ -91,12 +112,27 @@ onMounted(() => {
 .my-el-transfer {
   text-align: center;
 }
+
+.toolbar-row {
+  gap: 8px;
+}
+
 .tree-header {
   width: 100%;
   line-height: 24px;
   text-align: center;
+  font-weight: 700;
+  color: var(--app-text-title);
 }
+
 .show-btn {
-  margin-left: 12px;
+  margin-left: 0;
+}
+
+:global(html.dark) {
+  .top-right-btn :deep(.el-button.is-circle) {
+    background: rgba(15, 23, 42, 0.56);
+    border-color: rgba(100, 116, 139, 0.22);
+  }
 }
 </style>

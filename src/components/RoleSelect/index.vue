@@ -1,10 +1,11 @@
 <template>
   <div>
-    <el-dialog v-model="roleDialog.visible.value" :title="roleDialog.title.value" width="80%" append-to-body>
+    <el-dialog v-model="roleDialog.visible.value" :title="roleDialog.title.value" width="80%" append-to-body class="role-select-dialog">
+      <div class="page-shell role-select-shell">
       <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-        <div v-show="showSearch" class="mb-[10px]">
-          <el-card shadow="hover">
-            <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+        <div v-show="showSearch">
+          <el-card shadow="hover" class="search-panel selector-card">
+            <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
               <el-form-item label="角色名称" prop="roleName">
                 <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable @keyup.enter="handleQuery" />
               </el-form-item>
@@ -21,15 +22,23 @@
         </div>
       </transition>
 
-      <el-card shadow="hover">
+      <el-card shadow="hover" class="table-panel selector-card">
         <template #header>
-          <el-tag v-for="role in selectRoleList" :key="role.roleId" closable style="margin: 2px" @close="handleCloseTag(role)">
-            {{ role.roleName }}
-          </el-tag>
+          <div class="toolbar-shell selector-header">
+            <div class="table-heading">
+              <h3>角色列表</h3>
+            </div>
+            <div v-if="selectRoleList.length" class="selector-tags">
+              <el-tag v-for="role in selectRoleList" :key="role.roleId" closable @close="handleCloseTag(role)">
+                {{ role.roleName }}
+              </el-tag>
+            </div>
+          </div>
         </template>
 
         <vxe-table
           ref="tableRef"
+          class="selector-table"
           height="400px"
           border
           show-overflow
@@ -66,6 +75,7 @@
           @pagination="pageList"
         />
       </el-card>
+      </div>
       <template #footer>
         <el-button @click="close">取消</el-button>
         <el-button type="primary" @click="confirm">确定</el-button>
@@ -91,7 +101,6 @@ const prop = withDefaults(defineProps<PropType>(), {
 });
 const emit = defineEmits(['update:modelValue', 'confirmCallBack']);
 
-const router = useRouter();
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
 
@@ -248,3 +257,66 @@ defineExpose({
   close: roleDialog.closeDialog
 });
 </script>
+
+<style lang="scss" scoped>
+.role-select-shell {
+  gap: 12px;
+}
+
+.selector-card {
+  height: 100%;
+}
+
+.selector-header {
+  align-items: flex-start;
+}
+
+.selector-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: min(100%, 520px);
+}
+
+.selector-tags :deep(.el-tag) {
+  margin: 0;
+}
+
+.role-select-dialog :deep(.el-dialog__body) {
+  padding-top: 12px;
+}
+
+.selector-table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.selector-table :deep(.vxe-table--render-default) {
+  border-radius: 10px;
+  color: var(--app-text-title);
+}
+
+.selector-table :deep(.vxe-header--column) {
+  background: var(--tableHeaderBg);
+  color: var(--tableHeaderTextColor);
+  font-weight: 600;
+}
+
+.selector-table :deep(.vxe-body--column),
+.selector-table :deep(.vxe-header--column) {
+  border-color: var(--app-surface-border);
+}
+
+.selector-table :deep(.vxe-body--row.row--hover),
+.selector-table :deep(.vxe-body--row:hover) {
+  background-color: rgba(53, 109, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+  .selector-tags {
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+}
+</style>

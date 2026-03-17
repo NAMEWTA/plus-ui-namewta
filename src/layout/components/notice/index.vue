@@ -66,59 +66,101 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .layout-navbars-breadcrumb-user-news {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
   .head-box {
     display: flex;
-    border-bottom: 1px solid var(--el-border-color-lighter);
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
     box-sizing: border-box;
-    color: var(--el-text-color-primary);
+    color: var(--app-text-title);
     justify-content: space-between;
-    height: 35px;
+    height: 40px;
     align-items: center;
+    padding: 0 2px 10px;
+
+    .head-box-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
     .head-box-btn {
-      color: var(--el-color-primary);
-      font-size: 13px;
+      color: var(--app-accent-strong);
+      font-size: 12px;
+      font-weight: 600;
       cursor: pointer;
       opacity: 0.8;
+
       &:hover {
         opacity: 1;
       }
     }
   }
+
   .content-box {
     height: 300px;
     overflow: auto;
     font-size: 13px;
+    padding: 8px 0;
+
     .content-box-item {
-      padding-top: 12px;
       display: flex;
-      &:last-of-type {
-        padding-bottom: 12px;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      margin: 4px 0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+
+      &:hover {
+        background: var(--app-accent-soft);
+        transform: translateY(-1px);
       }
+
       .content-box-msg {
         color: var(--el-text-color-secondary);
         margin-top: 5px;
         margin-bottom: 5px;
       }
+
       .content-box-time {
-        color: var(--el-text-color-secondary);
+        color: var(--app-text-muted);
+        font-size: 12px;
       }
+
       .item-conten {
         width: 100%;
         display: flex;
         flex-direction: column;
+        gap: 6px;
+        color: var(--app-text-title);
+        line-height: 1.6;
+      }
+
+      .read {
+        flex-shrink: 0;
+        margin-top: 2px;
       }
     }
   }
+
   .foot-box {
-    height: 35px;
-    color: var(--el-color-primary);
-    font-size: 13px;
+    height: 40px;
+    color: var(--app-accent-strong);
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
     opacity: 0.8;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 1px solid var(--el-border-color-lighter);
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    margin-top: 4px;
+
     &:hover {
       opacity: 1;
     }

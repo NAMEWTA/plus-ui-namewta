@@ -1,9 +1,14 @@
 <template>
-  <div class="p-2">
-    <el-row :gutter="20">
+  <div class="p-2 page-shell workflow-process-instance-page">
+    <el-row :gutter="20" class="content-grid">
       <!-- 流程分类树 -->
-      <el-col :lg="4" :xs="24" style="">
-        <el-card shadow="hover">
+      <el-col :lg="4" :xs="24">
+        <el-card shadow="hover" class="side-panel">
+          <template #header>
+            <div class="table-heading">
+              <h3>流程分类</h3>
+            </div>
+          </template>
           <el-input v-model="categoryName" placeholder="请输入流程分类名" prefix-icon="Search" clearable />
           <el-tree
             ref="categoryTreeRef"
@@ -19,11 +24,15 @@
           ></el-tree>
         </el-card>
       </el-col>
-      <el-col :lg="20" :xs="24">
-        <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-          <div v-show="showSearch" class="mb-[10px]">
-            <el-card shadow="hover">
-              <el-form v-show="showSearch" ref="queryFormRef" :model="queryParams" :inline="true">
+      <el-col :lg="20" :xs="24" class="content-main">
+        <div class="search-wrap">
+            <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+              <template #header>
+                <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+                  <div><h3>筛选条件</h3></div>
+                </div>
+              </template>
+              <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
                 <el-form-item>
                   <el-badge :value="userSelectCount" :max="10" class="item">
                     <el-button type="primary" @click="openUserSelect">选择申请人</el-button>
@@ -45,20 +54,22 @@
               </el-form>
             </el-card>
           </div>
-        </transition>
-        <el-card shadow="hover">
+        <el-card shadow="hover" class="table-panel">
           <template #header>
-            <el-row :gutter="10" class="mb8">
-              <el-col :span="1.5">
+            <div class="toolbar-shell">
+              <div class="table-heading">
+                <h3>流程实例</h3>
+              </div>
+              <div class="toolbar-actions">
                 <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
-              </el-col>
-              <right-toolbar v-model:show-search="showSearch" @query-table="handleQuery"></right-toolbar>
-            </el-row>
+                <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="handleQuery"></right-toolbar>
+              </div>
+            </div>
           </template>
           <el-tabs v-model="tab" @tab-click="changeTab">
             <el-tab-pane name="running" label="运行中"></el-tab-pane>
             <el-tab-pane name="finish" label="已完成"></el-tab-pane>
-            <el-table v-loading="loading" border :data="processInstanceList" @selection-change="handleSelectionChange">
+            <el-table v-loading="loading" border class="data-table" :data="processInstanceList" @selection-change="handleSelectionChange">
               <el-table-column type="selection" width="55" align="center" />
               <el-table-column align="center" type="index" label="序号" width="60"></el-table-column>
               <el-table-column :show-overflow-tooltip="true" prop="businessCode" align="center" label="业务编码"></el-table-column>
@@ -476,3 +487,15 @@ onMounted(() => {
   getTreeselect();
 });
 </script>
+
+<style lang="scss" scoped>
+.content-grid {
+  margin: 0 !important;
+}
+
+.content-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+</style>

@@ -34,8 +34,15 @@ const handleSetSize = (size: 'large' | 'default' | 'small') => {
 
 <style lang="scss" scoped>
 .size-icon--style {
-  font-size: 18px;
-  line-height: 50px;
-  padding-right: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+
+  :deep(.svg-icon) {
+    width: 16px;
+    height: 16px;
+  }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-form ref="pwdRef" :model="user" :rules="rules" label-width="80px">
+  <el-form ref="pwdRef" :model="user" :rules="rules" label-width="80px" class="profile-form">
     <el-form-item label="旧密码" prop="oldPassword">
       <el-input v-model="user.oldPassword" placeholder="请输入旧密码" type="password" show-password />
     </el-form-item>
@@ -9,9 +9,9 @@
     <el-form-item label="确认密码" prop="confirmPassword">
       <el-input v-model="user.confirmPassword" placeholder="请确认新密码" type="password" show-password />
     </el-form-item>
-    <el-form-item>
+    <el-form-item class="profile-form__actions">
       <el-button type="primary" @click="submit">保存</el-button>
-      <el-button type="danger" @click="close">关闭</el-button>
+      <el-button @click="close">关闭</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -71,3 +71,22 @@ const close = () => {
   proxy?.$tab.closePage();
 };
 </script>
+
+<style lang="scss" scoped>
+.profile-form {
+  max-width: 520px;
+}
+
+.profile-form :deep(.el-input__wrapper) {
+  border-radius: 12px;
+}
+
+.profile-form :deep(.el-button) {
+  border-radius: 10px;
+}
+
+.profile-form__actions :deep(.el-form-item__content) {
+  display: flex;
+  gap: 8px;
+}
+</style>

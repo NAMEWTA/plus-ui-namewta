@@ -68,8 +68,15 @@ function handleCurrentChange(val: number) {
 
 <style lang="scss" scoped>
 .pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 18px;
+  margin-top: 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+
   .el-pagination {
-    float: v-bind(float);
+    float: none;
   }
 }
 .pagination-container.hidden {

@@ -112,6 +112,17 @@ export const changeUserStatus = (userId: number | string, status: string) => {
 };
 
 /**
+ * 解锁用户
+ * @param userId 用户ID
+ */
+export const unlockUser = (userId: number | string) => {
+  return request({
+    url: '/system/user/unlock/' + userId,
+    method: 'get',
+  });
+};
+
+/**
  * 查询用户个人信息
  */
 export const getUserProfile = (): AxiosPromise<UserInfoVO> => {
@@ -219,6 +230,7 @@ export default {
   delUser,
   resetUserPwd,
   changeUserStatus,
+  unlockUser,
   getUserProfile,
   updateUserProfile,
   updateUserPwd,

@@ -89,6 +89,9 @@
                 <el-button v-has-permi="['system:user:remove']" type="danger" plain :disabled="multiple" icon="Delete" @click="handleDelete()">
                   删除
                 </el-button>
+                <el-button v-hasPermi="['system:user:edit']" type="warning" plain icon="Unlock" :disabled="single" @click="handleUnlock()">
+                  解锁
+                </el-button>
                 <el-dropdown class="mt-[1px]">
                   <el-button plain type="info">
                     更多
@@ -508,6 +511,16 @@ const handleDelete = async (row?: UserVO) => {
     await api.delUser(userIds);
     await getList();
     proxy?.$modal.msgSuccess('删除成功');
+  }
+};
+
+/** 解锁按钮操作 */
+const handleUnlock = async () => {
+  const userId = ids.value[0];
+  const [err] = await to(proxy?.$modal.confirm('是否确认解锁用户编号为"' + userId + '"的数据项?') as any);
+  if (!err) {
+    await api.unlockUser(userId);
+    proxy?.$modal.msgSuccess('用户编号"' + userId + '"解锁成功');
   }
 };
 

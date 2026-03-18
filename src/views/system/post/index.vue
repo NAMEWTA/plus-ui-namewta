@@ -379,10 +379,6 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.content-grid {
-  margin: 0 !important;
-}
-
 .content-main {
   display: flex;
   flex-direction: column;

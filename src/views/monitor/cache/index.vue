@@ -204,7 +204,6 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .cache-grid {
-  margin: 0 !important;
   row-gap: 12px;
 }
 

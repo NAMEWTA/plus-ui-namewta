@@ -152,46 +152,53 @@
     </el-dialog>
 
     <!-- 新增/编辑流程定义 -->
-    <el-dialog v-model="modelDialog.visible" :title="modelDialog.title" width="650px" append-to-body :close-on-click-modal="false">
+    <el-dialog
+      v-model="modelDialog.visible"
+      :title="modelDialog.title"
+      width="650px"
+      append-to-body
+      :close-on-click-modal="false"
+      class="definition-dialog"
+    >
+      <el-form ref="defFormRef" :model="form" :rules="rules" label-width="120px" class="definition-form">
+        <el-form-item label="流程类别" prop="category">
+          <el-tree-select
+            v-model="form.category"
+            :data="categoryOptions"
+            :props="{ value: 'id', label: 'label', children: 'children' } as any"
+            filterable
+            value-key="id"
+            :render-after-expand="false"
+            check-strictly
+            style="width: 100%"
+          />
+        </el-form-item>
+        <el-form-item label="流程编码" prop="flowCode">
+          <el-input v-model="form.flowCode" placeholder="请输入流程编码" maxlength="40" show-word-limit />
+        </el-form-item>
+        <el-form-item label="流程名称" prop="flowName">
+          <el-input v-model="form.flowName" placeholder="请输入流程名称" maxlength="100" show-word-limit />
+        </el-form-item>
+        <el-form-item label="设计器模式" prop="modelValue">
+          <el-radio-group v-model="form.modelValue" :disabled="!!form.id" class="definition-radio-group">
+            <el-radio value="CLASSICS" size="large" border>经典模式</el-radio>
+            <el-radio value="MIMIC" size="large" border>仿钉钉模式</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="流程配置">
+          <el-checkbox v-model="autoPass" label="下一节点执行人是当前任务处理人自动审批" />
+        </el-form-item>
+        <el-form-item label="是否动态表单" prop="formCustom">
+          <el-radio-group v-model="form.formCustom" class="definition-radio-group">
+            <el-radio value="Y" size="large" border disabled>是</el-radio>
+            <el-radio value="N" size="large" border>否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="表单路径" prop="formPath">
+          <el-input v-model="form.formPath" placeholder="请输入表单路径" maxlength="100" show-word-limit />
+        </el-form-item>
+      </el-form>
       <template #footer>
-        <el-form ref="defFormRef" :model="form" :rules="rules" label-width="120px">
-          <el-form-item label="流程类别" prop="category">
-            <el-tree-select
-              v-model="form.category"
-              :data="categoryOptions"
-              :props="{ value: 'id', label: 'label', children: 'children' } as any"
-              filterable
-              value-key="id"
-              :render-after-expand="false"
-              check-strictly
-              style="width: 100%"
-            />
-          </el-form-item>
-          <el-form-item label="流程编码" prop="flowCode">
-            <el-input v-model="form.flowCode" placeholder="请输入流程编码" maxlength="40" show-word-limit />
-          </el-form-item>
-          <el-form-item label="流程名称" prop="flowName">
-            <el-input v-model="form.flowName" placeholder="请输入流程名称" maxlength="100" show-word-limit />
-          </el-form-item>
-          <el-form-item label="设计器模式" prop="modelValue">
-            <el-radio-group v-model="form.modelValue" :disabled="!!form.id">
-              <el-radio value="CLASSICS" size="large" border>经典模式</el-radio>
-              <el-radio value="MIMIC" size="large" border>仿钉钉模式</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="流程配置">
-            <el-checkbox v-model="autoPass" label="下一节点执行人是当前任务处理人自动审批" />
-          </el-form-item>
-          <el-form-item label="是否动态表单" prop="formCustom">
-            <el-radio-group v-model="form.formCustom">
-              <el-radio value="Y" size="large" border disabled>是</el-radio>
-              <el-radio value="N" size="large" border>否</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="表单路径" prop="formPath">
-            <el-input v-model="form.formPath" placeholder="请输入表单路径" maxlength="100" show-word-limit />
-          </el-form-item>
-        </el-form>
         <div class="dialog-footer">
           <el-button @click="modelDialog.visible = false">取消</el-button>
           <el-button type="primary" @click="handleSubmit">保存</el-button>
@@ -583,5 +590,25 @@ const handleExportDef = () => {
 
 .process-action-group :deep(.el-button .el-icon) {
   margin-right: 4px;
+}
+
+.definition-form {
+  padding-top: 8px;
+}
+
+.definition-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.definition-radio-group :deep(.el-radio) {
+  margin-right: 0;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 </style>

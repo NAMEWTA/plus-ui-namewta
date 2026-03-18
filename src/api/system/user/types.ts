@@ -16,11 +16,11 @@ export interface UserInfo {
 export interface UserQuery extends PageQuery {
   userName?: string;
   nickName?: string;
-  phonenumber?: string;
+  phoneNumber?: string;
   status?: string;
   deptId?: string | number;
   roleId?: string | number;
-  userIds?:  string | number | (string | number)[] | undefined;
+  userIds?: string | number | (string | number)[] | undefined;
 }
 
 /**
@@ -34,8 +34,8 @@ export interface UserVO extends BaseEntity {
   nickName: string;
   userType: string;
   email: string;
-  phonenumber: string;
-  sex: string;
+  phoneNumber: string;
+  gender: string;
   avatar: string;
   status: string;
   delFlag: string;
@@ -60,9 +60,9 @@ export interface UserForm {
   userName: string;
   nickName?: string;
   password: string;
-  phonenumber?: string;
+  phoneNumber?: string;
   email?: string;
-  sex?: string;
+  gender?: string;
   status: string;
   remark?: string;
   postIds: string[];

@@ -25,7 +25,7 @@
                   <svg-icon icon-class="phone" />
                   <span>手机号码</span>
                 </div>
-                <span class="profile-item-value">{{ state.user.phonenumber || '-' }}</span>
+                <span class="profile-item-value">{{ state.user.phoneNumber || '-' }}</span>
               </li>
               <li class="list-group-item">
                 <div class="profile-item-label">

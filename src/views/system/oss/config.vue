@@ -1,35 +1,35 @@
 <template>
   <div class="p-2 page-shell system-oss-config-page">
     <div class="search-wrap">
-        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-          <template #header>
-            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-              <div>
-                <span class="panel-kicker">Search Filters</span>
-                <h3>筛选条件</h3>
-              </div>
+      <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+        <template #header>
+          <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+            <div>
+              <span class="panel-kicker">Search Filters</span>
+              <h3>筛选条件</h3>
             </div>
-          </template>
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-            <el-form-item label="配置key" prop="configKey">
-              <el-input v-model="queryParams.configKey" placeholder="配置key" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="桶名称" prop="bucketName">
-              <el-input v-model="queryParams.bucketName" placeholder="请输入桶名称" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="是否默认" prop="status">
-              <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-                <el-option key="0" label="是" value="0" />
-                <el-option key="1" label="否" value="1" />
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+          <el-form-item label="配置key" prop="configKey">
+            <el-input v-model="queryParams.configKey" placeholder="配置key" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="桶名称" prop="bucketName">
+            <el-input v-model="queryParams.bucketName" placeholder="请输入桶名称" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="是否默认" prop="status">
+            <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
+              <el-option key="Y" label="是" value="Y" />
+              <el-option key="N" label="否" value="N" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
 
     <el-card shadow="hover" class="table-panel">
       <template #header>
@@ -57,7 +57,7 @@
         <el-table-column v-if="columns[0].visible" label="主建" align="center" prop="ossConfigId" />
         <el-table-column v-if="columns[1].visible" label="配置key" align="center" prop="configKey" />
         <el-table-column v-if="columns[2].visible" label="访问站点" align="center" prop="endpoint" width="200" />
-        <el-table-column v-if="columns[3].visible" label="自定义域名" align="center" prop="domain" width="200" />
+        <el-table-column v-if="columns[3].visible" label="自定义域名" align="center" prop="domainUrl" width="200" />
         <el-table-column v-if="columns[4].visible" label="桶名称" align="center" prop="bucketName" />
         <el-table-column v-if="columns[5].visible" label="前缀" align="center" prop="prefix" />
         <el-table-column v-if="columns[6].visible" label="域" align="center" prop="region" />
@@ -100,8 +100,8 @@
             </template>
           </el-input>
         </el-form-item>
-        <el-form-item label="自定义域名" prop="domain">
-          <el-input v-model="form.domain" placeholder="请输入自定义域名">
+        <el-form-item label="自定义域名" prop="domainUrl">
+          <el-input v-model="form.domainUrl" placeholder="请输入自定义域名">
             <template #prefix>
               <span style="color: #999">{{ protocol }}</span>
             </template>
@@ -193,11 +193,11 @@ const initFormData: OssConfigForm = {
   bucketName: '',
   prefix: '',
   endpoint: '',
-  domain: '',
+  domainUrl: '',
   isHttps: 'N',
   accessPolicy: '1',
   region: '',
-  status: '1',
+  status: 'N',
   remark: ''
 };
 const data = reactive<PageData<OssConfigForm, OssConfigQuery>>({

@@ -65,7 +65,7 @@
                   <span class="link-type" @click.stop="handleTypeRowClick(scope.row)">{{ scope.row.dictType }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="备注" align="center" prop="remark" width="160"/>
+              <el-table-column label="备注" align="center" prop="remark" width="160" />
               <el-table-column label="创建时间" align="center" prop="createTime" width="180">
                 <template #default="scope">
                   <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
@@ -219,7 +219,7 @@
         <el-form-item prop="dictType">
           <template #label>
             <span>
-              <el-tooltip content="数据存储中的Key值，如：sys_user_sex" placement="top">
+              <el-tooltip content="数据存储中的Key值，如：sys_user_gender" placement="top">
                 <i class="el-icon-question"></i>
               </el-tooltip>
               字典类型

@@ -3,106 +3,106 @@
     <el-dialog v-model="userDialog.visible.value" :title="userDialog.title.value" width="80%" append-to-body class="user-select-dialog">
       <div class="page-shell user-select-shell">
         <el-row :gutter="12" class="selector-layout">
-        <!-- 部门树 -->
-        <el-col :lg="5" :xs="24">
-          <el-card shadow="hover" class="side-panel selector-card selector-side-card">
-            <template #header>
-              <div class="table-heading">
-                <h3>部门结构</h3>
-              </div>
-            </template>
-            <el-input v-model="deptName" class="selector-dept-input" placeholder="请输入部门名称" prefix-icon="Search" clearable />
-            <el-tree
-              ref="deptTreeRef"
-              class="selector-tree"
-              node-key="id"
-              :data="deptOptions"
-              :props="{ label: 'label', children: 'children' } as any"
-              :expand-on-click-node="false"
-              :filter-node-method="filterNode"
-              highlight-current
-              default-expand-all
-              @node-click="handleNodeClick"
-            />
-          </el-card>
-        </el-col>
-        <el-col :lg="19" :xs="24">
-          <div class="page-shell user-select-main">
-          <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
-            <div v-show="showSearch">
-              <el-card shadow="hover" class="search-panel selector-card">
-                <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-                  <el-form-item label="用户名称" prop="userName">
-                    <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
-                  </el-form-item>
-                  <el-form-item label="手机号码" prop="phonenumber">
-                    <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable @keyup.enter="handleQuery" />
-                  </el-form-item>
-                  <el-form-item>
-                    <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-                    <el-button icon="Refresh" @click="() => resetQuery()">重置</el-button>
-                  </el-form-item>
-                </el-form>
+          <!-- 部门树 -->
+          <el-col :lg="5" :xs="24">
+            <el-card shadow="hover" class="side-panel selector-card selector-side-card">
+              <template #header>
+                <div class="table-heading">
+                  <h3>部门结构</h3>
+                </div>
+              </template>
+              <el-input v-model="deptName" class="selector-dept-input" placeholder="请输入部门名称" prefix-icon="Search" clearable />
+              <el-tree
+                ref="deptTreeRef"
+                class="selector-tree"
+                node-key="id"
+                :data="deptOptions"
+                :props="{ label: 'label', children: 'children' } as any"
+                :expand-on-click-node="false"
+                :filter-node-method="filterNode"
+                highlight-current
+                default-expand-all
+                @node-click="handleNodeClick"
+              />
+            </el-card>
+          </el-col>
+          <el-col :lg="19" :xs="24">
+            <div class="page-shell user-select-main">
+              <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
+                <div v-show="showSearch">
+                  <el-card shadow="hover" class="search-panel selector-card">
+                    <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+                      <el-form-item label="用户名称" prop="userName">
+                        <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
+                      </el-form-item>
+                      <el-form-item label="手机号码" prop="phoneNumber">
+                        <el-input v-model="queryParams.phoneNumber" placeholder="请输入手机号码" clearable @keyup.enter="handleQuery" />
+                      </el-form-item>
+                      <el-form-item>
+                        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                        <el-button icon="Refresh" @click="() => resetQuery()">重置</el-button>
+                      </el-form-item>
+                    </el-form>
+                  </el-card>
+                </div>
+              </transition>
+
+              <el-card shadow="hover" class="table-panel selector-card">
+                <template #header>
+                  <div class="toolbar-shell selector-header">
+                    <div class="table-heading">
+                      <h3>用户列表</h3>
+                    </div>
+                    <div v-if="prop.multiple && selectUserList.length" class="selector-tags">
+                      <el-tag v-for="user in selectUserList" :key="user.userId" closable @close="handleCloseTag(user)">
+                        {{ user.nickName }}
+                      </el-tag>
+                    </div>
+                  </div>
+                </template>
+
+                <vxe-table
+                  ref="tableRef"
+                  class="selector-table"
+                  height="400px"
+                  border
+                  show-overflow
+                  :data="userList"
+                  :loading="loading"
+                  :row-config="{ keyField: 'userId', isHover: true }"
+                  :checkbox-config="{ reserve: true, trigger: 'row', highlight: true, showHeader: prop.multiple }"
+                  @checkbox-all="handleCheckboxAll"
+                  @checkbox-change="handleCheckboxChange"
+                >
+                  <vxe-column type="checkbox" width="50" align="center" />
+                  <vxe-column key="userId" title="用户编号" align="center" field="userId" />
+                  <vxe-column key="userName" title="用户名称" align="center" field="userName" />
+                  <vxe-column key="nickName" title="用户昵称" align="center" field="nickName" />
+                  <vxe-column key="deptName" title="部门" align="center" field="deptName" />
+                  <vxe-column key="phoneNumber" title="手机号码" align="center" field="phoneNumber" width="120" />
+                  <vxe-column key="status" title="状态" align="center">
+                    <template #default="scope">
+                      <dict-tag :options="sys_normal_disable" :value="scope.row.status"></dict-tag>
+                    </template>
+                  </vxe-column>
+
+                  <vxe-column title="创建时间" align="center" width="160">
+                    <template #default="scope">
+                      <span>{{ scope.row.createTime }}</span>
+                    </template>
+                  </vxe-column>
+                </vxe-table>
+
+                <pagination
+                  v-show="total > 0"
+                  v-model:page="queryParams.pageNum"
+                  v-model:limit="queryParams.pageSize"
+                  :total="total"
+                  @pagination="pageList"
+                />
               </el-card>
             </div>
-          </transition>
-
-          <el-card shadow="hover" class="table-panel selector-card">
-            <template #header>
-              <div class="toolbar-shell selector-header">
-                <div class="table-heading">
-                  <h3>用户列表</h3>
-                </div>
-                <div v-if="prop.multiple && selectUserList.length" class="selector-tags">
-                  <el-tag v-for="user in selectUserList" :key="user.userId" closable @close="handleCloseTag(user)">
-                    {{ user.nickName }}
-                  </el-tag>
-                </div>
-              </div>
-            </template>
-
-            <vxe-table
-              ref="tableRef"
-              class="selector-table"
-              height="400px"
-              border
-              show-overflow
-              :data="userList"
-              :loading="loading"
-              :row-config="{ keyField: 'userId', isHover: true }"
-              :checkbox-config="{ reserve: true, trigger: 'row', highlight: true, showHeader: prop.multiple }"
-              @checkbox-all="handleCheckboxAll"
-              @checkbox-change="handleCheckboxChange"
-            >
-              <vxe-column type="checkbox" width="50" align="center" />
-              <vxe-column key="userId" title="用户编号" align="center" field="userId" />
-              <vxe-column key="userName" title="用户名称" align="center" field="userName" />
-              <vxe-column key="nickName" title="用户昵称" align="center" field="nickName" />
-              <vxe-column key="deptName" title="部门" align="center" field="deptName" />
-              <vxe-column key="phonenumber" title="手机号码" align="center" field="phonenumber" width="120" />
-              <vxe-column key="status" title="状态" align="center">
-                <template #default="scope">
-                  <dict-tag :options="sys_normal_disable" :value="scope.row.status"></dict-tag>
-                </template>
-              </vxe-column>
-
-              <vxe-column title="创建时间" align="center" width="160">
-                <template #default="scope">
-                  <span>{{ scope.row.createTime }}</span>
-                </template>
-              </vxe-column>
-            </vxe-table>
-
-            <pagination
-              v-show="total > 0"
-              v-model:page="queryParams.pageNum"
-              v-model:limit="queryParams.pageSize"
-              :total="total"
-              @pagination="pageList"
-            />
-          </el-card>
-          </div>
-        </el-col>
+          </el-col>
         </el-row>
       </div>
 
@@ -159,7 +159,7 @@ const queryParams = ref<UserQuery>({
   pageNum: 1,
   pageSize: 10,
   userName: '',
-  phonenumber: '',
+  phoneNumber: '',
   status: '',
   deptId: '',
   roleId: '',

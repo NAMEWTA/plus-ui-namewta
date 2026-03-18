@@ -29,49 +29,49 @@
       </el-col>
       <el-col :lg="19" :xs="24" class="content-main">
         <div class="search-wrap">
-            <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-              <template #header>
-                <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-                  <div>
-                    <span class="panel-kicker">Search Filters</span>
-                    <h3>筛选条件</h3>
-                  </div>
+          <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+            <template #header>
+              <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+                <div>
+                  <span class="panel-kicker">Search Filters</span>
+                  <h3>筛选条件</h3>
                 </div>
-              </template>
-              <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-                <el-form-item label="用户名称" prop="userName">
-                  <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item label="用户昵称" prop="nickName">
-                  <el-input v-model="queryParams.nickName" placeholder="请输入用户昵称" clearable @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item label="手机号码" prop="phonenumber">
-                  <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable @keyup.enter="handleQuery" />
-                </el-form-item>
+              </div>
+            </template>
+            <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+              <el-form-item label="用户名称" prop="userName">
+                <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
+              </el-form-item>
+              <el-form-item label="用户昵称" prop="nickName">
+                <el-input v-model="queryParams.nickName" placeholder="请输入用户昵称" clearable @keyup.enter="handleQuery" />
+              </el-form-item>
+              <el-form-item label="手机号码" prop="phoneNumber">
+                <el-input v-model="queryParams.phoneNumber" placeholder="请输入手机号码" clearable @keyup.enter="handleQuery" />
+              </el-form-item>
 
-                <el-form-item label="状态" prop="status">
-                  <el-select v-model="queryParams.status" placeholder="用户状态" clearable>
-                    <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="创建时间" style="width: 308px">
-                  <el-date-picker
-                    v-model="dateRange"
-                    value-format="YYYY-MM-DD HH:mm:ss"
-                    type="daterange"
-                    range-separator="-"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
-                    :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-                  ></el-date-picker>
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-                </el-form-item>
-              </el-form>
-            </el-card>
-          </div>
+              <el-form-item label="状态" prop="status">
+                <el-select v-model="queryParams.status" placeholder="用户状态" clearable>
+                  <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="创建时间" style="width: 308px">
+                <el-date-picker
+                  v-model="dateRange"
+                  value-format="YYYY-MM-DD HH:mm:ss"
+                  type="daterange"
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
+                ></el-date-picker>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </div>
 
         <el-card shadow="hover" class="table-panel">
           <template #header>
@@ -114,7 +114,7 @@
             <el-table-column v-if="columns[1].visible" key="userName" label="用户名称" align="center" prop="userName" :show-overflow-tooltip="true" />
             <el-table-column v-if="columns[2].visible" key="nickName" label="用户昵称" align="center" prop="nickName" :show-overflow-tooltip="true" />
             <el-table-column v-if="columns[3].visible" key="deptName" label="部门" align="center" prop="deptName" :show-overflow-tooltip="true" />
-            <el-table-column v-if="columns[4].visible" key="phonenumber" label="手机号码" align="center" prop="phonenumber" width="120" />
+            <el-table-column v-if="columns[4].visible" key="phoneNumber" label="手机号码" align="center" prop="phoneNumber" width="120" />
             <el-table-column v-if="columns[5].visible" key="status" label="状态" align="center">
               <template #default="scope">
                 <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
@@ -183,8 +183,8 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="手机号码" prop="phonenumber">
-              <el-input v-model="form.phonenumber" placeholder="请输入手机号码" maxlength="11" />
+            <el-form-item label="手机号码" prop="phoneNumber">
+              <el-input v-model="form.phoneNumber" placeholder="请输入手机号码" maxlength="11" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -208,8 +208,8 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="用户性别">
-              <el-select v-model="form.sex" placeholder="请选择">
-                <el-option v-for="dict in sys_user_sex" :key="dict.value" :label="dict.label" :value="dict.value"></el-option>
+              <el-select v-model="form.gender" placeholder="请选择">
+                <el-option v-for="dict in sys_user_gender" :key="dict.value" :label="dict.label" :value="dict.value"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -315,7 +315,7 @@ import { useUserStore } from '@/store/modules/user';
 
 const router = useRouter();
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable, sys_user_sex } = toRefs<any>(proxy?.useDict('sys_normal_disable', 'sys_user_sex'));
+const { sys_normal_disable, sys_user_gender } = toRefs<any>(proxy?.useDict('sys_normal_disable', 'sys_user_gender'));
 const userList = ref<UserVO[]>();
 const loading = ref(true);
 const showSearch = ref(true);
@@ -373,9 +373,9 @@ const initFormData: UserForm = {
   userName: '',
   nickName: undefined,
   password: '',
-  phonenumber: undefined,
+  phoneNumber: undefined,
   email: undefined,
-  sex: undefined,
+  gender: undefined,
   status: '0',
   remark: '',
   postIds: [],
@@ -388,7 +388,7 @@ const initData: PageData<UserForm, UserQuery> = {
     pageNum: 1,
     pageSize: 10,
     userName: '',
-    phonenumber: '',
+    phoneNumber: '',
     status: '',
     deptId: '',
     roleId: ''
@@ -421,7 +421,7 @@ const initData: PageData<UserForm, UserQuery> = {
         trigger: ['blur', 'change']
       }
     ],
-    phonenumber: [
+    phoneNumber: [
       {
         pattern: /^1[3456789][0-9]\d{8}$/,
         message: '请输入正确的手机号码',
@@ -628,9 +628,7 @@ const handleUpdate = async (row?: UserForm) => {
   dialog.title = '修改用户';
   Object.assign(form.value, data.user);
   postOptions.value = data.posts;
-  roleOptions.value = Array.from(
-    new Map([...data.roles, ...data.user.roles].map(role => [role.roleId, role])).values()
-  );
+  roleOptions.value = Array.from(new Map([...data.roles, ...data.user.roles].map((role) => [role.roleId, role])).values());
   form.value.postIds = data.postIds;
   form.value.roleIds = data.roleIds;
   form.value.password = '';

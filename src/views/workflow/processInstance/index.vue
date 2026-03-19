@@ -26,34 +26,34 @@
       </el-col>
       <el-col :lg="20" :xs="24" class="content-main">
         <div class="search-wrap">
-            <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-              <template #header>
-                <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-                  <div><h3>筛选条件</h3></div>
-                </div>
-              </template>
-              <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-                <el-form-item>
-                  <el-badge :value="userSelectCount" :max="10" class="item">
-                    <el-button type="primary" @click="openUserSelect">选择申请人</el-button>
-                  </el-badge>
-                </el-form-item>
-                <el-form-item label="任务名称" prop="nodeName">
-                  <el-input v-model="queryParams.nodeName" placeholder="请输入任务名称" @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item label="流程定义名称" label-width="100" prop="flowName">
-                  <el-input v-model="queryParams.flowName" placeholder="请输入流程定义名称" @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item label="流程定义编码" label-width="100" prop="flowCode">
-                  <el-input v-model="queryParams.flowCode" placeholder="请输入流程定义编码" @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-                </el-form-item>
-              </el-form>
-            </el-card>
-          </div>
+          <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+            <template #header>
+              <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+                <div><h3>筛选条件</h3></div>
+              </div>
+            </template>
+            <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+              <el-form-item>
+                <el-badge :value="userSelectCount" :max="10" class="item">
+                  <el-button type="primary" @click="openUserSelect">选择申请人</el-button>
+                </el-badge>
+              </el-form-item>
+              <el-form-item label="任务名称" prop="nodeName">
+                <el-input v-model="queryParams.nodeName" placeholder="请输入任务名称" @keyup.enter="handleQuery" />
+              </el-form-item>
+              <el-form-item label="流程定义名称" label-width="100" prop="flowName">
+                <el-input v-model="queryParams.flowName" placeholder="请输入流程定义名称" @keyup.enter="handleQuery" />
+              </el-form-item>
+              <el-form-item label="流程定义编码" label-width="100" prop="flowCode">
+                <el-input v-model="queryParams.flowCode" placeholder="请输入流程定义编码" @keyup.enter="handleQuery" />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </div>
         <el-card shadow="hover" class="table-panel">
           <template #header>
             <div class="toolbar-shell">
@@ -61,7 +61,9 @@
                 <h3>流程实例</h3>
               </div>
               <div class="toolbar-actions">
-                <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">删除</el-button>
+                <el-button v-hasPermi="['workflow:instance:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
+                  >删除</el-button
+                >
                 <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="handleQuery"></right-toolbar>
               </div>
             </div>
@@ -86,7 +88,14 @@
               <el-table-column align="center" prop="version" label="版本号" width="90">
                 <template #default="scope"> v{{ scope.row.version }}.0</template>
               </el-table-column>
-              <el-table-column v-if="tab === 'running'" align="center" prop="isSuspended" label="状态" min-width="70">
+              <el-table-column
+                v-if="tab === 'running'"
+                v-hasPermi="['workflow:instance:active']"
+                align="center"
+                prop="isSuspended"
+                label="状态"
+                min-width="70"
+              >
                 <template #default="scope">
                   <el-tag v-if="!scope.row.isSuspended" type="success">激活</el-tag>
                   <el-tag v-else type="danger">挂起</el-tag>
@@ -115,15 +124,27 @@
                       </el-popover>
                     </el-col>
                     <el-col :span="1.5">
-                      <el-button type="danger" size="small" icon="Delete" @click="handleDelete(scope.row)">删除 </el-button>
+                      <el-button v-hasPermi="['workflow:instance:remove']" type="danger" size="small" icon="Delete" @click="handleDelete(scope.row)"
+                        >删除
+                      </el-button>
                     </el-col>
                   </el-row>
                   <el-row :gutter="10" class="mb8">
                     <el-col :span="1.5">
-                      <el-button type="primary" size="small" icon="View" @click="handleView(scope.row)">查看</el-button>
+                      <el-button v-hasPermi="['workflow:instance:query']" type="primary" size="small" icon="View" @click="handleView(scope.row)"
+                        >查看</el-button
+                      >
                     </el-col>
                     <el-col :span="1.5">
-                      <el-button type="primary" size="small" icon="Document" @click="handleInstanceVariable(scope.row)"> 变量 </el-button>
+                      <el-button
+                        v-hasPermi="['workflow:instance:variableQuery']"
+                        type="primary"
+                        size="small"
+                        icon="Document"
+                        @click="handleInstanceVariable(scope.row)"
+                      >
+                        变量
+                      </el-button>
                     </el-col>
                   </el-row>
                 </template>
@@ -149,7 +170,7 @@
         <el-table-column align="center" prop="version" label="版本号" width="90">
           <template #default="scope"> v{{ scope.row.version }}.0</template>
         </el-table-column>
-        <el-table-column align="center" prop="suspensionState" label="状态" min-width="70">
+        <el-table-column v-hasPermi="['workflow:instance:active']" align="center" prop="suspensionState" label="状态" min-width="70">
           <template #default="scope">
             <el-tag v-if="scope.row.suspensionState == 1" type="success">激活</el-tag>
             <el-tag v-else type="danger">挂起</el-tag>
@@ -181,7 +202,7 @@
             <el-input v-model="form.value" placeholder="请输入变量值" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="handleVariable(ruleFormRef)">确认</el-button>
+            <el-button v-hasPermi="['workflow:instance:variable']" type="primary" @click="handleVariable(ruleFormRef)">确认</el-button>
           </el-form-item>
         </el-form>
       </el-card>

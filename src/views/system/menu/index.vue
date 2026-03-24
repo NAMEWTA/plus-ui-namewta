@@ -56,10 +56,19 @@
         :load="getChildrenList"
         :expand-change="expandMenuHandle"
       >
-        <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160"></el-table-column>
-        <el-table-column prop="icon" label="图标" align="center" width="100">
+        <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="220">
           <template #default="scope">
-            <svg-icon :icon-class="scope.row.icon" />
+            <div class="menu-name-cell">
+              <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" />
+              <span class="menu-name-text">{{ scope.row.menuName }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="类型" width="100" align="center">
+          <template #default="scope">
+            <el-tag :type="getMenuTypeMeta(scope.row).type" size="small">
+              {{ getMenuTypeMeta(scope.row).label }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="orderNum" label="排序" width="60"></el-table-column>
@@ -68,11 +77,6 @@
         <el-table-column prop="status" label="状态" width="80">
           <template #default="scope">
             <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
-          </template>
-        </el-table-column>
-        <el-table-column label="创建时间" align="center" prop="createTime">
-          <template #default="scope">
-            <span>{{ scope.row.createTime }}</span>
           </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="180">
@@ -367,6 +371,21 @@ const menuTableRef = ref<ElTableInstance>();
 
 const { queryParams, form, rules } = toRefs<PageData<MenuForm, MenuQuery>>(data);
 
+type MenuTagType = 'warning' | 'primary' | 'success' | 'danger';
+
+const getMenuTypeMeta = (menu: MenuVO): { label: string; type: MenuTagType } => {
+  if (menu.menuType === MenuTypeEnum.F) {
+    return { label: '按钮', type: 'warning' };
+  }
+  if (menu.isFrame === 'Y') {
+    return { label: '外链', type: 'danger' };
+  }
+  if (menu.menuType === MenuTypeEnum.M) {
+    return { label: '目录', type: 'primary' };
+  }
+  return { label: '菜单', type: 'success' };
+};
+
 /** 获取子菜单列表 */
 const getChildrenList = async (row: any, treeNode: unknown, resolve: (data: any[]) => void) => {
   menuExpandMap.value[row.menuId] = { row, treeNode, resolve };
@@ -549,6 +568,17 @@ onMounted(() => {
 }
 
 .data-table {
+  .menu-name-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .menu-name-text {
+    min-width: 0;
+  }
+
   :deep(.el-button.is-link) {
     width: 32px;
     height: 32px;

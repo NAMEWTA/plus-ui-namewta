@@ -100,6 +100,10 @@ declare global {
      */
     tagsView: boolean;
     /**
+     * 是否持久化标签页
+     */
+    tagsViewPersist: boolean;
+    /**
      * 显示页签图标
      */
     tagsIcon: boolean;

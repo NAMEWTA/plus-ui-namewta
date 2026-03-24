@@ -5,84 +5,127 @@
 </template>
 
 <script setup lang="ts">
-import { RouteLocationNormalized } from 'vue-router';
-import { useTagsViewStore } from '@/store/modules/tagsView';
+import type { RouteLocationNormalized } from 'vue-router';
 
-const tagAndTagSpacing = ref(4);
+const tagAndTagSpacing = 4;
 
+const emits = defineEmits(['scroll', 'updateArrows']);
 const scrollContainerRef = ref<ElScrollbarInstance>();
-const scrollWrapper = computed(() => scrollContainerRef.value?.$refs.wrapRef);
+
+const getScrollWrapper = (): HTMLElement | null => {
+  const scrollbar = scrollContainerRef.value as any;
+  return scrollbar?.wrapRef || scrollbar?.$refs?.wrapRef || null;
+};
+
+const emitScroll = () => {
+  emits('scroll');
+  emits('updateArrows');
+};
 
 onMounted(() => {
-  scrollWrapper.value?.addEventListener('scroll', emitScroll, true);
+  getScrollWrapper()?.addEventListener('scroll', emitScroll, true);
 });
+
 onBeforeUnmount(() => {
-  scrollWrapper.value?.removeEventListener('scroll', emitScroll);
+  getScrollWrapper()?.removeEventListener('scroll', emitScroll);
 });
+
+const smoothScrollTo = (target: number) => {
+  const scrollWrapper = getScrollWrapper();
+  if (!scrollWrapper) {
+    return;
+  }
+  scrollWrapper.scrollTo({ left: target, behavior: 'smooth' });
+  setTimeout(() => {
+    emits('updateArrows');
+  }, 350);
+};
 
 const handleScroll = (e: WheelEvent) => {
   const eventDelta = (e as any).wheelDelta || -e.deltaY * 40;
-  const $scrollWrapper = scrollWrapper.value;
-  $scrollWrapper.scrollLeft = $scrollWrapper.scrollLeft + eventDelta / 4;
-};
-const emits = defineEmits(['scroll']);
-const emitScroll = () => {
-  emits('scroll');
-};
+  const scrollWrapper = getScrollWrapper();
+  if (!scrollWrapper) {
+    return;
+  }
 
-const tagsViewStore = useTagsViewStore();
-const visitedViews = computed(() => tagsViewStore.visitedViews);
+  scrollWrapper.scrollLeft += eventDelta / 4;
+  emits('updateArrows');
+};
 
 const moveToTarget = (currentTag: RouteLocationNormalized) => {
-  const $container = scrollContainerRef.value?.$el;
-  const $containerWidth = $container.offsetWidth;
-  const $scrollWrapper = scrollWrapper.value;
-
-  let firstTag = null;
-  let lastTag = null;
-
-  // find first tag and last tag
-  if (visitedViews.value.length > 0) {
-    firstTag = visitedViews.value[0];
-    lastTag = visitedViews.value[visitedViews.value.length - 1];
+  const container = scrollContainerRef.value?.$el as HTMLElement | undefined;
+  const scrollWrapper = getScrollWrapper();
+  if (!container || !scrollWrapper) {
+    return;
   }
 
-  if (firstTag === currentTag) {
-    $scrollWrapper.scrollLeft = 0;
-  } else if (lastTag === currentTag) {
-    $scrollWrapper.scrollLeft = $scrollWrapper.scrollWidth - $containerWidth;
-  } else {
-    const tagListDom: any = document.getElementsByClassName('tags-view-item');
-    const currentIndex = visitedViews.value.findIndex((item) => item === currentTag);
-    let prevTag = null;
-    let nextTag = null;
-
-    for (const k in tagListDom) {
-      if (k !== 'length' && Object.hasOwnProperty.call(tagListDom, k)) {
-        if (tagListDom[k].dataset.path === visitedViews.value[currentIndex - 1].path) {
-          prevTag = tagListDom[k];
-        }
-        if (tagListDom[k].dataset.path === visitedViews.value[currentIndex + 1].path) {
-          nextTag = tagListDom[k];
-        }
-      }
-    }
-
-    // the tag's offsetLeft after of nextTag
-    const afterNextTagOffsetLeft = nextTag.offsetLeft + nextTag.offsetWidth + tagAndTagSpacing.value;
-
-    // the tag's offsetLeft before of prevTag
-    const beforePrevTagOffsetLeft = prevTag.offsetLeft - tagAndTagSpacing.value;
-    if (afterNextTagOffsetLeft > $scrollWrapper.scrollLeft + $containerWidth) {
-      $scrollWrapper.scrollLeft = afterNextTagOffsetLeft - $containerWidth;
-    } else if (beforePrevTagOffsetLeft < $scrollWrapper.scrollLeft) {
-      $scrollWrapper.scrollLeft = beforePrevTagOffsetLeft;
-    }
+  const containerWidth = container.offsetWidth;
+  const tagKey = currentTag.fullPath || currentTag.path;
+  const tagListDom = Array.from(document.querySelectorAll('.tags-view-item')) as HTMLElement[];
+  const currentIndex = tagListDom.findIndex((item) => item.dataset.tagKey === tagKey);
+  if (currentIndex === -1) {
+    return;
   }
+
+  const currentElement = tagListDom[currentIndex];
+  const firstTag = tagListDom[0];
+  const lastTag = tagListDom[tagListDom.length - 1];
+
+  if (currentElement === firstTag) {
+    smoothScrollTo(0);
+    return;
+  }
+
+  if (currentElement === lastTag) {
+    smoothScrollTo(scrollWrapper.scrollWidth - containerWidth);
+    return;
+  }
+
+  const prevTag = tagListDom[currentIndex - 1];
+  const nextTag = tagListDom[currentIndex + 1];
+  if (!prevTag || !nextTag) {
+    return;
+  }
+
+  const afterNextTagOffsetLeft = nextTag.offsetLeft + nextTag.offsetWidth + tagAndTagSpacing;
+  const beforePrevTagOffsetLeft = prevTag.offsetLeft - tagAndTagSpacing;
+
+  if (afterNextTagOffsetLeft > scrollWrapper.scrollLeft + containerWidth) {
+    smoothScrollTo(afterNextTagOffsetLeft - containerWidth);
+  } else if (beforePrevTagOffsetLeft < scrollWrapper.scrollLeft) {
+    smoothScrollTo(beforePrevTagOffsetLeft);
+  }
+};
+
+const scrollToStart = () => {
+  smoothScrollTo(0);
+};
+
+const scrollToEnd = () => {
+  const scrollWrapper = getScrollWrapper();
+  if (!scrollWrapper) {
+    return;
+  }
+  smoothScrollTo(scrollWrapper.scrollWidth - scrollWrapper.clientWidth);
+};
+
+const getScrollState = () => {
+  const scrollWrapper = getScrollWrapper();
+  if (!scrollWrapper) {
+    return { canLeft: false, canRight: false };
+  }
+
+  return {
+    canLeft: scrollWrapper.scrollLeft > 0,
+    canRight: scrollWrapper.scrollLeft < scrollWrapper.scrollWidth - scrollWrapper.clientWidth - 1
+  };
 };
 
 defineExpose({
-  moveToTarget
+  moveToTarget,
+  scrollToStart,
+  scrollToEnd,
+  getScrollState
 });
 </script>
 
@@ -92,11 +135,15 @@ defineExpose({
   position: relative;
   overflow: hidden;
   width: 100%;
+
   :deep(.el-scrollbar__bar) {
-    bottom: 0px;
+    bottom: 0;
   }
+
   :deep(.el-scrollbar__wrap) {
-    height: 49px;
+    height: 34px;
+    display: flex;
+    align-items: center;
   }
 }
 </style>

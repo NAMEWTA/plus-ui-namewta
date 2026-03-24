@@ -7,8 +7,8 @@ import { NavTypeEnum } from '@/enums/NavTypeEnum';
 
 export const useSettingsStore = defineStore('setting', () => {
   const storageSetting = useStorage<LayoutSetting>('layout-setting', {
-    topNav: defaultSettings.topNav,
     tagsView: defaultSettings.tagsView,
+    tagsViewPersist: defaultSettings.tagsViewPersist,
     tagsIcon: defaultSettings.tagsIcon,
     fixedHeader: defaultSettings.fixedHeader,
     sidebarLogo: defaultSettings.sidebarLogo,
@@ -22,6 +22,7 @@ export const useSettingsStore = defineStore('setting', () => {
   const sideTheme = ref<string>(storageSetting.value.sideTheme);
   const showSettings = ref<boolean>(defaultSettings.showSettings);
   const tagsView = ref<boolean>(storageSetting.value.tagsView);
+  const tagsViewPersist = ref<boolean>(storageSetting.value.tagsViewPersist);
   const tagsIcon = ref<boolean>(storageSetting.value.tagsIcon);
   const fixedHeader = ref<boolean>(storageSetting.value.fixedHeader);
   const sidebarLogo = ref<boolean>(storageSetting.value.sidebarLogo);
@@ -40,6 +41,7 @@ export const useSettingsStore = defineStore('setting', () => {
     sideTheme,
     showSettings,
     tagsView,
+    tagsViewPersist,
     tagsIcon,
     fixedHeader,
     sidebarLogo,

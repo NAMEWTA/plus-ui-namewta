@@ -52,6 +52,14 @@ function addIframe() {
   position: relative;
   overflow: hidden;
   padding: 12px;
+
+  &:fullscreen,
+  &:-webkit-full-screen,
+  &:-moz-full-screen,
+  &:-ms-fullscreen {
+    background: var(--el-bg-color);
+    overflow-y: auto;
+  }
 }
 
 .app-main.with-fixed-header {

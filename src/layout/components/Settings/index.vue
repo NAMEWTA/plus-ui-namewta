@@ -42,7 +42,7 @@
         <img src="@/assets/images/dark.svg" alt="dark" />
         <div v-if="sideTheme === 'theme-dark'" class="setting-drawer-block-checbox-selectIcon" style="display: block">
           <i aria-label="图标: check" class="anticon anticon-check">
-            <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class>
+            <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false">
               <path
                 d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"
               />
@@ -54,7 +54,7 @@
         <img src="@/assets/images/light.svg" alt="light" />
         <div v-if="sideTheme === 'theme-light'" class="setting-drawer-block-checbox-selectIcon" style="display: block">
           <i aria-label="图标: check" class="anticon anticon-check">
-            <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false" class>
+            <svg viewBox="64 64 896 896" data-icon="check" width="1em" height="1em" :fill="theme" aria-hidden="true" focusable="false">
               <path
                 d="M912 190h-69.9c-9.8 0-19.1 4.5-25.1 12.2L404.7 724.5 207 474a32 32 0 0 0-25.1-12.2H112c-6.7 0-10.4 7.7-6.3 12.9l273.9 347c12.8 16.2 37.4 16.2 50.3 0l488.4-618.9c4.1-5.1.4-12.8-6.3-12.8z"
               />
@@ -84,6 +84,13 @@
       <span>开启 Tags-Views</span>
       <span class="comp-style">
         <el-switch v-model="settingsStore.tagsView" class="drawer-switch" />
+      </span>
+    </div>
+
+    <div class="drawer-item">
+      <span>持久化标签页</span>
+      <span class="comp-style">
+        <el-switch v-model="settingsStore.tagsViewPersist" :disabled="!settingsStore.tagsView" class="drawer-switch" />
       </span>
     </div>
 
@@ -161,19 +168,19 @@ const toggleDark = () => useToggle(isDark);
 
 /** 菜单导航设置 */
 watch(
-  () => navType,
-  (val: string) => {
-    if (val.value === NavTypeEnum.TOP) {
+  navType,
+  (val) => {
+    if (val === NavTypeEnum.TOP) {
       appStore.toggleSideBarHide(true);
       permissionStore.setSidebarRouters(permissionStore.defaultRoutes as any);
-    } else if (val.value === NavTypeEnum.LEFT) {
+    } else if (val === NavTypeEnum.LEFT) {
       appStore.toggleSideBarHide(false);
       permissionStore.setSidebarRouters(permissionStore.defaultRoutes as any);
-    } else if (val.value === NavTypeEnum.MIX) {
+    } else if (val === NavTypeEnum.MIX) {
       appStore.toggleSideBarHide(false);
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 );
 
 const handleNavType = (val: NavTypeEnum) => {
@@ -202,7 +209,11 @@ const handleTheme = (val: string) => {
 const saveSetting = () => {
   proxy?.$modal.loading('正在保存到本地，请稍候...');
   const settings = useStorage<LayoutSetting>('layout-setting', defaultSettings);
+  if (!storeSettings.value.tagsViewPersist) {
+    localStorage.removeItem('tags-view-visited');
+  }
   settings.value.tagsView = storeSettings.value.tagsView;
+  settings.value.tagsViewPersist = storeSettings.value.tagsViewPersist;
   settings.value.tagsIcon = storeSettings.value.tagsIcon;
   settings.value.fixedHeader = storeSettings.value.fixedHeader;
   settings.value.sidebarLogo = storeSettings.value.sidebarLogo;
@@ -216,6 +227,7 @@ const saveSetting = () => {
 };
 const resetSetting = () => {
   proxy?.$modal.loading('正在清除设置缓存并刷新，请稍候...');
+  localStorage.removeItem('tags-view-visited');
   useStorage<any>('layout-setting', null).value = null;
   setTimeout('window.location.reload()', 1000);
 };

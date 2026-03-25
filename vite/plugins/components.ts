@@ -5,7 +5,9 @@ export default (path: any) => {
   return Components({
     resolvers: [
       // 自动导入 Element Plus 组件
-      ElementPlusResolver()
+      ElementPlusResolver({
+        importStyle: false
+      })
     ],
     dts: path.resolve(path.resolve(__dirname, '../../src'), 'types', 'components.d.ts')
   });

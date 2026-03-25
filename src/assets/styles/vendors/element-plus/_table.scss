@@ -1,0 +1,37 @@
+
+// 覆盖element plus 表格样式
+
+.el-table {
+  border-radius: var(--app-radius-md);
+  border: 1px solid var(--app-surface-border);
+
+  // 给右上角表头单元格增加右上角圆角
+  thead tr:first-child th:last-child {
+    border-top-right-radius: var(--app-radius-md);
+  }
+
+  // 给左下角单元格增加左下角圆角
+  tbody tr:last-child td:first-child {
+    border-bottom-left-radius: var(--app-radius-md);
+  }
+
+  // 给右下角单元格增加右下角圆角
+  tbody tr:last-child td:last-child {
+    border-bottom-right-radius: var(--app-radius-md);
+  }
+}
+
+// 去掉额外的表格边线，使用表格border
+.el-table--border:after,
+.el-table--border:before,
+.el-table--border .el-table__inner-wrapper:after,
+.el-table--border .el-table__inner-wrapper:before,
+.el-table__border-left-patch {
+  display: none;
+}
+
+// 去掉表格右侧和底部边框，使用单元的变宽
+.el-table--fit {
+  border-bottom: 0;
+  border-right: 0;
+}

@@ -16,6 +16,8 @@
 @use './components/table-toolbar';
 @use './components/query-form';
 @use './components/search-panel';
+// element样式放最上面，让下面的自定义样式可以覆盖默认样式
+@use 'element-plus/dist/index.css';
 @use './vendors/element-plus/primitives';
 @use './vendors/element-plus/base';
 @use './vendors/element-plus/dialog';
@@ -25,6 +27,7 @@
 @use './vendors/element-plus/popper' as element-popper;
 @use './vendors/element-plus/shell' as element-shell;
 @use './vendors/element-plus/navigation';
+@use './vendors/element-plus/table';
 @use './btn.scss';
 @use 'animate.css';
-@use 'element-plus/dist/index.css';
+

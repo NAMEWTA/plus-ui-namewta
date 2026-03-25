@@ -374,33 +374,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.page-shell {
-  display: flex;
-  flex-direction: column;
-}
+@use '@/assets/styles/components/page-shell' as pageShell;
 
-.content-main {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.dept-tree {
-  padding-top: 6px;
-}
-
-.data-table {
-  :deep(.el-button.is-link) {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: rgba(53, 109, 255, 0.08);
-  }
-}
-
-@media (max-width: 900px) {
-  .toolbar-shell {
-    align-items: flex-start;
-  }
-}
+@include pageShell.tree-table-crud-page;
 </style>

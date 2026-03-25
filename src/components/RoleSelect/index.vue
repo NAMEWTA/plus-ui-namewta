@@ -259,64 +259,11 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.role-select-shell {
-  gap: 12px;
-}
+@use '@/assets/styles/components/selector-dialog' as selectorDialog;
 
-.selector-card {
-  height: 100%;
-}
-
-.selector-header {
-  align-items: flex-start;
-}
-
-.selector-tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 6px;
-  max-width: min(100%, 520px);
-}
-
-.selector-tags :deep(.el-tag) {
-  margin: 0;
-}
-
-.role-select-dialog :deep(.el-dialog__body) {
-  padding-top: 12px;
-}
-
-.selector-table {
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.selector-table :deep(.vxe-table--render-default) {
-  border-radius: 10px;
-  color: var(--app-text-title);
-}
-
-.selector-table :deep(.vxe-header--column) {
-  background: var(--tableHeaderBg);
-  color: var(--tableHeaderTextColor);
-  font-weight: 600;
-}
-
-.selector-table :deep(.vxe-body--column),
-.selector-table :deep(.vxe-header--column) {
-  border-color: var(--app-surface-border);
-}
-
-.selector-table :deep(.vxe-body--row.row--hover),
-.selector-table :deep(.vxe-body--row:hover) {
-  background-color: rgba(53, 109, 255, 0.05);
-}
-
-@media (max-width: 768px) {
-  .selector-tags {
-    justify-content: flex-start;
-    max-width: 100%;
-  }
-}
+@include selectorDialog.shell-gap('.role-select-shell');
+@include selectorDialog.card-shell;
+@include selectorDialog.selector-header-tags;
+@include selectorDialog.dialog-body-padding('role-select-dialog');
+@include selectorDialog.selector-table;
 </style>

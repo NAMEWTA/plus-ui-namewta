@@ -143,15 +143,12 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.select-user-shell {
-  gap: 12px;
-}
+@use '@/assets/styles/components/selector-dialog' as selectorDialog;
+
+@include selectorDialog.shell-gap('.select-user-shell');
+@include selectorDialog.dialog-body-padding('select-user-dialog');
 
 .select-user-card :deep(.el-card__body) {
   padding: 14px 16px !important;
-}
-
-.select-user-dialog :deep(.el-dialog__body) {
-  padding-top: 12px;
 }
 </style>

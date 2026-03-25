@@ -1,0 +1,45 @@
+/* Shared Element Plus primitives used across multiple component overrides. */
+
+.el-card,
+.el-dialog,
+.el-drawer,
+.el-popover.el-popper,
+.el-dropdown__popper .el-dropdown-menu,
+.el-picker__popper,
+.el-select__popper.el-popper {
+  border-radius: var(--app-radius-lg);
+  border-color: var(--app-surface-border);
+  box-shadow: var(--app-shadow-md);
+}
+
+.el-card,
+.el-dialog,
+.el-drawer {
+  background: var(--app-surface-bg);
+}
+
+.el-button {
+  font-weight: 500;
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--app-accent-strong);
+  --el-button-border-color: var(--app-accent-strong);
+  --el-button-hover-bg-color: #4a7cff;
+  --el-button-hover-border-color: #4a7cff;
+  --el-button-active-bg-color: #2e5ce0;
+  --el-button-active-border-color: #2e5ce0;
+}
+
+.el-table {
+  --el-table-border-color: var(--app-surface-border);
+  --el-table-header-bg-color: var(--tableHeaderBg);
+  --el-table-tr-bg-color: transparent;
+  background: transparent;
+}
+
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  box-shadow: 0 0 0 1px var(--el-border-color) inset;
+}

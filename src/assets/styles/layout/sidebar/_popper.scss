@@ -1,0 +1,22 @@
+/* Collapsed navigation poppers and popup menu refinements. */
+
+.el-menu--vertical {
+  & > .el-menu {
+    .svg-icon {
+      margin-right: 16px;
+    }
+  }
+}
+
+.el-popper.is-pure {
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-md);
+
+  .el-menu--popup {
+    border-radius: var(--app-radius-md);
+  }
+
+  .el-menu-item {
+    border-radius: var(--app-radius-sm);
+  }
+}

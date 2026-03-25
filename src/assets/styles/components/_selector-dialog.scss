@@ -1,0 +1,74 @@
+/* Reusable scoped mixins for selector dialogs backed by cards and vxe tables. */
+
+@mixin shell-gap($selectors...) {
+  @each $selector in $selectors {
+    #{$selector} {
+      gap: 12px;
+    }
+  }
+}
+
+@mixin card-shell {
+  .selector-card {
+    height: 100%;
+  }
+}
+
+@mixin dialog-body-padding($dialog-class) {
+  .#{$dialog-class} :deep(.el-dialog__body) {
+    padding-top: 12px;
+  }
+}
+
+@mixin selector-header-tags($mobile-breakpoint: 768px) {
+  .selector-header {
+    align-items: flex-start;
+  }
+
+  .selector-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+    max-width: min(100%, 520px);
+  }
+
+  .selector-tags :deep(.el-tag) {
+    margin: 0;
+  }
+
+  @media (max-width: $mobile-breakpoint) {
+    .selector-tags {
+      justify-content: flex-start;
+      max-width: 100%;
+    }
+  }
+}
+
+@mixin selector-table {
+  .selector-table {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .selector-table :deep(.vxe-table--render-default) {
+    border-radius: 10px;
+    color: var(--app-text-title);
+  }
+
+  .selector-table :deep(.vxe-header--column) {
+    background: var(--tableHeaderBg);
+    color: var(--tableHeaderTextColor);
+    font-weight: 600;
+  }
+
+  .selector-table :deep(.vxe-body--column),
+  .selector-table :deep(.vxe-header--column) {
+    border-color: var(--app-surface-border);
+  }
+
+  .selector-table :deep(.vxe-body--row.row--hover),
+  .selector-table :deep(.vxe-body--row:hover) {
+    background-color: rgba(53, 109, 255, 0.05);
+  }
+}

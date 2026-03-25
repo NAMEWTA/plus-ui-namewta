@@ -1,0 +1,89 @@
+/* Shared search and filter form layout. */
+
+.query-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: end;
+}
+
+.query-form .el-form-item {
+  flex: 0 0 auto;
+  margin-bottom: 0;
+  margin-right: 0;
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+}
+
+.query-form .el-form-item__content {
+  min-width: 0;
+}
+
+.query-form .el-form-item:last-child {
+  margin-left: auto;
+  align-self: end;
+}
+
+.query-form .el-form-item:last-child .el-form-item__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.query-form .el-form-item:last-child .el-button {
+  margin-left: 0 !important;
+  flex-shrink: 0;
+}
+
+.query-form .el-form-item:last-child .el-button + .el-button {
+  margin-left: 0 !important;
+}
+
+.query-form .el-input__wrapper,
+.query-form .el-select__wrapper,
+.query-form .el-textarea__inner,
+.query-form .el-date-editor,
+.query-form .el-range-editor,
+.query-form .el-cascader .el-input__wrapper,
+.query-form .el-input-number,
+.query-form .el-input-number__decrease,
+.query-form .el-input-number__increase {
+  border-radius: 12px !important;
+}
+
+.query-form .el-button {
+  border-radius: 10px !important;
+}
+
+@media (max-width: 900px) {
+  .query-form {
+    gap: 10px 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .query-form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .query-form .el-form-item {
+    width: 100%;
+  }
+
+  .query-form .el-input,
+  .query-form .el-select,
+  .query-form .el-date-editor,
+  .query-form .el-cascader,
+  .query-form .el-input-number {
+    width: 100% !important;
+  }
+
+  .query-form .el-form-item:last-child {
+    margin-left: 0;
+  }
+}

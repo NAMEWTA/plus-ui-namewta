@@ -328,17 +328,16 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.user-select-shell,
-.user-select-main {
-  gap: 12px;
-}
+@use '@/assets/styles/components/selector-dialog' as selectorDialog;
+
+@include selectorDialog.shell-gap('.user-select-shell', '.user-select-main');
+@include selectorDialog.card-shell;
+@include selectorDialog.selector-header-tags(992px);
+@include selectorDialog.dialog-body-padding('user-select-dialog');
+@include selectorDialog.selector-table;
 
 .selector-layout {
   align-items: stretch;
-}
-
-.selector-card {
-  height: 100%;
 }
 
 .selector-side-card {
@@ -353,60 +352,9 @@ defineExpose({
   min-height: 400px;
 }
 
-.selector-header {
-  align-items: flex-start;
-}
-
-.selector-tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 6px;
-  max-width: min(100%, 520px);
-}
-
-.selector-tags :deep(.el-tag) {
-  margin: 0;
-}
-
-.user-select-dialog :deep(.el-dialog__body) {
-  padding-top: 12px;
-}
-
-.selector-table {
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.selector-table :deep(.vxe-table--render-default) {
-  border-radius: 10px;
-  color: var(--app-text-title);
-}
-
-.selector-table :deep(.vxe-header--column) {
-  background: var(--tableHeaderBg);
-  color: var(--tableHeaderTextColor);
-  font-weight: 600;
-}
-
-.selector-table :deep(.vxe-body--column),
-.selector-table :deep(.vxe-header--column) {
-  border-color: var(--app-surface-border);
-}
-
-.selector-table :deep(.vxe-body--row.row--hover),
-.selector-table :deep(.vxe-body--row:hover) {
-  background-color: rgba(53, 109, 255, 0.05);
-}
-
 @media (max-width: 992px) {
   .selector-tree {
     min-height: 220px;
-  }
-
-  .selector-tags {
-    justify-content: flex-start;
-    max-width: 100%;
   }
 }
 </style>

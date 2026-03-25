@@ -1,26 +1,26 @@
 <template>
   <div class="p-2 page-shell demo-demo-page">
     <div class="search-wrap">
-        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-          <template #header>
-            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-              <div><h3>筛选条件</h3></div>
-            </div>
-          </template>
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-            <el-form-item label="key键" prop="testKey">
-              <el-input v-model="queryParams.testKey" placeholder="请输入key键" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="值" prop="value">
-              <el-input v-model="queryParams.value" placeholder="请输入值" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+      <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+        <template #header>
+          <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+            <div><h3>筛选条件</h3></div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+          <el-form-item label="key键" prop="testKey">
+            <el-input v-model="queryParams.testKey" placeholder="请输入key键" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="值" prop="value">
+            <el-input v-model="queryParams.value" placeholder="请输入值" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
 
     <el-card shadow="hover" class="table-panel">
       <template #header>

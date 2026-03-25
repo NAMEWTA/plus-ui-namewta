@@ -154,6 +154,13 @@
   margin-left: 0 !important;
 }
 
+.el-dialog__footer .dialog-footer {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 // refine element ui upload
 .upload-container {
   .el-upload {

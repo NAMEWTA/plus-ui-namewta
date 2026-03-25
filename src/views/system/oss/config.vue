@@ -70,7 +70,7 @@
         </el-table-column>
         <el-table-column v-if="columns[8].visible" label="是否默认" align="center" prop="status">
           <template #default="scope">
-            <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
+            <el-switch v-model="scope.row.status" active-value="Y" inactive-value="N" @change="handleStatusChange(scope.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" fixed="right" align="center" width="150" class-name="small-padding">
@@ -323,16 +323,14 @@ const submitForm = () => {
 };
 /** 状态修改  */
 const handleStatusChange = async (row: OssConfigVO) => {
-  const text = row.status === '0' ? '启用' : '停用';
+  const text = row.status === 'Y' ? '启用' : '停用';
   try {
     await proxy?.$modal.confirm('确认要"' + text + '""' + row.configKey + '"配置吗?');
     await changeOssConfigStatus(row.ossConfigId, row.status, row.configKey);
     await getList();
     proxy?.$modal.msgSuccess(text + '成功');
   } catch {
-    return;
-  } finally {
-    row.status = row.status === '0' ? '1' : '0';
+    row.status = row.status === 'Y' ? 'N' : 'Y';
   }
 };
 /** 删除按钮操作 */

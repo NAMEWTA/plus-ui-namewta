@@ -218,7 +218,7 @@ aside {
 .el-input__wrapper,
 .el-textarea__inner,
 .el-select__wrapper {
-  box-shadow: 0 0 0 1px transparent inset;
+  box-shadow: 0 0 0 1px var(--el-border-color) inset;
 }
 
 .components-container {

@@ -71,7 +71,7 @@ function handleCurrentChange(val: number) {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 18px;
+  padding-top: 10px;
   margin-top: 18px;
   border-top: 1px solid rgba(148, 163, 184, 0.14);
 

@@ -1,19 +1,4 @@
-/* Navigation and collection views: tables, tabs, pagination, breadcrumb. */
-
-.el-table {
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--app-surface-border);
-}
-
-.el-table__header-wrapper,
-.el-table__body-wrapper {
-  background: transparent;
-}
-
-.el-table__row:hover td.el-table__cell {
-  background-color: rgba(53, 109, 255, 0.05) !important;
-}
+/* 导航类组件：Tabs、Pagination、面包屑容 */
 
 .el-tabs__header {
   margin: 0 0 12px 0;

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell system-post-page">
+  <div class="p-2 app-container system-post-page">
     <el-row :gutter="20" class="content-grid">
       <!-- 部门树 -->
       <el-col :lg="5" :xs="24">

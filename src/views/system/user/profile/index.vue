@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell profile-page">
+  <div class="p-2 app-container profile-page">
     <el-row :gutter="20" class="profile-grid">
       <el-col :span="6" :xs="24">
         <el-card shadow="hover" class="side-panel profile-summary-card">
@@ -225,5 +225,26 @@ onMounted(() => {
   .profile-item-value {
     max-width: 50%;
   }
+}
+
+.list-group-striped > .list-group-item {
+  border-left: 0;
+  border-right: 0;
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.list-group {
+  padding-left: 0px;
+  list-style: none;
+}
+
+.list-group-item {
+  border-bottom: 1px solid #e7eaec;
+  border-top: 1px solid #e7eaec;
+  margin-bottom: -1px;
+  padding: 11px 0px;
+  font-size: 13px;
 }
 </style>

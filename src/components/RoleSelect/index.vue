@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog v-model="roleDialog.visible.value" :title="roleDialog.title.value" width="80%" append-to-body class="role-select-dialog">
-      <div class="page-shell role-select-shell">
+      <div class="p-2 role-select-shell">
       <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
         <div v-show="showSearch">
           <el-card shadow="hover" class="search-panel selector-card">

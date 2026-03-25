@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell workflow-my-document-page">
+  <div class="p-2 app-container workflow-my-document-page">
     <el-row :gutter="20" class="content-grid">
       <!-- 流程分类树 -->
       <el-col :lg="4" :xs="24">

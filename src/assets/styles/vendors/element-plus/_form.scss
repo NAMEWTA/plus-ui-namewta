@@ -1,4 +1,8 @@
-/* Form controls and generic rounded inputs. */
+/* 表单：inline 默认宽度；输入类圆角与 focus 环；按钮/tag/单选复选按钮组圆角。 */
+
+.el-form .el-form-item__label {
+  font-weight: 1000;
+}
 
 .el-form--inline .el-form-item__label {
   width: 68px;

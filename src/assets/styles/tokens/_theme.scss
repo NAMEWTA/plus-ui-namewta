@@ -1,6 +1,7 @@
-/* Light theme CSS variables and shared design tokens. */
+/* 浅色主题：仅声明 CSS 自定义属性，无具体选择器样式。 */
 
 :root {
+  // --- 侧栏与顶栏表格区域 ---
   --menuBg: #ffffff;
   --menuColor: #1f2937;
   --menuActiveText: #111827;
@@ -24,12 +25,19 @@
   --tags-view-active-bg: var(--el-color-primary);
   --tags-view-active-border-color: var(--el-color-primary);
 
+  // --- 应用壳：圆角、阴影、表面、导航、强调色与文案色 ---
   --app-radius-sm: 6px;
   --app-radius-md: 12px;
   --app-radius-lg: 18px;
+
+  --app-space-base: 12px;
+
   --app-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
   --app-shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
   --app-shadow-lg: 0 14px 36px rgba(15, 23, 42, 0.1);
+
+  --app-font-size-base: 14px;
+
   --app-surface-bg: #ffffff;
   --app-surface-border: #e5e7eb;
   --app-shell-bg: #f5f7fa;
@@ -48,6 +56,7 @@
   --app-elevated-close-bg: rgba(148, 163, 184, 0.14);
   --app-elevated-close-hover-bg: rgba(64, 158, 255, 0.14);
 
+  // --- 与 Element Plus 主题变量的桥接（页面背景、默认圆角/阴影） ---
   --el-border-radius-base: var(--app-radius-md);
   --el-border-radius-small: var(--app-radius-sm);
   --el-border-radius-round: 999px;

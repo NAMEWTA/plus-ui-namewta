@@ -1,3 +1,6 @@
+// =============================================================================
+// 全局样式入口（加载顺序即最终 CSS 层叠顺序，后载入的同优先级规则会覆盖先载入的）
+// =============================================================================
 @use './variables.module.scss' as *;
 @use './mixin.scss';
 @use './transition.scss';
@@ -8,7 +11,6 @@
 @use './layout/sidebar/collapsed';
 @use './layout/sidebar/responsive';
 @use './layout/sidebar/popper' as sidebar-popper;
-@use './components/legacy-layout';
 @use './components/legacy-utilities';
 @use './components/page-shell';
 @use './components/card-shell';
@@ -16,18 +18,6 @@
 @use './components/table-toolbar';
 @use './components/query-form';
 @use './components/search-panel';
-// element样式放最上面，让下面的自定义样式可以覆盖默认样式
-@use 'element-plus/dist/index.css';
-@use './vendors/element-plus/primitives';
-@use './vendors/element-plus/base';
-@use './vendors/element-plus/dialog';
-@use './vendors/element-plus/dropdown';
-@use './vendors/element-plus/form';
-@use './vendors/element-plus/feedback';
-@use './vendors/element-plus/popper' as element-popper;
-@use './vendors/element-plus/shell' as element-shell;
-@use './vendors/element-plus/navigation';
-@use './vendors/element-plus/table';
-@use './btn.scss';
-@use 'animate.css';
 
+@use './vendors/element-plus/index' as element-custom;
+@use 'animate.css';

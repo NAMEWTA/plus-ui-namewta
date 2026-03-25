@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="p-2 page-shell dict-page">
+  <div class="p-2 app-container dict-page">
     <el-row :gutter="16" class="dict-grid">
       <!-- 字典类型 -->
       <el-col :xs="24" :lg="12">

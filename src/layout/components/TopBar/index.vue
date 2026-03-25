@@ -123,6 +123,11 @@ onMounted(() => {
   transform: none !important;
 }
 
+#app .topbar-menu.el-menu--horizontal .el-menu-item .svg-icon + span,
+#app .topbar-menu.el-menu--horizontal .el-sub-menu__title .svg-icon + span {
+  margin-left: 2px;
+}
+
 #app .topbar-menu.el-menu--horizontal > div > a > .el-menu-item .svg-icon,
 #app .topbar-menu.el-menu--horizontal > div > .el-sub-menu > .el-sub-menu__title .svg-icon,
 #app .topbar-menu.el-menu--horizontal > .el-sub-menu > .el-sub-menu__title .svg-icon {

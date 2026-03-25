@@ -1,8 +1,9 @@
-/* Sidebar shell, base sizing, and main container offsets. */
+/* 侧栏外壳：固定定位宽度、主区左边距、滚动条与 el-menu 根级样式；与 _menu/_collapsed/_responsive 分工。 */
 
 @use '../../variables.module.scss' as *;
 
 #app {
+  // --- 主内容区相对侧栏的偏移 ---
   .main-container {
     height: 100%;
     transition: margin-left 0.28s;
@@ -15,6 +16,7 @@
     margin-left: 0 !important;
   }
 
+  // --- 侧栏固定列：宽度过渡、主题下滚动条内菜单色变量 ---
   .sidebar-container {
     -webkit-transition: width 0.28s;
     transition: width 0.28s;

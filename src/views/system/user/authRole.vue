@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell auth-role-page">
+  <div class="p-2 app-container auth-role-page">
     <el-card shadow="hover" class="search-panel auth-role-info">
       <template #header>
         <div class="panel-heading">

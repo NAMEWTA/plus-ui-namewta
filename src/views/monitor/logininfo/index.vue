@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell monitor-logininfo-page">
+  <div class="p-2 app-container monitor-logininfo-page">
     <div class="search-wrap">
         <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
           <template #header>

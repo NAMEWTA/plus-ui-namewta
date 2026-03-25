@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell tool-gen-page">
+  <div class="p-2 app-container tool-gen-page">
     <div class="search-wrap">
         <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
           <template #header>

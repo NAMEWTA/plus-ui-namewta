@@ -1,4 +1,4 @@
-/* Responsive sidebar behavior for mobile and transition disabling. */
+/* 移动端侧栏：抽屉式滑出、隐藏时 translate；.withoutAnimation 关闭过渡（与布局组件 class 约定一致）。 */
 
 @use '../../variables.module.scss' as *;
 

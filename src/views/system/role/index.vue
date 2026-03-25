@@ -1,5 +1,5 @@
 <template>
-  <div class="page-shell system-role-page">
+  <div class="p-2 system-role-page">
     <div class="search-wrap">
         <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
           <template #header>

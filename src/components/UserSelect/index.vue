@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-dialog v-model="userDialog.visible.value" :title="userDialog.title.value" width="80%" append-to-body class="user-select-dialog">
-      <div class="page-shell user-select-shell">
+      <div class="p-2 user-select-shell">
         <el-row :gutter="12" class="selector-layout">
           <!-- 部门树 -->
           <el-col :lg="5" :xs="24">
@@ -27,7 +27,7 @@
             </el-card>
           </el-col>
           <el-col :lg="19" :xs="24">
-            <div class="page-shell user-select-main">
+            <div class="p-2user-select-main">
               <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
                 <div v-show="showSearch">
                   <el-card shadow="hover" class="search-panel selector-card">

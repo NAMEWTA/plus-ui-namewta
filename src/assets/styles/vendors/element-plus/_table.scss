@@ -1,9 +1,10 @@
-
-// 覆盖element plus 表格样式
+/* Element Plus 表格：通用容器圆角、边线、overflow、行 hover、四角单元格、border/fit 清理（不含业务页表头 token，表头见 components/_legacy-utilities）。 */
+@use '../../tokens/sass-vars' as *;
 
 .el-table {
   border-radius: var(--app-radius-md);
   border: 1px solid var(--app-surface-border);
+  overflow: hidden;
 
   // 给右上角表头单元格增加右上角圆角
   thead tr:first-child th:last-child {
@@ -21,6 +22,15 @@
   }
 }
 
+.el-table__header-wrapper,
+.el-table__body-wrapper {
+  background: transparent;
+}
+
+.el-table__row:hover td.el-table__cell {
+  background-color: rgba(53, 109, 255, 0.05) !important;
+}
+
 // 去掉额外的表格边线，使用表格border
 .el-table--border:after,
 .el-table--border:before,
@@ -35,3 +45,39 @@
   border-bottom: 0;
   border-right: 0;
 }
+
+
+
+// --- 表格内操作列：固定宽按钮、下拉链接色 ---
+.el-table .fixed-width .el-button--small {
+  padding-left: 0;
+  padding-right: 0;
+  width: inherit;
+}
+
+.el-table .el-dropdown-link {
+  cursor: pointer;
+  color: #409eff;
+  margin-left: 10px;
+}
+
+
+.el-table {
+  .el-table__header-wrapper,
+  .el-table__fixed-header-wrapper {
+    th {
+      word-break: break-word;
+      background-color: $table-header-bg !important;
+      color: $table-header-text-color;
+      height: 40px !important;
+      font-size: 13px;
+    }
+  }
+
+  .el-table__body-wrapper {
+    .el-button [class*='el-icon-'] + span {
+      margin-left: 1px;
+    }
+  }
+}
+

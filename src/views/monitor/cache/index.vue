@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell monitor-cache-page">
+  <div class="p-2 app-container monitor-cache-page">
     <el-row :gutter="12" class="cache-grid">
       <el-col :span="24">
         <el-card shadow="hover" class="table-panel">

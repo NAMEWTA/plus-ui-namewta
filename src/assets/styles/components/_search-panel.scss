@@ -1,5 +1,6 @@
 /* Search panel, table actions, and responsive panel shells. */
 
+// --- 表格工具列链接按钮（全局） ---
 .data-table .el-button.is-link {
   width: 28px !important;
   height: 28px !important;
@@ -15,39 +16,6 @@
 
 .search-wrap {
   margin-bottom: 0 !important;
-}
-
-.el-card.search-panel,
-.el-card.side-panel {
-  border-radius: 16px !important;
-  overflow: hidden;
-}
-
-.el-card.table-panel {
-  border-radius: 14px !important;
-  overflow: hidden;
-}
-
-.el-card.search-panel .el-card__header,
-.el-card.side-panel .el-card__header {
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-}
-
-.el-card.table-panel .el-card__header {
-  border-top-left-radius: 14px;
-  border-top-right-radius: 14px;
-}
-
-.el-card.search-panel .el-card__body,
-.el-card.side-panel .el-card__body {
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
-}
-
-.el-card.table-panel .el-card__body {
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
 }
 
 .search-panel {

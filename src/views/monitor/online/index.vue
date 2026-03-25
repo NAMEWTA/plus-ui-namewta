@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell monitor-online-page">
+  <div class="p-2 app-container monitor-online-page">
     <div class="search-wrap">
       <el-card shadow="hover" class="search-panel">
         <template #header>

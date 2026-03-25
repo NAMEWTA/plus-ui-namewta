@@ -1,5 +1,6 @@
 /* Global document styles and lightweight utility helpers. */
 
+// --- 视口与排版根 ---
 body {
   height: 100%;
   margin: 0;
@@ -48,14 +49,6 @@ body,
   box-sizing: inherit;
 }
 
-.no-padding {
-  padding: 0px !important;
-}
-
-.padding-content {
-  padding: 4px 0;
-}
-
 a:focus,
 a:active {
   outline: none;
@@ -73,34 +66,6 @@ div:focus {
   outline: none;
 }
 
-.fr {
-  float: right;
-}
-
-.fl {
-  float: left;
-}
-
-.pr-5 {
-  padding-right: 5px;
-}
-
-.pl-5 {
-  padding-left: 5px;
-}
-
-.block {
-  display: block;
-}
-
-.pointer {
-  cursor: pointer;
-}
-
-.inlineBlock {
-  display: block;
-}
-
 .clearfix {
   &:after {
     visibility: hidden;
@@ -112,33 +77,20 @@ div:focus {
   }
 }
 
-aside {
-  background: #eef1f6;
-  padding: 8px 24px;
-  margin-bottom: 20px;
-  border-radius: var(--app-radius-md);
-  display: block;
-  line-height: 32px;
-  font-size: 16px;
-  font-family:
-    'MiSans',
-    'HarmonyOS Sans SC',
-    'PingFang SC',
-    'Source Han Sans SC',
-    'Noto Sans SC',
-    'Hiragino Sans GB',
-    'Microsoft YaHei',
-    sans-serif;
-  color: #2c3e50;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  a {
-    color: #337ab7;
-    cursor: pointer;
-
-    &:hover {
-      color: rgb(32, 160, 255);
-    }
-  }
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.1;
+  color: inherit;
 }

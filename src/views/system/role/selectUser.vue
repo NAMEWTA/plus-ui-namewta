@@ -1,7 +1,7 @@
 <template>
   <el-row>
     <el-dialog v-model="visible" title="选择用户" width="800px" top="5vh" append-to-body class="select-user-dialog">
-      <div class="page-shell select-user-shell">
+      <div class="p-2 select-user-shell">
         <el-card shadow="hover" class="search-panel select-user-card">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
             <el-form-item label="用户名称" prop="userName">

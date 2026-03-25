@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 page-shell iframe-page">
+  <div class="p-2 app-container iframe-page">
     <div class="iframe-page__inner">
       <i-frame v-model:src="url"></i-frame>
     </div>

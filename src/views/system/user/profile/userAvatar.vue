@@ -156,6 +156,11 @@ const closeDialog = () => {
 </script>
 
 <style lang="scss" scoped>
+.img-lg {
+  width: 120px;
+  height: 120px;
+}
+
 .user-info-head {
   position: relative;
   display: inline-block;

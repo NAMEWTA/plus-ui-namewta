@@ -1,4 +1,4 @@
-/* Toast, alert, and message-box feedback components. */
+/* 反馈：MessageBox 卡片化；Message / Notification / Alert 圆角与暗色下 success 等背景微调。 */
 
 .el-message-box .el-message-box__message {
   word-break: break-word;
@@ -206,6 +206,7 @@
   border-color: var(--el-color-primary-light-7);
 }
 
+// --- 暗色下 Message 类型背景（与 tokens 中按钮色阶独立） ---
 html.dark {
   .el-message--success {
     background: rgba(31, 138, 90, 0.18);

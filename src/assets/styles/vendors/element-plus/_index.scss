@@ -1,10 +1,12 @@
-@use './primitives';
-@use './base';
+@use 'element-plus/dist/index.css';
+@use 'overrides';
+@use './misc';
 @use './dialog';
 @use './dropdown';
 @use './form';
 @use './feedback';
-@use './popper' as element-popper;
-@use './shell' as element-shell;
+@use './popper';
+@use './shell';
 @use './navigation';
 @use './table';
+@use './card';

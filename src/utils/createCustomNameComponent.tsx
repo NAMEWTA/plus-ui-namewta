@@ -12,6 +12,7 @@ interface Options {
 export function createCustomNameComponent(loader: () => Promise<any>, options: Options = {}): () => Promise<Component> {
   const { name } = options;
   let component: Component | null = null;
+  let wrappedComponent: Component | null = null;
 
   const load = async () => {
     try {
@@ -27,13 +28,15 @@ export function createCustomNameComponent(loader: () => Promise<any>, options: O
       await load();
     }
 
-    return Promise.resolve(
-      defineComponent({
+    if (!wrappedComponent) {
+      wrappedComponent = defineComponent({
         name,
         render() {
           return h(component as Component);
         }
-      })
-    );
+      });
+    }
+
+    return Promise.resolve(wrappedComponent);
   };
 }

@@ -1,6 +1,6 @@
 <template>
   <div id="tags-view-container" class="tags-view-container">
-    <span class="tags-nav-btn tags-nav-btn--left" :class="{ disabled: !canScrollLeft }" @click="scrollLeft">
+    <span v-if="canScrollLeft" class="tags-nav-btn tags-nav-btn--left" @click="scrollLeft">
       <el-icon><ArrowLeft /></el-icon>
     </span>
 
@@ -24,7 +24,7 @@
       </router-link>
     </scroll-pane>
 
-    <span class="tags-nav-btn tags-nav-btn--right" :class="{ disabled: !canScrollRight }" @click="scrollRight">
+    <span v-if="canScrollRight" class="tags-nav-btn tags-nav-btn--right" @click="scrollRight">
       <el-icon><ArrowRight /></el-icon>
     </span>
 
@@ -423,7 +423,6 @@ onBeforeUnmount(() => {
   $btn-color: #71717a;
   $btn-hover-bg: var(--el-fill-color-light);
   $btn-hover-color: var(--el-text-color-primary);
-  $btn-disabled-color: #c0c4cc;
 
   .tags-nav-btn {
     flex-shrink: 0;
@@ -451,11 +450,6 @@ onBeforeUnmount(() => {
       border-color: var(--el-color-primary-light-5);
       box-shadow: var(--app-shadow-sm);
       transform: translateY(-1px);
-    }
-
-    &.disabled {
-      color: $btn-disabled-color;
-      cursor: not-allowed;
     }
   }
 

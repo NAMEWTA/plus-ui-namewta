@@ -9,6 +9,10 @@ export default {
    */
   async refreshPage(obj?: RouteLocationNormalized): Promise<void> {
     const { path, query, matched } = router.currentRoute.value;
+    // 防止在重定向过程中重复刷新
+    if (path.startsWith('/redirect/')) {
+      return Promise.resolve();
+    }
     if (obj === undefined) {
       matched.forEach((m: RouteLocationMatched) => {
         if (m.components && m.components.default && m.components.default.name) {

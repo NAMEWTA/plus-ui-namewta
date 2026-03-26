@@ -39,7 +39,16 @@
           <el-dropdown-item command="closeLeft" :disabled="isFirstView()">关闭左侧</el-dropdown-item>
           <el-dropdown-item command="closeRight" :disabled="isLastView()">关闭右侧</el-dropdown-item>
           <el-dropdown-item command="closeAll">全部关闭</el-dropdown-item>
-          <el-dropdown-item command="fullscreen" divided>全屏显示</el-dropdown-item>
+          <el-dropdown-item command="fullscreen" divided>
+            <template v-if="!isFullscreen">
+              <FullScreen />
+              <span>全屏显示</span>
+            </template>
+            <template v-else>
+             <CloseBold />
+              <span>退出全屏</span>
+            </template>
+          </el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
@@ -50,30 +59,18 @@
     </span>
 
     <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)">
-        <RefreshRight style="width: 1em; height: 1em" /> 刷新页面
-      </li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">
-        <Close style="width: 1em; height: 1em" /> 关闭当前
-      </li>
-      <li @click="closeOthersTags">
-        <CircleClose style="width: 1em; height: 1em" /> 关闭其他
-      </li>
-      <li v-if="!isFirstView()" @click="closeLeftTags">
-        <Back style="width: 1em; height: 1em" /> 关闭左侧
-      </li>
-      <li v-if="!isLastView()" @click="closeRightTags">
-        <Right style="width: 1em; height: 1em" /> 关闭右侧
-      </li>
-      <li @click="closeAllTags(selectedTag)">
-        <CircleClose style="width: 1em; height: 1em" /> 全部关闭
-      </li>
+      <li @click="refreshSelectedTag(selectedTag)"><RefreshRight style="width: 1em; height: 1em" /> 刷新页面</li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)"><Close style="width: 1em; height: 1em" /> 关闭当前</li>
+      <li @click="closeOthersTags"><CircleClose style="width: 1em; height: 1em" /> 关闭其他</li>
+      <li v-if="!isFirstView()" @click="closeLeftTags"><Back style="width: 1em; height: 1em" /> 关闭左侧</li>
+      <li v-if="!isLastView()" @click="closeRightTags"><Right style="width: 1em; height: 1em" /> 关闭右侧</li>
+      <li @click="closeAllTags(selectedTag)"><CircleClose style="width: 1em; height: 1em" /> 全部关闭</li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, ArrowLeft, ArrowRight, Back, CircleClose, Close, RefreshRight, Right } from '@element-plus/icons-vue';
+import { ArrowDown, ArrowLeft, ArrowRight, Back, CircleClose, Close, CloseBold, FullScreen, RefreshRight, Right } from '@element-plus/icons-vue';
 import ScrollPane from './ScrollPane.vue';
 import { getNormalPath } from '@/utils/ruoyi';
 import { useSettingsStore } from '@/store/modules/settings';
@@ -90,6 +87,7 @@ const canScrollLeft = ref(false);
 const canScrollRight = ref(false);
 const isFullscreen = ref(false);
 const scrollPaneRef = ref<InstanceType<typeof ScrollPane>>();
+const fullscreenModeClass = 'tags-fullscreen-mode';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const route = useRoute();
@@ -334,17 +332,57 @@ const updateArrowState = () => {
   });
 };
 
+const syncFullscreenLayout = () => {
+  if (!isFullscreen.value) {
+    return;
+  }
+  const mainContainer = document.querySelector('.main-container') as HTMLElement | null;
+  const layoutHeader = mainContainer?.querySelector('.layout-header') as HTMLElement | null;
+  if (!mainContainer || !layoutHeader) {
+    return;
+  }
+  const headerHeight = Math.ceil(layoutHeader.getBoundingClientRect().height);
+  mainContainer.style.setProperty('--tags-fullscreen-header-height', `${headerHeight}px`);
+};
+
+const enterFullscreenMode = async () => {
+  const mainContainer = document.querySelector('.main-container') as HTMLElement | null;
+  if (!mainContainer) {
+    return;
+  }
+  document.body.classList.add(fullscreenModeClass);
+  mainContainer.classList.add(fullscreenModeClass);
+  isFullscreen.value = true;
+  await nextTick();
+  syncFullscreenLayout();
+};
+
+const exitFullscreenMode = () => {
+  const mainContainer = document.querySelector('.main-container') as HTMLElement | null;
+  document.body.classList.remove(fullscreenModeClass);
+  mainContainer?.classList.remove(fullscreenModeClass);
+  mainContainer?.style.removeProperty('--tags-fullscreen-header-height');
+  document.querySelector<HTMLElement>('.tags-action-dropdown .tags-action-btn')?.blur();
+  isFullscreen.value = false;
+};
+
 const toggleFullscreen = async () => {
-  const appMain = document.querySelector('.app-main') as HTMLElement | null;
-  if (!document.fullscreenElement) {
-    await appMain?.requestFullscreen?.();
-  } else {
-    await document.exitFullscreen();
+  if (isFullscreen.value) {
+    exitFullscreenMode();
+    return;
+  }
+  await enterFullscreenMode();
+};
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && isFullscreen.value) {
+    exitFullscreenMode();
   }
 };
 
-const onFullscreenChange = () => {
-  isFullscreen.value = !!document.fullscreenElement;
+const handleResize = () => {
+  updateArrowState();
+  syncFullscreenLayout();
 };
 
 const handleDropdownCommand = (command: string) => {
@@ -397,13 +435,14 @@ onMounted(() => {
   initTags();
   addTags();
   updateArrowState();
-  window.addEventListener('resize', updateArrowState);
-  document.addEventListener('fullscreenchange', onFullscreenChange);
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('keydown', handleKeyDown);
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateArrowState);
-  document.removeEventListener('fullscreenchange', onFullscreenChange);
+  exitFullscreenMode();
+  window.removeEventListener('resize', handleResize);
+  window.removeEventListener('keydown', handleKeyDown);
   document.body.removeEventListener('click', closeMenu);
 });
 </script>
@@ -627,5 +666,47 @@ onBeforeUnmount(() => {
       }
     }
   }
+}
+
+body.tags-fullscreen-mode {
+  overflow: hidden;
+}
+
+body.tags-fullscreen-mode .drawer-bg,
+body.tags-fullscreen-mode .sidebar-container,
+body.tags-fullscreen-mode .navbar {
+  display: none !important;
+}
+
+.main-container.tags-fullscreen-mode {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin-left: 0 !important;
+  z-index: 2000;
+  overflow: hidden;
+  background: var(--app-shell-bg);
+}
+
+.main-container.tags-fullscreen-mode .layout-header {
+  gap: 0;
+  padding: 12px 12px 0;
+}
+
+.main-container.tags-fullscreen-mode .layout-header.fixed-header {
+  position: relative;
+  top: 0;
+  right: auto;
+  width: auto !important;
+}
+
+.main-container.tags-fullscreen-mode .app-main,
+.main-container.tags-fullscreen-mode .app-main.with-fixed-header,
+.main-container.tags-fullscreen-mode .app-main.with-fixed-header.with-tags-view {
+  height: calc(100vh - var(--tags-fullscreen-header-height, 50px));
+  min-height: calc(100vh - var(--tags-fullscreen-header-height, 50px)) !important;
+  padding-top: 12px !important;
+  overflow: auto;
 }
 </style>

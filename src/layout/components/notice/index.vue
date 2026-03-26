@@ -1,12 +1,17 @@
 <template>
   <div v-loading="state.loading" class="layout-navbars-breadcrumb-user-news">
     <div class="head-box">
-      <div class="head-box-title">通知公告</div>
+      <div class="head-box-title">消息盒子</div>
       <div class="head-box-btn" @click="readAll">全部已读</div>
     </div>
+    <el-tabs v-model="activeTab" class="message-tabs" stretch>
+      <el-tab-pane :label="`系统 ${tabCount.system}`" name="system"></el-tab-pane>
+      <el-tab-pane :label="`通知 ${tabCount.notice}`" name="notice"></el-tab-pane>
+      <el-tab-pane :label="`工作 ${tabCount.workflow}`" name="workflow"></el-tab-pane>
+    </el-tabs>
     <div v-loading="state.loading" class="content-box">
-      <template v-if="newsList.length > 0">
-        <div v-for="(v, k) in newsList" :key="k" class="content-box-item" @click="onNewsClick(k)">
+      <template v-if="currentNewsList.length > 0">
+        <div v-for="(v, k) in currentNewsList" :key="k" class="content-box-item" @click="onNewsClick(k)">
           <div class="item-conten">
             <div class="content-box-title">{{ v.title || '消息' }}</div>
             <div>{{ v.message }}</div>
@@ -18,15 +23,15 @@
           <span v-else class="el-tag el-tag--danger el-tag--mini read">未读</span>
         </div>
       </template>
-      <el-empty v-else :description="'消息为空'"></el-empty>
+      <el-empty v-else :description="emptyDescription"></el-empty>
     </div>
-    <div v-if="newsList.length > 0" class="foot-box" @click="onGoToGiteeClick">前往gitee</div>
   </div>
 </template>
 
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
 import { useNoticeStore } from '@/store/modules/notice';
 import router from '@/router';
+import { NOTICE_GROUP } from '@/utils/push-message';
 
 const noticeStore = useNoticeStore();
 const { readAll } = useNoticeStore();
@@ -35,24 +40,35 @@ const { readAll } = useNoticeStore();
 const state = reactive({
   loading: false
 });
-const newsList = ref([]) as any;
+const activeTab = ref<string>(NOTICE_GROUP.SYSTEM);
+const newsList = computed(() => noticeStore.state.notices);
 
-/**
- * 初始化数据
- * @returns
- */
-const getTableData = async () => {
-  state.loading = true;
-  newsList.value = noticeStore.state.notices;
-  state.loading = false;
-};
+const tabCount = computed(() => ({
+  system: newsList.value.filter((item: any) => (item.category || NOTICE_GROUP.SYSTEM) === NOTICE_GROUP.SYSTEM).length,
+  notice: newsList.value.filter((item: any) => item.category === NOTICE_GROUP.NOTICE).length,
+  workflow: newsList.value.filter((item: any) => item.category === NOTICE_GROUP.WORKFLOW).length
+}));
+
+const currentNewsList = computed(() => {
+  return newsList.value.filter((item: any) => {
+    return (item.category || NOTICE_GROUP.SYSTEM) === activeTab.value;
+  });
+});
+
+const emptyDescription = computed(() => {
+  if (activeTab.value === NOTICE_GROUP.NOTICE) {
+    return '暂无通知公告消息';
+  }
+  if (activeTab.value === NOTICE_GROUP.WORKFLOW) {
+    return '暂无工作流消息';
+  }
+  return '暂无系统消息';
+});
 
 //点击消息，写入已读
 const onNewsClick = async (item: any) => {
-  newsList.value[item].read = true;
-  //并且写入pinia
-  noticeStore.state.notices = newsList.value;
-  const current = newsList.value[item];
+  currentNewsList.value[item].read = true;
+  const current = currentNewsList.value[item];
   if (current?.path) {
     await router.push({
       path: current.path,
@@ -60,17 +76,6 @@ const onNewsClick = async (item: any) => {
     });
   }
 };
-
-// 前往通知中心点击
-const onGoToGiteeClick = () => {
-  window.open('https://gitee.com/dromara/RuoYi-Vue-Plus/tree/5.X/');
-};
-
-onMounted(() => {
-  nextTick(() => {
-    getTableData();
-  });
-});
 </script>
 
 <style lang="scss" scoped>
@@ -79,7 +84,7 @@ onMounted(() => {
   flex-direction: column;
   min-width: 0;
 
-  .head-box {
+    .head-box {
     display: flex;
     border-bottom: 1px solid rgba(148, 163, 184, 0.14);
     box-sizing: border-box;
@@ -107,11 +112,34 @@ onMounted(() => {
     }
   }
 
+  .message-tabs {
+    padding-top: 6px;
+
+    :deep(.el-tabs__header) {
+      margin-bottom: 0;
+    }
+
+    :deep(.el-tabs__nav-wrap::after) {
+      background: rgba(148, 163, 184, 0.14);
+    }
+
+    :deep(.el-tabs__item) {
+      font-size: 12px;
+      height: 34px;
+      color: var(--app-text-muted);
+    }
+
+    :deep(.el-tabs__item.is-active) {
+      color: var(--app-accent-strong);
+      font-weight: 600;
+    }
+  }
+
   .content-box {
     height: 300px;
     overflow: auto;
     font-size: 13px;
-    padding: 8px 0;
+    padding: 8px 0 0;
 
     .content-box-item {
       display: flex;
@@ -167,23 +195,6 @@ onMounted(() => {
     }
   }
 
-  .foot-box {
-    height: 40px;
-    color: var(--app-accent-strong);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    opacity: 0.8;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top: 1px solid rgba(148, 163, 184, 0.14);
-    margin-top: 4px;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
   :deep(.el-empty__description p) {
     font-size: 13px;
   }

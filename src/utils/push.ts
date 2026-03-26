@@ -1,7 +1,7 @@
 import { getToken } from '@/utils/auth';
 import { ElNotification } from 'element-plus';
 import { useNoticeStore } from '@/store/modules/notice';
-import { parsePushMessage, PUSH_MESSAGE_TYPE, shouldAppendNotice } from '@/utils/push-message';
+import { parsePushMessage, resolveNoticeGroup, resolveNoticeTitle, shouldAppendNotice } from '@/utils/push-message';
 
 let closePushConnection: (() => void) | undefined;
 
@@ -10,8 +10,10 @@ const appendNotice = (raw: string) => {
   if (!shouldAppendNotice(payload)) {
     return;
   }
+  const title = resolveNoticeTitle(payload);
   useNoticeStore().addNotice({
-    title: payload.type === PUSH_MESSAGE_TYPE.NOTICE ? '通知公告' : '系统消息',
+    title,
+    category: resolveNoticeGroup(payload),
     type: payload.type,
     source: payload.source,
     message: payload.message ?? '',
@@ -23,7 +25,7 @@ const appendNotice = (raw: string) => {
     time: new Date(payload.timestamp ?? Date.now()).toLocaleString()
   });
   ElNotification({
-    title: payload.type === PUSH_MESSAGE_TYPE.NOTICE ? '通知公告' : '消息',
+    title,
     message: payload.message ?? '',
     type: 'success',
     duration: 3000

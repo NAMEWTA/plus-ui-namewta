@@ -5,6 +5,20 @@ export const PUSH_MESSAGE_TYPE = {
   CUSTOM: 'custom'
 } as const;
 
+export const PUSH_MESSAGE_SOURCE = {
+  BACKEND: 'backend',
+  NOTICE: 'notice',
+  WORKFLOW: 'workflow',
+  LLM: 'llm',
+  CLIENT: 'client'
+} as const;
+
+export const NOTICE_GROUP = {
+  SYSTEM: 'system',
+  NOTICE: 'notice',
+  WORKFLOW: 'workflow'
+} as const;
+
 export interface PushMessagePayload {
   type?: string;
   source?: string;
@@ -44,4 +58,25 @@ export const parsePushMessage = (raw: string): PushMessagePayload => {
 
 export const shouldAppendNotice = (payload: PushMessagePayload) => {
   return MESSAGE_CENTER_TYPES.has(payload.type ?? PUSH_MESSAGE_TYPE.MESSAGE);
+};
+
+export const resolveNoticeGroup = (payload: PushMessagePayload) => {
+  if (payload.type === PUSH_MESSAGE_TYPE.NOTICE || payload.source === PUSH_MESSAGE_SOURCE.NOTICE) {
+    return NOTICE_GROUP.NOTICE;
+  }
+  if (payload.source === PUSH_MESSAGE_SOURCE.WORKFLOW) {
+    return NOTICE_GROUP.WORKFLOW;
+  }
+  return NOTICE_GROUP.SYSTEM;
+};
+
+export const resolveNoticeTitle = (payload: PushMessagePayload) => {
+  const group = resolveNoticeGroup(payload);
+  if (group === NOTICE_GROUP.NOTICE) {
+    return '通知公告消息';
+  }
+  if (group === NOTICE_GROUP.WORKFLOW) {
+    return '工作流消息';
+  }
+  return '系统消息';
 };

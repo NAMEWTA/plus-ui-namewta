@@ -4,29 +4,33 @@
       <div class="p-2 user-select-shell">
         <el-row :gutter="12" class="selector-layout">
           <!-- 部门树 -->
-          <el-col :lg="5" :xs="24">
-            <el-card shadow="hover" class="side-panel selector-card selector-side-card">
+          <el-col :lg="treeCollapsed ? 1 : 5" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
+            <el-card shadow="hover" class="side-panel tree-panel-shell selector-card selector-side-card" :class="{ 'is-collapsed': treeCollapsed }">
               <template #header>
-                <div class="table-heading">
-                  <h3>部门结构</h3>
+                <div class="panel-heading search-panel-toggle tree-panel-header" :class="{ 'is-collapsed': treeCollapsed }" @click.stop="treeCollapsed = !treeCollapsed">
+                  <div v-show="!treeCollapsed" class="table-heading">
+                    <h3>部门结构</h3>
+                  </div>
                 </div>
               </template>
-              <el-input v-model="deptName" class="selector-dept-input" placeholder="请输入部门名称" prefix-icon="Search" clearable />
-              <el-tree
-                ref="deptTreeRef"
-                class="selector-tree"
-                node-key="id"
-                :data="deptOptions"
-                :props="{ label: 'label', children: 'children' } as any"
-                :expand-on-click-node="false"
-                :filter-node-method="filterNode"
-                highlight-current
-                default-expand-all
-                @node-click="handleNodeClick"
-              />
+              <template v-if="!treeCollapsed">
+                <el-input v-model="deptName" class="selector-dept-input" placeholder="请输入部门名称" prefix-icon="Search" clearable />
+                <el-tree
+                  ref="deptTreeRef"
+                  class="selector-tree"
+                  node-key="id"
+                  :data="deptOptions"
+                  :props="{ label: 'label', children: 'children' } as any"
+                  :expand-on-click-node="false"
+                  :filter-node-method="filterNode"
+                  highlight-current
+                  default-expand-all
+                  @node-click="handleNodeClick"
+                />
+              </template>
             </el-card>
           </el-col>
-          <el-col :lg="19" :xs="24">
+          <el-col :lg="treeCollapsed ? 23 : 19" :xs="24" class="tree-content-col" :class="{ 'is-tree-collapsed': treeCollapsed }">
             <div class="p-2user-select-main">
               <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
                 <div v-show="showSearch">
@@ -144,6 +148,7 @@ const showSearch = ref(true);
 const total = ref(0);
 const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
 const deptName = ref('');
+const treeCollapsed = ref(false);
 const deptOptions = ref<DeptTreeVO[]>([]);
 const selectUserList = ref<UserVO[]>([]);
 
@@ -328,8 +333,10 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/styles/components/page-shell' as pageShell;
 @use '@/assets/styles/components/selector-dialog' as selectorDialog;
 
+@include pageShell.collapsible-tree-layout(992px);
 @include selectorDialog.shell-gap('.user-select-shell', '.user-select-main');
 @include selectorDialog.card-shell;
 @include selectorDialog.selector-header-tags(992px);

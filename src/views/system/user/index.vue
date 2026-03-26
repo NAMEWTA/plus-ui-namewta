@@ -2,32 +2,33 @@
   <div class="p-2 system-user-page">
     <el-row :gutter="20" class="content-grid">
       <!-- 部门树 -->
-      <el-col :lg="5" :xs="24">
-        <el-card shadow="hover" class="side-panel">
+      <el-col :lg="treeCollapsed ? 1 : 5" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
+        <el-card shadow="hover" class="side-panel tree-panel-shell" :class="{ 'is-collapsed': treeCollapsed }">
           <template #header>
-            <div class="panel-heading">
-              <div>
-                <span class="panel-kicker">Department Filter</span>
+            <div class="panel-heading search-panel-toggle tree-panel-header" :class="{ 'is-collapsed': treeCollapsed }" @click.stop="treeCollapsed = !treeCollapsed">
+              <div v-show="!treeCollapsed">
                 <h3>部门结构</h3>
               </div>
             </div>
           </template>
-          <el-input v-model="deptName" placeholder="请输入部门名称" prefix-icon="Search" clearable />
-          <el-tree
-            ref="deptTreeRef"
-            class="mt-2 dept-tree"
-            node-key="id"
-            :data="deptOptions"
-            :props="{ label: 'label', children: 'children' } as any"
-            :expand-on-click-node="false"
-            :filter-node-method="filterNode"
-            highlight-current
-            default-expand-all
-            @node-click="handleNodeClick"
-          />
+          <template v-if="!treeCollapsed">
+            <el-input v-model="deptName" placeholder="请输入部门名称" prefix-icon="Search" clearable />
+            <el-tree
+              ref="deptTreeRef"
+              class="mt-2 dept-tree"
+              node-key="id"
+              :data="deptOptions"
+              :props="{ label: 'label', children: 'children' } as any"
+              :expand-on-click-node="false"
+              :filter-node-method="filterNode"
+              highlight-current
+              default-expand-all
+              @node-click="handleNodeClick"
+            />
+          </template>
         </el-card>
       </el-col>
-      <el-col :lg="19" :xs="24" class="content-main">
+      <el-col :lg="treeCollapsed ? 23 : 19" :xs="24" class="tree-content-col content-main" :class="{ 'is-tree-collapsed': treeCollapsed }">
         <div class="search-wrap">
           <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
             <template #header>
@@ -328,6 +329,7 @@ const multiple = ref(true);
 const total = ref(0);
 const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
 const deptName = ref('');
+const treeCollapsed = ref(false);
 const deptOptions = ref<DeptTreeVO[]>([]);
 const enabledDeptOptions = ref<DeptTreeVO[]>([]);
 const initPassword = ref<string>('');

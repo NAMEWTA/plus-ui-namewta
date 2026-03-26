@@ -2,29 +2,33 @@
   <div class="p-2 app-container workflow-process-definition-page">
     <el-row :gutter="20" class="content-grid">
       <!-- 流程分类树 -->
-      <el-col :lg="4" :xs="24">
-        <el-card shadow="hover" class="side-panel">
+      <el-col :lg="treeCollapsed ? 1 : 4" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
+        <el-card shadow="hover" class="side-panel tree-panel-shell" :class="{ 'is-collapsed': treeCollapsed }">
           <template #header>
-            <div class="table-heading">
-              <h3>流程分类</h3>
+            <div class="panel-heading search-panel-toggle tree-panel-header" :class="{ 'is-collapsed': treeCollapsed }" @click.stop="treeCollapsed = !treeCollapsed">
+              <div v-show="!treeCollapsed" class="table-heading">
+                <h3>流程分类</h3>
+              </div>
             </div>
           </template>
-          <el-input v-model="categoryName" placeholder="请输入流程分类名" prefix-icon="Search" clearable />
-          <el-tree
-            ref="categoryTreeRef"
-            class="mt-2"
-            node-key="id"
-            :data="categoryOptions"
-            :props="{ label: 'label', children: 'children' } as any"
-            :expand-on-click-node="false"
-            :filter-node-method="filterNode"
-            highlight-current
-            default-expand-all
-            @node-click="handleNodeClick"
-          ></el-tree>
+          <template v-if="!treeCollapsed">
+            <el-input v-model="categoryName" placeholder="请输入流程分类名" prefix-icon="Search" clearable />
+            <el-tree
+              ref="categoryTreeRef"
+              class="mt-2 dept-tree"
+              node-key="id"
+              :data="categoryOptions"
+              :props="{ label: 'label', children: 'children' } as any"
+              :expand-on-click-node="false"
+              :filter-node-method="filterNode"
+              highlight-current
+              default-expand-all
+              @node-click="handleNodeClick"
+            ></el-tree>
+          </template>
         </el-card>
       </el-col>
-      <el-col :lg="20" :xs="24" class="content-main">
+      <el-col :lg="treeCollapsed ? 23 : 20" :xs="24" class="tree-content-col content-main" :class="{ 'is-tree-collapsed': treeCollapsed }">
         <div class="search-wrap">
           <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
             <template #header>
@@ -281,6 +285,7 @@ const uploadDialogLoading = ref(false);
 const processDefinitionList = ref<FlowDefinitionVo[]>([]);
 const categoryOptions = ref<CategoryTreeVO[]>([]);
 const categoryName = ref('');
+const treeCollapsed = ref(false);
 const autoPass = ref(false);
 /** 部署文件分类选择 */
 const selectCategory = ref();
@@ -353,7 +358,7 @@ const filterNode = (value: string, data: any) => {
 /** 根据名称筛选部门树 */
 watchEffect(
   () => {
-    categoryTreeRef.value.filter(categoryName.value);
+    categoryTreeRef.value?.filter(categoryName.value);
   },
   {
     flush: 'post' // watchEffect会在DOM挂载或者更新之前就会触发，此属性控制在DOM元素更新后运行
@@ -607,6 +612,10 @@ const handleExportDef = () => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/styles/components/page-shell' as pageShell;
+
+@include pageShell.tree-table-crud-page;
+
 .content-main {
   display: flex;
   flex-direction: column;

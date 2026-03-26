@@ -19,8 +19,7 @@ import { AppMain, Navbar, Settings, TagsView } from './components';
 import { useAppStore } from '@/store/modules/app';
 import { useSettingsStore } from '@/store/modules/settings';
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
-import { initWebSocket } from '@/utils/websocket';
-import { initSSE } from '@/utils/sse';
+import { initPush } from '@/utils/push';
 
 const settingsStore = useSettingsStore();
 const theme = computed(() => settingsStore.theme);
@@ -61,12 +60,7 @@ watchEffect(() => {
 const settingRef = ref<InstanceType<typeof Settings>>();
 
 onMounted(() => {
-  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-  initWebSocket(protocol + window.location.host + import.meta.env.VITE_APP_BASE_API + '/resource/websocket');
-});
-
-onMounted(() => {
-  initSSE(import.meta.env.VITE_APP_BASE_API + '/resource/sse');
+  initPush();
 });
 
 const handleClickOutside = () => {

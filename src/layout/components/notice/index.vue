@@ -70,10 +70,7 @@ const onNewsClick = async (item: any) => {
   currentNewsList.value[item].read = true;
   const current = currentNewsList.value[item];
   if (current?.path) {
-    await router.push({
-      path: current.path,
-      query: current.query || undefined
-    });
+    await router.push(current.path);
   }
 };
 </script>

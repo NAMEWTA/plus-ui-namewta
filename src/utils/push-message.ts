@@ -25,7 +25,6 @@ export interface PushMessagePayload {
   message?: string;
   data?: Record<string, any> | null;
   path?: string;
-  query?: Record<string, any> | null;
   timestamp?: number;
 }
 
@@ -40,7 +39,6 @@ export const parsePushMessage = (raw: string): PushMessagePayload => {
       message: payload.message ?? '',
       data: payload.data ?? null,
       path: payload.path,
-      query: payload.query ?? null,
       timestamp: payload.timestamp ?? Date.now()
     };
   } catch {
@@ -50,7 +48,6 @@ export const parsePushMessage = (raw: string): PushMessagePayload => {
       message: raw,
       data: null,
       path: undefined,
-      query: null,
       timestamp: Date.now()
     };
   }

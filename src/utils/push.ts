@@ -20,7 +20,6 @@ const appendNotice = (raw: string) => {
     content: payload.data?.noticeContent,
     data: payload.data,
     path: payload.path,
-    query: payload.query,
     read: false,
     time: new Date(payload.timestamp ?? Date.now()).toLocaleString()
   });

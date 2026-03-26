@@ -73,6 +73,9 @@
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
+            <el-tooltip content="详情" placement="top">
+              <el-button link type="primary" icon="View" @click="handleDetail(scope.row)"></el-button>
+            </el-tooltip>
             <el-tooltip content="修改" placement="top">
               <el-button v-hasPermi="['system:notice:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
             </el-tooltip>
@@ -122,6 +125,34 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="detailDialog.visible" title="公告详情" width="820px" append-to-body @closed="handleDetailDialogClosed">
+      <div class="notice-detail">
+        <div class="notice-detail__header">
+          <div class="notice-detail__title">{{ detailForm.noticeTitle || '-' }}</div>
+          <div class="notice-detail__meta">
+            <div class="notice-detail__meta-item">
+              <span class="notice-detail__meta-label">类型：</span>
+              <dict-tag :options="sys_notice_type" :value="detailForm.noticeType" />
+            </div>
+            <div class="notice-detail__meta-item">
+              <span class="notice-detail__meta-label">状态：</span>
+              <dict-tag :options="sys_notice_status" :value="detailForm.status" />
+            </div>
+            <div class="notice-detail__meta-item">
+              <span class="notice-detail__meta-label">创建者：</span>
+              <span>{{ detailForm.createByName || '-' }}</span>
+            </div>
+            <div class="notice-detail__meta-item">
+              <span class="notice-detail__meta-label">创建时间：</span>
+              <span>{{ proxy.parseTime(detailForm.createTime, '{y}-{m}-{d} {h}:{i}:{s}') || '-' }}</span>
+            </div>
+          </div>
+        </div>
+        <el-divider />
+        <div class="notice-detail__content" v-html="detailForm.noticeContent || '<p>暂无公告内容</p>'"></div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -131,6 +162,8 @@ import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_notice_status, sys_notice_type } = toRefs<any>(proxy?.useDict('sys_notice_status', 'sys_notice_type'));
+const route = useRoute();
+const router = useRouter();
 
 const noticeList = ref<NoticeVO[]>([]);
 const loading = ref(true);
@@ -147,6 +180,10 @@ const dialog = reactive<DialogOption>({
   visible: false,
   title: ''
 });
+const detailDialog = reactive({
+  visible: false
+});
+const routeDetailSyncing = ref(false);
 
 const initFormData: NoticeForm = {
   noticeId: undefined,
@@ -157,6 +194,7 @@ const initFormData: NoticeForm = {
   remark: '',
   createByName: ''
 };
+const detailForm = ref<NoticeVO>({} as NoticeVO);
 const data = reactive<PageData<NoticeForm, NoticeQuery>>({
   form: { ...initFormData },
   queryParams: {
@@ -227,6 +265,31 @@ const handleUpdate = async (row?: NoticeVO) => {
   dialog.visible = true;
   dialog.title = '修改公告';
 };
+/** 详情按钮操作 */
+const handleDetail = async (row: NoticeVO) => {
+  await openDetail(row.noticeId);
+};
+/** 打开详情 */
+const openDetail = async (noticeId: string | number) => {
+  const { data } = await getNotice(noticeId);
+  detailForm.value = data;
+  detailDialog.visible = true;
+};
+/** 详情弹窗关闭后移除路由参数 */
+const handleDetailDialogClosed = async () => {
+  if (!route.query.noticeId) {
+    return;
+  }
+  routeDetailSyncing.value = true;
+  await router.replace({
+    path: route.path,
+    query: {
+      ...route.query,
+      noticeId: undefined
+    }
+  });
+  routeDetailSyncing.value = false;
+};
 /** 提交按钮 */
 const submitForm = () => {
   noticeFormRef.value?.validate(async (valid: boolean) => {
@@ -250,10 +313,69 @@ const handleDelete = async (row?: NoticeVO) => {
 onMounted(() => {
   getList();
 });
+
+watch(
+  () => route.query.noticeId,
+  async (noticeId) => {
+    if (routeDetailSyncing.value || !noticeId) {
+      return;
+    }
+    await openDetail(String(noticeId));
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>
 @use '@/assets/styles/components/page-shell' as pageShell;
 
 @include pageShell.table-crud-page;
+
+.notice-detail {
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--el-text-color-primary);
+    line-height: 1.4;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    color: var(--el-text-color-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  &__meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__meta-label {
+    color: var(--el-text-color-secondary);
+    white-space: nowrap;
+  }
+
+  &__content {
+    max-height: 60vh;
+    overflow: auto;
+    color: var(--el-text-color-primary);
+    line-height: 1.8;
+    word-break: break-word;
+  }
+
+  :deep(.notice-detail__meta-item > div) {
+    display: inline-flex;
+    align-items: center;
+  }
+}
 </style>

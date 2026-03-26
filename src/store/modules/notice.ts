@@ -11,7 +11,6 @@ export interface NoticeItem {
   content?: string;
   data?: Record<string, any> | null;
   path?: string;
-  query?: Record<string, any> | null;
   time: string;
 }
 

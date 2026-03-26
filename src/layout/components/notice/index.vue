@@ -8,8 +8,9 @@
       <template v-if="newsList.length > 0">
         <div v-for="(v, k) in newsList" :key="k" class="content-box-item" @click="onNewsClick(k)">
           <div class="item-conten">
+            <div class="content-box-title">{{ v.title || '消息' }}</div>
             <div>{{ v.message }}</div>
-            <div class="content-box-msg"></div>
+            <div v-if="v.content" class="content-box-msg">{{ v.content }}</div>
             <div class="content-box-time">{{ v.time }}</div>
           </div>
           <!-- 已读/未读 -->
@@ -25,6 +26,7 @@
 
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
 import { useNoticeStore } from '@/store/modules/notice';
+import router from '@/router';
 
 const noticeStore = useNoticeStore();
 const { readAll } = useNoticeStore();
@@ -46,10 +48,17 @@ const getTableData = async () => {
 };
 
 //点击消息，写入已读
-const onNewsClick = (item: any) => {
+const onNewsClick = async (item: any) => {
   newsList.value[item].read = true;
   //并且写入pinia
   noticeStore.state.notices = newsList.value;
+  const current = newsList.value[item];
+  if (current?.path) {
+    await router.push({
+      path: current.path,
+      query: current.query || undefined
+    });
+  }
 };
 
 // 前往通知中心点击
@@ -123,8 +132,12 @@ onMounted(() => {
 
       .content-box-msg {
         color: var(--el-text-color-secondary);
-        margin-top: 5px;
-        margin-bottom: 5px;
+        margin: 2px 0 0;
+        display: -webkit-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
       }
 
       .content-box-time {
@@ -139,6 +152,12 @@ onMounted(() => {
         gap: 6px;
         color: var(--app-text-title);
         line-height: 1.6;
+      }
+
+      .content-box-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--app-accent-strong);
       }
 
       .read {

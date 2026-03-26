@@ -1,10 +1,16 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
 
-interface NoticeItem {
+export interface NoticeItem {
   title?: string;
+  type?: string;
+  source?: string;
   read: boolean;
-  message: any;
+  message: string;
+  content?: string;
+  data?: Record<string, any> | null;
+  path?: string;
+  query?: Record<string, any> | null;
   time: string;
 }
 

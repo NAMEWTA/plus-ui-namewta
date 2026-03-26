@@ -1,6 +1,7 @@
 import { getToken } from '@/utils/auth';
 import { ElNotification } from 'element-plus';
 import { useNoticeStore } from '@/store/modules/notice';
+import { parsePushMessage, PUSH_MESSAGE_TYPE, shouldAppendNotice } from '@/utils/push-message';
 
 // 初始化socket
 export const initWebSocket = (url: any) => {
@@ -32,20 +33,30 @@ export const initWebSocket = (url: any) => {
       console.log('websocket已经断开');
     },
     onMessage: (_, e) => {
-      if (e.data.indexOf('ping') > 0) {
+      if (typeof e.data === 'string' && e.data.includes('ping')) {
         return;
       }
-      useNoticeStore().addNotice({
-        message: e.data,
-        read: false,
-        time: new Date().toLocaleString()
-      });
-      ElNotification({
-        title: '消息',
-        message: e.data,
-        type: 'success',
-        duration: 3000
-      });
+      const payload = parsePushMessage(String(e.data));
+      if (shouldAppendNotice(payload)) {
+        useNoticeStore().addNotice({
+          title: payload.type === PUSH_MESSAGE_TYPE.NOTICE ? '通知公告' : '系统消息',
+          type: payload.type,
+          source: payload.source,
+          message: payload.message ?? '',
+          content: payload.data?.noticeContent,
+          data: payload.data,
+          path: payload.path,
+          query: payload.query,
+          read: false,
+          time: new Date(payload.timestamp ?? Date.now()).toLocaleString()
+        });
+        ElNotification({
+          title: payload.type === PUSH_MESSAGE_TYPE.NOTICE ? '通知公告' : '消息',
+          message: payload.message ?? '',
+          type: 'success',
+          duration: 3000
+        });
+      }
     }
   });
 };

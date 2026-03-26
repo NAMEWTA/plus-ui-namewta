@@ -1,6 +1,7 @@
 import { getToken } from '@/utils/auth';
 import { ElNotification } from 'element-plus';
 import { useNoticeStore } from '@/store/modules/notice';
+import { parsePushMessage, PUSH_MESSAGE_TYPE, shouldAppendNotice } from '@/utils/push-message';
 
 // 初始化
 export const initSSE = (url: any) => {
@@ -26,17 +27,27 @@ export const initSSE = (url: any) => {
 
   watch(data, () => {
     if (!data.value) return;
-    useNoticeStore().addNotice({
-      message: data.value,
-      read: false,
-      time: new Date().toLocaleString()
-    });
-    ElNotification({
-      title: '消息',
-      message: data.value,
-      type: 'success',
-      duration: 3000
-    });
+    const payload = parsePushMessage(data.value);
+    if (shouldAppendNotice(payload)) {
+      useNoticeStore().addNotice({
+        title: payload.type === PUSH_MESSAGE_TYPE.NOTICE ? '通知公告' : '系统消息',
+        type: payload.type,
+        source: payload.source,
+        message: payload.message ?? '',
+        content: payload.data?.noticeContent,
+        data: payload.data,
+        path: payload.path,
+        query: payload.query,
+        read: false,
+        time: new Date(payload.timestamp ?? Date.now()).toLocaleString()
+      });
+      ElNotification({
+        title: payload.type === PUSH_MESSAGE_TYPE.NOTICE ? '通知公告' : '消息',
+        message: payload.message ?? '',
+        type: 'success',
+        duration: 3000
+      });
+    }
     data.value = null;
   });
 };

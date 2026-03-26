@@ -192,21 +192,19 @@ const closeDialog = () => {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   cursor: pointer;
-  line-height: 120px;
+  line-height: 110px;
   border-radius: 50%;
 }
 
 .avatar-upload-preview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 18px;
-  background: rgba(248, 250, 252, 0.9);
+  position: absolute;
+  top: 50%;
+  transform: translate(50%, -50%);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #ccc;
+  overflow: hidden;
 }
 
-.avatar-upload-preview img {
-  max-width: 100%;
-}
 </style>

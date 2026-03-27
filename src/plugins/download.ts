@@ -1,7 +1,7 @@
 import axios from 'axios';
 import errorCode from '@/utils/errorCode';
 import { blobValidate } from '@/utils/ruoyi';
-import { globalHeaders } from '@/utils/request';
+import { extractErrorMessage, globalHeaders } from '@/utils/request';
 import { saveBlob } from '@/utils/save';
 import type { LoadingInstance } from 'element-plus';
 
@@ -28,7 +28,8 @@ export default {
       downloadLoadingInstance?.close();
     } catch (r) {
       console.error(r);
-      ElMessage.error('下载文件出现错误，请联系管理员！');
+      const errMsg = await extractErrorMessage(r);
+      ElMessage.error(errMsg || '下载文件出现错误，请联系管理员！');
       downloadLoadingInstance?.close();
     }
   },
@@ -52,7 +53,8 @@ export default {
       downloadLoadingInstance?.close();
     } catch (r) {
       console.error(r);
-      ElMessage.error('下载文件出现错误，请联系管理员！');
+      const errMsg = await extractErrorMessage(r);
+      ElMessage.error(errMsg || '下载文件出现错误，请联系管理员！');
       downloadLoadingInstance?.close();
     }
   },

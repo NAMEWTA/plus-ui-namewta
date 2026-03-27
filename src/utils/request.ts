@@ -16,6 +16,64 @@ const encryptHeader = 'encrypt-key';
 let downloadLoadingInstance: LoadingInstance | undefined;
 // 是否显示重新登录
 export const isRelogin = { show: false };
+
+function normalizeErrorMessage(message?: string) {
+  if (!message) {
+    return undefined;
+  }
+  if (message === 'Network Error') {
+    return '后端接口连接异常';
+  }
+  if (message.includes('timeout')) {
+    return '系统接口请求超时';
+  }
+  if (message.includes('Request failed with status code')) {
+    return '系统接口' + message.slice(-3) + '异常';
+  }
+  return message;
+}
+
+async function parseResponseErrorData(data: unknown): Promise<string | undefined> {
+  if (!data) {
+    return undefined;
+  }
+
+  if (data instanceof Blob) {
+    return parseResponseErrorData(await data.text());
+  }
+
+  if (data instanceof ArrayBuffer) {
+    return parseResponseErrorData(new TextDecoder().decode(data));
+  }
+
+  if (typeof data === 'string') {
+    const text = data.trim();
+    if (!text) {
+      return undefined;
+    }
+    try {
+      return parseResponseErrorData(JSON.parse(text));
+    } catch {
+      return text;
+    }
+  }
+
+  if (typeof data === 'object') {
+    const payload = data as Record<string, any>;
+    return errorCode[payload.code] || payload.msg || payload.message || errorCode['default'];
+  }
+
+  return undefined;
+}
+
+export async function extractErrorMessage(error: any): Promise<string | undefined> {
+  const responseMessage = await parseResponseErrorData(error?.response?.data);
+  if (responseMessage) {
+    return responseMessage;
+  }
+  return normalizeErrorMessage(error?.message);
+}
+
 export const globalHeaders = () => {
   return {
     Authorization: 'Bearer ' + getToken(),
@@ -164,15 +222,8 @@ service.interceptors.response.use(
       return Promise.resolve(res.data);
     }
   },
-  (error: any) => {
-    let { message } = error;
-    if (message == 'Network Error') {
-      message = '后端接口连接异常';
-    } else if (message.includes('timeout')) {
-      message = '系统接口请求超时';
-    } else if (message.includes('Request failed with status code')) {
-      message = '系统接口' + message.substr(message.length - 3) + '异常';
-    }
+  async (error: any) => {
+    const message = await extractErrorMessage(error) || errorCode['default'];
     ElMessage({ message: message, type: 'error', duration: 5 * 1000 });
     return Promise.reject(error);
   }
@@ -204,7 +255,6 @@ export function download(url: string, params: any, fileName: string) {
       downloadLoadingInstance?.close();
     }).catch((r: any) => {
       console.error(r);
-      ElMessage.error('下载文件出现错误，请联系管理员！');
       downloadLoadingInstance?.close();
     });
 }

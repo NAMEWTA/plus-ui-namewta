@@ -596,13 +596,21 @@ const importTemplate = () => {
 const handleFileUploadProgress = () => {
   upload.isUploading = true;
 };
+
+const formatImportResultMessage = (message: unknown) => {
+  return String(message ?? '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/<[^>]+>/g, '');
+};
+
 /** 文件上传成功处理 */
 const handleFileSuccess = (response: any, file: UploadFile) => {
   upload.open = false;
   upload.isUploading = false;
   uploadRef.value?.handleRemove(file);
-  ElMessageBox.alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + '</div>', '导入结果', {
-    dangerouslyUseHTMLString: true
+  ElMessageBox.alert(formatImportResultMessage(response.msg), '导入结果', {
+    customClass: 'import-result-box'
   });
   getList();
 };
@@ -708,4 +716,13 @@ async function handleDeptChange(value: number | string) {
 @use '@/assets/styles/components/page-shell' as pageShell;
 
 @include pageShell.tree-table-crud-page;
+
+:global(.import-result-box .el-message-box__message) {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 20px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 </style>

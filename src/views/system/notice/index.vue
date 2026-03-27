@@ -150,7 +150,7 @@
           </div>
         </div>
         <el-divider />
-        <div class="notice-detail__content" v-html="detailForm.noticeContent || '<p>暂无公告内容</p>'"></div>
+        <div class="notice-detail__content" v-html="safeNoticeContent"></div>
       </div>
     </el-dialog>
   </div>
@@ -159,6 +159,7 @@
 <script setup name="Notice" lang="ts">
 import { listNotice, getNotice, delNotice, addNotice, updateNotice } from '@/api/system/notice';
 import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_notice_status, sys_notice_type } = toRefs<any>(proxy?.useDict('sys_notice_status', 'sys_notice_type'));
@@ -184,6 +185,7 @@ const detailDialog = reactive({
   visible: false
 });
 const routeDetailSyncing = ref(false);
+const emptyNoticeContent = '<p>暂无公告内容</p>';
 
 const initFormData: NoticeForm = {
   noticeId: undefined,
@@ -195,6 +197,7 @@ const initFormData: NoticeForm = {
   createByName: ''
 };
 const detailForm = ref<NoticeVO>({} as NoticeVO);
+const safeNoticeContent = computed(() => sanitizeHtml(detailForm.value.noticeContent || emptyNoticeContent));
 const data = reactive<PageData<NoticeForm, NoticeQuery>>({
   form: { ...initFormData },
   queryParams: {

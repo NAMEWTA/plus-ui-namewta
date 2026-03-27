@@ -19,7 +19,7 @@ import { AppMain, Navbar, Settings, TagsView } from './components';
 import { useAppStore } from '@/store/modules/app';
 import { useSettingsStore } from '@/store/modules/settings';
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
-import { initPush } from '@/utils/push';
+import { initMessageBox, initPush } from '@/utils/push';
 
 const settingsStore = useSettingsStore();
 const theme = computed(() => settingsStore.theme);
@@ -59,8 +59,12 @@ watchEffect(() => {
 
 const settingRef = ref<InstanceType<typeof Settings>>();
 
-onMounted(() => {
-  initPush();
+onMounted(async () => {
+  try {
+    await initMessageBox();
+  } finally {
+    initPush();
+  }
 });
 
 const handleClickOutside = () => {

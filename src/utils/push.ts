@@ -1,17 +1,28 @@
+import { getMessageBox } from '@/api/system/message';
+import type { MessageVO } from '@/api/system/message/types';
+import { useUserStore } from '@/store/modules/user';
 import { getToken } from '@/utils/auth';
 import { ElNotification } from 'element-plus';
 import { useNoticeStore } from '@/store/modules/notice';
+import { isMessageRead } from '@/utils/message-read';
 import { parsePushMessage, resolveNoticeGroup, resolveNoticeTitle, shouldAppendNotice } from '@/utils/push-message';
 
 let closePushConnection: (() => void) | undefined;
+
+const formatNoticeTime = (timestamp?: number | string) => {
+  const time = timestamp ? new Date(timestamp) : new Date();
+  return time.toLocaleString();
+};
 
 const appendNotice = (raw: string) => {
   const payload = parsePushMessage(raw);
   if (!shouldAppendNotice(payload)) {
     return;
   }
+  const userId = useUserStore().userId;
   const title = resolveNoticeTitle(payload);
   useNoticeStore().addNotice({
+    messageId: payload.messageId,
     title,
     category: resolveNoticeGroup(payload),
     type: payload.type,
@@ -20,8 +31,9 @@ const appendNotice = (raw: string) => {
     content: payload.data?.noticeContent,
     data: payload.data,
     path: payload.path,
-    read: false,
-    time: new Date(payload.timestamp ?? Date.now()).toLocaleString()
+    read: isMessageRead(userId, payload.messageId),
+    timestamp: payload.timestamp ?? Date.now(),
+    time: formatNoticeTime(payload.timestamp)
   });
   ElNotification({
     title,
@@ -29,6 +41,25 @@ const appendNotice = (raw: string) => {
     type: 'success',
     duration: 3000
   });
+};
+
+const toNoticeItem = (item: MessageVO) => {
+  const userId = useUserStore().userId;
+  const timestamp = item.createTime ? new Date(item.createTime).getTime() : Date.now();
+  return {
+    messageId: item.messageId,
+    title: item.title,
+    category: resolveNoticeGroup(item),
+    type: item.type,
+    source: item.source,
+    message: item.message ?? '',
+    content: item.content,
+    data: item.data ?? null,
+    path: item.path,
+    read: isMessageRead(userId, item.messageId),
+    timestamp,
+    time: formatNoticeTime(timestamp)
+  };
 };
 
 const buildSseUrl = (path: string) => {
@@ -106,6 +137,16 @@ export const initPush = () => {
     return;
   }
   initSsePush(buildSseUrl(path));
+};
+
+export const initMessageBox = async () => {
+  if (import.meta.env.VITE_APP_MESSAGE_ENABLED === 'false') {
+    useNoticeStore().clearNotice();
+    return;
+  }
+  const { data } = await getMessageBox();
+  const notices = [...(data?.systemList ?? []), ...(data?.noticeList ?? []), ...(data?.workflowList ?? [])].map(toNoticeItem);
+  useNoticeStore().setNotices(notices);
 };
 
 export const closePush = () => {

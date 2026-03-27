@@ -30,7 +30,7 @@
           <div>
             <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
               <template #reference>
-                <el-badge :value="newNotice > 0 ? newNotice : ''" :max="99">
+                <el-badge :value="noticeStore.unreadCount.value > 0 ? noticeStore.unreadCount.value : ''" :max="99">
                   <div class="right-menu-item hover-effect message-trigger"><svg-icon icon-class="message" /></div>
                 </el-badge>
               </template>
@@ -107,7 +107,6 @@ const appStore = useAppStore();
 const userStore = useUserStore();
 const settingsStore = useSettingsStore();
 const noticeStore = storeToRefs(useNoticeStore());
-const newNotice = ref(<number>0);
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -158,14 +157,6 @@ const handleCommand = (command: string) => {
     commandMap[command]();
   }
 };
-//用深度监听 消息
-watch(
-  () => noticeStore.state.value.notices,
-  (newVal) => {
-    newNotice.value = newVal.filter((item: any) => !item.read).length;
-  },
-  { deep: true }
-);
 </script>
 
 <style lang="scss" scoped>

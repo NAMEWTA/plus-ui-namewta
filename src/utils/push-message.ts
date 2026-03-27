@@ -20,6 +20,7 @@ export const NOTICE_GROUP = {
 } as const;
 
 export interface PushMessagePayload {
+  messageId?: string | number;
   type?: string;
   source?: string;
   message?: string;
@@ -36,6 +37,7 @@ export const parsePushMessage = (raw: string): PushMessagePayload => {
     return {
       type: payload.type ?? PUSH_MESSAGE_TYPE.MESSAGE,
       source: payload.source ?? 'backend',
+      messageId: payload.messageId,
       message: payload.message ?? '',
       data: payload.data ?? null,
       path: payload.path,
@@ -45,6 +47,7 @@ export const parsePushMessage = (raw: string): PushMessagePayload => {
     return {
       type: PUSH_MESSAGE_TYPE.MESSAGE,
       source: 'backend',
+      messageId: undefined,
       message: raw,
       data: null,
       path: undefined,

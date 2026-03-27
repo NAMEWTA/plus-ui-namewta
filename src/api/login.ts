@@ -53,10 +53,7 @@ export function register(data: any) {
  */
 export function logout() {
   closePush();
-  if (
-    import.meta.env.VITE_APP_MESSAGE_ENABLED === 'true'
-    && import.meta.env.VITE_APP_MESSAGE_TRANSPORT.toLowerCase() !== 'websocket'
-  ) {
+  if (import.meta.env.VITE_APP_MESSAGE_ENABLED === 'true' && import.meta.env.VITE_APP_MESSAGE_TRANSPORT.toLowerCase() === 'sse') {
     request({
       url: import.meta.env.VITE_APP_MESSAGE_PATH + '/close',
       method: 'get'

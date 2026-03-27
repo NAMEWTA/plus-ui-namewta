@@ -31,10 +31,12 @@
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
 import { useNoticeStore } from '@/store/modules/notice';
 import router from '@/router';
+import { markMessageRead, markMessageReadBatch } from '@/utils/message-read';
+import { useUserStore } from '@/store/modules/user';
 import { NOTICE_GROUP } from '@/utils/push-message';
 
 const noticeStore = useNoticeStore();
-const { readAll } = useNoticeStore();
+const userStore = useUserStore();
 
 // 定义变量内容
 const state = reactive({
@@ -67,11 +69,22 @@ const emptyDescription = computed(() => {
 
 //点击消息，写入已读
 const onNewsClick = async (item: any) => {
-  currentNewsList.value[item].read = true;
   const current = currentNewsList.value[item];
+  if (current?.messageId) {
+    markMessageRead(userStore.userId, current.messageId);
+    noticeStore.markRead(current.messageId);
+  }
   if (current?.path) {
     await router.push(current.path);
   }
+};
+
+const readAll = () => {
+  const ids = newsList.value
+    .map((item: any) => item.messageId)
+    .filter((item: string | number | undefined) => item !== undefined && item !== null);
+  markMessageReadBatch(userStore.userId, ids);
+  noticeStore.markReadBatch(ids);
 };
 </script>
 

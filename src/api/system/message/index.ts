@@ -4,7 +4,7 @@ import { MessageBoxVO } from './types';
 
 export function getMessageBox(): AxiosPromise<MessageBoxVO> {
   return request({
-    url: '/system/message/box',
+    url: '/resource/message/box',
     method: 'get'
   });
 }

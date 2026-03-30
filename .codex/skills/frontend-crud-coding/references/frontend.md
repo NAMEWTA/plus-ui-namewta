@@ -3,8 +3,8 @@
 ## 优先参考的代码来源
 
 - 关联后端工程中的生成器模板：
-  `ruoyi-modules/ruoyi-generator/src/main/resources/vm/ts/*.vm`
-  `ruoyi-modules/ruoyi-generator/src/main/resources/vm/vue/*.vm`
+  `ruoyi-modules/ruoyi-gen/src/main/resources/vm/ts/*.vm`
+  `ruoyi-modules/ruoyi-gen/src/main/resources/vm/vue/*.vm`
 - `src/api/system/user/index.ts`
 - `src/api/system/user/types.ts`
 - `src/views/system/user/index.vue`

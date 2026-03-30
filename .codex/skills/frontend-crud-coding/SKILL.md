@@ -29,7 +29,7 @@ description: 在当前前端项目中按现有 Vue 3 + TypeScript + Element Plus
 ## 执行流程
 
 1. 先定位目标模块，并阅读 `src/api/<module>/<business>` 与 `src/views/<module>/<business>` 下最近似页面。
-2. 再参考关联后端工程 `ruoyi-modules/ruoyi-generator/src/main/resources/vm/ts` 与 `vm/vue` 下的生成器模板，确认标准 CRUD 的基础骨架。
+2. 再参考关联后端工程 `ruoyi-modules/ruoyi-gen/src/main/resources/vm/ts` 与 `vm/vue` 下的生成器模板，确认标准 CRUD 的基础骨架。
 3. 新增代码时同时维护 `api/index.ts`、`api/types.ts`、`views/.../index.vue`，必要时补相关子页面或弹窗页。
 4. 页面结构、样式组织、状态管理、权限指令、下载导出、字典使用都以仓库现有模式为准。
 5. 如果后端接口与生成器套路一致，可以用 generator 模板作为起点；如果当前前端项目已有更强约定，以当前项目约定覆盖模板默认行为。

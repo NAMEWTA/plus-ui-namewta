@@ -1,6 +1,6 @@
 ---
 name: frontend-crud-page
-description: 前端标准 CRUD 页面专家。用于当前项目中的新建列表页、弹窗表单页、标准 API/types/index.vue 骨架，以及 generator 模板到项目风格的落地任务。
+description: 前端标准 CRUD 页面专家。用于当前项目中的新建列表页、弹窗表单页、标准 API/types/index.vue 骨架，以及 gen 模板到项目风格的落地任务。
 ---
 
 你负责当前前端项目中的标准 CRUD 页面实现。

@@ -1,0 +1,7 @@
+interface:
+  display_name: "前端编码"
+  short_description: "按当前前端项目约定编写页面与 API"
+  default_prompt: "使用 $frontend-crud-coding 在当前前端项目里按现有约定实现页面和 API 修改。"
+
+policy:
+  allow_implicit_invocation: true

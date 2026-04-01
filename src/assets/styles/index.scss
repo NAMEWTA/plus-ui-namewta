@@ -12,6 +12,7 @@
 @use './layout/sidebar/responsive';
 @use './layout/sidebar/popper' as sidebar-popper;
 @use './components/legacy-utilities';
+@use './components/misc';
 @use './components/page-shell';
 @use './components/card-shell';
 @use './components/theme-helpers';

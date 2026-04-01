@@ -1,31 +1,41 @@
 <template>
   <div class="p-2 app-container system-client-page">
     <div class="search-wrap">
-        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-          <template #header>
-            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-              <div><h3>筛选条件</h3></div>
-            </div>
-          </template>
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="85px" class="query-form">
-            <el-form-item label="客户端key" prop="clientKey">
-              <el-input v-model="queryParams.clientKey" placeholder="请输入客户端key" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="客户端秘钥" prop="clientSecret">
-              <el-input v-model="queryParams.clientSecret" placeholder="请输入客户端秘钥" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="queryParams.status" placeholder="状态" clearable>
-                <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+      <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+        <template #header>
+          <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+            <div><h3>筛选条件</h3></div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="85px" class="query-form">
+          <el-form-item label="客户端key" prop="clientKey">
+            <el-input
+              v-model="queryParams.clientKey"
+              placeholder="请输入客户端key"
+              clearable
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="客户端秘钥" prop="clientSecret">
+            <el-input
+              v-model="queryParams.clientSecret"
+              placeholder="请输入客户端秘钥"
+              clearable
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="queryParams.status" placeholder="状态" clearable>
+              <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
 
     <el-card shadow="hover" class="table-panel">
       <template #header>
@@ -34,20 +44,44 @@
             <h3>客户端列表</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['system:client:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-            <el-button v-hasPermi="['system:client:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">
+            <el-button v-hasPermi="['system:client:add']" type="primary" plain icon="Plus" @click="handleAdd">
+              新增
+            </el-button>
+            <el-button
+              v-hasPermi="['system:client:edit']"
+              type="success"
+              plain
+              icon="Edit"
+              :disabled="single"
+              @click="handleUpdate()"
+            >
               修改
             </el-button>
-            <el-button v-hasPermi="['system:client:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
+            <el-button
+              v-hasPermi="['system:client:remove']"
+              type="danger"
+              plain
+              icon="Delete"
+              :disabled="multiple"
+              @click="handleDelete()"
+            >
               删除
             </el-button>
-            <el-button v-hasPermi="['system:client:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+            <el-button v-hasPermi="['system:client:export']" type="warning" plain icon="Download" @click="handleExport">
+              导出
+            </el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
       </template>
 
-      <el-table v-loading="loading" :data="clientList" border class="data-table" @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="loading"
+        :data="clientList"
+        border
+        class="data-table"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="true" label="id" align="center" prop="id" />
         <el-table-column label="客户端id" align="center" prop="clientId" />
@@ -67,22 +101,45 @@
         <el-table-column label="Token固定超时时间" align="center" prop="timeout" />
         <el-table-column key="status" label="状态" align="center">
           <template #default="scope">
-            <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
+            <el-switch
+              v-model="scope.row.status"
+              active-value="0"
+              inactive-value="1"
+              @change="handleStatusChange(scope.row)"
+            ></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
-              <el-button v-hasPermi="['system:client:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
+              <el-button
+                v-hasPermi="['system:client:edit']"
+                link
+                type="primary"
+                icon="Edit"
+                @click="handleUpdate(scope.row)"
+              ></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button v-hasPermi="['system:client:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
+              <el-button
+                v-hasPermi="['system:client:remove']"
+                link
+                type="primary"
+                icon="Delete"
+                @click="handleDelete(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
+      <pagination
+        v-show="total > 0"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        :total="total"
+        @pagination="getList"
+      />
     </el-card>
     <!-- 添加或修改客户端管理对话框 -->
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
@@ -95,12 +152,22 @@
         </el-form-item>
         <el-form-item label="授权类型" prop="grantTypeList">
           <el-select v-model="form.grantTypeList" multiple placeholder="请输入授权类型">
-            <el-option v-for="dict in sys_grant_type" :key="dict.value" :label="dict.label" :value="dict.value"></el-option>
+            <el-option
+              v-for="dict in sys_grant_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="设备类型" prop="deviceType">
           <el-select v-model="form.deviceType" placeholder="请输入设备类型">
-            <el-option v-for="dict in sys_device_type" :key="dict.value" :label="dict.label" :value="dict.value"></el-option>
+            <el-option
+              v-for="dict in sys_device_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            ></el-option>
           </el-select>
         </el-form-item>
         <el-form-item prop="activeTimeout" label-width="auto">
@@ -241,7 +308,7 @@ const resetQuery = () => {
 
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: ClientVO[]) => {
-  ids.value = selection.map((item) => item.id);
+  ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 };
@@ -283,7 +350,9 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: ClientVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal.confirm('是否确认删除客户端管理编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
+  await proxy?.$modal
+    .confirm('是否确认删除客户端管理编号为"' + _ids + '"的数据项？')
+    .finally(() => (loading.value = false));
   await delClient(_ids);
   proxy?.$modal.msgSuccess('删除成功');
   await getList();

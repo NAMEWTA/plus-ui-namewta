@@ -45,7 +45,7 @@
               <span>全屏显示</span>
             </template>
             <template v-else>
-             <CloseBold />
+              <CloseBold />
               <span>退出全屏</span>
             </template>
           </el-dropdown-item>
@@ -59,18 +59,47 @@
     </span>
 
     <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)"><RefreshRight style="width: 1em; height: 1em" /> 刷新页面</li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)"><Close style="width: 1em; height: 1em" /> 关闭当前</li>
-      <li @click="closeOthersTags"><CircleClose style="width: 1em; height: 1em" /> 关闭其他</li>
-      <li v-if="!isFirstView()" @click="closeLeftTags"><Back style="width: 1em; height: 1em" /> 关闭左侧</li>
-      <li v-if="!isLastView()" @click="closeRightTags"><Right style="width: 1em; height: 1em" /> 关闭右侧</li>
-      <li @click="closeAllTags(selectedTag)"><CircleClose style="width: 1em; height: 1em" /> 全部关闭</li>
+      <li @click="refreshSelectedTag(selectedTag)">
+        <RefreshRight style="width: 1em; height: 1em" />
+        刷新页面
+      </li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">
+        <Close style="width: 1em; height: 1em" />
+        关闭当前
+      </li>
+      <li @click="closeOthersTags">
+        <CircleClose style="width: 1em; height: 1em" />
+        关闭其他
+      </li>
+      <li v-if="!isFirstView()" @click="closeLeftTags">
+        <Back style="width: 1em; height: 1em" />
+        关闭左侧
+      </li>
+      <li v-if="!isLastView()" @click="closeRightTags">
+        <Right style="width: 1em; height: 1em" />
+        关闭右侧
+      </li>
+      <li @click="closeAllTags(selectedTag)">
+        <CircleClose style="width: 1em; height: 1em" />
+        全部关闭
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, ArrowLeft, ArrowRight, Back, CircleClose, Close, CloseBold, FullScreen, RefreshRight, Right } from '@element-plus/icons-vue';
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  Back,
+  CircleClose,
+  Close,
+  CloseBold,
+  FullScreen,
+  RefreshRight,
+  Right
+} from '@element-plus/icons-vue';
 import ScrollPane from './ScrollPane.vue';
 import { getNormalPath } from '@/utils/ruoyi';
 import { useSettingsStore } from '@/store/modules/settings';
@@ -100,7 +129,7 @@ const visitedViews = computed(() => tagsViewStore.getVisitedViews());
 const routes = computed(() => permissionStore.getRoutes());
 const tagsIcon = computed(() => settingsStore.tagsIcon);
 const selectedDropdownTag = computed<RouteLocationNormalized | undefined>(() => {
-  return visitedViews.value.find((tag) => isActive(tag)) || selectedTag.value;
+  return visitedViews.value.find(tag => isActive(tag)) || selectedTag.value;
 });
 
 watch(route, () => {
@@ -108,7 +137,7 @@ watch(route, () => {
   moveToCurrentTag();
 });
 
-watch(visible, (value) => {
+watch(visible, value => {
   if (value) {
     document.body.addEventListener('click', closeMenu);
   } else {
@@ -172,7 +201,7 @@ const isLastView = () => {
 
 const filterAffixTags = (routeList: RouteRecordRaw[], basePath = '') => {
   let tags: RouteLocationNormalized[] = [];
-  routeList.forEach((item) => {
+  routeList.forEach(item => {
     if (item.meta?.affix) {
       const tagPath = getNormalPath(basePath + '/' + item.path);
       tags.push({
@@ -261,7 +290,7 @@ const closeRightTags = () => {
     return;
   }
   proxy?.$tab.closeRightPage(tag).then((views: RouteLocationNormalized[]) => {
-    if (!views.find((item) => item.fullPath === route.fullPath)) {
+    if (!views.find(item => item.fullPath === route.fullPath)) {
       toLastView(views);
     }
   });
@@ -273,7 +302,7 @@ const closeLeftTags = () => {
     return;
   }
   proxy?.$tab.closeLeftPage(tag).then((views: RouteLocationNormalized[]) => {
-    if (!views.find((item) => item.fullPath === route.fullPath)) {
+    if (!views.find(item => item.fullPath === route.fullPath)) {
       toLastView(views);
     }
   });
@@ -292,7 +321,7 @@ const closeOthersTags = () => {
 
 const closeAllTags = (view?: RouteLocationNormalized) => {
   proxy?.$tab.closeAllPage().then(({ visitedViews: views }: { visitedViews: RouteLocationNormalized[] }) => {
-    if (affixTags.value.some((tag) => tag.path === route.path)) {
+    if (affixTags.value.some(tag => tag.path === route.path)) {
       return;
     }
     toLastView(views, view);

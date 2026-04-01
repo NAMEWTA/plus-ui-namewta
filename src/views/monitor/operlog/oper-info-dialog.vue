@@ -1,5 +1,12 @@
 <template>
-  <el-dialog v-model="open" title="操作日志详细" width="700px" append-to-body close-on-click-modal @closed="info = null">
+  <el-dialog
+    v-model="open"
+    title="操作日志详细"
+    width="700px"
+    append-to-body
+    close-on-click-modal
+    @closed="info = null"
+  >
     <el-descriptions v-if="info" :column="1" border>
       <el-descriptions-item label="操作状态">
         <template #default>
@@ -8,13 +15,15 @@
         </template>
       </el-descriptions-item>
       <el-descriptions-item label="登录信息">
-        <template #default> {{ info.operName }} / {{ info.deptName }} / {{ info.operIp }} / {{ info.operLocation }} </template>
+        <template #default>
+          {{ info.operName }} / {{ info.deptName }} / {{ info.operIp }} / {{ info.operLocation }}
+        </template>
       </el-descriptions-item>
       <el-descriptions-item label="请求信息">
-        <template #default> {{ info.requestMethod }} {{ info.operUrl }} </template>
+        <template #default>{{ info.requestMethod }} {{ info.operUrl }}</template>
       </el-descriptions-item>
       <el-descriptions-item label="操作模块">
-        <template #default> {{ info.title }} / {{ typeFormat(info) }} </template>
+        <template #default>{{ info.title }} / {{ typeFormat(info) }}</template>
       </el-descriptions-item>
       <el-descriptions-item label="操作方法">
         <template #default>
@@ -37,15 +46,15 @@
       </el-descriptions-item>
       <el-descriptions-item label="消耗时间">
         <template #default>
-          <span> {{ info.costTime }}ms </span>
+          <span>{{ info.costTime }}ms</span>
         </template>
       </el-descriptions-item>
       <el-descriptions-item label="操作时间">
-        <template #default> {{ proxy.parseTime(info.operTime) }}</template>
+        <template #default>{{ proxy.parseTime(info.operTime) }}</template>
       </el-descriptions-item>
       <el-descriptions-item v-if="info.status === 1" label="异常信息">
         <template #default>
-          <span class="text-danger"> {{ info.errorMsg }}</span>
+          <span class="text-danger">{{ info.errorMsg }}</span>
         </template>
       </el-descriptions-item>
     </el-descriptions>

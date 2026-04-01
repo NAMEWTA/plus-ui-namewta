@@ -1,53 +1,58 @@
 <template>
   <div class="p-2 app-container monitor-operlog-page">
     <div class="search-wrap">
-        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-          <template #header>
-            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-              <div>
-                <span class="panel-kicker">Search Filters</span>
-                <h3>筛选条件</h3>
-              </div>
+      <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+        <template #header>
+          <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+            <div>
+              <span class="panel-kicker">Search Filters</span>
+              <h3>筛选条件</h3>
             </div>
-          </template>
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-            <el-form-item label="操作地址" prop="operIp">
-              <el-input v-model="queryParams.operIp" placeholder="请输入操作地址" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="系统模块" prop="title">
-              <el-input v-model="queryParams.title" placeholder="请输入系统模块" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="操作人员" prop="operName">
-              <el-input v-model="queryParams.operName" placeholder="请输入操作人员" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="类型" prop="businessType">
-              <el-select v-model="queryParams.businessType" placeholder="操作类型" clearable>
-                <el-option v-for="dict in sys_oper_type" :key="dict.value" :label="dict.label" :value="dict.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="queryParams.status" placeholder="操作状态" clearable>
-                <el-option v-for="dict in sys_common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="操作时间" style="width: 308px">
-              <el-date-picker
-                v-model="dateRange"
-                value-format="YYYY-MM-DD HH:mm:ss"
-                type="daterange"
-                range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-              ></el-date-picker>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+          <el-form-item label="操作地址" prop="operIp">
+            <el-input v-model="queryParams.operIp" placeholder="请输入操作地址" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="系统模块" prop="title">
+            <el-input v-model="queryParams.title" placeholder="请输入系统模块" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="操作人员" prop="operName">
+            <el-input
+              v-model="queryParams.operName"
+              placeholder="请输入操作人员"
+              clearable
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="类型" prop="businessType">
+            <el-select v-model="queryParams.businessType" placeholder="操作类型" clearable>
+              <el-option v-for="dict in sys_oper_type" :key="dict.value" :label="dict.label" :value="dict.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="queryParams.status" placeholder="操作状态" clearable>
+              <el-option v-for="dict in sys_common_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="操作时间" style="width: 308px">
+            <el-date-picker
+              v-model="dateRange"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
 
     <el-card shadow="hover" class="table-panel">
       <template #header>
@@ -58,11 +63,34 @@
             <p>共 {{ total }} 条记录，支持类型过滤、详情查看、批量清空和导出。</p>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['monitor:operlog:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
+            <el-button
+              v-hasPermi="['monitor:operlog:remove']"
+              type="danger"
+              plain
+              icon="Delete"
+              :disabled="multiple"
+              @click="handleDelete()"
+            >
               删除
             </el-button>
-            <el-button v-hasPermi="['monitor:operlog:remove']" type="danger" plain icon="WarnTriangleFilled" @click="handleClean">清空</el-button>
-            <el-button v-hasPermi="['monitor:operlog:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+            <el-button
+              v-hasPermi="['monitor:operlog:remove']"
+              type="danger"
+              plain
+              icon="WarnTriangleFilled"
+              @click="handleClean"
+            >
+              清空
+            </el-button>
+            <el-button
+              v-hasPermi="['monitor:operlog:export']"
+              type="warning"
+              plain
+              icon="Download"
+              @click="handleExport"
+            >
+              导出
+            </el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -102,7 +130,14 @@
             <dict-tag :options="sys_common_status" :value="scope.row.status" />
           </template>
         </el-table-column>
-        <el-table-column label="操作日期" align="center" prop="operTime" width="180" sortable="custom" :sort-orders="['descending', 'ascending']">
+        <el-table-column
+          label="操作日期"
+          align="center"
+          prop="operTime"
+          width="180"
+          sortable="custom"
+          :sort-orders="['descending', 'ascending']"
+        >
           <template #default="scope">
             <span>{{ proxy.parseTime(scope.row.operTime) }}</span>
           </template>
@@ -123,13 +158,25 @@
         <el-table-column label="操作" fixed="right" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="详细" placement="top">
-              <el-button v-hasPermi="['monitor:operlog:query']" link type="primary" icon="View" @click="handleView(scope.row)"> </el-button>
+              <el-button
+                v-hasPermi="['monitor:operlog:query']"
+                link
+                type="primary"
+                icon="View"
+                @click="handleView(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
+      <pagination
+        v-show="total > 0"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        :total="total"
+        @pagination="getList"
+      />
     </el-card>
     <!-- 操作日志详细 -->
     <OperInfoDialog ref="operInfoDialogRef" />
@@ -220,7 +267,7 @@ const resetQuery = () => {
 };
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: OperLogVO[]) => {
-  ids.value = selection.map((item) => item.operId);
+  ids.value = selection.map(item => item.operId);
   multiple.value = !selection.length;
 };
 /** 排序触发事件 */

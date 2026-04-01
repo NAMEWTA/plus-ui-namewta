@@ -1,5 +1,10 @@
 import request from '@/utils/request';
-import { FlowDefinitionQuery, definitionXmlVO, FlowDefinitionForm, FlowDefinitionVo } from '@/api/workflow/definition/types';
+import {
+  FlowDefinitionQuery,
+  definitionXmlVO,
+  FlowDefinitionForm,
+  FlowDefinitionVo
+} from '@/api/workflow/definition/types';
 import { AxiosPromise } from 'axios';
 import { PageResult } from '@/api/types';
 

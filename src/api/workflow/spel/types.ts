@@ -33,7 +33,6 @@ export interface SpelVO {
    * 备注
    */
   remark?: string;
-
 }
 
 export interface SpelForm extends BaseEntity {
@@ -71,11 +70,9 @@ export interface SpelForm extends BaseEntity {
    * 备注
    */
   remark?: string;
-
 }
 
 export interface SpelQuery extends PageQuery {
-
   /**
    * 组件名称
    */
@@ -101,11 +98,8 @@ export interface SpelQuery extends PageQuery {
    */
   status?: string;
 
-    /**
-     * 日期范围参数
-     */
-    params?: any;
+  /**
+   * 日期范围参数
+   */
+  params?: any;
 }
-
-
-

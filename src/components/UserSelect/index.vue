@@ -1,20 +1,45 @@
 <template>
   <div>
-    <el-dialog v-model="userDialog.visible.value" :title="userDialog.title.value" width="80%" append-to-body class="user-select-dialog">
+    <el-dialog
+      v-model="userDialog.visible.value"
+      :title="userDialog.title.value"
+      width="80%"
+      append-to-body
+      class="user-select-dialog"
+    >
       <div class="p-2 user-select-shell">
         <el-row :gutter="12" class="selector-layout">
           <!-- 部门树 -->
-          <el-col :lg="treeCollapsed ? 1 : 5" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
-            <el-card shadow="hover" class="side-panel tree-panel-shell selector-card selector-side-card" :class="{ 'is-collapsed': treeCollapsed }">
+          <el-col
+            :lg="treeCollapsed ? 1 : 5"
+            :xs="24"
+            class="tree-panel-col"
+            :class="{ 'is-collapsed': treeCollapsed }"
+          >
+            <el-card
+              shadow="hover"
+              class="side-panel tree-panel-shell selector-card selector-side-card"
+              :class="{ 'is-collapsed': treeCollapsed }"
+            >
               <template #header>
-                <div class="panel-heading search-panel-toggle tree-panel-header" :class="{ 'is-collapsed': treeCollapsed }" @click.stop="treeCollapsed = !treeCollapsed">
+                <div
+                  class="panel-heading search-panel-toggle tree-panel-header"
+                  :class="{ 'is-collapsed': treeCollapsed }"
+                  @click.stop="treeCollapsed = !treeCollapsed"
+                >
                   <div v-show="!treeCollapsed" class="table-heading">
                     <h3>部门结构</h3>
                   </div>
                 </div>
               </template>
               <template v-if="!treeCollapsed">
-                <el-input v-model="deptName" class="selector-dept-input" placeholder="请输入部门名称" prefix-icon="Search" clearable />
+                <el-input
+                  v-model="deptName"
+                  class="selector-dept-input"
+                  placeholder="请输入部门名称"
+                  prefix-icon="Search"
+                  clearable
+                />
                 <el-tree
                   ref="deptTreeRef"
                   class="selector-tree"
@@ -30,17 +55,35 @@
               </template>
             </el-card>
           </el-col>
-          <el-col :lg="treeCollapsed ? 23 : 19" :xs="24" class="tree-content-col" :class="{ 'is-tree-collapsed': treeCollapsed }">
+          <el-col
+            :lg="treeCollapsed ? 23 : 19"
+            :xs="24"
+            class="tree-content-col"
+            :class="{ 'is-tree-collapsed': treeCollapsed }"
+          >
             <div class="p-2user-select-main">
-              <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
+              <transition
+                :enter-active-class="proxy?.animate.searchAnimate.enter"
+                :leave-active-class="proxy?.animate.searchAnimate.leave"
+              >
                 <div v-show="showSearch">
                   <el-card shadow="hover" class="search-panel selector-card">
                     <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
                       <el-form-item label="用户名称" prop="userName">
-                        <el-input v-model="queryParams.userName" placeholder="请输入用户名称" clearable @keyup.enter="handleQuery" />
+                        <el-input
+                          v-model="queryParams.userName"
+                          placeholder="请输入用户名称"
+                          clearable
+                          @keyup.enter="handleQuery"
+                        />
                       </el-form-item>
                       <el-form-item label="手机号码" prop="phoneNumber">
-                        <el-input v-model="queryParams.phoneNumber" placeholder="请输入手机号码" clearable @keyup.enter="handleQuery" />
+                        <el-input
+                          v-model="queryParams.phoneNumber"
+                          placeholder="请输入手机号码"
+                          clearable
+                          @keyup.enter="handleQuery"
+                        />
                       </el-form-item>
                       <el-form-item>
                         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -74,7 +117,12 @@
                   :data="userList"
                   :loading="loading"
                   :row-config="{ keyField: 'userId', isHover: true }"
-                  :checkbox-config="{ reserve: true, trigger: 'row', highlight: true, showHeader: prop.multiple }"
+                  :checkbox-config="{
+                    reserve: true,
+                    trigger: 'row',
+                    highlight: true,
+                    showHeader: prop.multiple
+                  }"
                   @checkbox-all="handleCheckboxAll"
                   @checkbox-change="handleCheckboxChange"
                 >
@@ -189,12 +237,12 @@ const confirm = () => {
   userDialog.closeDialog();
 };
 
-const computedIds = (data) => {
+const computedIds = data => {
   if (data === '' || data === null || data === undefined) {
     return [];
   }
   if (data instanceof Array) {
-    return data.map((item) => String(item));
+    return data.map(item => String(item));
   } else if (typeof data === 'string') {
     return data.split(',');
   } else if (typeof data === 'number') {
@@ -229,8 +277,8 @@ const getList = async () => {
 
 const pageList = async () => {
   await getList();
-  const users = userList.value.filter((item) => {
-    return selectUserList.value.some((user) => user.userId === item.userId);
+  const users = userList.value.filter(item => {
+    return selectUserList.value.some(user => user.userId === item.userId);
   });
   await tableRef.value.setCheckboxRow(users, true);
 };
@@ -256,7 +304,7 @@ const resetQuery = (refresh = true) => {
   refresh && handleQuery();
 };
 
-const handleCheckboxChange = (checked) => {
+const handleCheckboxChange = checked => {
   if (!prop.multiple && checked.checked) {
     tableRef.value.setCheckboxRow(selectUserList.value, false);
     selectUserList.value = [];
@@ -265,22 +313,22 @@ const handleCheckboxChange = (checked) => {
   if (checked.checked) {
     selectUserList.value.push(row);
   } else {
-    selectUserList.value = selectUserList.value.filter((item) => {
+    selectUserList.value = selectUserList.value.filter(item => {
       return item.userId !== row.userId;
     });
   }
 };
-const handleCheckboxAll = (checked) => {
+const handleCheckboxAll = checked => {
   const rows = userList.value;
   if (checked.checked) {
-    rows.forEach((row) => {
-      if (!selectUserList.value.some((item) => item.userId === row.userId)) {
+    rows.forEach(row => {
+      if (!selectUserList.value.some(item => item.userId === row.userId)) {
         selectUserList.value.push(row);
       }
     });
   } else {
-    selectUserList.value = selectUserList.value.filter((item) => {
-      return !rows.some((row) => row.userId === item.userId);
+    selectUserList.value = selectUserList.value.filter(item => {
+      return !rows.some(row => row.userId === item.userId);
     });
   }
 };
@@ -288,7 +336,7 @@ const handleCheckboxAll = (checked) => {
 const handleCloseTag = (user: UserVO) => {
   const userId = user.userId;
   // 使用split删除用户
-  const index = selectUserList.value.findIndex((item) => item.userId === userId);
+  const index = selectUserList.value.findIndex(item => item.userId === userId);
   const rows = selectUserList.value[index];
   tableRef.value?.setCheckboxRow(rows, false);
   selectUserList.value.splice(index, 1);
@@ -298,7 +346,7 @@ const initSelectUser = async () => {
   if (defaultSelectUserIds.value.length > 0) {
     const { data } = await api.optionSelect(defaultSelectUserIds.value);
     selectUserList.value = data;
-    const users = userList.value.filter((item) => {
+    const users = userList.value.filter(item => {
       return defaultSelectUserIds.value.includes(String(item.userId));
     });
     await nextTick(() => {

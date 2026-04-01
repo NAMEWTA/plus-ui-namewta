@@ -206,5 +206,4 @@ const closeDialog = () => {
   box-shadow: 0 0 4px #ccc;
   overflow: hidden;
 }
-
 </style>

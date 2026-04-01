@@ -90,7 +90,12 @@
           <el-table-column label="字典类型" min-width="12%">
             <template #default="scope">
               <el-select v-model="scope.row.dictType" clearable filterable placeholder="请选择" value-on-clear="">
-                <el-option v-for="dict in dictOptions" :key="dict.dictType" :label="dict.dictName" :value="dict.dictType">
+                <el-option
+                  v-for="dict in dictOptions"
+                  :key="dict.dictType"
+                  :label="dict.dictName"
+                  :value="dict.dictType"
+                >
                   <span style="float: left">{{ dict.dictName }}</span>
                   <span style="float: right; color: #8492a6; font-size: 13px">{{ dict.dictType }}</span>
                 </el-option>
@@ -139,8 +144,8 @@ const submitForm = () => {
   const basicForm = basicInfo.value?.$refs.basicInfoForm;
   const genForm = genInfo.value?.$refs.genInfoForm;
 
-  Promise.all([basicForm, genForm].map(getFormPromise)).then(async (res) => {
-    const validateResult = res.every((item) => !!item);
+  Promise.all([basicForm, genForm].map(getFormPromise)).then(async res => {
+    const validateResult = res.every(item => !!item);
     if (validateResult) {
       const genTable: any = Object.assign({}, info.value);
       genTable.columns = columns.value;
@@ -161,7 +166,7 @@ const submitForm = () => {
   });
 };
 const getFormPromise = (form: any) => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     form.validate((res: any) => {
       resolve(res);
     });

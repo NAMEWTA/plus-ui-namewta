@@ -6,9 +6,7 @@ const MAX_READ_IDS = 300;
 const buildCacheKey = (userId: string | number) => `${MESSAGE_READ_KEY}:${userId}`;
 
 const normalizeIds = (ids: Array<string | number>) => {
-  const values = ids
-    .map((item) => String(item))
-    .filter((item) => !!item);
+  const values = ids.map(item => String(item)).filter(item => !!item);
   return Array.from(new Set(values)).slice(0, MAX_READ_IDS);
 };
 

@@ -43,7 +43,12 @@
             <span>{{ (pageNum - 1) * pageSize + scope.$index + 1 }}</span>
           </template>
         </el-table-column>
-        <el-table-column type="selection" :reserve-selection="true" :selectable="checkSelectable" width="55"></el-table-column>
+        <el-table-column
+          type="selection"
+          :reserve-selection="true"
+          :selectable="checkSelectable"
+          width="55"
+        ></el-table-column>
         <el-table-column label="角色编号" align="center" prop="roleId" />
         <el-table-column label="角色名称" align="center" prop="roleName" />
         <el-table-column label="权限字符" align="center" prop="roleKey" />
@@ -91,7 +96,7 @@ const clickRow = (row: RoleVO) => {
 };
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: RoleVO[]) => {
-  roleIds.value = selection.map((item) => item.roleId);
+  roleIds.value = selection.map(item => item.roleId);
 };
 /** 保存选中的数据编号 */
 const getRowKey = (row: RoleVO): string => {
@@ -134,7 +139,7 @@ const getList = async () => {
     Object.assign(roles.value, res.data.roles);
     total.value = roles.value.length;
     await nextTick(() => {
-      roles.value.forEach((row) => {
+      roles.value.forEach(row => {
         if (row?.flag) {
           tableRef.value?.toggleRowSelection(row, true);
         }

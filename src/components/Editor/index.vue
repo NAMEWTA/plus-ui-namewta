@@ -1,11 +1,6 @@
 <template>
   <div class="editor-shell">
-    <EditorToolbar
-      :editor="editorRef"
-      :default-config="toolbarConfig"
-      mode="default"
-      class="editor-toolbar"
-    />
+    <EditorToolbar :editor="editorRef" :default-config="toolbarConfig" mode="default" class="editor-toolbar" />
     <div class="editor-body" :style="styles">
       <WangEditor
         v-model="content"
@@ -139,7 +134,7 @@ const syncReadOnly = () => {
 
 watch(
   () => props.modelValue,
-  (value) => {
+  value => {
     const nextValue = value || '';
     if (nextValue !== content.value) {
       content.value = nextValue;
@@ -148,7 +143,7 @@ watch(
   { immediate: true }
 );
 
-watch(content, (value) => {
+watch(content, value => {
   if (value !== props.modelValue) {
     emit('update:modelValue', value);
   }

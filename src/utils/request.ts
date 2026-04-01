@@ -145,7 +145,10 @@ service.interceptors.request.use(
         // 生成一个 AES 密钥
         const aesKey = generateAesKey();
         config.headers[encryptHeader] = encrypt(encryptBase64(aesKey));
-        config.data = typeof config.data === 'object' ? encryptWithAes(JSON.stringify(config.data), aesKey) : encryptWithAes(config.data, aesKey);
+        config.data =
+          typeof config.data === 'object'
+            ? encryptWithAes(JSON.stringify(config.data), aesKey)
+            : encryptWithAes(config.data, aesKey);
       }
     }
     // FormData数据去请求头Content-Type
@@ -223,14 +226,17 @@ service.interceptors.response.use(
     }
   },
   async (error: any) => {
-    const message = await extractErrorMessage(error) || errorCode['default'];
+    const message = (await extractErrorMessage(error)) || errorCode['default'];
     ElMessage({ message: message, type: 'error', duration: 5 * 1000 });
     return Promise.reject(error);
   }
 );
 // 通用下载方法
 export function download(url: string, params: any, fileName: string) {
-  downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
+  downloadLoadingInstance = ElLoading.service({
+    text: '正在下载数据，请稍候',
+    background: 'rgba(0, 0, 0, 0.7)'
+  });
   // prettier-ignore
   return service.post(url, params, {
       transformRequest: [

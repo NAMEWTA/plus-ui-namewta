@@ -18,7 +18,7 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip content="删除" placement="top">
-            <el-button link type="primary" icon="Delete" @click="handldDelOnline(scope.row)"> </el-button>
+            <el-button link type="primary" icon="Delete" @click="handldDelOnline(scope.row)"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -52,7 +52,7 @@ const handldDelOnline = (row: any) => {
         proxy?.$modal.msgError(res.msg);
       }
     })
-.catch(() => {});
+    .catch(() => {});
 };
 </script>
 

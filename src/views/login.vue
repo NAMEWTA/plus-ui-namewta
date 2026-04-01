@@ -5,7 +5,8 @@
         <span class="brand-pill">Plus UI Workspace</span>
         <h1 class="brand-title">企业级后台管理系统</h1>
         <p class="brand-desc">
-          真正面向企业级的应用框架 组件化 模块化 轻耦合 高扩展 针对企业痛点 业界一流技术栈<br />
+          真正面向企业级的应用框架 组件化 模块化 轻耦合 高扩展 针对企业痛点 业界一流技术栈
+          <br />
           重写 RuoYi-Vue 所有功能 集成 Sa-Token、Mybatis-Plus、WarmFlow、SpringDoc、Hutool、OSS 定期同步。
         </p>
         <div class="brand-highlights">
@@ -30,7 +31,13 @@
         </div>
 
         <el-form-item prop="username">
-          <el-input v-model="loginForm.username" type="text" size="large" auto-complete="off" :placeholder="proxy.$t('login.username')">
+          <el-input
+            v-model="loginForm.username"
+            type="text"
+            size="large"
+            auto-complete="off"
+            :placeholder="proxy.$t('login.username')"
+          >
             <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
           </el-input>
         </el-form-item>
@@ -49,7 +56,13 @@
         </el-form-item>
 
         <el-form-item v-if="captchaEnabled" prop="code" class="captcha-row">
-          <el-input v-model="loginForm.code" size="large" auto-complete="off" :placeholder="proxy.$t('login.code')" @keyup.enter="handleLogin">
+          <el-input
+            v-model="loginForm.code"
+            size="large"
+            auto-complete="off"
+            :placeholder="proxy.$t('login.code')"
+            @keyup.enter="handleLogin"
+          >
             <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
           </el-input>
           <div class="login-code">
@@ -59,7 +72,9 @@
 
         <div class="form-meta">
           <el-checkbox v-model="loginForm.rememberMe">{{ proxy.$t('login.rememberPassword') }}</el-checkbox>
-          <router-link v-if="register" class="link-type" :to="'/register'">{{ proxy.$t('login.switchRegisterPage') }}</router-link>
+          <router-link v-if="register" class="link-type" :to="'/register'">
+            {{ proxy.$t('login.switchRegisterPage') }}
+          </router-link>
         </div>
 
         <div class="social-panel">
@@ -227,7 +242,8 @@ onMounted(() => {
   padding: 40px 24px 88px;
   background:
     radial-gradient(circle at 12% 12%, rgba(53, 109, 255, 0.22), transparent 24%),
-    radial-gradient(circle at 88% 18%, rgba(14, 165, 233, 0.18), transparent 24%), linear-gradient(135deg, #071120 0%, #0f1b33 42%, #15345f 100%);
+    radial-gradient(circle at 88% 18%, rgba(14, 165, 233, 0.18), transparent 24%),
+    linear-gradient(135deg, #071120 0%, #0f1b33 42%, #15345f 100%);
 }
 
 .login-shell {

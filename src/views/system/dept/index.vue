@@ -1,34 +1,45 @@
 <template>
   <div class="p-2 app-container system-dept-page">
     <div class="search-wrap">
-        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-          <template #header>
-            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-              <div>
-                <span class="panel-kicker">Search Filters</span>
-                <h3>筛选条件</h3>
-              </div>
+      <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+        <template #header>
+          <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+            <div>
+              <span class="panel-kicker">Search Filters</span>
+              <h3>筛选条件</h3>
             </div>
-          </template>
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-            <el-form-item label="部门名称" prop="deptName">
-              <el-input v-model="queryParams.deptName" placeholder="请输入部门名称" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="类别编码" prop="deptCategory">
-              <el-input v-model="queryParams.deptCategory" placeholder="请输入类别编码" clearable style="width: 240px" @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-select v-model="queryParams.status" placeholder="部门状态" clearable>
-                <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+          <el-form-item label="部门名称" prop="deptName">
+            <el-input
+              v-model="queryParams.deptName"
+              placeholder="请输入部门名称"
+              clearable
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="类别编码" prop="deptCategory">
+            <el-input
+              v-model="queryParams.deptCategory"
+              placeholder="请输入类别编码"
+              clearable
+              style="width: 240px"
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="queryParams.status" placeholder="部门状态" clearable>
+              <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
 
     <el-card shadow="hover" class="table-panel">
       <template #header>
@@ -39,7 +50,9 @@
             <p>支持树形层级维护、负责人绑定和部门状态管理。</p>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['system:dept:add']" type="primary" plain icon="Plus" @click="handleAdd()">新增</el-button>
+            <el-button v-hasPermi="['system:dept:add']" type="primary" plain icon="Plus" @click="handleAdd()">
+              新增
+            </el-button>
             <el-button type="info" plain icon="Sort" @click="handleToggleExpandAll">展开/折叠</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
@@ -72,13 +85,31 @@
         <el-table-column fixed="right" align="center" label="操作">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
-              <el-button v-hasPermi="['system:dept:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)" />
+              <el-button
+                v-hasPermi="['system:dept:edit']"
+                link
+                type="primary"
+                icon="Edit"
+                @click="handleUpdate(scope.row)"
+              />
             </el-tooltip>
             <el-tooltip content="新增" placement="top">
-              <el-button v-hasPermi="['system:dept:add']" link type="primary" icon="Plus" @click="handleAdd(scope.row)" />
+              <el-button
+                v-hasPermi="['system:dept:add']"
+                link
+                type="primary"
+                icon="Plus"
+                @click="handleAdd(scope.row)"
+              />
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button v-hasPermi="['system:dept:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)" />
+              <el-button
+                v-hasPermi="['system:dept:remove']"
+                link
+                type="primary"
+                icon="Delete"
+                @click="handleDelete(scope.row)"
+              />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -118,7 +149,12 @@
           <el-col :span="12">
             <el-form-item label="负责人" prop="leader">
               <el-select v-model="form.leader" placeholder="请选择负责人">
-                <el-option v-for="item in deptUserList" :key="item.userId" :label="item.userName" :value="item.userId" />
+                <el-option
+                  v-for="item in deptUserList"
+                  :key="item.userId"
+                  :label="item.userName"
+                  :value="item.userId"
+                />
               </el-select>
             </el-form-item>
           </el-col>
@@ -135,7 +171,9 @@
           <el-col :span="12">
             <el-form-item label="部门状态">
               <el-radio-group v-model="form.status">
-                <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label }}</el-radio>
+                <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">
+                  {{ dict.label }}
+                </el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -261,7 +299,7 @@ const handleToggleExpandAll = () => {
 };
 /** 展开/折叠所有 */
 const toggleExpandAll = (data: DeptVO[], status: boolean) => {
-  data.forEach((item) => {
+  data.forEach(item => {
     deptTableRef.value?.toggleRowExpansion(item, status);
     if (item.children && item.children.length > 0) toggleExpandAll(item.children, status);
   });

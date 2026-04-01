@@ -1,5 +1,13 @@
 <template>
-  <el-dialog v-model="dialog.visible" :title="dialog.title" width="50%" draggable :before-close="cancel" center :close-on-click-modal="false">
+  <el-dialog
+    v-model="dialog.visible"
+    :title="dialog.title"
+    width="50%"
+    draggable
+    :before-close="cancel"
+    center
+    :close-on-click-modal="false"
+  >
     <el-form v-loading="loading" :model="form" label-width="120px">
       <el-form-item label="消息提醒">
         <el-checkbox-group v-model="form.messageType">
@@ -9,15 +17,29 @@
         </el-checkbox-group>
       </el-form-item>
       <el-form-item label="附件" v-if="buttonObj.file">
-        <fileUpload v-model="form.fileId" :file-type="['png', 'jpg', 'jpeg', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'txt', 'pdf']" :file-size="20" />
+        <fileUpload
+          v-model="form.fileId"
+          :file-type="['png', 'jpg', 'jpeg', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'txt', 'pdf']"
+          :file-size="20"
+        />
       </el-form-item>
       <el-form-item label="抄送" v-if="buttonObj.copy">
         <el-button type="primary" icon="Plus" circle @click="openUserSelectCopy" />
-        <el-tag v-for="user in selectCopyUserList" :key="user.userId" closable style="margin: 2px" @close="handleCopyCloseTag(user)">
+        <el-tag
+          v-for="user in selectCopyUserList"
+          :key="user.userId"
+          closable
+          style="margin: 2px"
+          @close="handleCopyCloseTag(user)"
+        >
           {{ user.nickName }}
         </el-tag>
       </el-form-item>
-      <el-form-item v-if="buttonObj.pop && nestNodeList && nestNodeList.length > 0" label="下一步审批人" prop="assigneeMap">
+      <el-form-item
+        v-if="buttonObj.pop && nestNodeList && nestNodeList.length > 0"
+        label="下一步审批人"
+        prop="assigneeMap"
+      >
         <div v-for="(item, index) in nestNodeList" :key="index" style="margin-bottom: 5px; width: 500px">
           <span>【{{ item.nodeName }}】：</span>
           <el-input v-if="false" v-model="form.assigneeMap[item.nodeCode]" />
@@ -34,11 +56,21 @@
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button :disabled="buttonDisabled" type="primary" @click="handleCompleteTask"> 提交 </el-button>
-        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.trust" :disabled="buttonDisabled" type="primary" @click="openDelegateTask">
+        <el-button :disabled="buttonDisabled" type="primary" @click="handleCompleteTask">提交</el-button>
+        <el-button
+          v-if="task.flowStatus === 'waiting' && buttonObj.trust"
+          :disabled="buttonDisabled"
+          type="primary"
+          @click="openDelegateTask"
+        >
           委托
         </el-button>
-        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.transfer" :disabled="buttonDisabled" type="primary" @click="openTransferTask">
+        <el-button
+          v-if="task.flowStatus === 'waiting' && buttonObj.transfer"
+          :disabled="buttonDisabled"
+          type="primary"
+          @click="openTransferTask"
+        >
           转办
         </el-button>
         <el-button
@@ -65,14 +97,24 @@
         >
           终止
         </el-button>
-        <el-button v-if="task.flowStatus === 'waiting' && buttonObj.back" :disabled="buttonDisabled" type="danger" @click="handleBackProcessOpen">
+        <el-button
+          v-if="task.flowStatus === 'waiting' && buttonObj.back"
+          :disabled="buttonDisabled"
+          type="danger"
+          @click="handleBackProcessOpen"
+        >
           退回
         </el-button>
         <el-button :disabled="buttonDisabled" @click="cancel">取消</el-button>
       </span>
     </template>
     <!-- 抄送 -->
-    <UserSelect ref="userSelectCopyRef" :multiple="true" :data="selectCopyUserIds" @confirm-call-back="userSelectCopyCallBack"></UserSelect>
+    <UserSelect
+      ref="userSelectCopyRef"
+      :multiple="true"
+      :data="selectCopyUserIds"
+      @confirm-call-back="userSelectCopyCallBack"
+    ></UserSelect>
     <!-- 转办 -->
     <UserSelect ref="transferTaskRef" :multiple="false" @confirm-call-back="handleTransferTask"></UserSelect>
     <!-- 委托 -->
@@ -93,7 +135,12 @@
       <el-form v-if="task.flowStatus === 'waiting'" v-loading="backLoading" :model="backForm" label-width="120px">
         <el-form-item label="驳回节点">
           <el-select v-model="backForm.nodeCode" clearable placeholder="请选择" style="width: 300px">
-            <el-option v-for="item in taskNodeList" :key="item.nodeCode" :label="item.nodeName" :value="item.nodeCode" />
+            <el-option
+              v-for="item in taskNodeList"
+              :key="item.nodeCode"
+              :label="item.nodeName"
+              :value="item.nodeCode"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="消息提醒">
@@ -122,14 +169,24 @@
       </template>
     </el-dialog>
     <!-- 驳回结束 -->
-    <el-dialog v-model="deleteSignatureVisible" draggable title="减签人员" width="700px" height="400px" append-to-body :close-on-click-modal="false">
+    <el-dialog
+      v-model="deleteSignatureVisible"
+      draggable
+      title="减签人员"
+      width="700px"
+      height="400px"
+      append-to-body
+      :close-on-click-modal="false"
+    >
       <div>
         <el-table :data="deleteUserList" border>
           <el-table-column prop="nodeName" label="任务名称" />
           <el-table-column prop="nickName" label="办理人" />
           <el-table-column label="操作" align="center" width="160">
             <template #default="scope">
-              <el-button type="danger" size="small" icon="Delete" @click="deleteMultiInstanceUser(scope.row)">删除 </el-button>
+              <el-button type="danger" size="small" icon="Delete" @click="deleteMultiInstanceUser(scope.row)">
+                删除
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -265,11 +322,11 @@ const openDialog = async (id?: string) => {
   const response = await getTask(taskId.value);
   task.value = response.data;
   buttonObj.value = {};
-  task.value.buttonList?.forEach((e) => {
+  task.value.buttonList?.forEach(e => {
     buttonObj.value[e.code] = e.show;
   });
   selectCopyUserList.value = task.value.copyList;
-  selectCopyUserIds.value = task.value.copyList.map((e) => e.userId).join(',');
+  selectCopyUserIds.value = task.value.copyList.map(e => e.userId).join(',');
   varNodeList.value = task.value.varList;
   console.log('varNodeList', varNodeList.value);
   buttonDisabled.value = false;
@@ -294,7 +351,7 @@ const handleCompleteTask = async () => {
   form.value.variables = props.taskVariables;
   let verify = false;
   if (buttonObj.value.pop && nestNodeList.value && nestNodeList.value.length > 0) {
-    nestNodeList.value.forEach((e) => {
+    nestNodeList.value.forEach(e => {
       if (
         Object.keys(form.value.assigneeMap).length === 0 ||
         form.value.assigneeMap[e.nodeCode] === '' ||
@@ -313,7 +370,7 @@ const handleCompleteTask = async () => {
   }
   if (selectCopyUserList.value && selectCopyUserList.value.length > 0) {
     const flowCopyList = [];
-    selectCopyUserList.value.forEach((e) => {
+    selectCopyUserList.value.forEach(e => {
       const copyUser = {
         userId: e.userId,
         nickName: e.nickName
@@ -382,26 +439,26 @@ const openUserSelectCopy = () => {
 const userSelectCopyCallBack = (data: FlowCopyVo[]) => {
   if (data && data.length > 0) {
     selectCopyUserList.value = data;
-    selectCopyUserIds.value = selectCopyUserList.value.map((item) => item.userId).join(',');
+    selectCopyUserIds.value = selectCopyUserList.value.map(item => item.userId).join(',');
   }
 };
 //删除抄送人员
 const handleCopyCloseTag = (user: FlowCopyVo) => {
   const userId = user.userId;
   // 使用split删除用户
-  const index = selectCopyUserList.value.findIndex((item) => item.userId === userId);
+  const index = selectCopyUserList.value.findIndex(item => item.userId === userId);
   selectCopyUserList.value.splice(index, 1);
-  selectCopyUserIds.value = selectCopyUserList.value.map((item) => item.userId).join(',');
+  selectCopyUserIds.value = selectCopyUserList.value.map(item => item.userId).join(',');
 };
 //加签
 const openMultiInstanceUser = async () => {
   multiInstanceUserRef.value.open();
 };
 //加签
-const addMultiInstanceUser = async (data) => {
+const addMultiInstanceUser = async data => {
   if (data && data.length > 0) {
     const taskOperationBo = reactive<TaskOperationBo>({
-      userIds: data.map((e) => e.userId),
+      userIds: data.map(e => e.userId),
       taskId: taskId.value,
       message: form.value.message,
       messageType: ['1']
@@ -421,7 +478,7 @@ const addMultiInstanceUser = async (data) => {
   }
 };
 //减签
-const deleteMultiInstanceUser = async (row) => {
+const deleteMultiInstanceUser = async row => {
   await proxy?.$modal.confirm('是否确认提交？');
   loading.value = true;
   buttonDisabled.value = true;
@@ -444,7 +501,7 @@ const openTransferTask = () => {
   transferTaskRef.value.open();
 };
 //转办
-const handleTransferTask = async (data) => {
+const handleTransferTask = async data => {
   if (data && data.length > 0) {
     const taskOperationBo = reactive<TaskOperationBo>({
       userId: data[0].userId,
@@ -472,7 +529,7 @@ const openDelegateTask = () => {
   delegateTaskRef.value.open();
 };
 //委托
-const handleDelegateTask = async (data) => {
+const handleDelegateTask = async data => {
   if (data && data.length > 0) {
     const taskOperationBo = reactive<TaskOperationBo>({
       userId: data[0].userId,
@@ -515,14 +572,14 @@ const handleTaskUser = async () => {
   const data = await currentTaskAllUser(taskId.value);
   deleteUserList.value = data.data;
   if (deleteUserList.value && deleteUserList.value.length > 0) {
-    deleteUserList.value.forEach((e) => {
+    deleteUserList.value.forEach(e => {
       e.nodeName = task.value.nodeName;
     });
   }
   deleteSignatureVisible.value = true;
 };
 // 选择人员
-const choosePeople = async (data) => {
+const choosePeople = async data => {
   if (!data.permissionFlag) {
     proxy?.$modal.msgError('没有可选择的人员，请联系管理员！');
   }
@@ -531,11 +588,11 @@ const choosePeople = async (data) => {
   porUserRef.value.open();
 };
 //确认选择
-const handlePopUser = async (userList) => {
-  const userIds = userList.map((item) => {
+const handlePopUser = async userList => {
+  const userIds = userList.map(item => {
     return item.userId;
   });
-  const nickNames = userList.map((item) => {
+  const nickNames = userList.map(item => {
     return item.nickName;
   });
   form.value.assigneeMap[nodeCode.value] = userIds.join(',');

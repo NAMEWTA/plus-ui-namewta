@@ -26,10 +26,12 @@
     <div v-if="showTip" class="el-upload__tip">
       请上传
       <template v-if="fileSize">
-        大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b>
+        大小不超过
+        <b style="color: #f56c6c">{{ fileSize }}MB</b>
       </template>
       <template v-if="fileType">
-        格式为 <b style="color: #f56c6c">{{ fileType.join('/') }}</b>
+        格式为
+        <b style="color: #f56c6c">{{ fileType.join('/') }}</b>
       </template>
       的文件
     </div>
@@ -89,7 +91,7 @@ const showTip = computed(() => props.isShowTip && (props.fileType || props.fileS
 const imageUploadRef = ref<ElUploadInstance>();
 
 // 监听 fileType 变化，更新 fileAccept
-const fileAccept = computed(() => props.fileType.map((type) => `.${type}`).join(','));
+const fileAccept = computed(() => props.fileType.map(type => `.${type}`).join(','));
 
 watch(
   () => props.modelValue,
@@ -104,7 +106,7 @@ watch(
         list = res.data;
       }
       // 然后将数组转为对象数组
-      fileList.value = list.map((item) => {
+      fileList.value = list.map(item => {
         // 字符串回显处理 如果此处存的是url可直接回显 如果存的是id需要调用接口查出来
         let itemData;
         if (typeof item === 'string') {
@@ -187,7 +189,7 @@ const handleUploadSuccess = (res: any, file: UploadFile) => {
 
 // 删除图片
 const handleDelete = (file: UploadFile): boolean => {
-  const findex = fileList.value.map((f) => f.name).indexOf(file.name);
+  const findex = fileList.value.map(f => f.name).indexOf(file.name);
   if (findex > -1 && uploadList.value.length === number.value) {
     const ossId = fileList.value[findex].ossId;
     delOss(ossId);
@@ -201,7 +203,7 @@ const handleDelete = (file: UploadFile): boolean => {
 // 上传结束处理
 const uploadedSuccessfully = () => {
   if (number.value > 0 && uploadList.value.length === number.value) {
-    fileList.value = fileList.value.filter((f) => f.url !== undefined).concat(uploadList.value);
+    fileList.value = fileList.value.filter(f => f.url !== undefined).concat(uploadList.value);
     uploadList.value = [];
     number.value = 0;
     emit('update:modelValue', listToString(fileList.value));

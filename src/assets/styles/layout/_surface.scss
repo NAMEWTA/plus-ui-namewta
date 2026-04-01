@@ -2,7 +2,6 @@
 
 // --- 整块内容容器（常见于路由视图外包一层） ---
 .app-container {
-
 }
 
 // --- 可复用面板条（hover 抬升阴影，非 el-card） ---
@@ -14,7 +13,9 @@
   background-color: var(--app-surface-bg);
   padding: 0.75rem;
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 
   &:hover {
     box-shadow: var(--app-shadow-sm);

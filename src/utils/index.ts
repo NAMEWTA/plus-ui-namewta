@@ -105,7 +105,7 @@ export const cleanArray = (actual: Array<any>) => {
 export const param = (json: any) => {
   if (!json) return '';
   return cleanArray(
-    Object.keys(json).map((key) => {
+    Object.keys(json).map(key => {
       if (json[key] === undefined) return '';
       return encodeURIComponent(key) + '=' + encodeURIComponent(json[key]);
     })
@@ -123,7 +123,7 @@ export const param2Obj = (url: string) => {
   }
   const obj: any = {};
   const searchArr = search.split('&');
-  searchArr.forEach((v) => {
+  searchArr.forEach(v => {
     const index = v.indexOf('=');
     if (index !== -1) {
       const name = v.substring(0, index);
@@ -157,7 +157,7 @@ export const objectMerge = (target: any, source: any | any[]) => {
   if (Array.isArray(source)) {
     return source.slice();
   }
-  Object.keys(source).forEach((property) => {
+  Object.keys(source).forEach(property => {
     const sourceProperty = source[property];
     if (typeof sourceProperty === 'object') {
       target[property] = objectMerge(target[property], sourceProperty);
@@ -250,7 +250,7 @@ export const deepClone = (source: any) => {
     throw new Error('error arguments', 'deepClone' as any);
   }
   const targetObj: any = source.constructor === Array ? [] : {};
-  Object.keys(source).forEach((keys) => {
+  Object.keys(source).forEach(keys => {
     if (source[keys] && typeof source[keys] === 'object') {
       targetObj[keys] = deepClone(source[keys]);
     } else {

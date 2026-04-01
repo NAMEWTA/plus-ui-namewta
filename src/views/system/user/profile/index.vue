@@ -39,7 +39,9 @@
                   <svg-icon icon-class="tree" />
                   <span>所属部门</span>
                 </div>
-                <span v-if="state.user.deptName" class="profile-item-value">{{ state.user.deptName }} / {{ state.postGroup }}</span>
+                <span v-if="state.user.deptName" class="profile-item-value">
+                  {{ state.user.deptName }} / {{ state.postGroup }}
+                </span>
                 <span v-else class="profile-item-value">-</span>
               </li>
               <li class="list-group-item">

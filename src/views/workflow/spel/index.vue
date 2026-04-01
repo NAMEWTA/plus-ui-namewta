@@ -1,26 +1,36 @@
 <template>
   <div class="p-2 app-container workflow-spel-page">
     <div class="search-wrap">
-        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-          <template #header>
-            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-              <div><h3>筛选条件</h3></div>
-            </div>
-          </template>
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-            <el-form-item label="组件名称" prop="componentName">
-              <el-input v-model="queryParams.componentName" placeholder="请输入组件名称" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="方法名" prop="methodName">
-              <el-input v-model="queryParams.methodName" placeholder="请输入方法名" clearable @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+      <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+        <template #header>
+          <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+            <div><h3>筛选条件</h3></div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+          <el-form-item label="组件名称" prop="componentName">
+            <el-input
+              v-model="queryParams.componentName"
+              placeholder="请输入组件名称"
+              clearable
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="方法名" prop="methodName">
+            <el-input
+              v-model="queryParams.methodName"
+              placeholder="请输入方法名"
+              clearable
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
 
     <el-card shadow="hover" class="table-panel">
       <template #header>
@@ -29,15 +39,41 @@
             <h3>流程表达式</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['workflow:spel:add']">新增</el-button>
-            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['workflow:spel:edit']">修改</el-button>
-            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['workflow:spel:remove']">删除</el-button>
+            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['workflow:spel:add']">
+              新增
+            </el-button>
+            <el-button
+              type="success"
+              plain
+              icon="Edit"
+              :disabled="single"
+              @click="handleUpdate()"
+              v-hasPermi="['workflow:spel:edit']"
+            >
+              修改
+            </el-button>
+            <el-button
+              type="danger"
+              plain
+              icon="Delete"
+              :disabled="multiple"
+              @click="handleDelete()"
+              v-hasPermi="['workflow:spel:remove']"
+            >
+              删除
+            </el-button>
             <right-toolbar v-model:showSearch="showSearch" :search="false" @queryTable="getList"></right-toolbar>
           </div>
         </div>
       </template>
 
-      <el-table v-loading="loading" border class="data-table" :data="spelList" @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="loading"
+        border
+        class="data-table"
+        :data="spelList"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="序号" type="index" width="60" align="center">
           <template #default="scope">
@@ -74,16 +110,34 @@
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
-              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['workflow:spel:edit']"></el-button>
+              <el-button
+                link
+                type="primary"
+                icon="Edit"
+                @click="handleUpdate(scope.row)"
+                v-hasPermi="['workflow:spel:edit']"
+              ></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['workflow:spel:remove']"></el-button>
+              <el-button
+                link
+                type="primary"
+                icon="Delete"
+                @click="handleDelete(scope.row)"
+                v-hasPermi="['workflow:spel:remove']"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination
+        v-show="total > 0"
+        :total="total"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        @pagination="getList"
+      />
     </el-card>
     <!-- 添加或修改流程spel表达式定义对话框 -->
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="550px" append-to-body>
@@ -115,7 +169,10 @@
           <el-input v-model="form.methodParams" placeholder="请输入方法参数" @input="updateViewSpel" />
           <template #label>
             <span>
-              <el-tooltip content="方法参数，如：deptId, 多个使用 ',' 分隔，单参数变量仅支持单个方法参数" placement="top">
+              <el-tooltip
+                content="方法参数，如：deptId, 多个使用 ',' 分隔，单参数变量仅支持单个方法参数"
+                placement="top"
+              >
                 <el-icon><question-filled /></el-icon>
               </el-tooltip>
               方法参数
@@ -181,10 +238,10 @@ const initFormData: SpelForm = {
   methodParams: undefined,
   viewSpel: undefined,
   status: '0',
-  remark: undefined,
-}
+  remark: undefined
+};
 const data = reactive<PageData<SpelForm, SpelQuery>>({
-  form: {...initFormData},
+  form: { ...initFormData },
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -193,13 +250,10 @@ const data = reactive<PageData<SpelForm, SpelQuery>>({
     methodParams: undefined,
     viewSpel: undefined,
     status: '0',
-    params: {
-    }
+    params: {}
   },
   rules: {
-    status: [
-      { required: true, message: "状态不能为空", trigger: "change" }
-    ],
+    status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
   }
 });
 
@@ -212,55 +266,55 @@ const getList = async () => {
   spelList.value = res.data?.rows;
   total.value = res.data?.total;
   loading.value = false;
-}
+};
 
 /** 取消按钮 */
 const cancel = () => {
   reset();
   dialog.visible = false;
-}
+};
 
 /** 表单重置 */
 const reset = () => {
-  form.value = {...initFormData};
+  form.value = { ...initFormData };
   spelFormRef.value?.resetFields();
-}
+};
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
-}
+};
 
 /** 重置按钮操作 */
 const resetQuery = () => {
   queryFormRef.value?.resetFields();
   handleQuery();
-}
+};
 
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: SpelVO[]) => {
   ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
-}
+};
 
 /** 新增按钮操作 */
 const handleAdd = () => {
   reset();
   dialog.visible = true;
-  dialog.title = "添加流程spel表达式定义";
-}
+  dialog.title = '添加流程spel表达式定义';
+};
 
 /** 修改按钮操作 */
 const handleUpdate = async (row?: SpelVO) => {
   reset();
-  const _id = row?.id || ids.value[0]
+  const _id = row?.id || ids.value[0];
   const res = await getSpel(_id);
   Object.assign(form.value, res.data);
   dialog.visible = true;
-  dialog.title = "修改流程spel表达式定义";
-}
+  dialog.title = '修改流程spel表达式定义';
+};
 
 /** 提交按钮 */
 const submitForm = () => {
@@ -268,25 +322,27 @@ const submitForm = () => {
     if (valid) {
       buttonLoading.value = true;
       if (form.value.id) {
-        await updateSpel(form.value).finally(() =>  buttonLoading.value = false);
+        await updateSpel(form.value).finally(() => (buttonLoading.value = false));
       } else {
-        await addSpel(form.value).finally(() =>  buttonLoading.value = false);
+        await addSpel(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess("操作成功");
+      proxy?.$modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
   });
-}
+};
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: SpelVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal.confirm('是否确认删除流程spel表达式定义编号为"' + _ids + '"的数据项？').finally(() => loading.value = false);
+  await proxy?.$modal
+    .confirm('是否确认删除流程spel表达式定义编号为"' + _ids + '"的数据项？')
+    .finally(() => (loading.value = false));
   await delSpel(_ids);
-  proxy?.$modal.msgSuccess("删除成功");
+  proxy?.$modal.msgSuccess('删除成功');
   await getList();
-}
+};
 
 /** 控制是否显示 viewSpel 输入框 */
 const showViewSpelInput = ref(false);
@@ -304,7 +360,8 @@ const updateViewSpel = () => {
 
   // 替换变量值：只有参数存在，组件和方法都不存在
   if (!comp && !method && paramStr) {
-    const paramList = paramStr.split(',')
+    const paramList = paramStr
+      .split(',')
       .map(p => p.trim())
       .filter(p => p.length > 0);
 
@@ -324,23 +381,19 @@ const updateViewSpel = () => {
 
   if (paramStr) {
     // 分割并过滤掉空参数
-    paramList = paramStr.split(',')
+    paramList = paramStr
+      .split(',')
       .map(p => p.trim())
       .filter(p => p.length > 0);
   }
 
-  const paramPart = paramList.length > 0
-    ? '(' + paramList.map(p => `#${p}`).join(',') + ')'
-    : '()';
+  const paramPart = paramList.length > 0 ? '(' + paramList.map(p => `#${p}`).join(',') + ')' : '()';
 
   form.value.viewSpel = `#{@${comp}.${method}${paramPart}}`;
 };
 
 /** 监听所有字段变化 */
-watch(
-  () => [form.value.componentName, form.value.methodName, form.value.methodParams],
-  updateViewSpel
-);
+watch(() => [form.value.componentName, form.value.methodName, form.value.methodParams], updateViewSpel);
 
 onMounted(() => {
   getList();
@@ -354,9 +407,9 @@ onMounted(() => {
   border-radius: 4px;
   color: #333;
   font-family: monospace; /* 等宽字体更清晰 */
-  white-space: nowrap;    /* 禁止换行 */
-  overflow-x: auto;       /* 超出宽度时显示水平滚动条 */
-  min-height: 36px;       /* 与 el-input 高度对齐 */
+  white-space: nowrap; /* 禁止换行 */
+  overflow-x: auto; /* 超出宽度时显示水平滚动条 */
+  min-height: 36px; /* 与 el-input 高度对齐 */
   line-height: 1.5;
 }
 </style>

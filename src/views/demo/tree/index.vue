@@ -9,7 +9,12 @@
         </template>
         <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
           <el-form-item label="树节点名" prop="treeName">
-            <el-input v-model="queryParams.treeName" placeholder="请输入树节点名" clearable @keyup.enter="handleQuery" />
+            <el-input
+              v-model="queryParams.treeName"
+              placeholder="请输入树节点名"
+              clearable
+              @keyup.enter="handleQuery"
+            />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -26,7 +31,9 @@
             <h3>测试树列表</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['demo:tree:add']" type="primary" plain icon="Plus" @click="handleAdd()">新增</el-button>
+            <el-button v-hasPermi="['demo:tree:add']" type="primary" plain icon="Plus" @click="handleAdd()">
+              新增
+            </el-button>
             <el-button type="info" plain icon="Sort" @click="handleToggleExpandAll">展开/折叠</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
@@ -49,13 +56,25 @@
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
-              <el-button v-hasPermi="['demo:tree:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)" />
+              <el-button
+                v-hasPermi="['demo:tree:edit']"
+                link
+                type="primary"
+                icon="Edit"
+                @click="handleUpdate(scope.row)"
+              />
             </el-tooltip>
             <el-tooltip content="新增" placement="top">
               <el-button v-hasPermi="['demo:tree:add']" link type="primary" icon="Plus" @click="handleAdd(scope.row)" />
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button v-hasPermi="['demo:tree:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)" />
+              <el-button
+                v-hasPermi="['demo:tree:remove']"
+                link
+                type="primary"
+                icon="Delete"
+                @click="handleDelete(scope.row)"
+              />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -213,7 +232,7 @@ const handleToggleExpandAll = () => {
 
 /** 展开/折叠操作 */
 const toggleExpandAll = (data: TreeVO[], status: boolean) => {
-  data.forEach((item) => {
+  data.forEach(item => {
     treeTableRef.value?.toggleRowExpansion(item, status);
     if (item.children && item.children.length > 0) toggleExpandAll(item.children, status);
   });

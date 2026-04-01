@@ -5,8 +5,8 @@
     </div>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item :disabled="appStore.language === 'zh_CN'" command="zh_CN"> 中文 </el-dropdown-item>
-        <el-dropdown-item :disabled="appStore.language === 'en_US'" command="en_US"> English </el-dropdown-item>
+        <el-dropdown-item :disabled="appStore.language === 'zh_CN'" command="zh_CN">中文</el-dropdown-item>
+        <el-dropdown-item :disabled="appStore.language === 'en_US'" command="en_US">English</el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>

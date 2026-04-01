@@ -26,7 +26,9 @@
       </el-input>
 
       <div v-if="state.menuQuery && state.options.length > 0" class="result-count">
-        找到 <strong>{{ state.options.length }}</strong> 个结果
+        找到
+        <strong>{{ state.options.length }}</strong>
+        个结果
       </div>
 
       <el-scrollbar wrap-class="layout-search-scrollbar">
@@ -57,7 +59,9 @@
           <div v-else-if="state.menuQuery" class="empty-state">
             <el-icon class="empty-icon"><Search /></el-icon>
             <p class="empty-text">
-              未找到 "<strong>{{ state.menuQuery }}</strong>" 相关菜单
+              未找到 "
+              <strong>{{ state.menuQuery }}</strong>
+              " 相关菜单
             </p>
             <p class="empty-tip">试试其他关键词或路径</p>
           </div>
@@ -65,9 +69,19 @@
       </el-scrollbar>
 
       <div class="search-footer">
-        <span class="shortcut-item"><kbd>↑</kbd><kbd>↓</kbd> 切换</span>
-        <span class="shortcut-item"><kbd>↵</kbd> 选择</span>
-        <span class="shortcut-item"><kbd>Esc</kbd> 关闭</span>
+        <span class="shortcut-item">
+          <kbd>↑</kbd>
+          <kbd>↓</kbd>
+          切换
+        </span>
+        <span class="shortcut-item">
+          <kbd>↵</kbd>
+          选择
+        </span>
+        <span class="shortcut-item">
+          <kbd>Esc</kbd>
+          关闭
+        </span>
       </div>
     </el-dialog>
   </div>
@@ -143,7 +157,7 @@ const handleClose = () => {
 
 const generateRoutes = (routeList: RouteRecordRaw[], basePath = '', prefixTitle: string[] = []): SearchMenuItem[] => {
   let result: SearchMenuItem[] = [];
-  routeList.forEach((route) => {
+  routeList.forEach(route => {
     if (route.hidden) {
       return;
     }
@@ -183,7 +197,7 @@ const querySearch = (query: string) => {
   }
 
   const keyword = query.toLowerCase();
-  state.options = state.menuList.filter((item) => {
+  state.options = state.menuList.filter(item => {
     return item.fullTitle.toLowerCase().includes(keyword) || item.path.toLowerCase().includes(keyword);
   });
 };

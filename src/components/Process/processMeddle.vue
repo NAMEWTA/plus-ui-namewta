@@ -1,6 +1,19 @@
 <template>
-  <el-dialog v-model="visible" draggable title="流程干预" :width="props.width" :height="props.height" :close-on-click-modal="false">
-    <el-descriptions v-loading="loading" class="margin-top" :title="`${task.flowName}(${task.flowCode})`" :column="2" border>
+  <el-dialog
+    v-model="visible"
+    draggable
+    title="流程干预"
+    :width="props.width"
+    :height="props.height"
+    :close-on-click-modal="false"
+  >
+    <el-descriptions
+      v-loading="loading"
+      class="margin-top"
+      :title="`${task.flowName}(${task.flowCode})`"
+      :column="2"
+      border
+    >
       <el-descriptions-item label="任务名称">{{ task.nodeName }}</el-descriptions-item>
       <el-descriptions-item label="节点编码">{{ task.nodeCode }}</el-descriptions-item>
       <el-descriptions-item label="开始时间">{{ task.createTime }}</el-descriptions-item>
@@ -10,7 +23,14 @@
     </el-descriptions>
     <template #footer>
       <span class="dialog-footer">
-        <el-button v-if="task.flowStatus === 'waiting'" :disabled="buttonDisabled" type="primary" @click="openTransferTask"> 转办 </el-button>
+        <el-button
+          v-if="task.flowStatus === 'waiting'"
+          :disabled="buttonDisabled"
+          type="primary"
+          @click="openTransferTask"
+        >
+          转办
+        </el-button>
         <el-button
           v-if="task.flowStatus === 'waiting' && Number(task.nodeRatio) > 0"
           :disabled="buttonDisabled"
@@ -27,21 +47,38 @@
         >
           减签
         </el-button>
-        <el-button v-if="task.flowStatus === 'waiting'" :disabled="buttonDisabled" type="danger" @click="handleTerminationTask"> 终止 </el-button>
+        <el-button
+          v-if="task.flowStatus === 'waiting'"
+          :disabled="buttonDisabled"
+          type="danger"
+          @click="handleTerminationTask"
+        >
+          终止
+        </el-button>
       </span>
     </template>
     <!-- 转办 -->
     <UserSelect ref="transferTaskRef" :multiple="false" @confirm-call-back="handleTransferTask"></UserSelect>
     <!-- 加签组件 -->
     <UserSelect ref="multiInstanceUserRef" :multiple="true" @confirm-call-back="addMultiInstanceUser"></UserSelect>
-    <el-dialog v-model="deleteSignatureVisible" draggable title="减签人员" width="700px" height="400px" append-to-body :close-on-click-modal="false"
-      ><div>
+    <el-dialog
+      v-model="deleteSignatureVisible"
+      draggable
+      title="减签人员"
+      width="700px"
+      height="400px"
+      append-to-body
+      :close-on-click-modal="false"
+    >
+      <div>
         <el-table :data="deleteUserList" border>
           <el-table-column prop="nodeName" label="任务名称" />
           <el-table-column prop="nickName" label="办理人" />
           <el-table-column label="操作" align="center" width="160">
             <template #default="scope">
-              <el-button type="danger" size="small" icon="Delete" @click="deleteMultiInstanceUser(scope.row)">删除</el-button>
+              <el-button type="danger" size="small" icon="Delete" @click="deleteMultiInstanceUser(scope.row)">
+                删除
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -96,7 +133,7 @@ const task = ref<FlowTaskVO>({
 
 const open = (taskId: string) => {
   visible.value = true;
-  getTask(taskId).then((response) => {
+  getTask(taskId).then(response => {
     loading.value = false;
     buttonDisabled.value = false;
     task.value = response.data;
@@ -108,7 +145,7 @@ const openTransferTask = () => {
   transferTaskRef.value.open();
 };
 //转办
-const handleTransferTask = async (data) => {
+const handleTransferTask = async data => {
   if (data && data.length > 0) {
     const taskOperationBo = reactive<TaskOperationBo>({
       userId: data[0].userId,
@@ -135,10 +172,10 @@ const openMultiInstanceUser = async () => {
   multiInstanceUserRef.value.open();
 };
 //加签
-const addMultiInstanceUser = async (data) => {
+const addMultiInstanceUser = async data => {
   if (data && data.length > 0) {
     const taskOperationBo = reactive<TaskOperationBo>({
-      userIds: data.map((e) => e.userId),
+      userIds: data.map(e => e.userId),
       taskId: task.value.id,
       message: '',
       messageType: ['1']
@@ -158,7 +195,7 @@ const addMultiInstanceUser = async (data) => {
   }
 };
 //减签
-const deleteMultiInstanceUser = async (row) => {
+const deleteMultiInstanceUser = async row => {
   await proxy?.$modal.confirm('是否确认提交？');
   loading.value = true;
   buttonDisabled.value = true;
@@ -181,7 +218,7 @@ const handleTaskUser = async () => {
   const data = await currentTaskAllUser(task.value.id);
   deleteUserList.value = data.data;
   if (deleteUserList.value && deleteUserList.value.length > 0) {
-    deleteUserList.value.forEach((e) => {
+    deleteUserList.value.forEach(e => {
       e.nodeName = task.value.nodeName;
     });
   }

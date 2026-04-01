@@ -24,7 +24,7 @@ export default defineConfig(({ mode, command }) => {
           target: 'http://localhost:8080',
           changeOrigin: true,
           ws: true,
-          rewrite: (path) => path.replace(new RegExp('^' + env.VITE_APP_BASE_API), '')
+          rewrite: path => path.replace(new RegExp('^' + env.VITE_APP_BASE_API), '')
         }
       }
     },
@@ -42,7 +42,7 @@ export default defineConfig(({ mode, command }) => {
           {
             postcssPlugin: 'internal:charset-removal',
             AtRule: {
-              charset: (atRule) => {
+              charset: atRule => {
                 atRule.remove();
               }
             }

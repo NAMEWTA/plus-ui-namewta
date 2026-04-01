@@ -15,7 +15,12 @@
             <el-input v-model="queryParams.configKey" placeholder="配置key" clearable @keyup.enter="handleQuery" />
           </el-form-item>
           <el-form-item label="桶名称" prop="bucketName">
-            <el-input v-model="queryParams.bucketName" placeholder="请输入桶名称" clearable @keyup.enter="handleQuery" />
+            <el-input
+              v-model="queryParams.bucketName"
+              placeholder="请输入桶名称"
+              clearable
+              @keyup.enter="handleQuery"
+            />
           </el-form-item>
           <el-form-item label="是否默认" prop="status">
             <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
@@ -40,11 +45,27 @@
             <p>共 {{ total }} 条记录，支持默认桶切换、权限策略维护和站点配置。</p>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['system:ossConfig:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-            <el-button v-hasPermi="['system:ossConfig:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">
+            <el-button v-hasPermi="['system:ossConfig:add']" type="primary" plain icon="Plus" @click="handleAdd">
+              新增
+            </el-button>
+            <el-button
+              v-hasPermi="['system:ossConfig:edit']"
+              type="success"
+              plain
+              icon="Edit"
+              :disabled="single"
+              @click="handleUpdate()"
+            >
               修改
             </el-button>
-            <el-button v-hasPermi="['system:ossConfig:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">
+            <el-button
+              v-hasPermi="['system:ossConfig:remove']"
+              type="danger"
+              plain
+              icon="Delete"
+              :disabled="multiple"
+              @click="handleDelete()"
+            >
               删除
             </el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
@@ -52,7 +73,13 @@
         </div>
       </template>
 
-      <el-table v-loading="loading" border class="data-table" :data="ossConfigList" @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="loading"
+        border
+        class="data-table"
+        :data="ossConfigList"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="columns[0].visible" label="主建" align="center" prop="ossConfigId" />
         <el-table-column v-if="columns[1].visible" label="配置key" align="center" prop="configKey" />
@@ -70,22 +97,45 @@
         </el-table-column>
         <el-table-column v-if="columns[8].visible" label="是否默认" align="center" prop="status">
           <template #default="scope">
-            <el-switch v-model="scope.row.status" active-value="Y" inactive-value="N" @change="handleStatusChange(scope.row)"></el-switch>
+            <el-switch
+              v-model="scope.row.status"
+              active-value="Y"
+              inactive-value="N"
+              @change="handleStatusChange(scope.row)"
+            ></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" fixed="right" align="center" width="150" class-name="small-padding">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
-              <el-button v-hasPermi="['system:ossConfig:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
+              <el-button
+                v-hasPermi="['system:ossConfig:edit']"
+                link
+                type="primary"
+                icon="Edit"
+                @click="handleUpdate(scope.row)"
+              ></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button v-hasPermi="['system:ossConfig:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
+              <el-button
+                v-hasPermi="['system:ossConfig:remove']"
+                link
+                type="primary"
+                icon="Delete"
+                @click="handleDelete(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
+      <pagination
+        v-show="total > 0"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        :total="total"
+        @pagination="getList"
+      />
     </el-card>
     <!-- 添加或修改对象存储配置对话框 -->
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="800px" append-to-body>
@@ -149,7 +199,14 @@
 </template>
 
 <script setup name="OssConfig" lang="ts">
-import { listOssConfig, getOssConfig, delOssConfig, addOssConfig, updateOssConfig, changeOssConfigStatus } from '@/api/system/ossConfig';
+import {
+  listOssConfig,
+  getOssConfig,
+  delOssConfig,
+  addOssConfig,
+  updateOssConfig,
+  changeOssConfigStatus
+} from '@/api/system/ossConfig';
 import { OssConfigForm, OssConfigQuery, OssConfigVO } from '@/api/system/ossConfig/types';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -286,7 +343,7 @@ const resetQuery = () => {
 };
 /** 选择条数  */
 const handleSelectionChange = (selection: OssConfigVO[]) => {
-  ids.value = selection.map((item) => item.ossConfigId);
+  ids.value = selection.map(item => item.ossConfigId);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 };

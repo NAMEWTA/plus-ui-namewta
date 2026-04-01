@@ -1,19 +1,34 @@
 <template>
-  <el-menu class="mix-topnav-menu" :default-active="activeMenu" mode="horizontal" :ellipsis="false" @select="handleSelect">
+  <el-menu
+    class="mix-topnav-menu"
+    :default-active="activeMenu"
+    mode="horizontal"
+    :ellipsis="false"
+    @select="handleSelect"
+  >
     <template v-for="(item, index) in topMenus">
-      <el-menu-item v-if="index < visibleNumber" :key="index" :index="item.path"
-        ><svg-icon v-if="item.meta && item.meta.icon && item.meta.icon !== '#'" :icon-class="item.meta ? item.meta.icon : ''" />
-        {{ item.meta?.title }}</el-menu-item
-      >
+      <el-menu-item v-if="index < visibleNumber" :key="index" :index="item.path">
+        <svg-icon
+          v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
+          :icon-class="item.meta ? item.meta.icon : ''"
+        />
+        {{ item.meta?.title }}
+      </el-menu-item>
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu v-if="topMenus.length > visibleNumber" class="el-sub-menu__hide-arrow" popper-class="mix-topnav-popper" index="more">
+    <el-sub-menu
+      v-if="topMenus.length > visibleNumber"
+      class="el-sub-menu__hide-arrow"
+      popper-class="mix-topnav-popper"
+      index="more"
+    >
       <template #title>更多菜单</template>
       <template v-for="(item, index) in topMenus">
-        <el-menu-item v-if="index >= visibleNumber" :key="index" :index="item.path"
-          ><svg-icon :icon-class="item.meta ? item.meta.icon : ''" /> {{ item.meta?.title }}</el-menu-item
-        >
+        <el-menu-item v-if="index >= visibleNumber" :key="index" :index="item.path">
+          <svg-icon :icon-class="item.meta ? item.meta.icon : ''" />
+          {{ item.meta?.title }}
+        </el-menu-item>
       </template>
     </el-sub-menu>
   </el-menu>
@@ -46,7 +61,7 @@ const routers = computed(() => permissionStore.getTopbarRoutes());
 // 顶部显示菜单
 const topMenus = computed(() => {
   const topMenus: RouteRecordRaw[] = [];
-  routers.value.map((menu) => {
+  routers.value.map(menu => {
     if (menu.hidden !== true) {
       // 兼容顶部栏一级菜单内部跳转
       if (menu.path === '/' && menu.children) {
@@ -62,8 +77,8 @@ const topMenus = computed(() => {
 // 设置子路由
 const childrenMenus = computed(() => {
   const childrenMenus: RouteRecordRaw[] = [];
-  routers.value.map((router) => {
-    router.children?.forEach((item) => {
+  routers.value.map(router => {
+    router.children?.forEach(item => {
       if (item.parentPath === undefined) {
         if (router.path === '/') {
           item.path = '/' + item.path;
@@ -110,13 +125,13 @@ const setVisibleNumber = () => {
 };
 
 const handleSelect = (key: string) => {
-  const route = routers.value.find((item) => item.path === key);
+  const route = routers.value.find(item => item.path === key);
   if (isHttp(key)) {
     // http(s):// 路径新窗口打开
     window.open(key, '_blank');
   } else if (!route || !route.children) {
     // 没有子路由路径内部打开
-    const routeMenu = childrenMenus.value.find((item) => item.path === key);
+    const routeMenu = childrenMenus.value.find(item => item.path === key);
     if (routeMenu && routeMenu.query) {
       const query = JSON.parse(routeMenu.query);
       router.push({ path: key, query: query });
@@ -134,7 +149,7 @@ const handleSelect = (key: string) => {
 const activeRoutes = (key: string) => {
   const routes: RouteRecordRaw[] = [];
   if (childrenMenus.value && childrenMenus.value.length > 0) {
-    childrenMenus.value.map((item) => {
+    childrenMenus.value.map(item => {
       if (key == item.parentPath || (key == 'index' && '' == item.path)) {
         routes.push(item);
       }

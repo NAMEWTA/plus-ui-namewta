@@ -5,7 +5,8 @@
         <span class="brand-pill">Plus UI Workspace</span>
         <h1 class="brand-title">企业级后台管理系统</h1>
         <p class="brand-desc">
-          真正面向企业级的应用框架 组件化 模块化 轻耦合 高扩展 针对企业痛点 业界一流技术栈<br />
+          真正面向企业级的应用框架 组件化 模块化 轻耦合 高扩展 针对企业痛点 业界一流技术栈
+          <br />
           重写 RuoYi-Vue 所有功能 集成 Sa-Token、Mybatis-Plus、WarmFlow、SpringDoc、Hutool、OSS 定期同步。
         </p>
         <div class="brand-highlights">
@@ -30,7 +31,13 @@
         </div>
 
         <el-form-item prop="username">
-          <el-input v-model="registerForm.username" type="text" size="large" auto-complete="off" :placeholder="proxy.$t('register.username')">
+          <el-input
+            v-model="registerForm.username"
+            type="text"
+            size="large"
+            auto-complete="off"
+            :placeholder="proxy.$t('register.username')"
+          >
             <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
           </el-input>
         </el-form-item>
@@ -59,7 +66,13 @@
           </el-input>
         </el-form-item>
         <el-form-item v-if="captchaEnabled" prop="code" class="captcha-row">
-          <el-input v-model="registerForm.code" size="large" auto-complete="off" :placeholder="proxy.$t('register.code')" @keyup.enter="handleRegister">
+          <el-input
+            v-model="registerForm.code"
+            size="large"
+            auto-complete="off"
+            :placeholder="proxy.$t('register.code')"
+            @keyup.enter="handleRegister"
+          >
             <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
           </el-input>
           <div class="register-code">
@@ -73,7 +86,13 @@
         </div>
 
         <el-form-item class="submit-row">
-          <el-button :loading="loading" size="large" type="primary" class="submit-button" @click.prevent="handleRegister">
+          <el-button
+            :loading="loading"
+            size="large"
+            type="primary"
+            class="submit-button"
+            @click.prevent="handleRegister"
+          >
             <span v-if="!loading">{{ proxy.$t('register.register') }}</span>
             <span v-else>{{ proxy.$t('register.registering') }}</span>
           </el-button>
@@ -127,12 +146,26 @@ const equalToPassword = (rule: any, value: string, callback: any) => {
 const registerRules: ElFormRules = {
   username: [
     { required: true, trigger: 'blur', message: t('register.rule.username.required') },
-    { min: 2, max: 20, message: t('register.rule.username.length', { min: 2, max: 20 }), trigger: 'blur' }
+    {
+      min: 2,
+      max: 20,
+      message: t('register.rule.username.length', { min: 2, max: 20 }),
+      trigger: 'blur'
+    }
   ],
   password: [
     { required: true, trigger: 'blur', message: t('register.rule.password.required') },
-    { min: 5, max: 20, message: t('register.rule.password.length', { min: 5, max: 20 }), trigger: 'blur' },
-    { pattern: /^[^<>"'|\\]+$/, message: t('register.rule.password.pattern', { strings: '< > " \' \\ |' }), trigger: 'blur' }
+    {
+      min: 5,
+      max: 20,
+      message: t('register.rule.password.length', { min: 5, max: 20 }),
+      trigger: 'blur'
+    },
+    {
+      pattern: /^[^<>"'|\\]+$/,
+      message: t('register.rule.password.pattern', { strings: '< > " \' \\ |' }),
+      trigger: 'blur'
+    }
   ],
   confirmPassword: [
     { required: true, trigger: 'blur', message: t('register.rule.confirmPassword.required') },
@@ -190,7 +223,8 @@ onMounted(() => {
   padding: 40px 24px 88px;
   background:
     radial-gradient(circle at 12% 12%, rgba(53, 109, 255, 0.22), transparent 24%),
-    radial-gradient(circle at 88% 18%, rgba(14, 165, 233, 0.18), transparent 24%), linear-gradient(135deg, #071120 0%, #0f1b33 42%, #15345f 100%);
+    radial-gradient(circle at 88% 18%, rgba(14, 165, 233, 0.18), transparent 24%),
+    linear-gradient(135deg, #071120 0%, #0f1b33 42%, #15345f 100%);
 }
 
 .register-shell {

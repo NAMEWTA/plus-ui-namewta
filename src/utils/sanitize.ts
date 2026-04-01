@@ -57,7 +57,24 @@ const TAG_ALLOWED_ATTRS: Record<string, Set<string>> = {
   colgroup: new Set(['span'])
 };
 
-const DANGEROUS_TAGS = new Set(['script', 'style', 'iframe', 'object', 'embed', 'link', 'meta', 'base', 'form', 'input', 'button', 'textarea', 'select', 'option', 'svg', 'math']);
+const DANGEROUS_TAGS = new Set([
+  'script',
+  'style',
+  'iframe',
+  'object',
+  'embed',
+  'link',
+  'meta',
+  'base',
+  'form',
+  'input',
+  'button',
+  'textarea',
+  'select',
+  'option',
+  'svg',
+  'math'
+]);
 const SAFE_URL_PATTERN = /^(https?:|mailto:|tel:|\/|#|data:image\/(?:png|jpeg|jpg|gif|webp);base64,)/i;
 const ALLOWED_STYLE_PROPS = new Set([
   'background-color',
@@ -93,10 +110,10 @@ const sanitizeUrl = (value: string) => {
 const sanitizeStyle = (value: string) => {
   const declarations = value
     .split(';')
-    .map((item) => item.trim())
+    .map(item => item.trim())
     .filter(Boolean);
 
-  const safeDeclarations = declarations.flatMap((declaration) => {
+  const safeDeclarations = declarations.flatMap(declaration => {
     const separatorIndex = declaration.indexOf(':');
     if (separatorIndex <= 0) {
       return [];
@@ -146,7 +163,7 @@ const sanitizeElement = (element: Element) => {
     return;
   }
 
-  Array.from(element.attributes).forEach((attr) => {
+  Array.from(element.attributes).forEach(attr => {
     const attrName = attr.name.toLowerCase();
     if (!shouldKeepAttr(tagName, attrName)) {
       element.removeAttribute(attr.name);

@@ -1,10 +1,23 @@
 <template>
   <div style="display: flex; justify-content: space-between">
     <div>
-      <el-button v-if="submitButtonShow" :loading="props.buttonLoading" type="info" @click="submitForm('draft', mode)">暂存</el-button>
-      <el-button v-if="submitButtonShow" :loading="props.buttonLoading" type="primary" @click="submitForm('submit', mode)">提 交</el-button>
-      <el-button v-if="approvalButtonShow" :loading="props.buttonLoading" type="primary" @click="approvalVerifyOpen">审批</el-button>
-      <el-button v-if="props.id && props.status !== 'draft'" type="primary" @click="handleApprovalRecord">流程进度</el-button>
+      <el-button v-if="submitButtonShow" :loading="props.buttonLoading" type="info" @click="submitForm('draft', mode)">
+        暂存
+      </el-button>
+      <el-button
+        v-if="submitButtonShow"
+        :loading="props.buttonLoading"
+        type="primary"
+        @click="submitForm('submit', mode)"
+      >
+        提 交
+      </el-button>
+      <el-button v-if="approvalButtonShow" :loading="props.buttonLoading" type="primary" @click="approvalVerifyOpen">
+        审批
+      </el-button>
+      <el-button v-if="props.id && props.status !== 'draft'" type="primary" @click="handleApprovalRecord">
+        流程进度
+      </el-button>
       <slot />
     </div>
     <div>
@@ -40,7 +53,9 @@ const handleApprovalRecord = () => {
 const submitButtonShow = computed(() => {
   return (
     props.pageType === 'add' ||
-    (props.pageType === 'update' && props.status && (props.status === 'draft' || props.status === 'cancel' || props.status === 'back'))
+    (props.pageType === 'update' &&
+      props.status &&
+      (props.status === 'draft' || props.status === 'cancel' || props.status === 'back'))
   );
 });
 

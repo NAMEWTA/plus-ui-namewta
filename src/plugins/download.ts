@@ -10,7 +10,10 @@ let downloadLoadingInstance: LoadingInstance | undefined;
 export default {
   async oss(ossId: string | number) {
     const url = baseURL + '/resource/oss/download/' + ossId;
-    downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
+    downloadLoadingInstance = ElLoading.service({
+      text: '正在下载数据，请稍候',
+      background: 'rgba(0, 0, 0, 0.7)'
+    });
     try {
       const res = await axios({
         method: 'get',
@@ -35,7 +38,10 @@ export default {
   },
   async zip(url: string, name: string) {
     url = baseURL + url;
-    downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
+    downloadLoadingInstance = ElLoading.service({
+      text: '正在下载数据，请稍候',
+      background: 'rgba(0, 0, 0, 0.7)'
+    });
     try {
       const res = await axios({
         method: 'get',

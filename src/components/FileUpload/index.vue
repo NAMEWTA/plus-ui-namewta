@@ -23,10 +23,12 @@
     <div v-if="showTip && !disabled" class="el-upload__tip">
       请上传
       <template v-if="fileSize">
-        大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b>
+        大小不超过
+        <b style="color: #f56c6c">{{ fileSize }}MB</b>
       </template>
       <template v-if="fileType">
-        格式为 <b style="color: #f56c6c">{{ fileType.join('/') }}</b>
+        格式为
+        <b style="color: #f56c6c">{{ fileType.join('/') }}</b>
       </template>
       的文件
     </div>
@@ -34,7 +36,7 @@
     <transition-group class="upload-file-list el-upload-list el-upload-list--text" name="el-fade-in-linear" tag="ul">
       <li v-for="(file, index) in fileList" :key="file.uid" class="el-upload-list__item ele-upload-list__item-content">
         <el-link :href="`${file.url}`" :underline="false" target="_blank">
-          <span class="el-icon-document"> {{ getFileName(file.name) }} </span>
+          <span class="el-icon-document">{{ getFileName(file.name) }}</span>
         </el-link>
         <div class="ele-upload-list__item-content-action">
           <el-button type="danger" v-if="!disabled" link @click="handleDelete(index)">删除</el-button>
@@ -81,11 +83,11 @@ const showTip = computed(() => props.isShowTip && (props.fileType || props.fileS
 const fileUploadRef = ref<ElUploadInstance>();
 
 // 监听 fileType 变化，更新 fileAccept
-const fileAccept = computed(() => props.fileType.map((type) => `.${type}`).join(','));
+const fileAccept = computed(() => props.fileType.map(type => `.${type}`).join(','));
 
 watch(
   () => props.modelValue,
-  async (val) => {
+  async val => {
     if (val) {
       let temp = 1;
       // 首先将值转为数组
@@ -94,7 +96,7 @@ watch(
         list = val;
       } else {
         const res = await listByIds(val);
-        list = res.data.map((oss) => {
+        list = res.data.map(oss => {
           return {
             name: oss.originalName,
             url: oss.url,
@@ -103,7 +105,7 @@ watch(
         });
       }
       // 然后将数组转为对象数组
-      fileList.value = list.map((item) => {
+      fileList.value = list.map(item => {
         item = { name: item.name, url: item.url, ossId: item.ossId };
         item.uid = item.uid || new Date().getTime() + temp++;
         return item;
@@ -185,7 +187,7 @@ const handleDelete = (index: number) => {
 // 上传结束处理
 const uploadedSuccessfully = () => {
   if (number.value > 0 && uploadList.value.length === number.value) {
-    fileList.value = fileList.value.filter((f) => f.url !== undefined).concat(uploadList.value);
+    fileList.value = fileList.value.filter(f => f.url !== undefined).concat(uploadList.value);
     uploadList.value = [];
     number.value = 0;
     emit('update:modelValue', listToString(fileList.value));
@@ -207,7 +209,7 @@ const getFileName = (name: string) => {
 const listToString = (list: any[], separator?: string) => {
   let strs = '';
   separator = separator || ',';
-  list.forEach((item) => {
+  list.forEach(item => {
     if (item.ossId) {
       strs += item.ossId + separator;
     }

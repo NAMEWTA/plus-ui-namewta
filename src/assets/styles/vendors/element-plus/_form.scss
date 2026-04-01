@@ -29,7 +29,10 @@
 .el-input-number__decrease,
 .el-input-number__increase {
   border-radius: var(--app-radius-md);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .el-input__wrapper.is-focus,
@@ -42,7 +45,10 @@
 
 .el-button {
   border-radius: var(--app-radius-md);
-  transition: box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .el-button:not(.is-text):not(.is-link):hover {

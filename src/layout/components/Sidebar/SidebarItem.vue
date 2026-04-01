@@ -1,6 +1,12 @@
 <template>
   <div v-if="!item.hidden">
-    <template v-if="hasOneShowingChild(item, item.children) && (!onlyOneChild.children || onlyOneChild.noShowingChildren) && !item.alwaysShow">
+    <template
+      v-if="
+        hasOneShowingChild(item, item.children) &&
+        (!onlyOneChild.children || onlyOneChild.noShowingChildren) &&
+        !item.alwaysShow
+      "
+    >
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path, onlyOneChild.query)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{ 'submenu-title-noDropdown': !isNest }">
           <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)" />
@@ -11,7 +17,14 @@
       </app-link>
     </template>
 
-    <el-sub-menu v-else ref="subMenu" :index="resolvePath(item.path)" :popper-offset="isNest ? 4 : 12" :popper-class="popperClass" teleported>
+    <el-sub-menu
+      v-else
+      ref="subMenu"
+      :index="resolvePath(item.path)"
+      :popper-offset="isNest ? 4 : 12"
+      :popper-class="popperClass"
+      teleported
+    >
       <template v-if="item.meta" #title>
         <svg-icon :icon-class="item.meta ? item.meta.icon : ''" />
         <span class="menu-title" :title="hasTitle(item.meta?.title)">{{ item.meta?.title }}</span>
@@ -61,7 +74,7 @@ const hasOneShowingChild = (parent: RouteRecordRaw, children?: RouteRecordRaw[])
   if (!children) {
     children = [];
   }
-  const showingChildren = children.filter((item) => {
+  const showingChildren = children.filter(item => {
     if (item.hidden) {
       return false;
     }

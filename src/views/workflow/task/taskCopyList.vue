@@ -1,29 +1,29 @@
 <template>
   <div class="p-2 app-container workflow-task-copy-page">
     <div class="search-wrap">
-        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-          <template #header>
-            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-              <div><h3>筛选条件</h3></div>
-            </div>
-          </template>
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-            <el-form-item label="任务名称" prop="nodeName">
-              <el-input v-model="queryParams.nodeName" placeholder="请输入任务名称" @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="流程定义名称" label-width="100" prop="flowName">
-              <el-input v-model="queryParams.flowName" placeholder="请输入流程定义名称" @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item label="流程定义编码" label-width="100" prop="flowCode">
-              <el-input v-model="queryParams.flowCode" placeholder="请输入流程定义编码" @keyup.enter="handleQuery" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+      <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+        <template #header>
+          <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+            <div><h3>筛选条件</h3></div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+          <el-form-item label="任务名称" prop="nodeName">
+            <el-input v-model="queryParams.nodeName" placeholder="请输入任务名称" @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="流程定义名称" label-width="100" prop="flowName">
+            <el-input v-model="queryParams.flowName" placeholder="请输入流程定义名称" @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="流程定义编码" label-width="100" prop="flowCode">
+            <el-input v-model="queryParams.flowCode" placeholder="请输入流程定义编码" @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </div>
     <el-card shadow="hover" class="table-panel">
       <template #header>
         <div class="toolbar-shell">
@@ -36,16 +36,37 @@
         </div>
       </template>
 
-      <el-table v-loading="loading" border class="data-table" :data="taskList" @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="loading"
+        border
+        class="data-table"
+        :data="taskList"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column align="center" type="index" label="序号" width="60"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="businessCode" align="center" label="业务编码"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="businessTitle" align="center" label="业务标题"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="flowName" align="center" label="流程定义名称"></el-table-column>
+        <el-table-column
+          :show-overflow-tooltip="true"
+          prop="businessCode"
+          align="center"
+          label="业务编码"
+        ></el-table-column>
+        <el-table-column
+          :show-overflow-tooltip="true"
+          prop="businessTitle"
+          align="center"
+          label="业务标题"
+        ></el-table-column>
+        <el-table-column
+          :show-overflow-tooltip="true"
+          prop="flowName"
+          align="center"
+          label="流程定义名称"
+        ></el-table-column>
         <el-table-column align="center" prop="flowCode" label="流程定义编码"></el-table-column>
         <el-table-column align="center" prop="categoryName" label="流程分类"></el-table-column>
         <el-table-column align="center" prop="version" label="版本号" width="90">
-          <template #default="scope"> v{{ scope.row.version }}.0</template>
+          <template #default="scope">v{{ scope.row.version }}.0</template>
         </el-table-column>
         <el-table-column align="center" prop="nodeName" label="任务名称"></el-table-column>
         <el-table-column align="center" label="流程状态" min-width="70">
@@ -121,7 +142,7 @@ const handleSelectionChange = (selection: any) => {
 //分页
 const getTaskCopyList = () => {
   loading.value = true;
-  pageByTaskCopy(queryParams.value).then((resp) => {
+  pageByTaskCopy(queryParams.value).then(resp => {
     taskList.value = resp.data?.rows;
     total.value = resp.data?.total;
     loading.value = false;
@@ -129,7 +150,7 @@ const getTaskCopyList = () => {
 };
 
 /** 查看按钮操作 */
-const handleView = (row) => {
+const handleView = row => {
   const routerJumpVo = reactive<RouterJumpVo>({
     businessId: row.businessId,
     taskId: row.id,

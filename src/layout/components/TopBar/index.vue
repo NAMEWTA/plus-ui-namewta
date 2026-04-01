@@ -1,59 +1,82 @@
 <template>
-  <el-menu class="topbar-menu" :ellipsis="false" :default-active="activeMenu" :active-text-color="theme" mode="horizontal">
-    <sidebar-item :key="route.path + index" v-for="(route, index) in topMenus" :item="route" :base-path="route.path" popper-class="topbar-menu-popper" />
+  <el-menu
+    class="topbar-menu"
+    :ellipsis="false"
+    :default-active="activeMenu"
+    :active-text-color="theme"
+    mode="horizontal"
+  >
+    <sidebar-item
+      :key="route.path + index"
+      v-for="(route, index) in topMenus"
+      :item="route"
+      :base-path="route.path"
+      popper-class="topbar-menu-popper"
+    />
 
-    <el-sub-menu index="more" class="el-sub-menu__hide-arrow" popper-class="topbar-menu-popper" v-if="moreRoutes.length > 0">
+    <el-sub-menu
+      index="more"
+      class="el-sub-menu__hide-arrow"
+      popper-class="topbar-menu-popper"
+      v-if="moreRoutes.length > 0"
+    >
       <template #title>
         <span>更多菜单</span>
       </template>
-      <sidebar-item :key="route.path + index" v-for="(route, index) in moreRoutes" :item="route" :base-path="route.path" popper-class="topbar-menu-popper" />
+      <sidebar-item
+        :key="route.path + index"
+        v-for="(route, index) in moreRoutes"
+        :item="route"
+        :base-path="route.path"
+        popper-class="topbar-menu-popper"
+      />
     </el-sub-menu>
   </el-menu>
 </template>
 
 <script setup lang="ts">
-import SidebarItem from '../Sidebar/SidebarItem'
-import {useSettingsStore} from '@/store/modules/settings'
-import {usePermissionStore} from '@/store/modules/permission'
+import SidebarItem from '../Sidebar/SidebarItem';
+import { useSettingsStore } from '@/store/modules/settings';
+import { usePermissionStore } from '@/store/modules/permission';
 
-const route = useRoute()
-const settingsStore = useSettingsStore()
-const permissionStore = usePermissionStore()
+const route = useRoute();
+const settingsStore = useSettingsStore();
+const permissionStore = usePermissionStore();
 
-const theme = computed(() => settingsStore.theme)
+const theme = computed(() => settingsStore.theme);
 const activeMenu = computed(() => {
-  const { meta, path } = route
+  const { meta, path } = route;
   if (meta.activeMenu) {
-    return meta.activeMenu
+    return meta.activeMenu;
   }
-  return path
-})
+  return path;
+});
 
-const visibleNumber = ref(5)
+const visibleNumber = ref(5);
 const topMenus = computed(() => {
-  return permissionStore.sidebarRouters.filter((f) => !f.hidden).slice(0, visibleNumber.value)
-})
+  return permissionStore.sidebarRouters.filter(f => !f.hidden).slice(0, visibleNumber.value);
+});
 const moreRoutes = computed(() => {
-  return permissionStore.sidebarRouters.filter((f) => !f.hidden).slice(visibleNumber.value)
-})
+  return permissionStore.sidebarRouters.filter(f => !f.hidden).slice(visibleNumber.value);
+});
 function setVisibleNumber() {
-  let width = document.body.getBoundingClientRect().width
+  let width = document.body.getBoundingClientRect().width;
   if (width >= 1000) {
-    width -= 420
+    width -= 420;
   }
-  visibleNumber.value = Math.max(1, Math.floor(width / 3 / 92) + 2)
+  visibleNumber.value = Math.max(1, Math.floor(width / 3 / 92) + 2);
 }
 
 onMounted(() => {
-  window.addEventListener('resize', setVisibleNumber)
-})
+  window.addEventListener('resize', setVisibleNumber);
+});
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', setVisibleNumber)
-})
+  window.removeEventListener('resize', setVisibleNumber);
+});
 
 onMounted(() => {
-  setVisibleNumber()
-})
+  setVisibleNumber();
+});
 </script>
 
 <style lang="scss">

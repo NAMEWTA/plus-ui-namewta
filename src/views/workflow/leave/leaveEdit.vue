@@ -15,7 +15,14 @@
       />
     </el-card>
     <el-card shadow="never" style="height: 78vh; overflow-y: auto">
-      <el-form ref="leaveFormRef" v-loading="loading" :disabled="routeParams.type === 'view'" :model="form" :rules="rules" label-width="80px">
+      <el-form
+        ref="leaveFormRef"
+        v-loading="loading"
+        :disabled="routeParams.type === 'view'"
+        :model="form"
+        :rules="rules"
+        label-width="80px"
+      >
         <el-form-item label="流程定义" v-if="routeParams.type === 'add'">
           <el-select v-model="flowCode" placeholder="选择流程定义" style="width: 100%">
             <el-option v-for="item in flowCodeOptions" :key="item.value" :label="item.label" :value="item.value" />
@@ -278,7 +285,11 @@ onMounted(() => {
     routeParams.value = proxy.$route.query;
     reset();
     loading.value = false;
-    if (routeParams.value.type === 'update' || routeParams.value.type === 'view' || routeParams.value.type === 'approval') {
+    if (
+      routeParams.value.type === 'update' ||
+      routeParams.value.type === 'view' ||
+      routeParams.value.type === 'approval'
+    ) {
       getInfo();
     }
   });

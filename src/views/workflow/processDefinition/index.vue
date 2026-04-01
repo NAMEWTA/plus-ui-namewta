@@ -5,7 +5,11 @@
       <el-col :lg="treeCollapsed ? 1 : 4" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
         <el-card shadow="hover" class="side-panel tree-panel-shell" :class="{ 'is-collapsed': treeCollapsed }">
           <template #header>
-            <div class="panel-heading search-panel-toggle tree-panel-header" :class="{ 'is-collapsed': treeCollapsed }" @click.stop="treeCollapsed = !treeCollapsed">
+            <div
+              class="panel-heading search-panel-toggle tree-panel-header"
+              :class="{ 'is-collapsed': treeCollapsed }"
+              @click.stop="treeCollapsed = !treeCollapsed"
+            >
               <div v-show="!treeCollapsed" class="table-heading">
                 <h3>流程分类</h3>
               </div>
@@ -28,7 +32,12 @@
           </template>
         </el-card>
       </el-col>
-      <el-col :lg="treeCollapsed ? 23 : 20" :xs="24" class="tree-content-col content-main" :class="{ 'is-tree-collapsed': treeCollapsed }">
+      <el-col
+        :lg="treeCollapsed ? 23 : 20"
+        :xs="24"
+        class="tree-content-col content-main"
+        :class="{ 'is-tree-collapsed': treeCollapsed }"
+      >
         <div class="search-wrap">
           <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
             <template #header>
@@ -38,10 +47,20 @@
             </template>
             <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="120px" class="query-form">
               <el-form-item label="流程定义名称" prop="flowName">
-                <el-input v-model="queryParams.flowName" placeholder="请输入流程定义名称" clearable @keyup.enter="handleQuery" />
+                <el-input
+                  v-model="queryParams.flowName"
+                  placeholder="请输入流程定义名称"
+                  clearable
+                  @keyup.enter="handleQuery"
+                />
               </el-form-item>
               <el-form-item label="流程定义编码" prop="flowCode">
-                <el-input v-model="queryParams.flowCode" placeholder="请输入流程定义编码" clearable @keyup.enter="handleQuery" />
+                <el-input
+                  v-model="queryParams.flowCode"
+                  placeholder="请输入流程定义编码"
+                  clearable
+                  @keyup.enter="handleQuery"
+                />
               </el-form-item>
               <el-form-item>
                 <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -57,34 +76,84 @@
                 <h3>流程定义</h3>
               </div>
               <div class="toolbar-actions">
-                <el-button v-hasPermi="['workflow:definition:add']" type="primary" icon="Plus" @click="handleAdd()">添加</el-button>
-                <el-button v-hasPermi="['workflow:definition:edit']" type="success" icon="Edit" :disabled="single" @click="handleUpdate()"
-                  >修改</el-button
+                <el-button v-hasPermi="['workflow:definition:add']" type="primary" icon="Plus" @click="handleAdd()">
+                  添加
+                </el-button>
+                <el-button
+                  v-hasPermi="['workflow:definition:edit']"
+                  type="success"
+                  icon="Edit"
+                  :disabled="single"
+                  @click="handleUpdate()"
                 >
-                <el-button v-hasPermi="['workflow:definition:remove']" type="danger" icon="Delete" :disabled="multiple" @click="handleDelete()"
-                  >删除</el-button
+                  修改
+                </el-button>
+                <el-button
+                  v-hasPermi="['workflow:definition:remove']"
+                  type="danger"
+                  icon="Delete"
+                  :disabled="multiple"
+                  @click="handleDelete()"
                 >
-                <el-button v-hasPermi="['workflow:definition:import']" type="primary" icon="UploadFilled" @click="uploadDialog.visible = true"
-                  >部署流程文件</el-button
+                  删除
+                </el-button>
+                <el-button
+                  v-hasPermi="['workflow:definition:import']"
+                  type="primary"
+                  icon="UploadFilled"
+                  @click="uploadDialog.visible = true"
                 >
-                <el-button v-hasPermi="['workflow:definition:export']" type="warning" icon="Download" :disabled="single" @click="handleExportDef"
-                  >导出</el-button
+                  部署流程文件
+                </el-button>
+                <el-button
+                  v-hasPermi="['workflow:definition:export']"
+                  type="warning"
+                  icon="Download"
+                  :disabled="single"
+                  @click="handleExportDef"
                 >
-                <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="handleQuery"></right-toolbar>
+                  导出
+                </el-button>
+                <right-toolbar
+                  v-model:show-search="showSearch"
+                  :search="false"
+                  @query-table="handleQuery"
+                ></right-toolbar>
               </div>
             </div>
           </template>
           <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
             <el-tab-pane label="已发布" name="0"></el-tab-pane>
             <el-tab-pane label="未发布" name="1"></el-tab-pane>
-            <el-table v-loading="loading" border class="data-table" :data="processDefinitionList" @selection-change="handleSelectionChange">
+            <el-table
+              v-loading="loading"
+              border
+              class="data-table"
+              :data="processDefinitionList"
+              @selection-change="handleSelectionChange"
+            >
               <el-table-column type="selection" width="55" align="center" />
               <el-table-column align="center" prop="id" label="主键" v-if="false"></el-table-column>
-              <el-table-column align="center" prop="flowName" label="流程定义名称" :show-overflow-tooltip="true"></el-table-column>
-              <el-table-column align="center" prop="flowCode" label="标识KEY" :show-overflow-tooltip="true"></el-table-column>
-              <el-table-column align="center" prop="categoryName" label="流程分类" :show-overflow-tooltip="true"></el-table-column>
+              <el-table-column
+                align="center"
+                prop="flowName"
+                label="流程定义名称"
+                :show-overflow-tooltip="true"
+              ></el-table-column>
+              <el-table-column
+                align="center"
+                prop="flowCode"
+                label="标识KEY"
+                :show-overflow-tooltip="true"
+              ></el-table-column>
+              <el-table-column
+                align="center"
+                prop="categoryName"
+                label="流程分类"
+                :show-overflow-tooltip="true"
+              ></el-table-column>
               <el-table-column align="center" prop="version" label="版本号" width="80">
-                <template #default="scope"> v{{ scope.row.version }}.0</template>
+                <template #default="scope">v{{ scope.row.version }}.0</template>
               </el-table-column>
               <el-table-column align="center" prop="activityStatus" label="激活状态" width="130">
                 <template #default="scope">
@@ -93,7 +162,7 @@
                     v-model="scope.row.activityStatus"
                     :active-value="1"
                     :inactive-value="0"
-                    @change="(status) => handleProcessDefState(scope.row, status)"
+                    @change="status => handleProcessDefState(scope.row, status)"
                   />
                 </template>
               </el-table-column>
@@ -104,7 +173,13 @@
                   <el-tag v-else type="danger">失效</el-tag>
                 </template>
               </el-table-column>
-              <el-table-column fixed="right" label="操作" align="center" width="236" class-name="small-padding fixed-width">
+              <el-table-column
+                fixed="right"
+                label="操作"
+                align="center"
+                width="236"
+                class-name="small-padding fixed-width"
+              >
                 <template #default="scope">
                   <div class="process-action-group">
                     <el-button
@@ -114,8 +189,9 @@
                       size="small"
                       icon="Delete"
                       @click="handleDelete(scope.row)"
-                      >删除流程</el-button
                     >
+                      删除流程
+                    </el-button>
                     <el-button
                       v-hasPermi="['workflow:definition:copy']"
                       link
@@ -123,8 +199,9 @@
                       size="small"
                       icon="CopyDocument"
                       @click="handleCopyDef(scope.row)"
-                      >复制流程</el-button
                     >
+                      复制流程
+                    </el-button>
                     <el-button
                       v-hasPermi="['workflow:definition:query']"
                       link
@@ -144,8 +221,9 @@
                       icon="View"
                       size="small"
                       @click="designView(scope.row)"
-                      >查看流程</el-button
                     >
+                      查看流程
+                    </el-button>
                     <el-button
                       v-hasPermi="['workflow:definition:publish']"
                       link
@@ -177,7 +255,10 @@
     <el-dialog v-if="uploadDialog.visible" v-model="uploadDialog.visible" :title="uploadDialog.title" width="30%">
       <div v-loading="uploadDialogLoading">
         <div class="mb5">
-          <el-text class="mx-1" size="large"><span class="text-danger">*</span>请选择部署流程分类：</el-text>
+          <el-text class="mx-1" size="large">
+            <span class="text-danger">*</span>
+            请选择部署流程分类：
+          </el-text>
           <el-tree-select
             v-model="selectCategory"
             :data="categoryOptions"
@@ -263,7 +344,18 @@
 </template>
 
 <script setup name="processDefinition" lang="ts">
-import { listDefinition, deleteDefinition, active, importDef, unPublishList, publish, add, edit, getInfo, copy } from '@/api/workflow/definition';
+import {
+  listDefinition,
+  deleteDefinition,
+  active,
+  importDef,
+  unPublishList,
+  publish,
+  add,
+  edit,
+  getInfo,
+  copy
+} from '@/api/workflow/definition';
 import { categoryTree } from '@/api/workflow/category';
 import { CategoryTreeVO } from '@/api/workflow/category/types';
 import { FlowDefinitionQuery, FlowDefinitionVo, FlowDefinitionForm } from '@/api/workflow/definition/types';
@@ -432,7 +524,7 @@ const getUnPublishList = async () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: FlowDefinitionVo) => {
   const id = row?.id || ids.value;
-  const defList = processDefinitionList.value.filter((x) => id.indexOf(x.id) != -1).map((x) => x.flowCode);
+  const defList = processDefinitionList.value.filter(x => id.indexOf(x.id) != -1).map(x => x.flowCode);
   await proxy?.$modal.confirm('是否确认删除流程定义编码为【' + defList + '】的数据项？');
   loading.value = true;
   await deleteDefinition(id).finally(() => (loading.value = false));
@@ -443,7 +535,11 @@ const handleDelete = async (row?: FlowDefinitionVo) => {
 /** 发布流程定义 */
 const handlePublish = async (row?: FlowDefinitionVo) => {
   await proxy?.$modal.confirm(
-    '是否确认发布流程定义编码为【' + row.flowCode + '】版本为【' + row.version + '】的数据项？，发布后会将已发布流程定义改为失效！'
+    '是否确认发布流程定义编码为【' +
+      row.flowCode +
+      '】版本为【' +
+      row.version +
+      '】的数据项？，发布后会将已发布流程定义改为失效！'
   );
   loading.value = true;
   await publish(row.id).finally(() => (loading.value = false));
@@ -594,7 +690,7 @@ const handleCopyDef = async (row: FlowDefinitionVo) => {
   } as ElMessageBoxOptions).then(() => {
     loading.value = true;
     copy(row.id)
-      .then((resp) => {
+      .then(resp => {
         if (resp.code === 200) {
           proxy?.$modal.msgSuccess('操作成功');
           activeName.value = '1';

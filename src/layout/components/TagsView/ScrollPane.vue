@@ -62,7 +62,7 @@ const moveToTarget = (currentTag: RouteLocationNormalized) => {
   const containerWidth = container.offsetWidth;
   const tagKey = currentTag.fullPath || currentTag.path;
   const tagListDom = Array.from(document.querySelectorAll('.tags-view-item')) as HTMLElement[];
-  const currentIndex = tagListDom.findIndex((item) => item.dataset.tagKey === tagKey);
+  const currentIndex = tagListDom.findIndex(item => item.dataset.tagKey === tagKey);
   if (currentIndex === -1) {
     return;
   }

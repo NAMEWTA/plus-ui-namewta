@@ -1,5 +1,5 @@
 <template>
-  <div class="relative" :style="{ 'width': width }">
+  <div class="relative" :style="{ width: width }">
     <el-input v-model="modelValue" readonly placeholder="点击选择图标" @click="visible = !visible">
       <template #prepend>
         <svg-icon :icon-class="modelValue" />
@@ -8,7 +8,10 @@
 
     <el-popover shadow="none" :visible="visible" placement="bottom-end" trigger="click" :width="450">
       <template #reference>
-        <div class="cursor-pointer text-[#999] absolute right-[10px] top-0 height-[32px] leading-[32px]" @click="visible = !visible">
+        <div
+          class="cursor-pointer text-[#999] absolute right-[10px] top-0 height-[32px] leading-[32px]"
+          @click="visible = !visible"
+        >
           <CaretTop v-show="visible" />
           <CaretBottom v-show="!visible" />
         </div>
@@ -31,7 +34,13 @@
 
       <el-scrollbar height="w-[200px]">
         <ul class="icon-list">
-          <el-tooltip v-for="(iconName, index) in iconNames" :key="index" :content="iconName" placement="bottom" effect="light">
+          <el-tooltip
+            v-for="(iconName, index) in iconNames"
+            :key="index"
+            :content="iconName"
+            placement="bottom"
+            effect="light"
+          >
             <li :class="['icon-item', { active: modelValue == iconName }]" @click="selectedIcon(iconName)">
               <svg-icon color="var(--el-text-color-regular)" :icon-class="iconName" />
             </li>
@@ -64,7 +73,7 @@ const customIcon = ref('');
  */
 const filterIcons = () => {
   if (filterValue.value) {
-    iconNames.value = icons.filter((iconName) => iconName.includes(filterValue.value));
+    iconNames.value = icons.filter(iconName => iconName.includes(filterValue.value));
   } else {
     iconNames.value = icons;
   }
@@ -87,7 +96,7 @@ const applyCustomIcon = () => {
 
 watch(
   () => props.modelValue,
-  (value) => {
+  value => {
     customIcon.value = value?.includes(':') ? value : '';
   },
   { immediate: true }

@@ -94,7 +94,7 @@ const readAll = () => {
   flex-direction: column;
   min-width: 0;
 
-    .head-box {
+  .head-box {
     display: flex;
     border-bottom: 1px solid rgba(148, 163, 184, 0.14);
     box-sizing: border-box;

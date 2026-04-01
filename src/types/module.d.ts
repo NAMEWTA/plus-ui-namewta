@@ -10,8 +10,6 @@ import { getConfigKey, updateConfigByKey } from '@/api/system/config';
 import { download as rd } from '@/utils/request';
 import type { LanguageType } from '@/lang';
 
-export {};
-
 declare module 'vue' {
   interface ComponentCustomProperties {
     // 全局方法声明

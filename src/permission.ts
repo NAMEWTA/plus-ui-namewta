@@ -16,7 +16,7 @@ NProgress.configure({ showSpinner: false });
 const whiteList = ['/login', '/register', '/social-callback', '/register*', '/register/*'];
 
 const isWhiteList = (path: string) => {
-  return whiteList.some((pattern) => isPathMatch(pattern, path));
+  return whiteList.some(pattern => isPathMatch(pattern, path));
 };
 
 router.beforeEach(async (to, from) => {
@@ -42,13 +42,20 @@ router.beforeEach(async (to, from) => {
           isRelogin.show = false;
           const accessRoutes = await usePermissionStore().generateRoutes();
           // 根据roles权限生成可访问的路由表
-          accessRoutes.forEach((route) => {
+          accessRoutes.forEach(route => {
             if (!isHttp(route.path)) {
               router.addRoute(route); // 动态添加可访问路由表
             }
           });
           // hack方法 确保addRoutes已完成
-          return { path: to.path, replace: true, params: to.params, query: to.query, hash: to.hash, name: to.name as string };
+          return {
+            path: to.path,
+            replace: true,
+            params: to.params,
+            query: to.query,
+            hash: to.hash,
+            name: to.name as string
+          };
         }
       } else {
         return true;

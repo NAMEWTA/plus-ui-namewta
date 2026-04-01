@@ -21,7 +21,7 @@ export const useNoticeStore = defineStore('notice', () => {
     notices: [] as NoticeItem[]
   });
 
-  const unreadCount = computed(() => state.notices.filter((item) => !item.read).length);
+  const unreadCount = computed(() => state.notices.filter(item => !item.read).length);
 
   const buildNoticeKey = (notice: NoticeItem) => {
     if (notice.messageId !== undefined && notice.messageId !== null) {
@@ -41,7 +41,7 @@ export const useNoticeStore = defineStore('notice', () => {
 
   const addNotice = (notice: NoticeItem) => {
     const key = buildNoticeKey(notice);
-    const index = state.notices.findIndex((item) => buildNoticeKey(item) === key);
+    const index = state.notices.findIndex(item => buildNoticeKey(item) === key);
     if (index > -1) {
       state.notices[index] = {
         ...state.notices[index],
@@ -57,15 +57,15 @@ export const useNoticeStore = defineStore('notice', () => {
     if (messageId === undefined || messageId === null) {
       return;
     }
-    const target = state.notices.find((item) => String(item.messageId) === String(messageId));
+    const target = state.notices.find(item => String(item.messageId) === String(messageId));
     if (target) {
       target.read = true;
     }
   };
 
   const markReadBatch = (messageIds: Array<string | number>) => {
-    const idSet = new Set(messageIds.map((item) => String(item)));
-    state.notices.forEach((item) => {
+    const idSet = new Set(messageIds.map(item => String(item)));
+    state.notices.forEach(item => {
       if (item.messageId !== undefined && item.messageId !== null && idSet.has(String(item.messageId))) {
         item.read = true;
       }
@@ -75,7 +75,7 @@ export const useNoticeStore = defineStore('notice', () => {
   const readAll = () => {
     markReadBatch(
       state.notices
-        .map((item) => item.messageId)
+        .map(item => item.messageId)
         .filter((item): item is string | number => item !== undefined && item !== null)
     );
   };

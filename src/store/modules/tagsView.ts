@@ -34,8 +34,8 @@ const saveVisitedViews = (views: any[]) => {
   }
 
   const payload: PersistedTagView[] = (views as TagView[])
-    .filter((view) => !view.meta?.affix)
-    .map((view) => ({
+    .filter(view => !view.meta?.affix)
+    .map(view => ({
       path: view.path,
       fullPath: view.fullPath,
       name: view.name,
@@ -91,7 +91,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const delIframeView = (view: RouteLocationNormalized): Promise<RouteLocationNormalized[]> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       iframeViews.value = iframeViews.value.filter((item: RouteLocationNormalized) => item.path !== view.path);
       resolve(iframeViews.value.slice() as RouteLocationNormalized[]);
     });
@@ -105,7 +105,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
 
   const addAffixView = (view: RouteLocationNormalized): void => {
     if (visitedViews.value.some((v: RouteLocationNormalized) => v.path === view.path)) return;
-    const insertIndex = visitedViews.value.findIndex((item) => !item.meta?.affix);
+    const insertIndex = visitedViews.value.findIndex(item => !item.meta?.affix);
     const normalizedView = normalizeVisitedView(view);
     if (insertIndex === -1) {
       visitedViews.value.push(normalizedView);
@@ -115,8 +115,8 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const loadPersistedViews = (): void => {
-    loadVisitedViews().forEach((view) => {
-      if (visitedViews.value.some((item) => item.path === view.path)) {
+    loadVisitedViews().forEach(view => {
+      if (visitedViews.value.some(item => item.path === view.path)) {
         return;
       }
 
@@ -141,7 +141,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
     visitedViews: RouteLocationNormalized[];
     cachedViews: string[];
   }> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       delVisitedView(view);
       if (!isDynamicRoute(view)) {
         delCachedView(view);
@@ -154,7 +154,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const delVisitedView = (view: RouteLocationNormalized): Promise<RouteLocationNormalized[]> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       for (const [i, v] of visitedViews.value.entries()) {
         if (v.path === view.path) {
           visitedViews.value.splice(i, 1);
@@ -171,7 +171,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
     if (view) {
       viewName = view.name as string;
     }
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const index = cachedViews.value.indexOf(viewName);
       index > -1 && cachedViews.value.splice(index, 1);
       resolve([...cachedViews.value]);
@@ -184,7 +184,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
     visitedViews: RouteLocationNormalized[];
     cachedViews: string[];
   }> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       delOthersVisitedViews(view);
       delOthersCachedViews(view);
       resolve({
@@ -195,7 +195,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const delOthersVisitedViews = (view: RouteLocationNormalized): Promise<RouteLocationNormalized[]> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       visitedViews.value = visitedViews.value.filter((v: RouteLocationNormalized) => {
         return v.meta?.affix || v.path === view.path;
       });
@@ -206,7 +206,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
 
   const delOthersCachedViews = (view: RouteLocationNormalized): Promise<string[]> => {
     const viewName = view.name as string;
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const index = cachedViews.value.indexOf(viewName);
       if (index > -1) {
         cachedViews.value = cachedViews.value.slice(index, index + 1);
@@ -217,8 +217,11 @@ export const useTagsViewStore = defineStore('tagsView', () => {
     });
   };
 
-  const delAllViews = (): Promise<{ visitedViews: RouteLocationNormalized[]; cachedViews: string[] }> => {
-    return new Promise((resolve) => {
+  const delAllViews = (): Promise<{
+    visitedViews: RouteLocationNormalized[];
+    cachedViews: string[];
+  }> => {
+    return new Promise(resolve => {
       delAllVisitedViews();
       delAllCachedViews();
       resolve({
@@ -229,7 +232,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const delAllVisitedViews = (): Promise<RouteLocationNormalized[]> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       visitedViews.value = visitedViews.value.filter((tag: RouteLocationNormalized) => tag.meta?.affix);
       clearVisitedViews();
       resolve(visitedViews.value.slice() as RouteLocationNormalized[]);
@@ -237,7 +240,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const delAllCachedViews = (): Promise<string[]> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       cachedViews.value = [];
       resolve([...cachedViews.value]);
     });
@@ -254,10 +257,10 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const delRightTags = (view: RouteLocationNormalized): Promise<RouteLocationNormalized[]> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const index = visitedViews.value.findIndex((v: RouteLocationNormalized) => v.path === view.path);
       if (index === -1) {
-          resolve(visitedViews.value.slice() as RouteLocationNormalized[]);
+        resolve(visitedViews.value.slice() as RouteLocationNormalized[]);
         return;
       }
       visitedViews.value = visitedViews.value.filter((item: RouteLocationNormalized, idx: number) => {
@@ -276,10 +279,10 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const delLeftTags = (view: RouteLocationNormalized): Promise<RouteLocationNormalized[]> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const index = visitedViews.value.findIndex((v: RouteLocationNormalized) => v.path === view.path);
       if (index === -1) {
-          resolve(visitedViews.value.slice() as RouteLocationNormalized[]);
+        resolve(visitedViews.value.slice() as RouteLocationNormalized[]);
         return;
       }
       visitedViews.value = visitedViews.value.filter((item: RouteLocationNormalized, idx: number) => {
@@ -307,7 +310,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   };
 
   const isDynamicRoute = (view: RouteLocationNormalized): boolean => {
-    return view.matched.some((m) => m.path.includes(':'));
+    return view.matched.some(m => m.path.includes(':'));
   };
 
   return {

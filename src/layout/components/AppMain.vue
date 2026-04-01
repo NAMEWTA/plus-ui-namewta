@@ -26,7 +26,9 @@ watch(
   () => useSettingsStore().animationEnable,
   (val: boolean) => {
     if (val) {
-      animate.value = proxy?.animate.animateList[Math.round(Math.random() * proxy?.animate.animateList.length)] as string;
+      animate.value = proxy?.animate.animateList[
+        Math.round(Math.random() * proxy?.animate.animateList.length)
+      ] as string;
     } else {
       animate.value = proxy?.animate.defaultAnimate as string;
     }

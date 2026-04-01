@@ -29,16 +29,44 @@
             <h3>测试单列表</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['demo:demo:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-            <el-button v-hasPermi="['demo:demo:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">修改</el-button>
-            <el-button v-hasPermi="['demo:demo:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">删除</el-button>
-            <el-button v-hasPermi="['demo:demo:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+            <el-button v-hasPermi="['demo:demo:add']" type="primary" plain icon="Plus" @click="handleAdd">
+              新增
+            </el-button>
+            <el-button
+              v-hasPermi="['demo:demo:edit']"
+              type="success"
+              plain
+              icon="Edit"
+              :disabled="single"
+              @click="handleUpdate()"
+            >
+              修改
+            </el-button>
+            <el-button
+              v-hasPermi="['demo:demo:remove']"
+              type="danger"
+              plain
+              icon="Delete"
+              :disabled="multiple"
+              @click="handleDelete()"
+            >
+              删除
+            </el-button>
+            <el-button v-hasPermi="['demo:demo:export']" type="warning" plain icon="Download" @click="handleExport">
+              导出
+            </el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
       </template>
 
-      <el-table v-loading="loading" border class="data-table" :data="demoList" @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="loading"
+        border
+        class="data-table"
+        :data="demoList"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="true" label="主键" align="center" prop="id" />
         <el-table-column label="部门id" align="center" prop="deptId" />
@@ -49,16 +77,34 @@
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
-              <el-button v-hasPermi="['demo:demo:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
+              <el-button
+                v-hasPermi="['demo:demo:edit']"
+                link
+                type="primary"
+                icon="Edit"
+                @click="handleUpdate(scope.row)"
+              ></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button v-hasPermi="['demo:demo:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
+              <el-button
+                v-hasPermi="['demo:demo:remove']"
+                link
+                type="primary"
+                icon="Delete"
+                @click="handleDelete(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
+      <pagination
+        v-show="total > 0"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        :total="total"
+        @pagination="getList"
+      />
     </el-card>
     <!-- 添加或修改测试单对话框 -->
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
@@ -178,7 +224,7 @@ const resetQuery = () => {
 
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: DemoVO[]) => {
-  ids.value = selection.map((item) => item.id);
+  ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 };
@@ -220,7 +266,9 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: DemoVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal.confirm('是否确认删除测试单编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
+  await proxy?.$modal
+    .confirm('是否确认删除测试单编号为"' + _ids + '"的数据项？')
+    .finally(() => (loading.value = false));
   await delDemo(_ids);
   proxy?.$modal.msgSuccess('删除成功');
   await getList();

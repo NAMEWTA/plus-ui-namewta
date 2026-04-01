@@ -56,7 +56,7 @@ export const usePermissionStore = defineStore('permission', () => {
     const rewriteRoutes = filterAsyncRouter(rdata, undefined, true);
     const defaultRoutes = filterAsyncRouter(defaultData);
     const asyncRoutes = filterDynamicRoutes(dynamicRoutes);
-    asyncRoutes.forEach((route) => {
+    asyncRoutes.forEach(route => {
       router.addRoute(route);
     });
     setRoutes(rewriteRoutes);
@@ -65,7 +65,7 @@ export const usePermissionStore = defineStore('permission', () => {
     setTopbarRoutes(defaultRoutes);
     // 路由name重复检查
     duplicateRouteChecker(asyncRoutes, sidebarRoutes);
-    return new Promise<RouteRecordRaw[]>((resolve) => resolve(rewriteRoutes));
+    return new Promise<RouteRecordRaw[]>(resolve => resolve(rewriteRoutes));
   };
 
   /**
@@ -74,8 +74,12 @@ export const usePermissionStore = defineStore('permission', () => {
    * @param lastRouter 上一级路由
    * @param type 是否是重写路由
    */
-  const filterAsyncRouter = (asyncRouterMap: RouteRecordRaw[], lastRouter?: RouteRecordRaw, type = false): RouteRecordRaw[] => {
-    return asyncRouterMap.filter((route) => {
+  const filterAsyncRouter = (
+    asyncRouterMap: RouteRecordRaw[],
+    lastRouter?: RouteRecordRaw,
+    type = false
+  ): RouteRecordRaw[] => {
+    return asyncRouterMap.filter(route => {
       if (type && route.children) {
         route.children = filterChildren(route.children, undefined);
       }
@@ -100,7 +104,7 @@ export const usePermissionStore = defineStore('permission', () => {
   };
   const filterChildren = (childrenMap: RouteRecordRaw[], lastRouter?: RouteRecordRaw): RouteRecordRaw[] => {
     let children: RouteRecordRaw[] = [];
-    childrenMap.forEach((el) => {
+    childrenMap.forEach(el => {
       el.path = lastRouter ? lastRouter.path + '/' + el.path : el.path;
       if (el.children && el.children.length && el.component?.toString() === 'ParentView') {
         children = children.concat(filterChildren(el.children, el));
@@ -130,7 +134,7 @@ export const usePermissionStore = defineStore('permission', () => {
 // 动态路由遍历，验证是否具备权限
 export const filterDynamicRoutes = (routes: RouteRecordRaw[]) => {
   const res: RouteRecordRaw[] = [];
-  routes.forEach((route) => {
+  routes.forEach(route => {
     if (route.permissions) {
       if (auth.hasPermiOr(route.permissions)) {
         res.push(route);
@@ -178,7 +182,7 @@ function duplicateRouteChecker(localRoutes: Route[], routes: Route[]) {
   // 展平
   function flatRoutes(routes: Route[]) {
     const res: Route[] = [];
-    routes.forEach((route) => {
+    routes.forEach(route => {
       if (route.children) {
         res.push(...flatRoutes(route.children));
       } else {
@@ -191,7 +195,7 @@ function duplicateRouteChecker(localRoutes: Route[], routes: Route[]) {
   const allRoutes = flatRoutes([...localRoutes, ...routes]);
 
   const nameList: string[] = [];
-  allRoutes.forEach((route) => {
+  allRoutes.forEach(route => {
     const name = route.name?.toString() ?? '';
     if (name && nameList.includes(name)) {
       const message = `路由名称: [${name}] 重复, 会造成 404`;

@@ -5,7 +5,11 @@
       <el-col :lg="treeCollapsed ? 1 : 4" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
         <el-card shadow="hover" class="side-panel tree-panel-shell" :class="{ 'is-collapsed': treeCollapsed }">
           <template #header>
-            <div class="panel-heading search-panel-toggle tree-panel-header" :class="{ 'is-collapsed': treeCollapsed }" @click.stop="treeCollapsed = !treeCollapsed">
+            <div
+              class="panel-heading search-panel-toggle tree-panel-header"
+              :class="{ 'is-collapsed': treeCollapsed }"
+              @click.stop="treeCollapsed = !treeCollapsed"
+            >
               <div v-show="!treeCollapsed" class="table-heading">
                 <h3>流程分类</h3>
               </div>
@@ -28,7 +32,12 @@
           </template>
         </el-card>
       </el-col>
-      <el-col :lg="treeCollapsed ? 23 : 20" :xs="24" class="tree-content-col content-main" :class="{ 'is-tree-collapsed': treeCollapsed }">
+      <el-col
+        :lg="treeCollapsed ? 23 : 20"
+        :xs="24"
+        class="tree-content-col content-main"
+        :class="{ 'is-tree-collapsed': treeCollapsed }"
+      >
         <div class="search-wrap">
           <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
             <template #header>
@@ -65,21 +74,48 @@
                 <h3>流程实例</h3>
               </div>
               <div class="toolbar-actions">
-                <el-button v-hasPermi="['workflow:instance:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete"
-                  >删除</el-button
+                <el-button
+                  v-hasPermi="['workflow:instance:remove']"
+                  type="danger"
+                  plain
+                  icon="Delete"
+                  :disabled="multiple"
+                  @click="handleDelete"
                 >
-                <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="handleQuery"></right-toolbar>
+                  删除
+                </el-button>
+                <right-toolbar
+                  v-model:show-search="showSearch"
+                  :search="false"
+                  @query-table="handleQuery"
+                ></right-toolbar>
               </div>
             </div>
           </template>
           <el-tabs v-model="tab" @tab-click="changeTab">
             <el-tab-pane name="running" label="运行中"></el-tab-pane>
             <el-tab-pane name="finish" label="已完成"></el-tab-pane>
-            <el-table v-loading="loading" border class="data-table" :data="processInstanceList" @selection-change="handleSelectionChange">
+            <el-table
+              v-loading="loading"
+              border
+              class="data-table"
+              :data="processInstanceList"
+              @selection-change="handleSelectionChange"
+            >
               <el-table-column type="selection" width="55" align="center" />
               <el-table-column align="center" type="index" label="序号" width="60"></el-table-column>
-              <el-table-column :show-overflow-tooltip="true" prop="businessCode" align="center" label="业务编码"></el-table-column>
-              <el-table-column :show-overflow-tooltip="true" prop="businessTitle" align="center" label="业务标题"></el-table-column>
+              <el-table-column
+                :show-overflow-tooltip="true"
+                prop="businessCode"
+                align="center"
+                label="业务编码"
+              ></el-table-column>
+              <el-table-column
+                :show-overflow-tooltip="true"
+                prop="businessTitle"
+                align="center"
+                label="业务标题"
+              ></el-table-column>
               <el-table-column :show-overflow-tooltip="true" align="center" width="120" label="流程定义名称">
                 <template #default="scope">
                   <span>{{ scope.row.flowName }}v{{ scope.row.version }}</span>
@@ -88,9 +124,14 @@
               <el-table-column align="center" prop="flowCode" width="120" label="流程定义编码"></el-table-column>
               <el-table-column align="center" prop="categoryName" label="流程分类"></el-table-column>
               <el-table-column align="center" prop="nodeName" label="任务名称"></el-table-column>
-              <el-table-column align="center" prop="createByName" :show-overflow-tooltip="true" label="申请人"></el-table-column>
+              <el-table-column
+                align="center"
+                prop="createByName"
+                :show-overflow-tooltip="true"
+                label="申请人"
+              ></el-table-column>
               <el-table-column align="center" prop="version" label="版本号" width="90">
-                <template #default="scope"> v{{ scope.row.version }}.0</template>
+                <template #default="scope">v{{ scope.row.version }}.0</template>
               </el-table-column>
               <el-table-column
                 v-if="tab === 'running'"
@@ -111,13 +152,25 @@
                 </template>
               </el-table-column>
               <el-table-column align="center" prop="createTime" label="启动时间" width="160"></el-table-column>
-              <el-table-column v-if="tab === 'finish'" align="center" prop="updateTime" label="结束时间" width="160"></el-table-column>
+              <el-table-column
+                v-if="tab === 'finish'"
+                align="center"
+                prop="updateTime"
+                label="结束时间"
+                width="160"
+              ></el-table-column>
               <el-table-column label="操作" align="center" :width="165" fixed="right">
                 <template #default="scope">
                   <el-row v-if="tab === 'running'" :gutter="10" class="mb8">
                     <el-col :span="1.5">
                       <el-popover :ref="`popoverRef${scope.$index}`" trigger="click" placement="left" :width="300">
-                        <el-input v-model="deleteReason" resize="none" :rows="3" type="textarea" placeholder="请输入作废原因" />
+                        <el-input
+                          v-model="deleteReason"
+                          resize="none"
+                          :rows="3"
+                          type="textarea"
+                          placeholder="请输入作废原因"
+                        />
                         <div style="text-align: right; margin: 5px 0px 0px 0px">
                           <el-button size="small" text @click="cancelPopover(scope.$index)">取消</el-button>
                           <el-button size="small" type="primary" @click="handleInvalid(scope.row)">确认</el-button>
@@ -128,16 +181,28 @@
                       </el-popover>
                     </el-col>
                     <el-col :span="1.5">
-                      <el-button v-hasPermi="['workflow:instance:remove']" type="danger" size="small" icon="Delete" @click="handleDelete(scope.row)"
-                        >删除
+                      <el-button
+                        v-hasPermi="['workflow:instance:remove']"
+                        type="danger"
+                        size="small"
+                        icon="Delete"
+                        @click="handleDelete(scope.row)"
+                      >
+                        删除
                       </el-button>
                     </el-col>
                   </el-row>
                   <el-row :gutter="10" class="mb8">
                     <el-col :span="1.5">
-                      <el-button v-hasPermi="['workflow:instance:query']" type="primary" size="small" icon="View" @click="handleView(scope.row)"
-                        >查看</el-button
+                      <el-button
+                        v-hasPermi="['workflow:instance:query']"
+                        type="primary"
+                        size="small"
+                        icon="View"
+                        @click="handleView(scope.row)"
                       >
+                        查看
+                      </el-button>
                     </el-col>
                     <el-col :span="1.5">
                       <el-button
@@ -165,32 +230,56 @@
         </el-card>
       </el-col>
     </el-row>
-    <el-dialog v-if="processDefinitionDialog.visible" v-model="processDefinitionDialog.visible" :title="processDefinitionDialog.title" width="70%">
+    <el-dialog
+      v-if="processDefinitionDialog.visible"
+      v-model="processDefinitionDialog.visible"
+      :title="processDefinitionDialog.title"
+      width="70%"
+    >
       <el-table v-loading="loading" :data="processDefinitionHistoryList">
         <el-table-column fixed align="center" type="index" label="序号" width="60"></el-table-column>
         <el-table-column fixed align="center" prop="name" label="流程定义名称"></el-table-column>
         <el-table-column fixed align="center" prop="nodeName" label="任务名称"></el-table-column>
         <el-table-column align="center" prop="key" label="标识Key"></el-table-column>
         <el-table-column align="center" prop="version" label="版本号" width="90">
-          <template #default="scope"> v{{ scope.row.version }}.0</template>
+          <template #default="scope">v{{ scope.row.version }}.0</template>
         </el-table-column>
-        <el-table-column v-hasPermi="['workflow:instance:active']" align="center" prop="suspensionState" label="状态" min-width="70">
+        <el-table-column
+          v-hasPermi="['workflow:instance:active']"
+          align="center"
+          prop="suspensionState"
+          label="状态"
+          min-width="70"
+        >
           <template #default="scope">
             <el-tag v-if="scope.row.suspensionState == 1" type="success">激活</el-tag>
             <el-tag v-else type="danger">挂起</el-tag>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="deploymentTime" label="部署时间" :show-overflow-tooltip="true"></el-table-column>
+        <el-table-column
+          align="center"
+          prop="deploymentTime"
+          label="部署时间"
+          :show-overflow-tooltip="true"
+        ></el-table-column>
       </el-table>
     </el-dialog>
     <!-- 流程变量开始 -->
-    <el-dialog v-model="variableVisible" v-if="variableVisible" draggable title="流程变量" width="60%" :close-on-click-modal="false">
+    <el-dialog
+      v-model="variableVisible"
+      v-if="variableVisible"
+      draggable
+      title="流程变量"
+      width="60%"
+      :close-on-click-modal="false"
+    >
       <el-card v-loading="variableLoading">
         <template #header>
           <div class="clearfix">
-            <span
-              >流程定义名称：<el-tag>{{ processDefinitionName }}</el-tag></span
-            >
+            <span>
+              流程定义名称：
+              <el-tag>{{ processDefinitionName }}</el-tag>
+            </span>
           </div>
         </template>
         <div class="max-h-500px overflow-y-auto">
@@ -206,7 +295,9 @@
             <el-input v-model="form.value" placeholder="请输入变量值" />
           </el-form-item>
           <el-form-item>
-            <el-button v-hasPermi="['workflow:instance:variable']" type="primary" @click="handleVariable(ruleFormRef)">确认</el-button>
+            <el-button v-hasPermi="['workflow:instance:variable']" type="primary" @click="handleVariable(ruleFormRef)">
+              确认
+            </el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -214,7 +305,12 @@
     <!-- 流程变量结束 -->
 
     <!-- 申请人 -->
-    <UserSelect ref="userSelectRef" :multiple="true" :data="selectUserIds" @confirm-call-back="userSelectCallBack"></UserSelect>
+    <UserSelect
+      ref="userSelectRef"
+      :multiple="true"
+      :data="selectUserIds"
+      @confirm-call-back="userSelectCallBack"
+    ></UserSelect>
   </div>
 </template>
 
@@ -368,7 +464,7 @@ const handleSelectionChange = (selection: FlowInstanceVO[]) => {
 //分页
 const getProcessInstanceRunningList = () => {
   loading.value = true;
-  pageByRunning(queryParams.value).then((resp) => {
+  pageByRunning(queryParams.value).then(resp => {
     processInstanceList.value = resp.data?.rows;
     total.value = resp.data?.total;
     loading.value = false;
@@ -377,7 +473,7 @@ const getProcessInstanceRunningList = () => {
 //分页
 const getProcessInstanceFinishList = () => {
   loading.value = true;
-  pageByFinish(queryParams.value).then((resp) => {
+  pageByFinish(queryParams.value).then(resp => {
     processInstanceList.value = resp.data?.rows;
     total.value = resp.data?.total;
     loading.value = false;
@@ -422,10 +518,10 @@ const handleInvalid = async (row: FlowInstanceVO) => {
   }
 };
 const cancelPopover = async (index: any) => {
-  (proxy?.$refs[`popoverRef${index}`] as any).hide(); //关闭弹窗
+  (proxy?.$refs[`popoverRef${index}`] as any)?.hide(); //关闭弹窗
 };
 /** 查看按钮操作 */
-const handleView = (row) => {
+const handleView = row => {
   const routerJumpVo = reactive<RouterJumpVo>({
     businessId: row.businessId,
     taskId: row.id,
@@ -474,7 +570,7 @@ const userSelectCallBack = (data: UserVO[]) => {
 
   if (data && data.length > 0) {
     userSelectCount.value = data.length;
-    selectUserIds.value = data.map((item) => item.userId);
+    selectUserIds.value = data.map(item => item.userId);
     queryParams.value.createByIds = selectUserIds.value;
   }
 };

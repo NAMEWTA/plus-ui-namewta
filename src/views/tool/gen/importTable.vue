@@ -4,7 +4,7 @@
     <el-form ref="queryFormRef" :model="queryParams" :inline="true">
       <el-form-item label="数据源" prop="dataName">
         <el-select v-model="queryParams.dataName" filterable placeholder="请选择/输入数据源名称">
-          <el-option v-for="item in dataNameList" :key="item" :label="item" :value="item"> </el-option>
+          <el-option v-for="item in dataNameList" :key="item" :label="item" :value="item"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="表名称" prop="tableName">
@@ -19,14 +19,27 @@
       </el-form-item>
     </el-form>
     <el-row>
-      <el-table ref="tableRef" border :data="dbTableList" height="260px" @row-click="clickRow" @selection-change="handleSelectionChange">
+      <el-table
+        ref="tableRef"
+        border
+        :data="dbTableList"
+        height="260px"
+        @row-click="clickRow"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="tableName" label="表名称" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="tableComment" label="表描述" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="createTime" label="创建时间"></el-table-column>
         <el-table-column prop="updateTime" label="更新时间"></el-table-column>
       </el-table>
-      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
+      <pagination
+        v-show="total > 0"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        :total="total"
+        @pagination="getList"
+      />
     </el-row>
     <template #footer>
       <div class="dialog-footer">
@@ -63,7 +76,7 @@ const emit = defineEmits(['ok']);
 
 /** 查询参数列表 */
 const show = (dataName: string) => {
-  getDataNames().then((res) => {
+  getDataNames().then(res => {
     if (res.code == 200) {
       dataNameList.value = res.data;
       if (dataName) {
@@ -83,7 +96,7 @@ const clickRow = (row: DbTableVO) => {
 };
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: DbTableVO[]) => {
-  tables.value = selection.map((item) => item.tableName);
+  tables.value = selection.map(item => item.tableName);
 };
 /** 查询表数据 */
 const getList = async () => {

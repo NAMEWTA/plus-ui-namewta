@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="sidebar-logo-container"
-    :class="{ collapse: collapse }"
-  >
+  <div class="sidebar-logo-container" :class="{ collapse: collapse }">
     <transition :enter-active-class="proxy?.animate.logoAnimate.enter" mode="out-in">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
@@ -94,11 +91,7 @@ const logoTextColor = computed(() => (isDarkSide.value ? '#f8fbff' : 'var(--app-
       line-height: 1;
       font-size: 15px;
       letter-spacing: 0.02em;
-      font-family:
-        'MiSans',
-        'HarmonyOS Sans SC',
-        'PingFang SC',
-        sans-serif;
+      font-family: 'MiSans', 'HarmonyOS Sans SC', 'PingFang SC', sans-serif;
       vertical-align: middle;
     }
   }

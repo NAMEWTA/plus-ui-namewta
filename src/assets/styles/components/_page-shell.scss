@@ -63,7 +63,9 @@
   .tree-panel-col,
   .tree-content-col {
     min-width: 0;
-    transition: max-width 0.24s ease, flex-basis 0.24s ease;
+    transition:
+      max-width 0.24s ease,
+      flex-basis 0.24s ease;
   }
 
   .tree-panel-col.is-collapsed {
@@ -184,7 +186,12 @@
   @include toolbar-responsive($mobile-breakpoint);
 }
 
-@mixin tree-table-crud-page($mobile-breakpoint: 900px, $gap: 12px, $tree-padding-top: 6px, $background: rgba(53, 109, 255, 0.08)) {
+@mixin tree-table-crud-page(
+  $mobile-breakpoint: 900px,
+  $gap: 12px,
+  $tree-padding-top: 6px,
+  $background: rgba(53, 109, 255, 0.08)
+) {
   @include content-stack($gap);
   @include dept-tree-panel($tree-padding-top);
   @include collapsible-tree-layout($mobile-breakpoint);

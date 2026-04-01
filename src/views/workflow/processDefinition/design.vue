@@ -15,7 +15,7 @@ const iframeUrl = ref('');
 const baseUrl = import.meta.env.VITE_APP_BASE_API;
 const iframeLoaded = () => {
   // iframe监听组件内设计器保存事件
-  window.onmessage = (event) => {
+  window.onmessage = event => {
     switch (event.data.method) {
       case 'close':
         close();
@@ -29,7 +29,10 @@ const open = async (definitionId, disabled) => {
 };
 /** 关闭按钮 */
 function close() {
-  const obj = { path: '/workflow/processDefinition', query: { activeName: proxy.$route.query.activeName } };
+  const obj = {
+    path: '/workflow/processDefinition',
+    query: { activeName: proxy.$route.query.activeName }
+  };
   proxy.$tab.closeOpenPage(obj);
 }
 

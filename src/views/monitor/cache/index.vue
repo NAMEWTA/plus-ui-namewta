@@ -26,7 +26,9 @@
                     <div class="cell">运行模式</div>
                   </td>
                   <td class="el-table__cell is-leaf">
-                    <div v-if="cache.info" class="cell">{{ cache.info.redis_mode === 'standalone' ? '单机' : '集群' }}</div>
+                    <div v-if="cache.info" class="cell">
+                      {{ cache.info.redis_mode === 'standalone' ? '单机' : '集群' }}
+                    </div>
                   </td>
                   <td class="el-table__cell is-leaf">
                     <div class="cell">端口</div>
@@ -58,7 +60,9 @@
                     <div class="cell">使用CPU</div>
                   </td>
                   <td class="el-table__cell is-leaf">
-                    <div v-if="cache.info" class="cell">{{ parseFloat(cache.info.used_cpu_user_children).toFixed(2) }}</div>
+                    <div v-if="cache.info" class="cell">
+                      {{ parseFloat(cache.info.used_cpu_user_children).toFixed(2) }}
+                    </div>
                   </td>
                   <td class="el-table__cell is-leaf">
                     <div class="cell">内存配置</div>
@@ -72,13 +76,17 @@
                     <div class="cell">AOF是否开启</div>
                   </td>
                   <td class="el-table__cell is-leaf">
-                    <div v-if="cache.info" class="cell">{{ cache.info.aof_enabled === '0' ? '否' : '是' }}</div>
+                    <div v-if="cache.info" class="cell">
+                      {{ cache.info.aof_enabled === '0' ? '否' : '是' }}
+                    </div>
                   </td>
                   <td class="el-table__cell is-leaf">
                     <div class="cell">RDB是否成功</div>
                   </td>
                   <td class="el-table__cell is-leaf">
-                    <div v-if="cache.info" class="cell">{{ cache.info.rdb_last_bgsave_status }}</div>
+                    <div v-if="cache.info" class="cell">
+                      {{ cache.info.rdb_last_bgsave_status }}
+                    </div>
                   </td>
                   <td class="el-table__cell is-leaf">
                     <div class="cell">Key数量</div>

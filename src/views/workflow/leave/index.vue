@@ -1,27 +1,37 @@
 <template>
   <div class="p-2 app-container workflow-leave-page">
     <div class="search-wrap">
-        <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-          <template #header>
-            <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-              <div><h3>筛选条件</h3></div>
-            </div>
-          </template>
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
+      <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+        <template #header>
+          <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+            <div><h3>筛选条件</h3></div>
+          </div>
+        </template>
+        <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
           <el-form-item label="请假天数" prop="startLeaveDays">
-            <el-input v-model="queryParams.startLeaveDays" placeholder="请输入请假天数" clearable @keyup.enter="handleQuery" />
+            <el-input
+              v-model="queryParams.startLeaveDays"
+              placeholder="请输入请假天数"
+              clearable
+              @keyup.enter="handleQuery"
+            />
           </el-form-item>
-          <el-form-item prop="endLeaveDays"> 至 </el-form-item>
+          <el-form-item prop="endLeaveDays">至</el-form-item>
           <el-form-item prop="endLeaveDays">
-            <el-input v-model="queryParams.endLeaveDays" placeholder="请输入请假天数" clearable @keyup.enter="handleQuery" />
+            <el-input
+              v-model="queryParams.endLeaveDays"
+              placeholder="请输入请假天数"
+              clearable
+              @keyup.enter="handleQuery"
+            />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
             <el-button icon="Refresh" @click="resetQuery">重置</el-button>
           </el-form-item>
-          </el-form>
-        </el-card>
-      </div>
+        </el-form>
+      </el-card>
+    </div>
 
     <el-card shadow="hover" class="table-panel">
       <template #header>
@@ -30,19 +40,35 @@
             <h3>请假列表</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['workflow:leave:add']" type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
-            <el-button v-hasPermi="['workflow:leave:export']" type="warning" plain icon="Download" @click="handleExport">导出</el-button>
+            <el-button v-hasPermi="['workflow:leave:add']" type="primary" plain icon="Plus" @click="handleAdd">
+              新增
+            </el-button>
+            <el-button
+              v-hasPermi="['workflow:leave:export']"
+              type="warning"
+              plain
+              icon="Download"
+              @click="handleExport"
+            >
+              导出
+            </el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
       </template>
 
-      <el-table v-loading="loading" border class="data-table" :data="leaveList" @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="loading"
+        border
+        class="data-table"
+        :data="leaveList"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="主键" align="center" prop="id" />
         <el-table-column label="请假类型" align="center">
           <template #default="scope">
-            <el-tag>{{ options.find((e) => e.value === scope.row.leaveType)?.label }}</el-tag>
+            <el-tag>{{ options.find(e => e.value === scope.row.leaveType)?.label }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="开始时间" align="center" prop="startDate">
@@ -65,15 +91,33 @@
         <el-table-column label="操作" align="center" width="162">
           <template #default="scope">
             <el-row :gutter="10" class="mb8">
-              <el-col :span="1.5" v-if="scope.row.status === 'draft' || scope.row.status === 'cancel' || scope.row.status === 'back'">
-                <el-button v-hasPermi="['workflow:leave:edit']" size="small" type="primary" icon="Edit" @click="handleUpdate(scope.row)"
-                  >修改</el-button
+              <el-col
+                :span="1.5"
+                v-if="scope.row.status === 'draft' || scope.row.status === 'cancel' || scope.row.status === 'back'"
+              >
+                <el-button
+                  v-hasPermi="['workflow:leave:edit']"
+                  size="small"
+                  type="primary"
+                  icon="Edit"
+                  @click="handleUpdate(scope.row)"
                 >
+                  修改
+                </el-button>
               </el-col>
-              <el-col :span="1.5" v-if="scope.row.status === 'draft' || scope.row.status === 'cancel' || scope.row.status === 'back'">
-                <el-button v-hasPermi="['workflow:leave:remove']" size="small" type="primary" icon="Delete" @click="handleDelete(scope.row)"
-                  >删除</el-button
+              <el-col
+                :span="1.5"
+                v-if="scope.row.status === 'draft' || scope.row.status === 'cancel' || scope.row.status === 'back'"
+              >
+                <el-button
+                  v-hasPermi="['workflow:leave:remove']"
+                  size="small"
+                  type="primary"
+                  icon="Delete"
+                  @click="handleDelete(scope.row)"
                 >
+                  删除
+                </el-button>
               </el-col>
             </el-row>
             <el-row :gutter="10" class="mb8">
@@ -81,14 +125,27 @@
                 <el-button type="primary" size="small" icon="View" @click="handleView(scope.row)">查看</el-button>
               </el-col>
               <el-col :span="1.5" v-if="scope.row.status === 'waiting'">
-                <el-button size="small" type="primary" icon="Notification" @click="handleCancelProcessApply(scope.row.id)">撤销</el-button>
+                <el-button
+                  size="small"
+                  type="primary"
+                  icon="Notification"
+                  @click="handleCancelProcessApply(scope.row.id)"
+                >
+                  撤销
+                </el-button>
               </el-col>
             </el-row>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" :total="total" @pagination="getList" />
+      <pagination
+        v-show="total > 0"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        :total="total"
+        @pagination="getList"
+      />
     </el-card>
   </div>
 </template>
@@ -164,7 +221,7 @@ const resetQuery = () => {
 
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: LeaveVO[]) => {
-  ids.value = selection.map((item) => item.id);
+  ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 };

@@ -8,15 +8,20 @@ export const useDict = (...args: string[]): { [key: string]: DictDataOption[] } 
     [key: string]: DictDataOption[];
   }>({});
 
-  args.forEach(async (dictType) => {
+  args.forEach(async dictType => {
     res.value[dictType] = [];
     const dicts = useDictStore().getDict(dictType);
     if (dicts) {
       res.value[dictType] = dicts;
     } else {
-      await getDicts(dictType).then((resp) => {
+      await getDicts(dictType).then(resp => {
         res.value[dictType] = resp.data.map(
-          (p): DictDataOption => ({ label: p.dictLabel, value: p.dictValue, elTagType: p.listClass, elTagClass: p.cssClass })
+          (p): DictDataOption => ({
+            label: p.dictLabel,
+            value: p.dictValue,
+            elTagType: p.listClass,
+            elTagClass: p.cssClass
+          })
         );
         useDictStore().setDict(dictType, res.value[dictType]);
       });

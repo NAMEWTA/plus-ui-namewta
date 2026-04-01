@@ -5,7 +5,11 @@
       <el-col :lg="treeCollapsed ? 1 : 4" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
         <el-card shadow="hover" class="side-panel tree-panel-shell" :class="{ 'is-collapsed': treeCollapsed }">
           <template #header>
-            <div class="panel-heading search-panel-toggle tree-panel-header" :class="{ 'is-collapsed': treeCollapsed }" @click.stop="treeCollapsed = !treeCollapsed">
+            <div
+              class="panel-heading search-panel-toggle tree-panel-header"
+              :class="{ 'is-collapsed': treeCollapsed }"
+              @click.stop="treeCollapsed = !treeCollapsed"
+            >
               <div v-show="!treeCollapsed" class="table-heading">
                 <h3>流程分类</h3>
               </div>
@@ -28,25 +32,30 @@
           </template>
         </el-card>
       </el-col>
-      <el-col :lg="treeCollapsed ? 23 : 20" :xs="24" class="tree-content-col content-main" :class="{ 'is-tree-collapsed': treeCollapsed }">
+      <el-col
+        :lg="treeCollapsed ? 23 : 20"
+        :xs="24"
+        class="tree-content-col content-main"
+        :class="{ 'is-tree-collapsed': treeCollapsed }"
+      >
         <div class="search-wrap">
-            <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
-              <template #header>
-                <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-                  <div><h3>筛选条件</h3></div>
-                </div>
-              </template>
-              <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="120px" class="query-form">
-                <el-form-item label="流程定义编码" prop="flowCode">
-                  <el-input v-model="queryParams.flowCode" placeholder="请输入流程定义编码" @keyup.enter="handleQuery" />
-                </el-form-item>
-                <el-form-item>
-                  <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-                  <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-                </el-form-item>
-              </el-form>
-            </el-card>
-          </div>
+          <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
+            <template #header>
+              <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
+                <div><h3>筛选条件</h3></div>
+              </div>
+            </template>
+            <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="120px" class="query-form">
+              <el-form-item label="流程定义编码" prop="flowCode">
+                <el-input v-model="queryParams.flowCode" placeholder="请输入流程定义编码" @keyup.enter="handleQuery" />
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </div>
         <el-card shadow="hover" class="table-panel">
           <template #header>
             <div class="toolbar-shell">
@@ -54,20 +63,35 @@
                 <h3>我的单据</h3>
               </div>
               <div class="toolbar-actions">
-                <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="handleQuery"></right-toolbar>
+                <right-toolbar
+                  v-model:show-search="showSearch"
+                  :search="false"
+                  @query-table="handleQuery"
+                ></right-toolbar>
               </div>
             </div>
           </template>
 
-          <el-table v-loading="loading" border class="data-table" :data="processInstanceList" @selection-change="handleSelectionChange">
+          <el-table
+            v-loading="loading"
+            border
+            class="data-table"
+            :data="processInstanceList"
+            @selection-change="handleSelectionChange"
+          >
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column align="center" type="index" label="序号" width="60"></el-table-column>
             <el-table-column v-if="false" align="center" prop="id" label="id"></el-table-column>
-            <el-table-column :show-overflow-tooltip="true" prop="flowName" align="center" label="流程定义名称"> </el-table-column>
+            <el-table-column
+              :show-overflow-tooltip="true"
+              prop="flowName"
+              align="center"
+              label="流程定义名称"
+            ></el-table-column>
             <el-table-column align="center" prop="flowCode" label="流程定义编码"></el-table-column>
             <el-table-column align="center" prop="categoryName" label="流程分类"></el-table-column>
             <el-table-column align="center" prop="version" label="版本号" width="90">
-              <template #default="scope"> v{{ scope.row.version }}.0</template>
+              <template #default="scope">v{{ scope.row.version }}.0</template>
             </el-table-column>
             <el-table-column v-if="tab === 'running'" align="center" prop="isSuspended" label="状态" min-width="70">
               <template #default="scope">
@@ -84,21 +108,46 @@
             <el-table-column label="操作" align="center" width="162">
               <template #default="scope">
                 <el-row :gutter="10" class="mb8">
-                  <el-col :span="1.5" v-if="scope.row.flowStatus === 'draft' || scope.row.flowStatus === 'cancel' || scope.row.flowStatus === 'back'">
-                    <el-button type="primary" size="small" icon="Edit" @click="handleOpen(scope.row, 'update')">编辑</el-button>
+                  <el-col
+                    :span="1.5"
+                    v-if="
+                      scope.row.flowStatus === 'draft' ||
+                      scope.row.flowStatus === 'cancel' ||
+                      scope.row.flowStatus === 'back'
+                    "
+                  >
+                    <el-button type="primary" size="small" icon="Edit" @click="handleOpen(scope.row, 'update')">
+                      编辑
+                    </el-button>
                   </el-col>
-                  <el-col :span="1.5" v-if="scope.row.flowStatus === 'draft' || scope.row.flowStatus === 'cancel' || scope.row.flowStatus === 'back'">
-                    <el-button type="primary" size="small" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+                  <el-col
+                    :span="1.5"
+                    v-if="
+                      scope.row.flowStatus === 'draft' ||
+                      scope.row.flowStatus === 'cancel' ||
+                      scope.row.flowStatus === 'back'
+                    "
+                  >
+                    <el-button type="primary" size="small" icon="Delete" @click="handleDelete(scope.row)">
+                      删除
+                    </el-button>
                   </el-col>
                 </el-row>
                 <el-row :gutter="10" class="mb8">
                   <el-col :span="1.5">
-                    <el-button type="primary" size="small" icon="View" @click="handleOpen(scope.row, 'view')">查看</el-button>
+                    <el-button type="primary" size="small" icon="View" @click="handleOpen(scope.row, 'view')">
+                      查看
+                    </el-button>
                   </el-col>
                   <el-col :span="1.5" v-if="scope.row.flowStatus === 'waiting'">
-                    <el-button type="primary" size="small" icon="Notification" @click="handleCancelProcessApply(scope.row.businessId)"
-                      >撤销</el-button
+                    <el-button
+                      type="primary"
+                      size="small"
+                      icon="Notification"
+                      @click="handleCancelProcessApply(scope.row.businessId)"
                     >
+                      撤销
+                    </el-button>
                   </el-col>
                 </el-row>
               </template>
@@ -216,7 +265,7 @@ const handleSelectionChange = (selection: FlowInstanceVO[]) => {
 //分页
 const getList = () => {
   loading.value = true;
-  pageByCurrent(queryParams.value).then((resp) => {
+  pageByCurrent(queryParams.value).then(resp => {
     processInstanceList.value = resp.data?.rows;
     total.value = resp.data?.total;
     loading.value = false;

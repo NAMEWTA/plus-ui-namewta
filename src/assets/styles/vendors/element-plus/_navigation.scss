@@ -17,7 +17,10 @@
 .el-pagination .btn-next,
 .el-pagination .el-pager li {
   border-radius: var(--app-radius-sm);
-  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .el-pagination {

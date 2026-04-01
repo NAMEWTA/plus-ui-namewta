@@ -2,7 +2,12 @@
   <div class="navbar" :class="'nav' + navType">
     <div class="navbar-left">
       <div v-if="navType !== NavTypeEnum.TOP" class="hamburger-shell">
-        <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container" @toggle-click="toggleSideBar" />
+        <hamburger
+          id="hamburger-container"
+          :is-active="appStore.sidebar.opened"
+          class="hamburger-container"
+          @toggle-click="toggleSideBar"
+        />
       </div>
       <router-link v-else-if="showLogo" to="/" class="navtop-logo-shell">
         <img :src="appLogo" class="navtop-logo-icon" alt="logo" />
@@ -31,7 +36,9 @@
             <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
               <template #reference>
                 <el-badge :value="noticeStore.unreadCount.value > 0 ? noticeStore.unreadCount.value : ''" :max="99">
-                  <div class="right-menu-item hover-effect message-trigger"><svg-icon icon-class="message" /></div>
+                  <div class="right-menu-item hover-effect message-trigger">
+                    <svg-icon icon-class="message" />
+                  </div>
                 </el-badge>
               </template>
               <template #default>

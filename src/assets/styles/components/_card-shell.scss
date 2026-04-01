@@ -34,7 +34,6 @@
   margin-right: 8px;
 }
 
-
 // --- el-card 本业务页外观（与 EP vendors 叠加） ---
 .el-card__header {
   padding: 14px 16px 10px !important;
@@ -52,7 +51,9 @@
   box-shadow: var(--app-shadow-sm);
   border-color: var(--app-surface-border);
   overflow: hidden;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
   background: var(--app-surface-bg);
 }
 

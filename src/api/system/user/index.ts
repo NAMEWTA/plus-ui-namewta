@@ -118,7 +118,7 @@ export const changeUserStatus = (userId: number | string, status: string) => {
 export const unlockUser = (userId: number | string) => {
   return request({
     url: '/system/user/unlock/' + userId,
-    method: 'get',
+    method: 'get'
   });
 };
 

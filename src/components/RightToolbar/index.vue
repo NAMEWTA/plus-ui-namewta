@@ -31,12 +31,15 @@
 
 <script setup lang="ts">
 import { propTypes } from '@/utils/propTypes';
+import cache from '@/plugins/cache';
 
 const props = defineProps({
   showSearch: propTypes.bool.def(true),
   columns: propTypes.fieldOption,
   search: propTypes.bool.def(true),
-  gutter: propTypes.number.def(10)
+  gutter: propTypes.number.def(10),
+  /* 列显隐状态记忆的 localStorage key（传入则启用记忆，不传则不记忆） */
+  storageKey: propTypes.string.def('')
 });
 
 const columnRef = ref<ElTreeInstance>();
@@ -60,19 +63,42 @@ function refresh() {
   emits('queryTable');
 }
 
+// 将当前列显隐状态持久化到 localStorage
+function saveStorage() {
+  if (!props.storageKey) return;
+  try {
+    const state: Record<string, boolean> = {};
+    props.columns?.forEach((col, index) => {
+      state[index] = col.visible;
+    });
+    cache.local.setJSON(props.storageKey, state);
+  } catch (e) {}
+}
+
 // 更改数据列的显示和隐藏
 function columnChange(...args: any[]) {
   props.columns?.forEach((item) => {
     item.visible = args[1].checkedKeys.includes(item.key);
   });
+  saveStorage();
 }
 
 // 显隐列初始默认隐藏列
 onMounted(() => {
+  // 如果传入了 storageKey，从 localStorage 恢复列显隐状态
+  if (props.storageKey) {
+    try {
+      const saved = cache.local.getJSON(props.storageKey);
+      if (saved && typeof saved === 'object') {
+        props.columns?.forEach((col, index) => {
+          if (saved[index] !== undefined) col.visible = saved[index];
+        });
+      }
+    } catch (e) {}
+  }
   props.columns?.forEach((item) => {
     if (item.visible) {
       columnRef.value?.setChecked(item.key, true, false);
-      // value.value.push(item.key);
     }
   });
 });

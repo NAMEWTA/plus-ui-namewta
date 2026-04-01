@@ -107,7 +107,7 @@
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
-                <right-toolbar v-model:show-search="showSearch" :columns="columns" :search="false" @query-table="getList"></right-toolbar>
+                <right-toolbar v-model:show-search="showSearch" :columns="columns" :search="false" storage-key="sys_user_column_visible" @query-table="getList"></right-toolbar>
               </div>
             </div>
           </template>

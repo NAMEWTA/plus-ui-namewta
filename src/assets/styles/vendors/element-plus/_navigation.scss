@@ -40,7 +40,7 @@
 .el-pagination .el-pagination__sizes .el-input__wrapper {
   min-width: 32px;
   height: 32px;
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  border: 1px solid var(--app-surface-border);
   background: var(--app-surface-bg);
 }
 

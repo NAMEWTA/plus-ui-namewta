@@ -403,9 +403,9 @@ onMounted(() => {
 .preview-box {
   width: 100%;
   padding: 10px 12px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 4px;
-  color: #333;
+  color: var(--el-text-color-primary);
   font-family: monospace; /* 等宽字体更清晰 */
   white-space: nowrap; /* 禁止换行 */
   overflow-x: auto; /* 超出宽度时显示水平滚动条 */

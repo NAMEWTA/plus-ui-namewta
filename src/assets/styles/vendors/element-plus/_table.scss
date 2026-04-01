@@ -32,6 +32,13 @@
   background-color: var(--el-bg-color);
 }
 
+html.dark {
+  .el-table__fixed-body-wrapper,
+  .el-table__fixed-right-body-wrapper {
+    background-color: var(--app-surface-bg);
+  }
+}
+
 // 去掉额外的表格边线，使用表格border
 .el-table--border:after,
 .el-table--border:before,
@@ -56,7 +63,7 @@
 
 .el-table .el-dropdown-link {
   cursor: pointer;
-  color: #409eff;
+  color: var(--el-color-primary);
   margin-left: 10px;
 }
 

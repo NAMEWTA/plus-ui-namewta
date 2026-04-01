@@ -4,8 +4,8 @@
 // --- 历史「表单分区标题」样式 ---
 .form-header {
   font-size: 15px;
-  color: #6379bb;
-  border-bottom: 1px solid #ddd;
+  color: var(--el-color-primary);
+  border-bottom: 1px solid var(--app-surface-border);
   margin: 8px 10px 25px 10px;
   padding-bottom: 5px;
 }
@@ -13,8 +13,8 @@
 // --- 树形容器描边（暗色覆盖在 _search-panel） ---
 .tree-border {
   margin-top: 8px;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  background: rgba(255, 255, 255, 0.42) none;
+  border: 1px solid var(--app-surface-border);
+  background: var(--app-surface-bg);
   border-radius: 22px;
   width: 100%;
   padding: 12px;
@@ -39,7 +39,7 @@
   padding: 14px 16px 10px !important;
   min-height: auto;
   background: transparent;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  border-bottom: 1px solid var(--app-surface-border);
 }
 
 .el-card__body {
@@ -59,7 +59,7 @@
 
 .el-card:hover {
   box-shadow: var(--app-shadow-md);
-  border-color: rgba(64, 158, 255, 0.16);
+  border-color: var(--app-accent-soft);
 }
 
 .card-box {

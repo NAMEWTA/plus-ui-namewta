@@ -15,9 +15,15 @@ html.dark {
   --tableHeaderBg: var(--el-bg-color);
   --tableHeaderTextColor: var(--el-text-color);
 
-  // --- 树节点：暗色下修正 primary 浅底色 ---
+  // --- 表格：暗色下选中行背景 ---
+  --el-table-current-row-bg-color: rgba(53, 109, 255, 0.14);
+  --el-table-row-hover-bg-color: rgba(148, 163, 184, 0.07);
+
+  // --- 全局：暗色下修正 primary 浅底色（表格行选中、树节点等） ---
+  --el-color-primary-light-9: rgba(53, 109, 255, 0.14);
+
   .el-tree-node__content {
-    --el-color-primary-light-9: #262727;
+    --el-color-primary-light-9: rgba(53, 109, 255, 0.14);
   }
 
   // --- 各类型按钮（含 plain）在暗色下的 EP CSS 变量 ---

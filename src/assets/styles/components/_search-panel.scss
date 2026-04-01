@@ -7,7 +7,7 @@
   min-width: 28px !important;
   padding: 0 !important;
   border-radius: 10px !important;
-  background: rgba(53, 109, 255, 0.08) !important;
+  background: var(--app-accent-soft) !important;
 }
 
 .data-table .el-button.is-link + .el-button.is-link {
@@ -77,7 +77,7 @@
 
 :global(html.dark) {
   .tree-border {
-    background: rgba(15, 23, 42, 0.42);
-    border-color: rgba(100, 116, 139, 0.22);
+    background: var(--app-surface-bg);
+    border-color: var(--app-surface-border);
   }
 }

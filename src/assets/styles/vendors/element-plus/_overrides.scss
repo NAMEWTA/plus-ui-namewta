@@ -40,8 +40,40 @@
 .el-table {
   --el-table-border-color: var(--app-surface-border);
   --el-table-header-bg-color: var(--tableHeaderBg);
-  --el-table-tr-bg-color: transparent;
-  background: transparent;
+  --el-table-tr-bg-color: var(--el-bg-color);
+  --el-table-bg-color: var(--el-bg-color);
+  --el-table-row-hover-bg-color: var(--el-fill-color-light);
+  --el-table-current-row-bg-color: var(--el-color-primary-light-9);
+  background: var(--el-bg-color);
+}
+
+// 暗色模式：行背景、hover、选中全部用不透明色，防止固定列透视
+html.dark .el-table {
+  --el-table-tr-bg-color: var(--app-surface-bg);
+  --el-table-bg-color: var(--app-surface-bg);
+  --el-table-row-hover-bg-color: #2a3a55;
+  --el-table-current-row-bg-color: #1e3a6e;
+  --el-color-primary-light-9: #1e3a6e;
+  background: var(--app-surface-bg);
+}
+
+// 固定列单元格基底背景与普通行保持一致（亮/暗均适用）
+.el-table .el-table__cell {
+  background-color: var(--el-table-tr-bg-color);
+}
+
+// hover 行的所有单元格（含固定列）覆写为不透明背景
+.el-table__body tr.hover-row > td.el-table__cell,
+.el-table__body tr.hover-row.current-row > td.el-table__cell,
+.el-table__body tr.hover-row.el-table__row--striped > td.el-table__cell,
+.el-table__body tr.hover-row.el-table__row--striped.current-row > td.el-table__cell,
+.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
+  background-color: var(--el-table-row-hover-bg-color) !important;
+}
+
+// 选中行的所有单元格（含固定列）覆写为不透明背景
+.el-table__body tr.current-row > td.el-table__cell {
+  background-color: var(--el-table-current-row-bg-color) !important;
 }
 
 // --- 输入类默认内描边（与 _form 中 focus 环配合） ---

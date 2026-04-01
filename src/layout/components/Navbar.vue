@@ -181,11 +181,9 @@ const handleCommand = (command: string) => {
     margin-right: 12px;
     flex-shrink: 0;
     border-radius: 14px;
-    border: 1px solid rgba(148, 163, 184, 0.18);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.82));
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.72),
-      0 6px 14px rgba(15, 23, 42, 0.04);
+    border: 1px solid var(--app-surface-border);
+    background: var(--app-surface-bg);
+    box-shadow: var(--app-shadow-sm);
     transition:
       transform 0.2s ease,
       border-color 0.2s ease,
@@ -213,11 +211,9 @@ const handleCommand = (command: string) => {
     margin-left: 0;
     padding: 4px 8px;
     border-radius: 16px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(248, 250, 252, 0.58));
-    border: 1px solid rgba(148, 163, 184, 0.14);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.72),
-      0 6px 18px rgba(15, 23, 42, 0.04);
+    background: var(--app-surface-bg);
+    border: 1px solid var(--app-surface-border);
+    box-shadow: var(--app-shadow-sm);
   }
 }
 
@@ -402,7 +398,7 @@ const handleCommand = (command: string) => {
         gap: 12px;
         padding: 4px 8px 4px 4px;
         border-radius: 16px;
-        background: #fff;
+        background: var(--app-surface-bg);
         border: 1px solid var(--app-surface-border);
         min-width: 0;
         cursor: pointer;

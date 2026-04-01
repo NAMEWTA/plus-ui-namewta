@@ -9,7 +9,7 @@
 .el-drawer__header {
   margin-bottom: 0;
   padding: 18px 20px 16px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  border-bottom: 1px solid var(--app-surface-border);
   background: var(--app-elevated-soft-bg);
   color: var(--app-text-title);
 }
@@ -43,7 +43,7 @@
 }
 
 .el-loading-mask {
-  background: rgba(248, 250, 252, 0.76);
+  background: color-mix(in srgb, var(--app-surface-bg) 82%, transparent);
   backdrop-filter: blur(4px);
 }
 
@@ -52,7 +52,7 @@
 }
 
 .el-descriptions {
-  --el-descriptions-table-border: rgba(148, 163, 184, 0.14);
+  --el-descriptions-table-border: var(--app-surface-border);
 }
 
 .el-descriptions__body .el-descriptions__table {
@@ -103,8 +103,3 @@
   box-shadow: var(--app-shadow-md);
 }
 
-html.dark {
-  .el-loading-mask {
-    background: rgba(6, 11, 22, 0.7);
-  }
-}

@@ -144,7 +144,8 @@
   .dept-tree::-webkit-scrollbar-thumb,
   .selector-tree::-webkit-scrollbar-thumb {
     border-radius: 999px;
-    background: rgba(148, 163, 184, 0.55);
+    background: var(--app-text-muted);
+    opacity: 0.55;
   }
 
   .dept-tree::-webkit-scrollbar-track,

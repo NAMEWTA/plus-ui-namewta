@@ -328,7 +328,7 @@ onMounted(() => {
   width: 100%;
   padding: 34px 30px 26px;
   z-index: 1;
-  background: rgba(248, 250, 252, 0.92);
+  background: var(--app-surface-bg);
 }
 
 .title-box {
@@ -367,8 +367,8 @@ onMounted(() => {
     color: var(--app-text-muted);
     padding: 10px;
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(148, 163, 184, 0.14);
+    background: var(--app-elevated-soft-bg);
+    border: 1px solid var(--app-surface-border);
   }
 }
 
@@ -408,8 +408,8 @@ onMounted(() => {
   box-sizing: border-box;
   border-radius: 16px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: var(--el-bg-color);
+  border: 1px solid var(--app-surface-border);
 
   img {
     cursor: pointer;
@@ -434,9 +434,9 @@ onMounted(() => {
 
 .register-form :deep(.el-input__wrapper) {
   min-height: 48px;
-  background-color: rgba(255, 255, 255, 0.88);
+  background-color: var(--el-bg-color);
   border-radius: 16px;
-  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.12) inset;
+  box-shadow: 0 0 0 1px var(--app-surface-border) inset;
 }
 
 .register-form :deep(.el-input__wrapper.is-focus) {
@@ -503,17 +503,4 @@ onMounted(() => {
   }
 }
 
-:global(html.dark) {
-  .register-form {
-    background: rgba(12, 18, 30, 0.88);
-    border-color: rgba(100, 116, 139, 0.2);
-  }
-
-  .register-form :deep(.el-input__wrapper),
-  .register-code,
-  .title-box :deep(.lang-select--style) {
-    background: rgba(15, 23, 42, 0.56);
-    border-color: rgba(100, 116, 139, 0.2);
-  }
-}
 </style>

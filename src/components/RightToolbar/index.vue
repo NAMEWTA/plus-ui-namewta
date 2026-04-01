@@ -115,8 +115,8 @@ onMounted(() => {
   width: 38px;
   height: 38px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: var(--app-elevated-soft-bg);
+  border: 1px solid var(--app-surface-border);
   color: var(--app-text-muted);
   transition:
     transform 0.25s ease,
@@ -159,12 +159,5 @@ onMounted(() => {
 
 .show-btn {
   margin-left: 0;
-}
-
-:global(html.dark) {
-  .top-right-btn :deep(.el-button.is-circle) {
-    background: rgba(15, 23, 42, 0.56);
-    border-color: rgba(100, 116, 139, 0.22);
-  }
 }
 </style>

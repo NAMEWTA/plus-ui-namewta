@@ -407,7 +407,7 @@ defineExpose({
 .empty-icon {
   font-size: 40px;
   margin-bottom: 14px;
-  color: #cbd5e1;
+  color: var(--app-text-muted);
 }
 
 .empty-text {
@@ -429,7 +429,7 @@ defineExpose({
   align-items: center;
   gap: 24px;
   padding: 14px 18px 16px;
-  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  border-top: 1px solid var(--app-surface-border);
   color: var(--app-text-muted);
   font-size: 12px;
 }
@@ -447,40 +447,13 @@ kbd {
   min-width: 20px;
   height: 20px;
   padding: 0 5px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
+  border: 1px solid var(--app-surface-border);
   border-radius: 6px;
-  background: rgba(248, 250, 252, 0.9);
+  background: var(--app-elevated-soft-bg);
   color: var(--app-text-title);
   font-size: 11px;
   line-height: 1;
-  box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.18);
+  box-shadow: inset 0 -1px 0 var(--app-surface-border);
 }
 
-:global(html.dark) {
-  .layout-search-dialog {
-    :deep(.el-dialog) {
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.95));
-    }
-
-    :deep(.el-input__wrapper) {
-      background: rgba(15, 23, 42, 0.92);
-      box-shadow: inset 0 0 0 1px rgba(71, 85, 105, 0.38);
-    }
-  }
-
-  .search-item:hover {
-    background: rgba(59, 130, 246, 0.16);
-  }
-
-  .empty-icon {
-    color: #64748b;
-  }
-
-  kbd {
-    background: rgba(30, 41, 59, 0.9);
-    border-color: rgba(71, 85, 105, 0.48);
-    color: #e2e8f0;
-    box-shadow: inset 0 -1px 0 rgba(15, 23, 42, 0.5);
-  }
-}
 </style>

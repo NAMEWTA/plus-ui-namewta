@@ -177,13 +177,13 @@ onMounted(() => {
 
 <style lang="scss">
 .mix-topnav-menu.el-menu--horizontal {
-  --topbar-pill-bg: rgba(255, 255, 255, 0.7);
-  --topbar-pill-hover-bg: rgba(255, 255, 255, 0.9);
-  --topbar-pill-active-bg: rgba(255, 255, 255, 0.82);
+  --topbar-pill-bg: var(--app-elevated-soft-bg);
+  --topbar-pill-hover-bg: var(--app-elevated-close-bg);
+  --topbar-pill-active-bg: var(--app-elevated-close-bg);
   --topbar-pill-text: var(--app-text-title);
   --topbar-pill-muted: var(--app-text-muted);
-  --topbar-pill-border: rgba(148, 163, 184, 0.12);
-  --topbar-pill-active-border: rgba(148, 163, 184, 0.14);
+  --topbar-pill-border: var(--app-surface-border);
+  --topbar-pill-active-border: var(--app-surface-border);
 
   display: flex;
   align-items: center;
@@ -287,12 +287,10 @@ onMounted(() => {
 .mix-topnav-popper .el-menu--popup {
   min-width: 188px;
   padding: 10px !important;
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  border: 1px solid var(--app-surface-border);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)) !important;
-  box-shadow:
-    0 18px 40px rgba(15, 23, 42, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  background: var(--app-surface-bg) !important;
+  box-shadow: var(--app-shadow-md);
 }
 
 .mix-topnav-popper .el-menu--popup .el-menu-item,

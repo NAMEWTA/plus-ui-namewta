@@ -98,7 +98,7 @@
 
 .el-cascader-menu {
   min-width: 180px;
-  border-right-color: rgba(148, 163, 184, 0.12);
+  border-right-color: var(--app-surface-border);
 }
 
 .el-cascader-node__prefix,
@@ -184,11 +184,12 @@
 
 .el-time-panel__content::before,
 .el-time-panel__content::after {
-  border-color: rgba(148, 163, 184, 0.14);
+  border-color: var(--app-surface-border);
 }
 
 .el-scrollbar__thumb {
-  background: rgba(148, 163, 184, 0.42);
+  background: var(--app-text-muted);
+  opacity: 0.42;
 }
 
 .el-scrollbar__thumb:hover {

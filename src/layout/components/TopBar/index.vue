@@ -81,13 +81,13 @@ onMounted(() => {
 
 <style lang="scss">
 .topbar-menu.el-menu--horizontal {
-  --topbar-pill-bg: rgba(255, 255, 255, 0.7);
-  --topbar-pill-hover-bg: rgba(255, 255, 255, 0.9);
-  --topbar-pill-active-bg: rgba(255, 255, 255, 0.82);
+  --topbar-pill-bg: var(--app-elevated-soft-bg);
+  --topbar-pill-hover-bg: var(--app-elevated-close-bg);
+  --topbar-pill-active-bg: var(--app-elevated-close-bg);
   --topbar-pill-text: var(--app-text-title);
   --topbar-pill-muted: var(--app-text-muted);
-  --topbar-pill-border: rgba(148, 163, 184, 0.12);
-  --topbar-pill-active-border: rgba(148, 163, 184, 0.14);
+  --topbar-pill-border: var(--app-surface-border);
+  --topbar-pill-active-border: var(--app-surface-border);
 
   display: flex;
   align-items: center;

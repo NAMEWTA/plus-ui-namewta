@@ -82,7 +82,7 @@
     justify-content: flex-end;
     gap: 8px;
     padding: 16px 20px 20px;
-    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    border-top: 1px solid var(--app-surface-border);
   }
 
   .el-message-box__btns .el-button {

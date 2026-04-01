@@ -130,7 +130,7 @@ const authUrl = (source: string) => {
   padding: 12px 10px;
   border: 1px solid var(--app-surface-border);
   border-radius: 12px;
-  background: rgba(248, 250, 252, 0.82);
+  background: var(--app-elevated-soft-bg);
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,

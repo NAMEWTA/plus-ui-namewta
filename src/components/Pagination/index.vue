@@ -73,7 +73,7 @@ function handleCurrentChange(val: number) {
   justify-content: flex-end;
   padding-top: 10px;
   margin-top: 18px;
-  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  border-top: 1px solid var(--app-surface-border);
 
   .el-pagination {
     float: none;

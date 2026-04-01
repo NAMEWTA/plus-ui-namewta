@@ -26,7 +26,7 @@
       .el-dialog__header {
         padding: 18px 20px 14px;
         box-sizing: border-box;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+        border-bottom: 1px solid var(--app-surface-border);
         margin-right: 0;
         background: var(--app-elevated-soft-bg);
       }
@@ -76,7 +76,7 @@
         justify-content: flex-end;
         gap: 8px;
         padding: 14px 20px 20px;
-        border-top: 1px solid rgba(148, 163, 184, 0.14);
+        border-top: 1px solid var(--app-surface-border);
       }
     }
   }

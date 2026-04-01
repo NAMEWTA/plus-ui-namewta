@@ -96,7 +96,7 @@ const readAll = () => {
 
   .head-box {
     display: flex;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    border-bottom: 1px solid var(--app-surface-border);
     box-sizing: border-box;
     color: var(--app-text-title);
     justify-content: space-between;
@@ -130,7 +130,7 @@ const readAll = () => {
     }
 
     :deep(.el-tabs__nav-wrap::after) {
-      background: rgba(148, 163, 184, 0.14);
+      background: var(--app-surface-border);
     }
 
     :deep(.el-tabs__item) {

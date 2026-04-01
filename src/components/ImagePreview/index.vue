@@ -60,8 +60,8 @@ const realHeight = computed(() => (typeof props.height == 'string' ? props.heigh
 <style lang="scss" scoped>
 .el-image {
   border-radius: 5px;
-  background-color: #ebeef5;
-  box-shadow: 0 0 5px 1px #ccc;
+  background-color: var(--app-elevated-soft-bg);
+  box-shadow: var(--app-shadow-sm);
 
   :deep(.el-image__inner) {
     transition: all 0.3s;

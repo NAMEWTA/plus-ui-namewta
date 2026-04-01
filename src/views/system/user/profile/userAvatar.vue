@@ -174,7 +174,7 @@ const closeDialog = () => {
   height: 120px;
   object-fit: cover;
   border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.92);
+  border: 4px solid var(--app-surface-border);
   box-shadow: var(--app-shadow-sm);
 }
 
@@ -203,7 +203,7 @@ const closeDialog = () => {
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  box-shadow: 0 0 4px #ccc;
+  box-shadow: var(--app-shadow-md);
   overflow: hidden;
 }
 </style>

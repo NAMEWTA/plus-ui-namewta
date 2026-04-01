@@ -482,13 +482,12 @@ onBeforeUnmount(() => {
   align-items: flex-start;
   height: 38px;
   width: 100%;
-  background-color: var(--el-bg-color);
-  border: 1px solid var(--el-border-color-light);
+  background-color: var(--app-surface-bg);
+  border: 1px solid var(--app-surface-border);
   border-radius: var(--app-radius-md);
   box-shadow: var(--app-shadow-sm);
 
   $btn-width: 26px;
-  $btn-color: #71717a;
   $btn-hover-bg: var(--el-fill-color-light);
   $btn-hover-color: var(--el-text-color-primary);
 
@@ -501,10 +500,10 @@ onBeforeUnmount(() => {
     height: 26px;
     margin-top: 4px;
     cursor: pointer;
-    color: $btn-color;
+    color: var(--app-text-muted);
     user-select: none;
-    background-color: var(--el-bg-color);
-    border: 1px solid var(--el-border-color-light);
+    background-color: var(--app-surface-bg);
+    border: 1px solid var(--app-surface-border);
     border-radius: var(--app-radius-md);
     transition:
       box-shadow 0.2s ease,
@@ -542,9 +541,9 @@ onBeforeUnmount(() => {
       cursor: pointer;
       height: 26px;
       line-height: 25px;
-      background-color: var(--el-bg-color);
-      border: 1px solid var(--el-border-color-light);
-      color: #495060;
+      background-color: var(--app-surface-bg);
+      border: 1px solid var(--app-surface-border);
+      color: var(--el-text-color-regular);
       padding: 0 8px;
       font-size: 12px;
       margin-left: 5px;
@@ -572,13 +571,13 @@ onBeforeUnmount(() => {
       }
 
       &.active {
-        background-color: #42b983;
-        color: #fff;
-        border-color: #42b983;
+        background-color: var(--tags-view-active-bg);
+        color: var(--el-color-white);
+        border-color: var(--tags-view-active-border-color);
 
         &::before {
           content: '';
-          background: #fff;
+          background: var(--el-color-white);
           display: inline-block;
           width: 8px;
           height: 8px;
@@ -616,10 +615,10 @@ onBeforeUnmount(() => {
     height: 26px;
     padding: 0 8px;
     cursor: pointer;
-    color: $btn-color;
+    color: var(--app-text-muted);
     user-select: none;
-    background-color: var(--el-bg-color);
-    border: 1px solid var(--el-border-color-light);
+    background-color: var(--app-surface-bg);
+    border: 1px solid var(--app-surface-border);
     border-radius: var(--app-radius-md);
     transition:
       box-shadow 0.2s ease,
@@ -646,7 +645,7 @@ onBeforeUnmount(() => {
 
   .contextmenu {
     margin: 0;
-    background: var(--el-bg-color);
+    background: var(--app-surface-bg);
     z-index: 3000;
     position: fixed;
     list-style-type: none;
@@ -688,8 +687,8 @@ onBeforeUnmount(() => {
       }
 
       &:hover {
-        background-color: #b4bccc;
-        color: #fff;
+        background-color: var(--app-surface-border);
+        color: var(--el-color-white);
         width: 12px !important;
         height: 12px !important;
       }

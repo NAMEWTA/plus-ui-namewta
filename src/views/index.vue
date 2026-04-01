@@ -131,7 +131,7 @@ const goTarget = (url: string) => {
   padding: 30px;
   background:
     radial-gradient(circle at top left, rgba(53, 109, 255, 0.16), transparent 30%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.42));
+    var(--app-surface-bg);
 }
 
 .hero-copy {
@@ -184,8 +184,8 @@ const goTarget = (url: string) => {
 .stat-card {
   padding: 18px 20px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.54);
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: var(--app-elevated-soft-bg);
+  border: 1px solid var(--app-surface-border);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -243,8 +243,8 @@ const goTarget = (url: string) => {
 .product-card {
   padding: 22px;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: var(--app-elevated-soft-bg);
+  border: 1px solid var(--app-surface-border);
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease,
@@ -308,8 +308,8 @@ const goTarget = (url: string) => {
 .capability-group {
   padding: 18px 18px 18px 20px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.46);
-  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: var(--app-elevated-soft-bg);
+  border: 1px solid var(--app-surface-border);
 
   h3 {
     margin: 0 0 12px;
@@ -368,14 +368,7 @@ const goTarget = (url: string) => {
   .hero-panel {
     background:
       radial-gradient(circle at top left, rgba(53, 109, 255, 0.18), transparent 30%),
-      linear-gradient(135deg, rgba(15, 23, 42, 0.76), rgba(15, 23, 42, 0.48));
-  }
-
-  .stat-card,
-  .product-card,
-  .capability-group {
-    background: rgba(15, 23, 42, 0.5);
-    border-color: rgba(100, 116, 139, 0.16);
+      var(--app-surface-bg);
   }
 }
 </style>

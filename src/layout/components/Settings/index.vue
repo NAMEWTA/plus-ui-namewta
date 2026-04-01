@@ -278,7 +278,7 @@ defineExpose({
 
 .setting-drawer-title {
   margin-bottom: 12px;
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--app-text-title);
   line-height: 22px;
   font-weight: bold;
   .drawer-title {
@@ -298,7 +298,7 @@ defineExpose({
     border-radius: 12px;
     cursor: pointer;
     overflow: hidden;
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    border: 1px solid var(--app-surface-border);
     transition:
       border-color 0.2s ease,
       transform 0.2s ease;
@@ -329,9 +329,7 @@ defineExpose({
       height: 100%;
       padding-top: 15px;
       padding-left: 24px;
-      color: #1890ff;
-      font-weight: 700;
-      font-size: 14px;
+      color: var(--app-accent-strong);
     }
   }
 }
@@ -340,7 +338,7 @@ defineExpose({
   padding: 12px 0;
   font-size: 14px;
   color: var(--app-text-title);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid var(--app-surface-border);
 
   .comp-style {
     float: right;

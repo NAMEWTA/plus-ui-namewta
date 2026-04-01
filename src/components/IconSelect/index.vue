@@ -144,7 +144,7 @@ watch(
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    border: 1px solid var(--app-surface-border);
     border-radius: 12px;
     background: var(--app-surface-bg);
     transition:

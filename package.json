@@ -67,9 +67,12 @@
     "vitest": "4.0.18",
     "vue-tsc": "^3.2.5"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@parcel/watcher", "es5-ext", "esbuild"]
+  },
   "engines": {
     "node": ">=20.19.0",
-    "npm": ">=8.19.0"
+    "pnpm": ">=10.0.0"
   },
   "browserslist": [
     "Chrome >= 87",

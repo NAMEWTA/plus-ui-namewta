@@ -48,9 +48,10 @@ export const usePermissionStore = defineStore('permission', () => {
   const generateRoutes = async (): Promise<RouteRecordRaw[]> => {
     const res = await getRouters();
     const { data } = res;
-    const sdata = JSON.parse(JSON.stringify(data));
-    const rdata = JSON.parse(JSON.stringify(data));
-    const defaultData = JSON.parse(JSON.stringify(data));
+    let text = JSON.stringify(data);
+    const sdata = JSON.parse(text);
+    const rdata = JSON.parse(text);
+    const defaultData = JSON.parse(text);
     const sidebarRoutes = filterAsyncRouter(sdata);
     const rewriteRoutes = filterAsyncRouter(rdata, undefined, true);
     const defaultRoutes = filterAsyncRouter(defaultData);
@@ -191,7 +192,7 @@ function duplicateRouteChecker(localRoutes: Route[], routes: Route[]) {
 
   const nameList: string[] = [];
   allRoutes.forEach((route) => {
-    const name = route.name.toString();
+    const name = route.name?.toString() ?? '';
     if (name && nameList.includes(name)) {
       const message = `路由名称: [${name}] 重复, 会造成 404`;
       console.error(message);

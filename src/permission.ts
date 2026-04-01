@@ -19,16 +19,16 @@ const isWhiteList = (path: string) => {
   return whiteList.some((pattern) => isPathMatch(pattern, path));
 };
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from) => {
   NProgress.start();
   if (getToken()) {
     to.meta.title && useSettingsStore().setTitle(to.meta.title as string);
     /* has token*/
     if (to.path === '/login') {
-      next({ path: '/' });
       NProgress.done();
+      return { path: '/' };
     } else if (isWhiteList(to.path)) {
-      next();
+      return true;
     } else {
       if (useUserStore().roles.length === 0) {
         isRelogin.show = true;
@@ -37,7 +37,7 @@ router.beforeEach(async (to, from, next) => {
         if (err) {
           await useUserStore().logout();
           ElMessage.error(err);
-          next({ path: '/' });
+          return { path: '/' };
         } else {
           isRelogin.show = false;
           const accessRoutes = await usePermissionStore().generateRoutes();
@@ -47,22 +47,22 @@ router.beforeEach(async (to, from, next) => {
               router.addRoute(route); // 动态添加可访问路由表
             }
           });
-          // @ts-expect-error hack方法 确保addRoutes已完成
-          next({ path: to.path, replace: true, params: to.params, query: to.query, hash: to.hash, name: to.name as string }); // hack方法 确保addRoutes已完成
+          // hack方法 确保addRoutes已完成
+          return { path: to.path, replace: true, params: to.params, query: to.query, hash: to.hash, name: to.name as string };
         }
       } else {
-        next();
+        return true;
       }
     }
   } else {
     // 没有token
     if (isWhiteList(to.path)) {
       // 在免登录白名单，直接进入
-      next();
+      return true;
     } else {
       const redirect = encodeURIComponent(to.fullPath || '/');
-      next(`/login?redirect=${redirect}`); // 否则全部重定向到登录页
       NProgress.done();
+      return `/login?redirect=${redirect}`; // 否则全部重定向到登录页
     }
   }
 });

@@ -1,7 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import createPlugins from './vite/plugins';
 import autoprefixer from 'autoprefixer'; // css自动添加兼容性前缀
-import path from 'path';
 
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd());
@@ -11,9 +10,7 @@ export default defineConfig(({ mode, command }) => {
     // 例如 https://www.ruoyi.vip/。如果应用被部署在一个子路径上，你就需要用这个选项指定这个子路径。例如，如果你的应用被部署在 https://www.ruoyi.vip/admin/，则设置 baseUrl 为 /admin/。
     base: env.VITE_APP_CONTEXT_PATH,
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src')
-      },
+      tsconfigPaths: true,
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
     // https://cn.vitejs.dev/config/#resolve-extensions
@@ -52,23 +49,6 @@ export default defineConfig(({ mode, command }) => {
           }
         ]
       }
-    },
-    // 预编译
-    optimizeDeps: {
-      entries: ['src/**/*.vue'],
-      include: [
-        'vue',
-        'vue-router',
-        'pinia',
-        'axios',
-        '@vueuse/core',
-        'echarts',
-        'vue-i18n',
-        '@wangeditor-next/editor',
-        '@wangeditor-next/editor-for-vue',
-        'image-conversion',
-        'element-plus/es/components/**/style/css'
-      ]
     }
   };
 });

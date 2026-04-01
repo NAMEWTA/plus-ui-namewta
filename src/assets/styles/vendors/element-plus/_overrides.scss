@@ -9,7 +9,7 @@
 .el-dropdown__popper .el-dropdown-menu,
 .el-picker__popper,
 .el-select__popper.el-popper {
-  border-radius: var(--app-radius-lg);
+  border-radius: var(--app-radius-base);
   border-color: var(--app-surface-border);
   box-shadow: var(--app-shadow-md);
 }

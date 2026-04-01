@@ -210,7 +210,7 @@ const handleCommand = (command: string) => {
     min-width: 0;
     margin-left: 0;
     padding: 4px 8px;
-    border-radius: 16px;
+    border-radius: var(--app-radius-base);
     background: var(--app-surface-bg);
     border: 1px solid var(--app-surface-border);
     box-shadow: var(--app-shadow-sm);
@@ -253,7 +253,7 @@ const handleCommand = (command: string) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 16px;
+  border-radius: var(--app-radius-base);
   padding: 6px 12px;
   box-sizing: border-box;
 
@@ -397,7 +397,7 @@ const handleCommand = (command: string) => {
         align-items: center;
         gap: 12px;
         padding: 4px 8px 4px 4px;
-        border-radius: 16px;
+        border-radius: var(--app-radius-base);
         background: var(--app-surface-bg);
         border: 1px solid var(--app-surface-border);
         min-width: 0;

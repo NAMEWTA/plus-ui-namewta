@@ -274,7 +274,7 @@ onMounted(() => {
 
 .mix-topnav-popper.el-popper {
   border: none !important;
-  border-radius: 18px !important;
+  border-radius: var(--app-radius-base) !important;
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
@@ -288,7 +288,7 @@ onMounted(() => {
   min-width: 188px;
   padding: 10px !important;
   border: 1px solid var(--app-surface-border);
-  border-radius: 18px;
+  border-radius: var(--app-radius-base);
   background: var(--app-surface-bg) !important;
   box-shadow: var(--app-shadow-md);
 }

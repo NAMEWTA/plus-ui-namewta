@@ -62,7 +62,7 @@ const textColor = computed(() => (sideTheme.value === 'theme-dark' ? '#e5edf8' :
   gap: 8px;
   padding: 10px 8px 12px;
   border: 1px solid var(--app-sidebar-border);
-  border-radius: 22px;
+  border-radius: var(--app-radius-base);
   box-shadow: var(--app-shadow-sm);
   background: v-bind(bgColor) !important;
   overflow: hidden;

@@ -296,7 +296,7 @@ defineExpose({
 
   :deep(.el-input__wrapper) {
     min-height: 52px;
-    border-radius: 16px;
+    border-radius: var(--app-radius-base);
   }
 
   :deep(.highlight) {
@@ -332,7 +332,7 @@ defineExpose({
   min-height: 56px;
   margin-bottom: 6px;
   padding: 10px 12px;
-  border-radius: 16px;
+  border-radius: var(--app-radius-base);
   cursor: pointer;
   transition:
     background-color 0.18s ease,
@@ -455,5 +455,4 @@ kbd {
   line-height: 1;
   box-shadow: inset 0 -1px 0 var(--app-surface-border);
 }
-
 </style>

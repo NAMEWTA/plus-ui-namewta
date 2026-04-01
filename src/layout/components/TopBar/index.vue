@@ -210,7 +210,7 @@ html.dark #app .topbar-menu.el-menu--horizontal > .el-sub-menu.is-active > .el-s
 
 .topbar-menu-popper.el-popper {
   border: none !important;
-  border-radius: 18px !important;
+  border-radius: var(--app-radius-base) !important;
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
@@ -224,7 +224,7 @@ html.dark #app .topbar-menu.el-menu--horizontal > .el-sub-menu.is-active > .el-s
   min-width: 188px;
   padding: 10px !important;
   border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 18px;
+  border-radius: var(--app-radius-base);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)) !important;
   box-shadow:
     0 18px 40px rgba(15, 23, 42, 0.12),

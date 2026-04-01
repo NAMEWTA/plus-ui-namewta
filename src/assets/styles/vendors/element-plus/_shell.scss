@@ -1,7 +1,7 @@
 /* Drawers, loading masks, descriptions, trees, and empty states. */
 
 .el-drawer {
-  border-radius: var(--app-radius-lg);
+  border-radius: var(--app-radius-base);
   box-shadow: var(--app-shadow-md);
   border: 1px solid var(--app-surface-border);
 }
@@ -98,8 +98,7 @@
 }
 
 .el-color-dropdown {
-  border-radius: 16px;
+  border-radius: var(--app-radius-base);
   border: 1px solid var(--app-surface-border);
   box-shadow: var(--app-shadow-md);
 }
-

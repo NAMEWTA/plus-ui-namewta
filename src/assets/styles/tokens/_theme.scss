@@ -26,9 +26,10 @@
   --tags-view-active-border-color: var(--el-color-primary);
 
   // --- 应用壳：圆角、阴影、表面、导航、强调色与文案色 ---
-  --app-radius-sm: 6px;
-  --app-radius-md: 12px;
-  --app-radius-lg: 18px;
+  --app-radius-sm: calc(var(--app-radius-base) - 8px);
+  --app-radius-md: calc(var(--app-radius-base) - 4px);
+  --app-radius-lg: var(--app-radius-base);
+  --app-radius-base: 18px;
 
   --app-space-base: 12px;
 

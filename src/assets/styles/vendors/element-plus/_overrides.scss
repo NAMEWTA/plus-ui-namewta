@@ -40,6 +40,7 @@
 .el-table {
   --el-table-border-color: var(--app-surface-border);
   --el-table-header-bg-color: var(--tableHeaderBg);
+  --el-table-tr-bg-color: transparent;
   background: transparent;
 }
 

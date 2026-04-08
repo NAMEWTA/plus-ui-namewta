@@ -44,6 +44,8 @@ export interface MenuVO extends BaseEntity {
   visible: string;
   status: string;
   icon: string;
+  activeMenu: string;
+  ext: string;
   remark: string;
 }
 
@@ -63,6 +65,8 @@ export interface MenuForm {
   visible?: string;
   status?: string;
   icon?: string;
+  activeMenu?: string;
+  ext?: string;
   remark?: string;
   query?: string;
   perms?: string;

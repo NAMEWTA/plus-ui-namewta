@@ -97,8 +97,9 @@ const childrenMenus = computed(() => {
 
 // 默认激活的菜单
 const activeMenu = computed(() => {
-  let path = route.path;
-  if (path === '/index') {
+  const { meta } = route;
+  let path = meta.activeMenu || route.path;
+  if (path === '/index' || route.path === '/index') {
     path = '/system/user';
   }
   let activePath = path;

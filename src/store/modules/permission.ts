@@ -47,8 +47,8 @@ export const usePermissionStore = defineStore('permission', () => {
   };
   const generateRoutes = async (): Promise<RouteRecordRaw[]> => {
     const res = await getRouters();
-    const { data } = res;
-    let text = JSON.stringify(data);
+    const data = Array.isArray(res.data) ? res.data : [];
+    const text = JSON.stringify(data);
     const sdata = JSON.parse(text);
     const rdata = JSON.parse(text);
     const defaultData = JSON.parse(text);
@@ -65,7 +65,7 @@ export const usePermissionStore = defineStore('permission', () => {
     setTopbarRoutes(defaultRoutes);
     // 路由name重复检查
     duplicateRouteChecker(asyncRoutes, sidebarRoutes);
-    return new Promise<RouteRecordRaw[]>(resolve => resolve(rewriteRoutes));
+    return rewriteRoutes;
   };
 
   /**

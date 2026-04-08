@@ -234,7 +234,7 @@
 
             <el-table-column label="操作" fixed="right" width="180" class-name="small-padding fixed-width">
               <template #default="scope">
-                <el-tooltip v-if="scope.row.userId !== 1" content="修改" placement="top">
+                <el-tooltip v-if="scope.row.userId !== 1761100000000000001" content="修改" placement="top">
                   <el-button
                     v-hasPermi="['system:user:edit']"
                     link
@@ -243,7 +243,7 @@
                     @click="handleUpdate(scope.row)"
                   ></el-button>
                 </el-tooltip>
-                <el-tooltip v-if="scope.row.userId !== 1" content="删除" placement="top">
+                <el-tooltip v-if="scope.row.userId !== 1761100000000000001" content="删除" placement="top">
                   <el-button
                     v-hasPermi="['system:user:remove']"
                     link
@@ -253,7 +253,7 @@
                   ></el-button>
                 </el-tooltip>
 
-                <el-tooltip v-if="scope.row.userId !== 1" content="重置密码" placement="top">
+                <el-tooltip v-if="scope.row.userId !== 1761100000000000001" content="重置密码" placement="top">
                   <el-button
                     v-hasPermi="['system:user:resetPwd']"
                     link
@@ -263,7 +263,7 @@
                   ></el-button>
                 </el-tooltip>
 
-                <el-tooltip v-if="scope.row.userId !== 1" content="分配角色" placement="top">
+                <el-tooltip v-if="scope.row.userId !== 1761100000000000001" content="分配角色" placement="top">
                   <el-button
                     v-hasPermi="['system:user:edit']"
                     link

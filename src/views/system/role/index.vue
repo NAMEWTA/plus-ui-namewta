@@ -118,7 +118,7 @@
 
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
-            <el-tooltip v-if="scope.row.roleId !== 1" content="修改" placement="top">
+            <el-tooltip v-if="scope.row.roleId !== 1761300000000000001" content="修改" placement="top">
               <el-button
                 v-hasPermi="['system:role:edit']"
                 link
@@ -127,7 +127,7 @@
                 @click="handleUpdate(scope.row)"
               ></el-button>
             </el-tooltip>
-            <el-tooltip v-if="scope.row.roleId !== 1" content="删除" placement="top">
+            <el-tooltip v-if="scope.row.roleId !== 1761300000000000001" content="删除" placement="top">
               <el-button
                 v-hasPermi="['system:role:remove']"
                 link
@@ -136,7 +136,7 @@
                 @click="handleDelete(scope.row)"
               ></el-button>
             </el-tooltip>
-            <el-tooltip v-if="scope.row.roleId !== 1" content="数据权限" placement="top">
+            <el-tooltip v-if="scope.row.roleId !== 1761300000000000001" content="数据权限" placement="top">
               <el-button
                 v-hasPermi="['system:role:edit']"
                 link
@@ -145,7 +145,7 @@
                 @click="handleDataScope(scope.row)"
               ></el-button>
             </el-tooltip>
-            <el-tooltip v-if="scope.row.roleId !== 1" content="分配用户" placement="top">
+            <el-tooltip v-if="scope.row.roleId !== 1761300000000000001" content="分配用户" placement="top">
               <el-button
                 v-hasPermi="['system:role:edit']"
                 link

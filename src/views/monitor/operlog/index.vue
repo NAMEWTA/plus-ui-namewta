@@ -25,6 +25,20 @@
               @keyup.enter="handleQuery"
             />
           </el-form-item>
+          <el-form-item label="客户端" prop="clientKey">
+            <el-input v-model="queryParams.clientKey" placeholder="请输入客户端" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="设备类型" prop="deviceType">
+            <el-select v-model="queryParams.deviceType" placeholder="请选择设备类型" clearable>
+              <el-option v-for="dict in sys_device_type" :key="dict.value" :label="dict.label" :value="dict.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="浏览器" prop="browser">
+            <el-input v-model="queryParams.browser" placeholder="请输入浏览器" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
+          <el-form-item label="操作系统" prop="os">
+            <el-input v-model="queryParams.os" placeholder="请输入操作系统" clearable @keyup.enter="handleQuery" />
+          </el-form-item>
           <el-form-item label="类型" prop="businessType">
             <el-select v-model="queryParams.businessType" placeholder="操作类型" clearable>
               <el-option v-for="dict in sys_oper_type" :key="dict.value" :label="dict.label" :value="dict.value" />
@@ -124,6 +138,14 @@
           :sort-orders="['descending', 'ascending']"
         />
         <el-table-column label="部门" align="center" prop="deptName" width="130" :show-overflow-tooltip="true" />
+        <el-table-column label="客户端" align="center" prop="clientKey" width="110" :show-overflow-tooltip="true" />
+        <el-table-column label="设备类型" align="center" prop="deviceType" width="110" :show-overflow-tooltip="true">
+          <template #default="scope">
+            <dict-tag :options="sys_device_type" :value="scope.row.deviceType" />
+          </template>
+        </el-table-column>
+        <el-table-column label="浏览器" align="center" prop="browser" width="110" :show-overflow-tooltip="true" />
+        <el-table-column label="操作系统" align="center" prop="os" width="110" :show-overflow-tooltip="true" />
         <el-table-column label="操作地址" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
         <el-table-column label="操作状态" align="center" prop="status">
           <template #default="scope">
@@ -189,7 +211,9 @@ import { OperLogForm, OperLogQuery, OperLogVO } from '@/api/monitor/operlog/type
 import OperInfoDialog from './oper-info-dialog.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_oper_type, sys_common_status } = toRefs<any>(proxy?.useDict('sys_oper_type', 'sys_common_status'));
+const { sys_oper_type, sys_common_status, sys_device_type } = toRefs<any>(
+  proxy?.useDict('sys_oper_type', 'sys_common_status', 'sys_device_type')
+);
 
 const operlogList = ref<OperLogVO[]>([]);
 const loading = ref(true);
@@ -214,7 +238,13 @@ const data = reactive<PageData<OperLogForm, OperLogQuery>>({
     requestMethod: '',
     operatorType: 0,
     operName: '',
+    userId: undefined,
+    deptId: undefined,
     deptName: '',
+    clientKey: '',
+    deviceType: '',
+    browser: '',
+    os: '',
     operUrl: '',
     operIp: '',
     operLocation: '',
@@ -231,6 +261,12 @@ const data = reactive<PageData<OperLogForm, OperLogQuery>>({
     operIp: '',
     title: '',
     operName: '',
+    userId: '',
+    deptId: '',
+    clientKey: '',
+    deviceType: '',
+    browser: '',
+    os: '',
     businessType: '',
     status: '',
     orderByColumn: defaultSort.value.prop,

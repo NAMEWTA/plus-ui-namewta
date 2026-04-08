@@ -16,7 +16,9 @@
       </el-descriptions-item>
       <el-descriptions-item label="登录信息">
         <template #default>
-          {{ info.operName }} / {{ info.deptName }} / {{ info.operIp }} / {{ info.operLocation }}
+          {{ info.operName }} / {{ info.deptName }} / {{ info.clientKey || '-' }} /
+          {{ deviceTypeFormat(info.deviceType) || '-' }} / {{ info.browser || '-' }} / {{ info.os || '-' }} /
+          {{ info.operIp }} / {{ info.operLocation }}
         </template>
       </el-descriptions-item>
       <el-descriptions-item label="请求信息">
@@ -98,9 +100,12 @@ function formatToJsonObject(data: string) {
  * 字典信息
  */
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_oper_type } = toRefs<any>(proxy?.useDict('sys_oper_type'));
+const { sys_oper_type, sys_device_type } = toRefs<any>(proxy?.useDict('sys_oper_type', 'sys_device_type'));
 const typeFormat = (row: OperLogForm) => {
   return proxy?.selectDictLabel(sys_oper_type.value, row.businessType);
+};
+const deviceTypeFormat = (deviceType: string) => {
+  return proxy?.selectDictLabel(sys_device_type.value, deviceType);
 };
 </script>
 

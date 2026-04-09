@@ -230,6 +230,7 @@
 import { listNotice, getNotice, delNotice, addNotice, updateNotice } from '@/api/system/notice';
 import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
 import { sanitizeHtml } from '@/utils/sanitize';
+import { resolveOssContent } from '@/utils/ossContent';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_notice_status, sys_notice_type } = toRefs<any>(proxy?.useDict('sys_notice_status', 'sys_notice_type'));
@@ -345,6 +346,7 @@ const handleDetail = async (row: NoticeVO) => {
 /** 打开详情 */
 const openDetail = async (noticeId: string | number) => {
   const { data } = await getNotice(noticeId);
+  data.noticeContent = await resolveOssContent(data.noticeContent);
   detailForm.value = data;
   detailDialog.visible = true;
 };

@@ -188,9 +188,14 @@
               key="userName"
               label="用户名称"
               align="center"
-              prop="userName"
               :show-overflow-tooltip="true"
-            />
+            >
+              <template #default="scope">
+                <el-link type="primary" :underline="false" @click="handleViewDetail(scope.row)">
+                  {{ scope.row.userName }}
+                </el-link>
+              </template>
+            </el-table-column>
             <el-table-column
               v-if="columns[2].visible"
               key="nickName"
@@ -460,6 +465,9 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 用户详情抽屉 -->
+    <user-view-drawer ref="userViewRef" />
   </div>
 </template>
 
@@ -474,6 +482,7 @@ import { to } from 'await-to-js';
 import { optionselect } from '@/api/system/post';
 import { checkPermi } from '@/utils/permission';
 import { useUserStore } from '@/store/modules/user';
+import UserViewDrawer from './view.vue';
 
 const router = useRouter();
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -524,6 +533,7 @@ const queryFormRef = ref<ElFormInstance>();
 const userFormRef = ref<ElFormInstance>();
 const uploadRef = ref<ElUploadInstance>();
 const formDialogRef = ref<ElDialogInstance>();
+const userViewRef = ref<InstanceType<typeof UserViewDrawer>>();
 
 const dialog = reactive<DialogOption>({
   visible: false,
@@ -728,6 +738,11 @@ const handleSelectionChange = (selection: UserVO[]) => {
   ids.value = selection.map(item => item.userId);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
+};
+
+/** 详情按钮操作 */
+const handleViewDetail = (row: UserVO) => {
+  userViewRef.value?.openDrawer(row.userId);
 };
 
 /** 导入按钮操作 */

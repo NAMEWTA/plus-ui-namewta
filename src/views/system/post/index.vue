@@ -2,36 +2,15 @@
   <div class="p-2 app-container system-post-page">
     <el-row :gutter="20" class="content-grid">
       <!-- 部门树 -->
-      <el-col :lg="treeCollapsed ? 1 : 5" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
-        <el-card shadow="hover" class="side-panel tree-panel-shell" :class="{ 'is-collapsed': treeCollapsed }">
-          <template #header>
-            <div
-              class="panel-heading search-panel-toggle tree-panel-header"
-              :class="{ 'is-collapsed': treeCollapsed }"
-              @click.stop="treeCollapsed = !treeCollapsed"
-            >
-              <div v-show="!treeCollapsed">
-                <h3>部门结构</h3>
-              </div>
-            </div>
-          </template>
-          <template v-if="!treeCollapsed">
-            <el-input v-model="deptName" placeholder="请输入部门名称" prefix-icon="Search" clearable />
-            <el-tree
-              ref="deptTreeRef"
-              class="mt-2 dept-tree"
-              node-key="id"
-              :data="deptOptions"
-              :props="{ label: 'label', children: 'children' } as any"
-              :expand-on-click-node="false"
-              :filter-node-method="filterNode"
-              highlight-current
-              default-expand-all
-              @node-click="handleNodeClick"
-            />
-          </template>
-        </el-card>
-      </el-col>
+      <tree-panel
+        ref="treePanelRef"
+        v-model:collapsed="treeCollapsed"
+        title="部门结构"
+        placeholder="请输入部门名称"
+        :data="deptOptions"
+        :expanded-span="5"
+        @node-click="handleNodeClick"
+      />
       <el-col
         :lg="treeCollapsed ? 23 : 19"
         :xs="24"
@@ -252,6 +231,7 @@
 </template>
 
 <script setup name="Post" lang="ts">
+import TreePanel from '@/components/TreePanel/index.vue';
 import { listPost, addPost, delPost, getPost, updatePost, deptTreeSelect } from '@/api/system/post';
 import { PostForm, PostQuery, PostVO } from '@/api/system/post/types';
 import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
@@ -266,10 +246,9 @@ const ids = ref<Array<number | string>>([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
-const deptName = ref('');
 const treeCollapsed = ref(false);
 const deptOptions = ref<DeptTreeVO[]>([]);
-const deptTreeRef = ref<ElTreeInstance>();
+const treePanelRef = ref<InstanceType<typeof TreePanel>>();
 const postFormRef = ref<ElFormInstance>();
 const queryFormRef = ref<ElFormInstance>();
 
@@ -310,22 +289,6 @@ const data = reactive<PageData<PostForm, PostQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs<PageData<PostForm, PostQuery>>(data);
-
-/** 通过条件过滤节点  */
-const filterNode = (value: string, data: any) => {
-  if (!value) return true;
-  return data.label.indexOf(value) !== -1;
-};
-
-/** 根据名称筛选部门树 */
-watchEffect(
-  () => {
-    deptTreeRef.value?.filter(deptName.value);
-  },
-  {
-    flush: 'post' // watchEffect会在DOM挂载或者更新之前就会触发，此属性控制在DOM元素更新后运行
-  }
-);
 
 /** 查询部门下拉树结构 */
 const getTreeSelect = async () => {
@@ -375,7 +338,7 @@ const resetQuery = () => {
   queryFormRef.value?.resetFields();
   queryParams.value.pageNum = 1;
   queryParams.value.deptId = undefined;
-  deptTreeRef.value?.setCurrentKey(undefined);
+  treePanelRef.value?.setCurrentKey(undefined);
   /** 清空左边部门树选中值 */
   queryParams.value.belongDeptId = undefined;
   handleQuery();

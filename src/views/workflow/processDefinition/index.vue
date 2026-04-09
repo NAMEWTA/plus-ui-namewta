@@ -2,36 +2,16 @@
   <div class="p-2 app-container workflow-process-definition-page">
     <el-row :gutter="20" class="content-grid">
       <!-- 流程分类树 -->
-      <el-col :lg="treeCollapsed ? 1 : 4" :xs="24" class="tree-panel-col" :class="{ 'is-collapsed': treeCollapsed }">
-        <el-card shadow="hover" class="side-panel tree-panel-shell" :class="{ 'is-collapsed': treeCollapsed }">
-          <template #header>
-            <div
-              class="panel-heading search-panel-toggle tree-panel-header"
-              :class="{ 'is-collapsed': treeCollapsed }"
-              @click.stop="treeCollapsed = !treeCollapsed"
-            >
-              <div v-show="!treeCollapsed" class="table-heading">
-                <h3>流程分类</h3>
-              </div>
-            </div>
-          </template>
-          <template v-if="!treeCollapsed">
-            <el-input v-model="categoryName" placeholder="请输入流程分类名" prefix-icon="Search" clearable />
-            <el-tree
-              ref="categoryTreeRef"
-              class="mt-2 dept-tree"
-              node-key="id"
-              :data="categoryOptions"
-              :props="{ label: 'label', children: 'children' } as any"
-              :expand-on-click-node="false"
-              :filter-node-method="filterNode"
-              highlight-current
-              default-expand-all
-              @node-click="handleNodeClick"
-            ></el-tree>
-          </template>
-        </el-card>
-      </el-col>
+      <tree-panel
+        ref="treePanelRef"
+        v-model:collapsed="treeCollapsed"
+        title="流程分类"
+        placeholder="请输入流程分类名"
+        :data="categoryOptions"
+        :expanded-span="4"
+        filter-field="categoryName"
+        @node-click="handleNodeClick"
+      />
       <el-col
         :lg="treeCollapsed ? 23 : 20"
         :xs="24"
@@ -344,6 +324,7 @@
 </template>
 
 <script setup name="processDefinition" lang="ts">
+import TreePanel from '@/components/TreePanel/index.vue';
 import {
   listDefinition,
   deleteDefinition,
@@ -364,7 +345,7 @@ import type { ElMessageBoxOptions, TabsPaneContext, UploadRequestOptions } from 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const queryFormRef = ref<ElFormInstance>();
-const categoryTreeRef = ref<ElTreeInstance>();
+const treePanelRef = ref<InstanceType<typeof TreePanel>>();
 
 const loading = ref(true);
 const ids = ref<Array<any>>([]);
@@ -376,7 +357,6 @@ const total = ref(0);
 const uploadDialogLoading = ref(false);
 const processDefinitionList = ref<FlowDefinitionVo[]>([]);
 const categoryOptions = ref<CategoryTreeVO[]>([]);
-const categoryName = ref('');
 const treeCollapsed = ref(false);
 const autoPass = ref(false);
 /** 部署文件分类选择 */
@@ -442,21 +422,6 @@ const handleNodeClick = (data: CategoryTreeVO) => {
   }
   handleQuery();
 };
-/** 通过条件过滤节点  */
-const filterNode = (value: string, data: any) => {
-  if (!value) return true;
-  return data.categoryName.indexOf(value) !== -1;
-};
-/** 根据名称筛选部门树 */
-watchEffect(
-  () => {
-    categoryTreeRef.value?.filter(categoryName.value);
-  },
-  {
-    flush: 'post' // watchEffect会在DOM挂载或者更新之前就会触发，此属性控制在DOM元素更新后运行
-  }
-);
-
 /** 查询流程分类下拉树结构 */
 const getTreeselect = async () => {
   const res = await categoryTree();

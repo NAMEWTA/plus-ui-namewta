@@ -143,9 +143,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   }> => {
     return new Promise(resolve => {
       delVisitedView(view);
-      if (!isDynamicRoute(view)) {
-        delCachedView(view);
-      }
+      delCachedView(view);
       resolve({
         visitedViews: visitedViews.value.slice() as RouteLocationNormalized[],
         cachedViews: [...cachedViews.value]
@@ -307,10 +305,6 @@ export const useTagsViewStore = defineStore('tagsView', () => {
     if (!view.meta?.noCache) {
       cachedViews.value.push(viewName);
     }
-  };
-
-  const isDynamicRoute = (view: RouteLocationNormalized): boolean => {
-    return view.matched.some(m => m.path.includes(':'));
   };
 
   return {

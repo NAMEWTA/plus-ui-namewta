@@ -10,8 +10,15 @@ import InnerLink from '@/layout/components/InnerLink/index.vue';
 import { ref } from 'vue';
 import { createCustomNameComponent } from '@/utils/createCustomNameComponent';
 
-// 匹配views里面所有的.vue文件
+// 匹配views里面所有的.vue文件，预建查找表避免每次 O(n) 扫描
 const modules = import.meta.glob('./../../views/**/*.vue');
+const viewModuleMap = new Map<string, () => Promise<any>>();
+for (const path in modules) {
+  const viewsIndex = path.indexOf('/views/');
+  if (viewsIndex === -1) continue;
+  const dir = path.substring(viewsIndex + 7, path.lastIndexOf('.vue'));
+  viewModuleMap.set(dir, modules[path] as () => Promise<any>);
+}
 export const usePermissionStore = defineStore('permission', () => {
   const routes = ref<RouteRecordRaw[]>([]);
   const addRoutes = ref<RouteRecordRaw[]>([]);
@@ -48,10 +55,9 @@ export const usePermissionStore = defineStore('permission', () => {
   const generateRoutes = async (): Promise<RouteRecordRaw[]> => {
     const res = await getRouters();
     const data = Array.isArray(res.data) ? res.data : [];
-    const text = JSON.stringify(data);
-    const sdata = JSON.parse(text);
-    const rdata = JSON.parse(text);
-    const defaultData = JSON.parse(text);
+    const sdata = structuredClone(data);
+    const rdata = structuredClone(data);
+    const defaultData = structuredClone(data);
     const sidebarRoutes = filterAsyncRouter(sdata);
     const rewriteRoutes = filterAsyncRouter(rdata, undefined, true);
     const defaultRoutes = filterAsyncRouter(defaultData);
@@ -149,17 +155,11 @@ export const filterDynamicRoutes = (routes: RouteRecordRaw[]) => {
 };
 
 export const loadView = (view: any, name: string) => {
-  let res;
-  for (const path in modules) {
-    const viewsIndex = path.indexOf('/views/');
-    let dir = path.substring(viewsIndex + 7);
-    dir = dir.substring(0, dir.lastIndexOf('.vue'));
-    if (dir === view) {
-      res = createCustomNameComponent(modules[path], { name });
-      return res;
-    }
+  const loader = viewModuleMap.get(view);
+  if (loader) {
+    return createCustomNameComponent(loader, { name });
   }
-  return res;
+  return undefined;
 };
 
 // 非setup
@@ -197,7 +197,8 @@ function duplicateRouteChecker(localRoutes: Route[], routes: Route[]) {
   const nameList: string[] = [];
   allRoutes.forEach(route => {
     const name = route.name?.toString() ?? '';
-    if (name && nameList.includes(name)) {
+    if (!name) return;
+    if (nameList.includes(name)) {
       const message = `路由名称: [${name}] 重复, 会造成 404`;
       console.error(message);
       ElNotification({
@@ -207,6 +208,6 @@ function duplicateRouteChecker(localRoutes: Route[], routes: Route[]) {
       });
       return;
     }
-    nameList.push(route.name.toString());
+    nameList.push(name);
   });
 }

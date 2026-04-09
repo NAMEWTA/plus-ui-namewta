@@ -204,39 +204,40 @@ export const getTime = (type: string) => {
  * @param {boolean} immediate
  * @return {*}
  */
-export const debounce = (func: any, wait: number, immediate: boolean) => {
-  let timeout: any, args: any, context: any, timestamp: any, result: any;
+export function debounce(func: (...args: any[]) => any, wait: number, immediate: boolean) {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: any[] | null = null;
+  let lastContext: any = null;
+  let timestamp = 0;
+  let result: any;
 
-  const later = function () {
-    // 据上一次触发时间间隔
-    const last = +new Date() - timestamp;
+  function later() {
+    const last = Date.now() - timestamp;
 
-    // 上次被包装函数被调用时间间隔 last 小于设定时间间隔 wait
     if (last < wait && last > 0) {
       timeout = setTimeout(later, wait - last);
     } else {
       timeout = null;
-      // 如果设定为immediate===true，因为开始边界已经调用过了此处无需调用
       if (!immediate) {
-        result = func.apply(context, args);
-        if (!timeout) context = args = null;
+        result = func.apply(lastContext, lastArgs!);
+        if (!timeout) lastContext = lastArgs = null;
       }
     }
-  };
+  }
 
-  return (...args: any) => {
-    context = this;
-    timestamp = +new Date();
+  return function (this: any, ...args: any[]) {
+    lastContext = this;
+    lastArgs = args;
+    timestamp = Date.now();
     const callNow = immediate && !timeout;
-    // 如果延时不存在，重新设定延时
     if (!timeout) timeout = setTimeout(later, wait);
     if (callNow) {
-      result = func.apply(context, args);
-      context = args = null;
+      result = func.apply(lastContext, lastArgs);
+      lastContext = lastArgs = null;
     }
     return result;
   };
-};
+}
 
 /**
  * This is just a simple version of deep copy

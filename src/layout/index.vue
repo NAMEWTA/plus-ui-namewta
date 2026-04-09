@@ -45,17 +45,14 @@ const classObj = computed(() => ({
 const { width } = useWindowSize();
 const WIDTH = 992; // refer to Bootstrap's responsive design
 
-watchEffect(() => {
-  if (device.value === 'mobile') {
-    useAppStore().closeSideBar({ withoutAnimation: false });
-  }
-  if (width.value - 1 < WIDTH) {
+watch(width, (w) => {
+  if (w - 1 < WIDTH) {
     useAppStore().toggleDevice('mobile');
     useAppStore().closeSideBar({ withoutAnimation: true });
   } else {
     useAppStore().toggleDevice('desktop');
   }
-});
+}, { immediate: true });
 
 const settingRef = ref<InstanceType<typeof Settings>>();
 

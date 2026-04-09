@@ -27,7 +27,7 @@ watch(
   (val: boolean) => {
     if (val) {
       animate.value = proxy?.animate.animateList[
-        Math.round(Math.random() * proxy?.animate.animateList.length)
+        Math.floor(Math.random() * proxy?.animate.animateList.length)
       ] as string;
     } else {
       animate.value = proxy?.animate.defaultAnimate as string;

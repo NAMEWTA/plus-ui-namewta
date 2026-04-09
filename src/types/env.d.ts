@@ -4,6 +4,9 @@ declare module '*.vue' {
   export default Component;
 }
 
+declare module 'virtual:svg-icons-register' {}
+declare module 'virtual:*' {}
+
 // 环境变量
 interface ImportMetaEnv {
   VITE_APP_TITLE: string;

@@ -89,7 +89,7 @@
         <el-table-column label="客户端秘钥" align="center" prop="clientSecret" />
         <el-table-column label="授权类型" align="center">
           <template #default="scope">
-            <dict-tag :options="sys_grant_type" :value="scope.row.grantTypeList" />
+            <dict-tag class="grant-type-tag" :options="sys_grant_type" :value="scope.row.grantTypeList" />
           </template>
         </el-table-column>
         <el-table-column label="设备类型" align="center">
@@ -385,3 +385,20 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style lang="scss" scoped>
+.system-client-page {
+  :deep(.grant-type-tag) {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 4px;
+  }
+
+  :deep(.grant-type-tag .el-tag) {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+</style>

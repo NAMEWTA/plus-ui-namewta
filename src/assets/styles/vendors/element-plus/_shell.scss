@@ -4,6 +4,7 @@
   border-radius: var(--app-radius-base);
   box-shadow: var(--app-shadow-md);
   border: 1px solid var(--app-surface-border);
+  overflow: hidden;
 }
 
 .el-drawer__header {

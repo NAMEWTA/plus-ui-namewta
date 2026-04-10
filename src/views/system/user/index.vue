@@ -170,7 +170,7 @@
               :show-overflow-tooltip="true"
             >
               <template #default="scope">
-                <el-link type="primary" :underline="false" @click="handleViewDetail(scope.row)">
+                <el-link type="primary" underline="never" @click="handleViewDetail(scope.row)">
                   {{ scope.row.userName }}
                 </el-link>
               </template>
@@ -428,7 +428,7 @@
             <span>仅允许导入xls、xlsx格式文件。</span>
             <el-link
               type="primary"
-              :underline="false"
+              underline="never"
               style="font-size: 12px; vertical-align: baseline"
               @click="importTemplate"
             >

@@ -176,7 +176,7 @@
           <el-link
             v-copyText="value"
             v-copyText:callback="copyTextSuccess"
-            :underline="false"
+            underline="never"
             icon="DocumentCopy"
             style="float: right"
           >

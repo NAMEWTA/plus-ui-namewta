@@ -15,15 +15,14 @@
 
 <script setup lang="ts">
 import '@wangeditor-next/editor/dist/css/style.css';
-
-import { Editor as WangEditor, Toolbar as EditorToolbar } from '@wangeditor-next/editor-for-vue';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor-next/editor';
+import { Editor as WangEditor, Toolbar as EditorToolbar } from '@wangeditor-next/editor-for-vue';
+import { listByIds } from '@/api/system/oss';
+import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
 import { globalHeaders } from '@/utils/request';
-import { listByIds } from '@/api/system/oss';
 
 const OSS_MARKER_RE = /oss:\/\/([\w-]+)/g;
-
 const props = defineProps({
   /* 编辑器的内容 */
   modelValue: propTypes.string,
@@ -42,7 +41,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue']);
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const editorRef = shallowRef<IDomEditor>();
 const content = ref('');
@@ -123,7 +121,7 @@ const decodeOssContent = async (html: string): Promise<string> => {
   const matches = [...html.matchAll(OSS_MARKER_RE)];
   if (matches.length === 0) return html;
 
-  const ossIds = [...new Set(matches.map((m) => m[1]))];
+  const ossIds = [...new Set(matches.map(m => m[1]))];
 
   try {
     const res = await listByIds(ossIds.join(','));
@@ -144,14 +142,14 @@ const decodeOssContent = async (html: string): Promise<string> => {
 const validateImageFile = (file: File) => {
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg', 'image/svg+xml'];
   if (!allowedTypes.includes(file.type)) {
-    proxy?.$modal.msgError('图片格式错误!');
+    modal.msgError('图片格式错误!');
     return false;
   }
 
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize;
     if (!isLt) {
-      proxy?.$modal.msgError(`上传图片大小不能超过 ${props.fileSize} MB!`);
+      modal.msgError(`上传图片大小不能超过 ${props.fileSize} MB!`);
       return false;
     }
   }
@@ -162,14 +160,14 @@ const validateImageFile = (file: File) => {
 const validateVideoFile = (file: File) => {
   const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg'];
   if (!allowedTypes.includes(file.type)) {
-    proxy?.$modal.msgError('视频格式错误, 请上传 mp4/webm/ogg 格式!');
+    modal.msgError('视频格式错误, 请上传 mp4/webm/ogg 格式!');
     return false;
   }
 
   if (props.videoSize) {
     const isLt = file.size / 1024 / 1024 < props.videoSize;
     if (!isLt) {
-      proxy?.$modal.msgError(`上传视频大小不能超过 ${props.videoSize} MB!`);
+      modal.msgError(`上传视频大小不能超过 ${props.videoSize} MB!`);
       return false;
     }
   }
@@ -186,17 +184,17 @@ const getUploadImageMenuConfig = () => {
       customUpload(file: File, insertFn: (url: string, alt?: string, href?: string) => void) {
         if (!validateImageFile(file)) return;
 
-        proxy?.$modal.loading('正在上传图片，请稍候...');
+        modal.loading('正在上传图片，请稍候...');
         const reader = new FileReader();
 
         reader.onload = () => {
           insertFn(reader.result as string, file.name);
-          proxy?.$modal.closeLoading();
+          modal.closeLoading();
         };
 
         reader.onerror = () => {
-          proxy?.$modal.msgError('图片插入失败');
-          proxy?.$modal.closeLoading();
+          modal.msgError('图片插入失败');
+          modal.closeLoading();
         };
 
         reader.readAsDataURL(file);
@@ -209,14 +207,14 @@ const getUploadImageMenuConfig = () => {
     async customUpload(file: File, insertFn: (url: string, alt?: string, href?: string) => void) {
       if (!validateImageFile(file)) return;
 
-      proxy?.$modal.loading('正在上传图片，请稍候...');
+      modal.loading('正在上传图片，请稍候...');
       try {
         const result = await uploadToOss(file);
         insertFn(result.url, file.name, result.url);
       } catch {
-        proxy?.$modal.msgError('图片上传失败');
+        modal.msgError('图片上传失败');
       } finally {
-        proxy?.$modal.closeLoading();
+        modal.closeLoading();
       }
     }
   };
@@ -227,14 +225,14 @@ const getUploadVideoMenuConfig = () => ({
   async customUpload(file: File, insertFn: (url: string, poster?: string) => void) {
     if (!validateVideoFile(file)) return;
 
-    proxy?.$modal.loading('正在上传视频，请稍候...');
+    modal.loading('正在上传视频，请稍候...');
     try {
       const result = await uploadToOss(file);
       insertFn(result.url);
     } catch {
-      proxy?.$modal.msgError('视频上传失败');
+      modal.msgError('视频上传失败');
     } finally {
-      proxy?.$modal.closeLoading();
+      modal.closeLoading();
     }
   }
 });
@@ -265,7 +263,7 @@ const syncReadOnly = () => {
 
 watch(
   () => props.modelValue,
-  async (value) => {
+  async value => {
     const nextValue = value || '';
 
     // 跳过由自身 emit 引起的回传
@@ -283,7 +281,7 @@ watch(
   { immediate: true }
 );
 
-watch(content, (value) => {
+watch(content, value => {
   if (isResolvingContent.value) return;
 
   const encoded = encodeOssContent(value);

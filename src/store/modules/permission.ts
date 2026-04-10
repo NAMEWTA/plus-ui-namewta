@@ -1,13 +1,13 @@
+import type { RouteRecordRaw } from 'vue-router';
 import { defineStore } from 'pinia';
-import router, { constantRoutes, dynamicRoutes } from '@/router';
-import store from '@/store';
+import { ref } from 'vue';
 import { getRouters } from '@/api/menu';
-import auth from '@/plugins/auth';
-import { RouteRecordRaw } from 'vue-router';
-import Layout from '@/layout/index.vue';
 import ParentView from '@/components/ParentView/index.vue';
 import InnerLink from '@/layout/components/InnerLink/index.vue';
-import { ref } from 'vue';
+import Layout from '@/layout/index.vue';
+import auth from '@/plugins/auth';
+import router, { constantRoutes, dynamicRoutes } from '@/router';
+import store from '@/store';
 import { createCustomNameComponent } from '@/utils/createCustomNameComponent';
 
 // 匹配views里面所有的.vue文件，预建查找表避免每次 O(n) 扫描

@@ -1,10 +1,11 @@
-import axios from 'axios';
-import errorCode from '@/utils/errorCode';
-import { blobValidate } from '@/utils/ruoyi';
-import { extractErrorMessage, globalHeaders } from '@/utils/request';
-import { saveBlob } from '@/utils/save';
 import type { LoadingInstance } from 'element-plus';
+import axiosModule from 'axios';
+import errorCode from '@/utils/errorCode';
+import { extractErrorMessage, globalHeaders } from '@/utils/request';
+import { blobValidate } from '@/utils/ruoyi';
+import { saveBlob } from '@/utils/save';
 
+const axios = axiosModule as any;
 const baseURL = import.meta.env.VITE_APP_BASE_API;
 let downloadLoadingInstance: LoadingInstance | undefined;
 export default {

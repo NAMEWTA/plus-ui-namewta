@@ -1,16 +1,19 @@
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type { LoadingInstance } from 'element-plus';
+import axiosModule from 'axios';
+import { HttpStatus } from '@/enums/RespEnum';
+import { getLanguage } from '@/lang';
+import cache from '@/plugins/cache';
+import router from '@/router';
 import { useUserStore } from '@/store/modules/user';
 import { getToken } from '@/utils/auth';
-import { tansParams, blobValidate } from '@/utils/ruoyi';
-import cache from '@/plugins/cache';
-import { HttpStatus } from '@/enums/RespEnum';
+import { decryptBase64, decryptWithAes, encryptBase64, encryptWithAes, generateAesKey } from '@/utils/crypto';
 import { errorCode } from '@/utils/errorCode';
-import { getLanguage } from '@/lang';
-import { encryptBase64, encryptWithAes, generateAesKey, decryptWithAes, decryptBase64 } from '@/utils/crypto';
-import { encrypt, decrypt } from '@/utils/jsencrypt';
-import router from '@/router';
+import { decrypt, encrypt } from '@/utils/jsencrypt';
+import { blobValidate, tansParams } from '@/utils/ruoyi';
 import { saveBlob } from '@/utils/save';
-import type { LoadingInstance } from 'element-plus';
+
+/** axios 1.13 + TS6：默认导出在类型上会被解析为不可调用的 export= 形态 */
+const axios = axiosModule as any;
 
 const encryptHeader = 'encrypt-key';
 let downloadLoadingInstance: LoadingInstance | undefined;
@@ -95,7 +98,7 @@ const service = axios.create({
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  (config: any) => {
     // 对应国际化资源文件后缀
     config.headers['Content-Language'] = getLanguage();
 
@@ -164,7 +167,7 @@ service.interceptors.request.use(
 
 // 响应拦截器
 service.interceptors.response.use(
-  (res: AxiosResponse) => {
+  (res: any) => {
     if (import.meta.env.VITE_APP_ENCRYPT === 'true') {
       // 加密后的 AES 秘钥
       const keyStr = res.headers[encryptHeader];
@@ -192,25 +195,35 @@ service.interceptors.response.use(
     if (code === 401) {
       // prettier-ignore
       if (!isRelogin.show) {
-        isRelogin.show = true;
-        ElMessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', {
-          confirmButtonText: '重新登录',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          isRelogin.show = false;
-          useUserStore().logout().then(() => {
-            router.replace({
-              path: '/login',
-              query: {
-                redirect: encodeURIComponent(router.currentRoute.value.fullPath || '/')
-              }
-            })
-          });
-        }).catch(() => {
-          isRelogin.show = false;
-        });
-      }
+				isRelogin.show = true;
+				ElMessageBox.confirm(
+					"登录状态已过期，您可以继续留在该页面，或者重新登录",
+					"系统提示",
+					{
+						confirmButtonText: "重新登录",
+						cancelButtonText: "取消",
+						type: "warning",
+					},
+				)
+					.then(() => {
+						isRelogin.show = false;
+						useUserStore()
+							.logout()
+							.then(() => {
+								router.replace({
+									path: "/login",
+									query: {
+										redirect: encodeURIComponent(
+											router.currentRoute.value.fullPath || "/",
+										),
+									},
+								});
+							});
+					})
+					.catch(() => {
+						isRelogin.show = false;
+					});
+			}
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。');
     } else if (code === HttpStatus.SERVER_ERROR) {
       ElMessage({ message: msg, type: 'error' });
@@ -238,31 +251,35 @@ export function download(url: string, params: any, fileName: string) {
     background: 'rgba(0, 0, 0, 0.7)'
   });
   // prettier-ignore
-  return service.post(url, params, {
-      transformRequest: [
-        (params: any) => {
-          return tansParams(params);
-        }
-      ],
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      responseType: 'blob'
-    }).then(async (resp: any) => {
-      const isLogin = blobValidate(resp);
-      if (isLogin) {
-        const blob = new Blob([resp]);
-        saveBlob(blob, fileName);
-      } else {
-        const blob = new Blob([resp]);
-        const resText = await blob.text();
-        const rspObj = JSON.parse(resText);
-        const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
-        ElMessage.error(errMsg);
-      }
-      downloadLoadingInstance?.close();
-    }).catch((r: any) => {
-      console.error(r);
-      downloadLoadingInstance?.close();
-    });
+  return service
+		.post(url, params, {
+			transformRequest: [
+				(params: any) => {
+					return tansParams(params);
+				},
+			],
+			headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			responseType: "blob",
+		})
+		.then(async (resp: any) => {
+			const isLogin = blobValidate(resp);
+			if (isLogin) {
+				const blob = new Blob([resp]);
+				saveBlob(blob, fileName);
+			} else {
+				const blob = new Blob([resp]);
+				const resText = await blob.text();
+				const rspObj = JSON.parse(resText);
+				const errMsg =
+					errorCode[rspObj.code] || rspObj.msg || errorCode["default"];
+				ElMessage.error(errMsg);
+			}
+			downloadLoadingInstance?.close();
+		})
+		.catch((r: any) => {
+			console.error(r);
+			downloadLoadingInstance?.close();
+		});
 }
 // 导出 axios 实例
 export default service;

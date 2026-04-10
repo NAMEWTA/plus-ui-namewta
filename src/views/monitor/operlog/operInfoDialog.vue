@@ -52,7 +52,7 @@
         </template>
       </el-descriptions-item>
       <el-descriptions-item label="操作时间">
-        <template #default>{{ proxy.parseTime(info.operTime) }}</template>
+        <template #default>{{ parseTime(info.operTime) }}</template>
       </el-descriptions-item>
       <el-descriptions-item v-if="info.status === 1" label="异常信息">
         <template #default>
@@ -64,9 +64,11 @@
 </template>
 
 <script setup lang="ts">
-import type { OperLogForm } from '@/api/monitor/operlog/types';
 import VueJsonPretty from 'vue-json-pretty';
+import type { OperLogForm } from '@/api/monitor/operlog/types';
 import 'vue-json-pretty/lib/styles.css';
+import { useDict } from '@/utils/dict';
+import { parseTime, selectDictLabel } from '@/utils/ruoyi';
 
 const open = ref(false);
 const info = ref<OperLogForm | null>(null);
@@ -99,13 +101,12 @@ function formatToJsonObject(data: string) {
 /**
  * 字典信息
  */
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_oper_type, sys_device_type } = toRefs<any>(proxy?.useDict('sys_oper_type', 'sys_device_type'));
+const { sys_oper_type, sys_device_type } = toRefs<any>(useDict('sys_oper_type', 'sys_device_type'));
 const typeFormat = (row: OperLogForm) => {
-  return proxy?.selectDictLabel(sys_oper_type.value, row.businessType);
+  return selectDictLabel(sys_oper_type.value, row.businessType);
 };
 const deviceTypeFormat = (deviceType: string) => {
-  return proxy?.selectDictLabel(sys_device_type.value, deviceType);
+  return selectDictLabel(sys_device_type.value, deviceType);
 };
 </script>
 

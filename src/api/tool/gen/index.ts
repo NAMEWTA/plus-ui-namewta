@@ -1,7 +1,9 @@
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { DbTableQuery, DbTableVO, TableQuery, TableVO, GenTableVO, DbTableForm } from './types';
-import { AxiosPromise } from 'axios';
-import { PageResult } from '@/api/types';
+import type { DbTableForm, DbTableQuery, DbTableVO, GenTableDetailPayload, TableQuery, TableVO } from './types';
+
+export type { GenTableDetailPayload } from './types';
 
 // 查询生成表数据
 export const listTable = (query: TableQuery): AxiosPromise<PageResult<TableVO>> => {
@@ -21,7 +23,7 @@ export const listDbTable = (query: DbTableQuery): AxiosPromise<PageResult<DbTabl
 };
 
 // 查询表详细信息
-export const getGenTable = (tableId: string | number): AxiosPromise<GenTableVO> => {
+export const getGenTable = (tableId: string | number): AxiosPromise<GenTableDetailPayload> => {
   return request({
     url: '/tool/gen/' + tableId,
     method: 'get'
@@ -29,7 +31,7 @@ export const getGenTable = (tableId: string | number): AxiosPromise<GenTableVO> 
 };
 
 // 修改代码生成信息
-export const updateGenTable = (data: DbTableForm): AxiosPromise<GenTableVO> => {
+export const updateGenTable = (data: DbTableForm): AxiosPromise<unknown> => {
   return request({
     url: '/tool/gen',
     method: 'put',
@@ -38,7 +40,7 @@ export const updateGenTable = (data: DbTableForm): AxiosPromise<GenTableVO> => {
 };
 
 // 导入表
-export const importTable = (data: { tables: string; dataName: string }): AxiosPromise<GenTableVO> => {
+export const importTable = (data: { tables: string; dataName: string }): AxiosPromise<unknown> => {
   return request({
     url: '/tool/gen/importTable',
     method: 'post',

@@ -93,15 +93,15 @@
 </template>
 
 <script setup name="Profile" lang="ts">
-import UserAvatar from './userAvatar.vue';
-import UserInfo from './userInfo.vue';
-import ResetPwd from './resetPwd.vue';
-import ThirdParty from './thirdParty.vue';
-import OnlineDevice from './onlineDevice.vue';
+import { getOnline } from '@/api/monitor/online';
 import { getAuthList } from '@/api/system/social/auth';
 import { getUserProfile } from '@/api/system/user';
-import { getOnline } from '@/api/monitor/online';
 import { UserVO } from '@/api/system/user/types';
+import OnlineDevice from './onlineDevice.vue';
+import ResetPwd from './resetPwd.vue';
+import ThirdParty from './thirdParty.vue';
+import UserAvatar from './userAvatar.vue';
+import UserInfo from './userInfo.vue';
 
 const activeTab = ref('userinfo');
 interface State {

@@ -44,10 +44,10 @@
 </template>
 
 <script setup lang="ts">
+import { RouteRecordRaw } from 'vue-router';
+import { getNormalPath } from '@/utils/ruoyi';
 import { isExternal } from '@/utils/validate';
 import AppLink from './Link.vue';
-import { getNormalPath } from '@/utils/ruoyi';
-import { RouteRecordRaw } from 'vue-router';
 
 const props = defineProps({
   item: {
@@ -105,7 +105,10 @@ const resolvePath = (routePath: string, routeQuery?: string): any => {
   }
   if (routeQuery) {
     const query = JSON.parse(routeQuery);
-    return { path: getNormalPath(props.basePath + '/' + routePath), query: query };
+    return {
+      path: getNormalPath(props.basePath + '/' + routePath),
+      query: query
+    };
   }
   return getNormalPath(props.basePath + '/' + routePath);
 };

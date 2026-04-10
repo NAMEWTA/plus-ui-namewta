@@ -12,7 +12,7 @@
       <el-table-column label="浏览器" align="center" prop="browser" :show-overflow-tooltip="true" />
       <el-table-column label="登录时间" align="center" prop="loginTime" width="180">
         <template #default="scope">
-          <span>{{ proxy.parseTime(scope.row.loginTime) }}</span>
+          <span>{{ parseTime(scope.row.loginTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -28,10 +28,13 @@
 
 <script setup name="Online" lang="ts">
 import { delOnline } from '@/api/monitor/online';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
+import { useDict } from '@/utils/dict';
 import { propTypes } from '@/utils/propTypes';
+import { parseTime } from '@/utils/ruoyi';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_type } = toRefs<any>(proxy?.useDict('sys_device_type'));
+const { sys_device_type } = toRefs<any>(useDict('sys_device_type'));
 
 const props = defineProps({
   devices: propTypes.any.isRequired
@@ -46,10 +49,10 @@ const handldDelOnline = (row: any) => {
     })
     .then((res: any) => {
       if (res.code === 200) {
-        proxy?.$modal.msgSuccess('删除成功');
-        proxy?.$tab.refreshPage();
+        modal.msgSuccess('删除成功');
+        tab.refreshPage();
       } else {
-        proxy?.$modal.msgError(res.msg);
+        modal.msgError(res.msg);
       }
     })
     .catch(() => {});

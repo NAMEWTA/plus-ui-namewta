@@ -12,11 +12,11 @@
 </template>
 
 <script setup name="AppMain" lang="ts">
+import animateConfig from '@/animate';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useTagsViewStore } from '@/store/modules/tagsView';
-
 import IframeToggle from './IframeToggle/index.vue';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+
 const route = useRoute();
 const tagsViewStore = useTagsViewStore();
 
@@ -26,11 +26,9 @@ watch(
   () => useSettingsStore().animationEnable,
   (val: boolean) => {
     if (val) {
-      animate.value = proxy?.animate.animateList[
-        Math.floor(Math.random() * proxy?.animate.animateList.length)
-      ] as string;
+      animate.value = animateConfig.animateList[Math.floor(Math.random() * animateConfig.animateList.length)] as string;
     } else {
-      animate.value = proxy?.animate.defaultAnimate as string;
+      animate.value = animateConfig.defaultAnimate as string;
     }
   },
   { immediate: true }

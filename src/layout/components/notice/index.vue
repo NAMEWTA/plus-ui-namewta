@@ -29,10 +29,10 @@
 </template>
 
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
-import { useNoticeStore } from '@/store/modules/notice';
 import router from '@/router';
-import { markMessageRead, markMessageReadBatch } from '@/utils/message-read';
+import { useNoticeStore } from '@/store/modules/notice';
 import { useUserStore } from '@/store/modules/user';
+import { markMessageRead, markMessageReadBatch } from '@/utils/message-read';
 import { NOTICE_GROUP } from '@/utils/push-message';
 
 const noticeStore = useNoticeStore();

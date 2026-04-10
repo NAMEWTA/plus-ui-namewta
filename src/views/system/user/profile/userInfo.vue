@@ -24,13 +24,14 @@
 
 <script setup lang="ts">
 import { updateUserProfile } from '@/api/system/user';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
 import { propTypes } from '@/utils/propTypes';
 
 const props = defineProps({
   user: propTypes.any.isRequired
 });
 const userForm = computed(() => props.user);
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const userRef = ref<ElFormInstance>();
 const rule: ElFormRules = {
   nickName: [{ required: true, message: '用户昵称不能为空', trigger: 'blur' }],
@@ -48,7 +49,11 @@ const rule: ElFormRules = {
       message: '手机号码不能为空',
       trigger: 'blur'
     },
-    { pattern: /^1[3456789][0-9]\d{8}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+    {
+      pattern: /^1[3456789][0-9]\d{8}$/,
+      message: '请输入正确的手机号码',
+      trigger: 'blur'
+    }
   ]
 };
 const rules = ref<ElFormRules>(rule);
@@ -58,13 +63,13 @@ const submit = () => {
   userRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       await updateUserProfile(props.user);
-      proxy?.$modal.msgSuccess('修改成功');
+      modal.msgSuccess('修改成功');
     }
   });
 };
 /** 关闭按钮 */
 const close = () => {
-  proxy?.$tab.closePage();
+  tab.closePage();
 };
 </script>
 

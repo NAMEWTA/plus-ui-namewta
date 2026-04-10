@@ -1,7 +1,7 @@
+import type { ClientForm, ClientQuery, ClientVO } from '@/api/system/client/types';
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { ClientVO, ClientForm, ClientQuery } from '@/api/system/client/types';
-import { PageResult } from '@/api/types';
 
 /**
  * 查询客户端管理列表

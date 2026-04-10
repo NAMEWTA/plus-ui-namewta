@@ -1,5 +1,5 @@
-import { RoleVO } from '@/api/system/role/types';
-import { PostVO } from '@/api/system/post/types';
+import type { PostVO } from '@/api/system/post/types';
+import type { RoleVO } from '@/api/system/role/types';
 
 /**
  * 用户信息
@@ -43,6 +43,8 @@ export interface UserVO extends BaseEntity {
   loginDate: string;
   remark: string;
   deptName: string;
+  /** 详情接口可能返回嵌套部门 */
+  dept?: { deptName?: string };
   roles: RoleVO[];
   roleIds: any;
   postIds: any;

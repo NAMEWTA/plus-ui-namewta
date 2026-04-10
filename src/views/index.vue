@@ -129,9 +129,7 @@ const goTarget = (url: string) => {
   grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
   gap: 18px;
   padding: 30px;
-  background:
-    radial-gradient(circle at top left, rgba(53, 109, 255, 0.16), transparent 30%),
-    var(--app-surface-bg);
+  background: radial-gradient(circle at top left, rgba(53, 109, 255, 0.16), transparent 30%), var(--app-surface-bg);
 }
 
 .hero-copy {
@@ -366,9 +364,7 @@ const goTarget = (url: string) => {
 
 :global(html.dark) {
   .hero-panel {
-    background:
-      radial-gradient(circle at top left, rgba(53, 109, 255, 0.18), transparent 30%),
-      var(--app-surface-bg);
+    background: radial-gradient(circle at top left, rgba(53, 109, 255, 0.18), transparent 30%), var(--app-surface-bg);
   }
 }
 </style>

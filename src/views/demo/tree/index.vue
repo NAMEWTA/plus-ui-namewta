@@ -116,14 +116,14 @@
 <script setup name="Tree" lang="ts">
 import { listTree, getTree, delTree, addTree, updateTree } from '@/api/demo/tree';
 import { TreeVO, TreeQuery, TreeForm } from '@/api/demo/tree/types';
+import modal from '@/plugins/modal';
+import { handleTree } from '@/utils/ruoyi';
 
 type TreeOption = {
   id: number;
   treeName: string;
   children?: TreeOption[];
 };
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const treeList = ref<TreeVO[]>([]);
 const treeOptions = ref<TreeOption[]>([]);
@@ -172,7 +172,7 @@ const { queryParams, form, rules } = toRefs(data);
 const getList = async () => {
   loading.value = true;
   const res = await listTree(queryParams.value);
-  const data = proxy?.handleTree<TreeVO>(res.data, 'id', 'parentId');
+  const data = handleTree<TreeVO>(res.data, 'id', 'parentId');
   if (data) {
     treeList.value = data;
     loading.value = false;
@@ -184,7 +184,7 @@ const getTreeselect = async () => {
   const res = await listTree();
   treeOptions.value = [];
   const data: TreeOption = { id: 0, treeName: '顶级节点', children: [] };
-  data.children = proxy?.handleTree<TreeOption>(res.data, 'id', 'parentId');
+  data.children = handleTree<TreeOption>(res.data, 'id', 'parentId');
   treeOptions.value.push(data);
 };
 
@@ -261,7 +261,7 @@ const submitForm = () => {
       } else {
         await addTree(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
@@ -270,11 +270,11 @@ const submitForm = () => {
 
 /** 删除按钮操作 */
 const handleDelete = async (row: TreeVO) => {
-  await proxy?.$modal.confirm('是否确认删除测试树编号为"' + row.id + '"的数据项？');
+  await modal.confirm('是否确认删除测试树编号为"' + row.id + '"的数据项？');
   loading.value = true;
   await delTree(row.id).finally(() => (loading.value = false));
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 onMounted(() => {

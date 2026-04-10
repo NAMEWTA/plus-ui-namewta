@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { OperLogQuery, OperLogVO } from './types';
-import { AxiosPromise } from 'axios';
-import { PageResult } from '@/api/types';
+import type { OperLogQuery, OperLogVO } from './types';
 
 // 查询操作日志列表
 export function list(query: OperLogQuery): AxiosPromise<PageResult<OperLogVO>> {

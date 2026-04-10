@@ -1,8 +1,8 @@
-import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { LoginData, LoginResult, VerifyCodeResult } from './types';
-import { UserInfo } from '@/api/system/user/types';
+import type { UserInfo } from '@/api/system/user/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import { closePush } from '@/utils/push';
+import request from '@/utils/request';
+import type { LoginData, LoginResult, VerifyCodeResult } from './types';
 
 // pc端固定客户端授权id
 const clientId = import.meta.env.VITE_APP_CLIENT_ID;

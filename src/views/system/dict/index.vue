@@ -113,7 +113,7 @@
               <el-table-column label="备注" align="center" prop="remark" width="160" />
               <el-table-column label="创建时间" align="center" prop="createTime" width="180">
                 <template #default="scope">
-                  <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+                  <span>{{ parseTime(scope.row.createTime) }}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -280,7 +280,7 @@
               <el-table-column label="备注" align="center" prop="remark" width="100" />
               <el-table-column label="创建时间" align="center" prop="createTime" width="180">
                 <template #default="scope">
-                  <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+                  <span>{{ parseTime(scope.row.createTime) }}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -397,13 +397,14 @@
 </template>
 
 <script setup name="Dict" lang="ts">
-import { useDictStore } from '@/store/modules/dict';
-import { listType, getType, delType, addType, updateType, refreshCache } from '@/api/system/dict/type';
 import { listData, getData, delData, addData, updateData } from '@/api/system/dict/data';
-import { DictTypeForm, DictTypeQuery, DictTypeVO } from '@/api/system/dict/type/types';
 import { DictDataForm, DictDataQuery, DictDataVO } from '@/api/system/dict/data/types';
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+import { listType, getType, delType, addType, updateType, refreshCache } from '@/api/system/dict/type';
+import { DictTypeForm, DictTypeQuery, DictTypeVO } from '@/api/system/dict/type/types';
+import modal from '@/plugins/modal';
+import { useDictStore } from '@/store/modules/dict';
+import { download as requestDownload } from '@/utils/request';
+import { parseTime } from '@/utils/ruoyi';
 
 const typeList = ref<DictTypeVO[]>([]);
 const typeLoading = ref(true);
@@ -587,7 +588,7 @@ const submitTypeForm = () => {
   typeFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       typeForm.value.dictId ? await updateType(typeForm.value) : await addType(typeForm.value);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       typeDialog.visible = false;
       getTypeList();
     }
@@ -596,14 +597,14 @@ const submitTypeForm = () => {
 
 const handleTypeDelete = async (row?: DictTypeVO) => {
   const dictIds = row?.dictId || typeIds.value;
-  await proxy?.$modal.confirm('是否确认删除字典编号为"' + dictIds + '"的数据项？');
+  await modal.confirm('是否确认删除字典编号为"' + dictIds + '"的数据项？');
   await delType(dictIds);
   getTypeList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 const handleTypeExport = () => {
-  proxy?.download(
+  requestDownload(
     'system/dict/type/export',
     {
       ...typeQueryParams.value
@@ -614,7 +615,7 @@ const handleTypeExport = () => {
 
 const handleRefreshCache = async () => {
   await refreshCache();
-  proxy?.$modal.msgSuccess('刷新成功');
+  modal.msgSuccess('刷新成功');
   useDictStore().cleanDict();
 };
 
@@ -656,7 +657,7 @@ const handleDataResetQuery = () => {
 
 const handleDataAdd = () => {
   if (!currentDict.value) {
-    proxy?.$modal.msgWarning('请先选择字典');
+    modal.msgWarning('请先选择字典');
     return;
   }
   resetDataForm();
@@ -673,7 +674,7 @@ const handleDataSelectionChange = (selection: DictDataVO[]) => {
 
 const handleDataUpdate = async (row?: DictDataVO) => {
   if (!currentDict.value) {
-    proxy?.$modal.msgWarning('请先选择字典');
+    modal.msgWarning('请先选择字典');
     return;
   }
   resetDataForm();
@@ -689,7 +690,7 @@ const submitDataForm = () => {
     if (valid) {
       dataForm.value.dictCode ? await updateData(dataForm.value) : await addData(dataForm.value);
       useDictStore().removeDict(dataQueryParams.value.dictType);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dataDialog.visible = false;
       await getDataList();
     }
@@ -698,23 +699,23 @@ const submitDataForm = () => {
 
 const handleDataDelete = async (row?: DictDataVO) => {
   if (!currentDict.value) {
-    proxy?.$modal.msgWarning('请先选择字典');
+    modal.msgWarning('请先选择字典');
     return;
   }
   const dictCodes = row?.dictCode || dataIds.value;
-  await proxy?.$modal.confirm('是否确认删除字典编码为"' + dictCodes + '"的数据项？');
+  await modal.confirm('是否确认删除字典编码为"' + dictCodes + '"的数据项？');
   await delData(dictCodes);
   await getDataList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
   useDictStore().removeDict(dataQueryParams.value.dictType);
 };
 
 const handleDataExport = () => {
   if (!currentDict.value) {
-    proxy?.$modal.msgWarning('请先选择字典');
+    modal.msgWarning('请先选择字典');
     return;
   }
-  proxy?.download(
+  requestDownload(
     'system/dict/data/export',
     {
       ...dataQueryParams.value

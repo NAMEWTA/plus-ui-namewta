@@ -1,7 +1,7 @@
+import type { DemoForm, DemoQuery, DemoVO } from '@/api/demo/demo/types';
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { DemoVO, DemoForm, DemoQuery } from '@/api/demo/demo/types';
-import { PageResult } from '@/api/types';
 
 /**
  * 查询测试单列表

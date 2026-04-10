@@ -112,7 +112,7 @@
         </el-table-column>
         <el-table-column label="创建时间" align="center" prop="createTime">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
 
@@ -275,6 +275,9 @@
 </template>
 
 <script setup name="Role" lang="ts">
+import { useRouter } from 'vue-router';
+import { roleMenuTreeselect, treeselect as menuTreeselect } from '@/api/system/menu/index';
+import { MenuTreeOption, RoleMenuTree } from '@/api/system/menu/types';
 import {
   addRole,
   changeRoleStatus,
@@ -285,13 +288,14 @@ import {
   updateRole,
   deptTreeSelect
 } from '@/api/system/role';
-import { roleMenuTreeselect, treeselect as menuTreeselect } from '@/api/system/menu/index';
 import { RoleVO, RoleForm, RoleQuery, DeptTreeOption } from '@/api/system/role/types';
-import { MenuTreeOption, RoleMenuTree } from '@/api/system/menu/types';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { download as requestDownload } from '@/utils/request';
+import { parseTime, addDateRange } from '@/utils/ruoyi';
 
 const router = useRouter();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const roleList = ref<RoleVO[]>();
 const loading = ref(true);
@@ -300,7 +304,7 @@ const ids = ref<Array<string | number>>([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRange = ref<any>(['', '']);
 const menuOptions = ref<MenuTreeOption[]>([]);
 const menuExpand = ref(false);
 const menuNodeAll = ref(false);
@@ -366,7 +370,7 @@ const dialog = reactive<DialogOption>({
  */
 const getList = () => {
   loading.value = true;
-  listRole(proxy?.addDateRange(queryParams.value, dateRange.value)).then(res => {
+  listRole(addDateRange(queryParams.value, dateRange.value)).then(res => {
     roleList.value = res.data?.rows;
     total.value = res.data?.total;
     loading.value = false;
@@ -390,15 +394,15 @@ const resetQuery = () => {
 /**删除按钮操作 */
 const handleDelete = async (row?: RoleVO) => {
   const roleids = row?.roleId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除角色编号为' + roleids + '数据项目');
+  await modal.confirm('是否确认删除角色编号为' + roleids + '数据项目');
   await delRole(roleids);
   getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'system/role/export',
     {
       ...queryParams.value
@@ -417,9 +421,9 @@ const handleSelectionChange = (selection: RoleVO[]) => {
 const handleStatusChange = async (row: RoleVO) => {
   const text = row.status === '0' ? '启用' : '停用';
   try {
-    await proxy?.$modal.confirm('确认要"' + text + '""' + row.roleName + '"角色吗?');
+    await modal.confirm('确认要"' + text + '""' + row.roleName + '"角色吗?');
     await changeRoleStatus(row.roleId, row.status);
-    proxy?.$modal.msgSuccess(text + '成功');
+    modal.msgSuccess(text + '成功');
   } catch {
     row.status = row.status === '0' ? '1' : '0';
   }
@@ -494,19 +498,20 @@ const getRoleDeptTreeSelect = async (roleId: string | number) => {
   return res.data;
 };
 /** 树权限（展开/折叠）*/
-const handleCheckedTreeExpand = (value: boolean, type: string) => {
+const handleCheckedTreeExpand = (value: unknown, type: string) => {
+  const expanded = Boolean(value);
   if (type == 'menu') {
     const treeList = menuOptions.value;
     for (let i = 0; i < treeList.length; i++) {
       if (menuRef.value) {
-        menuRef.value.store.nodesMap[treeList[i].id].expanded = value;
+        menuRef.value.store.nodesMap[treeList[i].id].expanded = expanded;
       }
     }
   } else if (type == 'dept') {
     const treeList = deptOptions.value;
     for (let i = 0; i < treeList.length; i++) {
       if (deptRef.value) {
-        deptRef.value.store.nodesMap[treeList[i].id].expanded = value;
+        deptRef.value.store.nodesMap[treeList[i].id].expanded = expanded;
       }
     }
   }
@@ -544,7 +549,7 @@ const submitForm = () => {
     if (valid) {
       form.value.menuIds = getMenuAllCheckedKeys();
       form.value.roleId ? await updateRole(form.value) : await addRole(form.value);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       getList();
     }
@@ -577,7 +582,7 @@ const submitDataScope = async () => {
   if (form.value.roleId) {
     form.value.deptIds = getDeptAllCheckedKeys();
     await dataScope(form.value);
-    proxy?.$modal.msgSuccess('修改成功');
+    modal.msgSuccess('修改成功');
     openDataScope.value = false;
     getList();
   }

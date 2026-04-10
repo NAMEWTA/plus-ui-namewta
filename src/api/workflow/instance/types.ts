@@ -1,11 +1,11 @@
-import { FlowTaskVO } from '@/api/workflow/task/types';
+import type { FlowTaskVO } from '@/api/workflow/task/types';
 
 export interface FlowInstanceQuery extends PageQuery {
   category?: string | number;
   nodeName?: string;
   flowCode?: string;
   flowName?: string;
-  createByIds?: string[] | number[];
+  createByIds?: Array<string | number>;
   businessId?: string;
 }
 

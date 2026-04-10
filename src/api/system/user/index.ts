@@ -1,10 +1,10 @@
-import { DeptTreeVO } from './../dept/types';
-import { RoleVO } from '@/api/system/role/types';
+import type { RoleVO } from '@/api/system/role/types';
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { UserForm, UserQuery, UserVO, UserInfoVO } from './types';
 import { parseStrEmpty } from '@/utils/ruoyi';
-import { PageResult } from '@/api/types';
+import type { DeptTreeVO } from './../dept/types';
+import type { UserForm, UserInfoVO, UserQuery, UserVO } from './types';
 
 /**
  * 查询用户列表

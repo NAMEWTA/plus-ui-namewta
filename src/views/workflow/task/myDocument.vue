@@ -149,17 +149,18 @@
 </template>
 
 <script setup lang="ts">
-import TreePanel from '@/components/TreePanel/index.vue';
-import { pageByCurrent, deleteByInstanceIds, cancelProcessApply } from '@/api/workflow/instance';
 import { categoryTree } from '@/api/workflow/category';
 import { CategoryTreeVO } from '@/api/workflow/category/types';
+import { pageByCurrent, deleteByInstanceIds, cancelProcessApply } from '@/api/workflow/instance';
 import { FlowInstanceQuery, FlowInstanceVO } from '@/api/workflow/instance/types';
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { wf_business_status } = toRefs<any>(proxy?.useDict('wf_business_status'));
+import TreePanel from '@/components/TreePanel/index.vue';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+
+const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 const queryFormRef = ref<ElFormInstance>();
-const treePanelRef = ref<InstanceType<typeof TreePanel>>();
 
 // 遮罩层
 const loading = ref(true);
@@ -240,18 +241,18 @@ const getList = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row: FlowInstanceVO) => {
   const instanceIdList = row.id || instanceIds.value;
-  await proxy?.$modal.confirm('是否确认删除？');
+  await modal.confirm('是否确认删除？');
   loading.value = true;
   if ('running' === tab.value) {
     await deleteByInstanceIds(instanceIdList).finally(() => (loading.value = false));
     getList();
   }
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 /** 撤销按钮操作 */
 const handleCancelProcessApply = async (businessId: string) => {
-  await proxy?.$modal.confirm('是否确认撤销当前单据？');
+  await modal.confirm('是否确认撤销当前单据？');
   loading.value = true;
   if ('running' === tab.value) {
     const data = {
@@ -261,7 +262,7 @@ const handleCancelProcessApply = async (businessId: string) => {
     await cancelProcessApply(data).finally(() => (loading.value = false));
     getList();
   }
-  proxy?.$modal.msgSuccess('撤销成功');
+  modal.msgSuccess('撤销成功');
 };
 
 //办理
@@ -273,7 +274,7 @@ const handleOpen = async (row, type) => {
     formCustom: row.formCustom,
     formPath: row.formPath
   });
-  workflowCommon.routerJump(routerJumpVo, proxy);
+  workflowCommon.routerJump(routerJumpVo);
 };
 </script>
 

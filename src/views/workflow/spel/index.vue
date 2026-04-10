@@ -210,9 +210,10 @@
 <script setup name="Spel" lang="ts">
 import { listSpel, getSpel, delSpel, addSpel, updateSpel } from '@/api/workflow/spel';
 import { SpelVO, SpelQuery, SpelForm } from '@/api/workflow/spel/types';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_show_hide, sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_show_hide', 'sys_normal_disable'));
+const { sys_show_hide, sys_normal_disable } = toRefs<any>(useDict('sys_show_hide', 'sys_normal_disable'));
 
 const spelList = ref<SpelVO[]>([]);
 const buttonLoading = ref(false);
@@ -326,7 +327,7 @@ const submitForm = () => {
       } else {
         await addSpel(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
@@ -336,11 +337,11 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: SpelVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal
+  await modal
     .confirm('是否确认删除流程spel表达式定义编号为"' + _ids + '"的数据项？')
     .finally(() => (loading.value = false));
   await delSpel(_ids);
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
   await getList();
 };
 

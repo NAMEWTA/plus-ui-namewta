@@ -73,12 +73,12 @@
         </el-table-column>
         <el-table-column label="开始时间" align="center" prop="startDate">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.startDate, '{y}-{m}-{d}') }}</span>
+            <span>{{ parseTime(scope.row.startDate, '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
         <el-table-column label="结束时间" align="center" prop="endDate">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.endDate, '{y}-{m}-{d}') }}</span>
+            <span>{{ parseTime(scope.row.endDate, '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
         <el-table-column label="请假天数" align="center" prop="leaveDays" />
@@ -151,12 +151,19 @@
 </template>
 
 <script setup name="Leave" lang="ts">
-import { delLeave, listLeave } from '@/api/workflow/leave';
+import { useRoute } from 'vue-router';
 import { cancelProcessApply } from '@/api/workflow/instance';
+import { delLeave, listLeave } from '@/api/workflow/leave';
 import { LeaveForm, LeaveQuery, LeaveVO } from '@/api/workflow/leave/types';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
+import router from '@/router';
+import { useDict } from '@/utils/dict';
+import { download as requestDownload } from '@/utils/request';
+import { parseTime } from '@/utils/ruoyi';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { wf_business_status } = toRefs<any>(proxy?.useDict('wf_business_status'));
+const route = useRoute();
+const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 const leaveList = ref<LeaveVO[]>([]);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -228,8 +235,8 @@ const handleSelectionChange = (selection: LeaveVO[]) => {
 
 /** 新增按钮操作 */
 const handleAdd = () => {
-  proxy.$tab.closePage(proxy.$route);
-  proxy.$router.push({
+  tab.closePage(route);
+  router.push({
     path: `/workflow/leaveEdit/index`,
     query: {
       type: 'add'
@@ -239,8 +246,8 @@ const handleAdd = () => {
 
 /** 修改按钮操作 */
 const handleUpdate = (row?: LeaveVO) => {
-  proxy.$tab.closePage(proxy.$route);
-  proxy.$router.push({
+  tab.closePage(route);
+  router.push({
     path: `/workflow/leaveEdit/index`,
     query: {
       id: row.id,
@@ -251,8 +258,8 @@ const handleUpdate = (row?: LeaveVO) => {
 
 /** 查看按钮操作 */
 const handleView = (row?: LeaveVO) => {
-  proxy.$tab.closePage(proxy.$route);
-  proxy.$router.push({
+  tab.closePage(route);
+  router.push({
     path: `/workflow/leaveEdit/index`,
     query: {
       id: row.id,
@@ -264,15 +271,15 @@ const handleView = (row?: LeaveVO) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: LeaveVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal.confirm('是否确认删除请假编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
+  await modal.confirm('是否确认删除请假编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
   await delLeave(_ids);
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
   await getList();
 };
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'workflow/leave/export',
     {
       ...queryParams.value
@@ -283,7 +290,7 @@ const handleExport = () => {
 
 /** 撤销按钮操作 */
 const handleCancelProcessApply = async (id: string) => {
-  await proxy?.$modal.confirm('是否确认撤销当前单据？');
+  await modal.confirm('是否确认撤销当前单据？');
   loading.value = true;
   const data = {
     businessId: id,
@@ -291,7 +298,7 @@ const handleCancelProcessApply = async (id: string) => {
   };
   await cancelProcessApply(data).finally(() => (loading.value = false));
   await getList();
-  proxy?.$modal.msgSuccess('撤销成功');
+  modal.msgSuccess('撤销成功');
 };
 onMounted(() => {
   getList();

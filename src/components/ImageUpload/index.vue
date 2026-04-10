@@ -43,11 +43,12 @@
 </template>
 
 <script setup lang="ts">
+import { compressAccurately } from 'image-conversion';
 import { listByIds, delOss } from '@/api/system/oss';
 import { OssVO } from '@/api/system/oss/types';
+import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
 import { globalHeaders } from '@/utils/request';
-import { compressAccurately } from 'image-conversion';
 
 const props = defineProps({
   modelValue: {
@@ -74,7 +75,6 @@ const props = defineProps({
   compressTargetSize: propTypes.number.def(300)
 });
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const emit = defineEmits(['update:modelValue']);
 const number = ref(0);
 const uploadList = ref<any[]>([]);
@@ -142,46 +142,50 @@ const handleBeforeUpload = (file: any) => {
     isImg = file.type.indexOf('image') > -1;
   }
   if (!isImg) {
-    proxy?.$modal.msgError(`文件格式不正确, 请上传${props.fileType.join('/')}图片格式文件!`);
+    modal.msgError(`文件格式不正确, 请上传${props.fileType.join('/')}图片格式文件!`);
     return false;
   }
   if (file.name.includes(',')) {
-    proxy?.$modal.msgError('文件名不正确，不能包含英文逗号!');
+    modal.msgError('文件名不正确，不能包含英文逗号!');
     return false;
   }
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize;
     if (!isLt) {
-      proxy?.$modal.msgError(`上传头像图片大小不能超过 ${props.fileSize} MB!`);
+      modal.msgError(`上传头像图片大小不能超过 ${props.fileSize} MB!`);
       return false;
     }
   }
 
   //压缩图片，开启压缩并且大于指定的压缩大小时才压缩
   if (props.compressSupport && file.size / 1024 > props.compressTargetSize) {
-    proxy?.$modal.loading('正在上传图片，请稍候...');
+    modal.loading('正在上传图片，请稍候...');
     number.value++;
     return compressAccurately(file, props.compressTargetSize);
   } else {
-    proxy?.$modal.loading('正在上传图片，请稍候...');
+    modal.loading('正在上传图片，请稍候...');
     number.value++;
   }
 };
 
 // 文件个数超出
 const handleExceed = () => {
-  proxy?.$modal.msgError(`上传文件数量不能超过 ${props.limit} 个!`);
+  modal.msgError(`上传文件数量不能超过 ${props.limit} 个!`);
 };
 
 // 上传成功回调
 const handleUploadSuccess = (res: any, file: UploadFile) => {
   if (res.code === 200) {
-    uploadList.value.push({ name: res.data.fileName, url: res.data.url, ossId: res.data.ossId });
+    uploadList.value.push({
+      name: res.data.fileName,
+      url: res.data.url,
+      ossId: res.data.ossId
+    });
     uploadedSuccessfully();
   } else {
     number.value--;
-    proxy?.$modal.closeLoading();
-    proxy?.$modal.msgError(res.msg);
+    modal.closeLoading();
+    modal.msgError(res.msg);
     imageUploadRef.value?.handleRemove(file);
     uploadedSuccessfully();
   }
@@ -207,14 +211,14 @@ const uploadedSuccessfully = () => {
     uploadList.value = [];
     number.value = 0;
     emit('update:modelValue', listToString(fileList.value));
-    proxy?.$modal.closeLoading();
+    modal.closeLoading();
   }
 };
 
 // 上传失败
 const handleUploadError = () => {
-  proxy?.$modal.msgError('上传图片失败');
-  proxy?.$modal.closeLoading();
+  modal.msgError('上传图片失败');
+  modal.closeLoading();
 };
 
 // 预览

@@ -16,7 +16,7 @@ export async function resolveOssContent(html: string): Promise<string> {
   const matches = [...html.matchAll(OSS_MARKER_RE)];
   if (matches.length === 0) return html;
 
-  const ossIds = [...new Set(matches.map((m) => m[1]))];
+  const ossIds = [...new Set(matches.map(m => m[1]))];
 
   try {
     const res = await listByIds(ossIds.join(','));

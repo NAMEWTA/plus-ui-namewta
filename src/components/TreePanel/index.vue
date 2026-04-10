@@ -24,7 +24,7 @@
           class="mt-2 dept-tree"
           :node-key="nodeKey"
           :data="data"
-          :props="(treeProps as any)"
+          :props="treeProps as any"
           :expand-on-click-node="false"
           :filter-node-method="internalFilterNode"
           highlight-current

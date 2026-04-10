@@ -88,6 +88,7 @@
 </template>
 
 <script setup lang="ts">
+import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 import {
   ArrowDown,
   ArrowLeft,
@@ -100,12 +101,12 @@ import {
   RefreshRight,
   Right
 } from '@element-plus/icons-vue';
-import ScrollPane from './ScrollPane.vue';
-import { getNormalPath } from '@/utils/ruoyi';
-import { useSettingsStore } from '@/store/modules/settings';
+import tab from '@/plugins/tab';
 import { usePermissionStore } from '@/store/modules/permission';
+import { useSettingsStore } from '@/store/modules/settings';
 import { useTagsViewStore } from '@/store/modules/tagsView';
-import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+import { getNormalPath } from '@/utils/ruoyi';
+import ScrollPane from './ScrollPane.vue';
 
 const visible = ref(false);
 const top = ref(0);
@@ -118,7 +119,6 @@ const isFullscreen = ref(false);
 const scrollPaneRef = ref<InstanceType<typeof ScrollPane>>();
 const fullscreenModeClass = 'tags-fullscreen-mode';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const route = useRoute();
 const router = useRouter();
 const settingsStore = useSettingsStore();
@@ -267,7 +267,7 @@ const refreshSelectedTag = (view?: RouteLocationNormalized) => {
   if (!view) {
     return;
   }
-  proxy?.$tab.refreshPage(view);
+  tab.refreshPage(view);
   if (route.meta.link) {
     tagsViewStore.delIframeView(route as RouteLocationNormalized);
   }
@@ -277,7 +277,7 @@ const closeSelectedTag = (view?: RouteLocationNormalized) => {
   if (!view) {
     return;
   }
-  proxy?.$tab.closePage(view).then(({ visitedViews }: { visitedViews: RouteLocationNormalized[] }) => {
+  tab.closePage(view).then(({ visitedViews }: { visitedViews: RouteLocationNormalized[] }) => {
     if (isActive(view)) {
       toLastView(visitedViews, view);
     }
@@ -289,7 +289,7 @@ const closeRightTags = () => {
   if (!tag) {
     return;
   }
-  proxy?.$tab.closeRightPage(tag).then((views: RouteLocationNormalized[]) => {
+  tab.closeRightPage(tag).then((views: RouteLocationNormalized[]) => {
     if (!views.find(item => item.fullPath === route.fullPath)) {
       toLastView(views);
     }
@@ -301,7 +301,7 @@ const closeLeftTags = () => {
   if (!tag) {
     return;
   }
-  proxy?.$tab.closeLeftPage(tag).then((views: RouteLocationNormalized[]) => {
+  tab.closeLeftPage(tag).then((views: RouteLocationNormalized[]) => {
     if (!views.find(item => item.fullPath === route.fullPath)) {
       toLastView(views);
     }
@@ -314,13 +314,13 @@ const closeOthersTags = () => {
     return;
   }
   router.push(tag.fullPath || tag.path || '/').catch(() => {});
-  proxy?.$tab.closeOtherPage(tag).then(() => {
+  tab.closeOtherPage(tag).then(() => {
     moveToCurrentTag();
   });
 };
 
 const closeAllTags = (view?: RouteLocationNormalized) => {
-  proxy?.$tab.closeAllPage().then(({ visitedViews: views }: { visitedViews: RouteLocationNormalized[] }) => {
+  tab.closeAllPage().then(({ visitedViews: views }: { visitedViews: RouteLocationNormalized[] }) => {
     if (affixTags.value.some(tag => tag.path === route.path)) {
       return;
     }

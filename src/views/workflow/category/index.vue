@@ -123,14 +123,14 @@
 <script setup name="Category" lang="ts">
 import { listCategory, getCategory, delCategory, addCategory, updateCategory } from '@/api/workflow/category';
 import { CategoryVO, CategoryQuery, CategoryForm } from '@/api/workflow/category/types';
+import modal from '@/plugins/modal';
+import { handleTree } from '@/utils/ruoyi';
 
 type CategoryOption = {
   categoryId: number;
   categoryName: string;
   children?: CategoryOption[];
 };
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const categoryList = ref<CategoryVO[]>([]);
 const categoryOptions = ref<CategoryOption[]>([]);
@@ -173,7 +173,7 @@ const { queryParams, form, rules } = toRefs(data);
 const getList = async () => {
   loading.value = true;
   const res = await listCategory(queryParams.value);
-  const data = proxy?.handleTree<CategoryVO>(res.data, 'categoryId', 'parentId');
+  const data = handleTree<CategoryVO>(res.data, 'categoryId', 'parentId');
   if (data) {
     categoryList.value = data;
     loading.value = false;
@@ -185,7 +185,7 @@ const getTreeselect = async () => {
   const res = await listCategory();
   categoryOptions.value = [];
   // 处理树形数据
-  const data = proxy?.handleTree<CategoryOption>(res.data, 'categoryId', 'parentId');
+  const data = handleTree<CategoryOption>(res.data, 'categoryId', 'parentId');
   if (data) {
     categoryOptions.value = data; // 将处理后的树形数据赋值
   }
@@ -264,7 +264,7 @@ const submitForm = () => {
       } else {
         await addCategory(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       getList();
     }
@@ -273,11 +273,11 @@ const submitForm = () => {
 
 /** 删除按钮操作 */
 const handleDelete = async (row: CategoryVO) => {
-  await proxy?.$modal.confirm('是否确认删除"' + row.categoryName + '"的分类？');
+  await modal.confirm('是否确认删除"' + row.categoryName + '"的分类？');
   loading.value = true;
   await delCategory(row.categoryId).finally(() => (loading.value = false));
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 onMounted(() => {

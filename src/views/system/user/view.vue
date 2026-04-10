@@ -1,18 +1,29 @@
 <template>
-  <el-drawer v-model="visible" title="用户信息详情" :size="680" append-to-body :close-on-click-modal="true" @closed="info = null">
+  <el-drawer
+    v-model="visible"
+    title="用户信息详情"
+    :size="680"
+    append-to-body
+    :close-on-click-modal="true"
+    @closed="info = null"
+  >
     <el-descriptions v-if="info" v-loading="loading" :column="2" border>
       <el-descriptions-item label="用户名称">{{ info.nickName }}</el-descriptions-item>
-      <el-descriptions-item label="归属部门">{{ info.deptName || (info.dept && info.dept.deptName) || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="归属部门">
+        {{ info.deptName || (info.dept && info.dept.deptName) || '-' }}
+      </el-descriptions-item>
       <el-descriptions-item label="手机号码">{{ info.phoneNumber || '-' }}</el-descriptions-item>
       <el-descriptions-item label="邮箱">{{ info.email || '-' }}</el-descriptions-item>
       <el-descriptions-item label="登录账号">{{ info.userName }}</el-descriptions-item>
       <el-descriptions-item label="用户状态">
         <el-tag :type="info.status === '0' ? 'success' : 'danger'">
-          {{ proxy?.selectDictLabel(sys_normal_disable, info.status) }}
+          {{ selectDictLabel(sys_normal_disable, info.status) }}
         </el-tag>
       </el-descriptions-item>
       <el-descriptions-item label="岗位">{{ postNames || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="用户性别">{{ proxy?.selectDictLabel(sys_user_gender, info.gender) || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="用户性别">
+        {{ selectDictLabel(sys_user_gender, info.gender) || '-' }}
+      </el-descriptions-item>
       <el-descriptions-item label="角色" :span="2">{{ roleNames || '-' }}</el-descriptions-item>
     </el-descriptions>
 
@@ -29,13 +40,14 @@
 </template>
 
 <script setup lang="ts">
-import api from '@/api/system/user';
-import type { UserVO } from '@/api/system/user/types';
 import type { PostVO } from '@/api/system/post/types';
 import type { RoleVO } from '@/api/system/role/types';
+import type { UserVO } from '@/api/system/user/types';
+import api from '@/api/system/user';
+import { useDict } from '@/utils/dict';
+import { selectDictLabel } from '@/utils/ruoyi';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable, sys_user_gender } = toRefs<any>(proxy?.useDict('sys_normal_disable', 'sys_user_gender'));
+const { sys_normal_disable, sys_user_gender } = toRefs<any>(useDict('sys_normal_disable', 'sys_user_gender'));
 
 const visible = ref(false);
 const loading = ref(false);
@@ -48,16 +60,16 @@ const roleIds = ref<string[]>([]);
 const postNames = computed(() => {
   if (!postOptions.value.length || !postIds.value.length) return '';
   return postOptions.value
-    .filter((p) => postIds.value.includes(String(p.postId)))
-    .map((p) => p.postName)
+    .filter(p => postIds.value.includes(String(p.postId)))
+    .map(p => p.postName)
     .join('、');
 });
 
 const roleNames = computed(() => {
   if (!roleOptions.value.length || !roleIds.value.length) return '';
   return roleOptions.value
-    .filter((r) => roleIds.value.includes(String(r.roleId)))
-    .map((r) => r.roleName)
+    .filter(r => roleIds.value.includes(String(r.roleId)))
+    .map(r => r.roleName)
     .join('、');
 });
 

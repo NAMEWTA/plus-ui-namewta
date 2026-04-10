@@ -1,5 +1,5 @@
 <template>
-  <el-form ref="genInfoForm" :model="infoForm" :rules="rules" label-width="150px">
+  <el-form ref="formRef" :model="infoForm" :rules="rules" label-width="150px">
     <el-row>
       <el-col :span="12">
         <el-form-item prop="tplCategory">
@@ -227,18 +227,20 @@
 </template>
 
 <script setup lang="ts">
+import type { FormInstance } from 'element-plus';
 import { listMenu } from '@/api/system/menu';
 import { propTypes } from '@/utils/propTypes';
+import { handleTree } from '@/utils/ruoyi';
 
 interface MenuOptionsType {
   menuId: number | string;
   menuName: string;
   children?: MenuOptionsType[];
 }
-const { proxy } = getCurrentInstance();
 
 const subColumns = ref<any>([]);
 const menuOptions = ref<Array<MenuOptionsType>>([]);
+const formRef = ref<FormInstance>();
 
 const props = defineProps({
   info: propTypes.any.isRequired,
@@ -279,7 +281,7 @@ const setSubTableColumns = (value: string) => {
 /** 查询菜单下拉树结构 */
 const getMenuTreeselect = async () => {
   const res = await listMenu();
-  const data = proxy?.handleTree<MenuOptionsType>(res.data, 'menuId');
+  const data = handleTree<MenuOptionsType>(res.data, 'menuId');
 
   if (data) {
     menuOptions.value = data;
@@ -292,6 +294,18 @@ watch(
     setSubTableColumns(val);
   }
 );
+
+async function validate(): Promise<boolean> {
+  if (!formRef.value) return false;
+  try {
+    await formRef.value.validate();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+defineExpose({ validate });
 
 onMounted(() => {
   getMenuTreeselect();

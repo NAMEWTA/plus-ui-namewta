@@ -34,5 +34,3 @@ declare module 'vue-router' {
     query?: LocationQuery;
   }
 }
-
-export {};

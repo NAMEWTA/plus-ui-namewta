@@ -138,8 +138,8 @@
 <script setup name="Demo" lang="ts">
 import { listDemo, getDemo, delDemo, addDemo, updateDemo } from '@/api/demo/demo';
 import { DemoVO, DemoQuery, DemoForm } from '@/api/demo/demo/types';
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+import modal from '@/plugins/modal';
+import { download as requestDownload } from '@/utils/request';
 
 const demoList = ref<DemoVO[]>([]);
 const buttonLoading = ref(false);
@@ -256,7 +256,7 @@ const submitForm = () => {
       } else {
         await addDemo(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess('修改成功');
+      modal.msgSuccess('修改成功');
       dialog.visible = false;
       await getList();
     }
@@ -266,17 +266,15 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: DemoVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal
-    .confirm('是否确认删除测试单编号为"' + _ids + '"的数据项？')
-    .finally(() => (loading.value = false));
+  await modal.confirm('是否确认删除测试单编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
   await delDemo(_ids);
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
   await getList();
 };
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'demo/demo/export',
     {
       ...queryParams.value

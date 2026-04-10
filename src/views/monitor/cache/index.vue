@@ -143,19 +143,19 @@
 </template>
 
 <script setup name="Cache" lang="ts">
-import { getCache } from '@/api/monitor/cache';
 import * as echarts from 'echarts';
+import { getCache } from '@/api/monitor/cache';
 import { CacheVO } from '@/api/monitor/cache/types';
+import modal from '@/plugins/modal';
 
 const cache = ref<Partial<CacheVO>>({});
 const commandstats = ref();
 const usedmemory = ref();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const getList = async () => {
-  proxy?.$modal.loading('正在加载缓存监控数据，请稍候！');
+  modal.loading('正在加载缓存监控数据，请稍候！');
   const res = await getCache();
-  proxy?.$modal.closeLoading();
+  modal.closeLoading();
   cache.value = res.data;
   const commandstatsIntance = echarts.init(commandstats.value, 'macarons');
   commandstatsIntance.setOption({

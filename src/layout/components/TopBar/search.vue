@@ -88,12 +88,12 @@
 </template>
 
 <script setup lang="ts" name="layoutBreadcrumbSearch">
+import type { RouteRecordRaw } from 'vue-router';
 import { Search } from '@element-plus/icons-vue';
-import { getNormalPath } from '@/utils/ruoyi';
-import { isHttp } from '@/utils/validate';
 import { usePermissionStore } from '@/store/modules/permission';
 import { useSettingsStore } from '@/store/modules/settings';
-import type { RouteRecordRaw } from 'vue-router';
+import { getNormalPath } from '@/utils/ruoyi';
+import { isHttp } from '@/utils/validate';
 
 type SearchMenuItem = {
   path: string;

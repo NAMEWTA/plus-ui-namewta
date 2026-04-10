@@ -1,6 +1,6 @@
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { CacheVO } from './types';
+import type { CacheVO } from './types';
 
 // 查询缓存详细
 export function getCache(): AxiosPromise<CacheVO> {

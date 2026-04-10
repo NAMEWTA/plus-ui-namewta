@@ -324,7 +324,10 @@
 </template>
 
 <script setup name="processDefinition" lang="ts">
-import TreePanel from '@/components/TreePanel/index.vue';
+import type { ElMessageBoxOptions, TabsPaneContext, UploadRequestOptions } from 'element-plus';
+import { useRoute, useRouter } from 'vue-router';
+import { categoryTree } from '@/api/workflow/category';
+import { CategoryTreeVO } from '@/api/workflow/category/types';
 import {
   listDefinition,
   deleteDefinition,
@@ -337,12 +340,13 @@ import {
   getInfo,
   copy
 } from '@/api/workflow/definition';
-import { categoryTree } from '@/api/workflow/category';
-import { CategoryTreeVO } from '@/api/workflow/category/types';
 import { FlowDefinitionQuery, FlowDefinitionVo, FlowDefinitionForm } from '@/api/workflow/definition/types';
-import type { ElMessageBoxOptions, TabsPaneContext, UploadRequestOptions } from 'element-plus';
+import TreePanel from '@/components/TreePanel/index.vue';
+import modal from '@/plugins/modal';
+import { download as requestDownload } from '@/utils/request';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const route = useRoute();
+const router = useRouter();
 
 const queryFormRef = ref<ElFormInstance>();
 const treePanelRef = ref<InstanceType<typeof TreePanel>>();
@@ -458,10 +462,11 @@ const handleSelectionChange = (selection: any) => {
 };
 //分页
 const getPageList = async () => {
-  const query = proxy.$route.query;
-  if (query.activeName) {
-    activeName.value = query.activeName;
-    proxy.$route.query.activeName = '';
+  if (route.query.activeName) {
+    activeName.value = route.query.activeName as string;
+    const q = { ...route.query };
+    delete q.activeName;
+    router.replace({ path: route.path, query: q });
   }
   if (activeName.value === '0') {
     getList();
@@ -490,16 +495,16 @@ const getUnPublishList = async () => {
 const handleDelete = async (row?: FlowDefinitionVo) => {
   const id = row?.id || ids.value;
   const defList = processDefinitionList.value.filter(x => id.indexOf(x.id) != -1).map(x => x.flowCode);
-  await proxy?.$modal.confirm('是否确认删除流程定义编码为【' + defList + '】的数据项？');
+  await modal.confirm('是否确认删除流程定义编码为【' + defList + '】的数据项？');
   loading.value = true;
   await deleteDefinition(id).finally(() => (loading.value = false));
   await handleQuery();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 /** 发布流程定义 */
 const handlePublish = async (row?: FlowDefinitionVo) => {
-  await proxy?.$modal.confirm(
+  await modal.confirm(
     '是否确认发布流程定义编码为【' +
       row.flowCode +
       '】版本为【' +
@@ -510,7 +515,7 @@ const handlePublish = async (row?: FlowDefinitionVo) => {
   await publish(row.id).finally(() => (loading.value = false));
   activeName.value = '0';
   await handleQuery();
-  proxy?.$modal.msgSuccess('发布成功');
+  modal.msgSuccess('发布成功');
 };
 /** 挂起/激活 */
 const handleProcessDefState = async (row: FlowDefinitionVo, status: number | string | boolean) => {
@@ -522,10 +527,10 @@ const handleProcessDefState = async (row: FlowDefinitionVo, status: number | str
   }
   try {
     loading.value = true;
-    await proxy?.$modal.confirm(msg);
+    await modal.confirm(msg);
     await active(row.id, !!status);
     await handleQuery();
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   } catch (error) {
     row.activityStatus = status === 0 ? 1 : 0;
     console.error(error);
@@ -537,11 +542,11 @@ const handleProcessDefState = async (row: FlowDefinitionVo, status: number | str
 //上传文件前的钩子
 const handlerBeforeUpload = () => {
   if (selectCategory.value === 'ALL') {
-    proxy?.$modal.msgError('顶级节点不可作为分类！');
+    modal.msgError('顶级节点不可作为分类！');
     return false;
   }
   if (!selectCategory.value) {
-    proxy?.$modal.msgError('请选择左侧要上传的分类！');
+    modal.msgError('请选择左侧要上传的分类！');
     return false;
   }
 };
@@ -554,7 +559,7 @@ const handlerImportDefinition = (data: UploadRequestOptions): XMLHttpRequest => 
   importDef(formData)
     .then(() => {
       uploadDialog.visible = false;
-      proxy?.$modal.msgSuccess('部署成功');
+      modal.msgSuccess('部署成功');
       activeName.value = '1';
       handleQuery();
     })
@@ -568,12 +573,12 @@ const handlerImportDefinition = (data: UploadRequestOptions): XMLHttpRequest => 
  * @param row
  */
 const design = async (row: FlowDefinitionVo) => {
-  proxy.$router.push({
+  router.push({
     path: `/workflow/design/index`,
     query: {
-      definitionId: row.id,
-      disabled: false,
-      activeName: activeName.value
+      definitionId: String(row.id),
+      disabled: 'false',
+      activeName: String(activeName.value)
     }
   });
 };
@@ -583,12 +588,12 @@ const design = async (row: FlowDefinitionVo) => {
  * @param row
  */
 const designView = async (row: FlowDefinitionVo) => {
-  proxy.$router.push({
+  router.push({
     path: `/workflow/design/index`,
     query: {
-      definitionId: row.id,
-      disabled: true,
-      activeName: activeName.value
+      definitionId: String(row.id),
+      disabled: 'true',
+      activeName: String(activeName.value)
     }
   });
 };
@@ -602,8 +607,8 @@ const reset = () => {
  */
 const handleAdd = async () => {
   reset();
-  if (queryParams.value.category != '') {
-    form.value.category = queryParams.value.category;
+  if (queryParams.value.category != null && queryParams.value.category !== '') {
+    form.value.category = String(queryParams.value.category);
   }
   form.value.modelValue = 'CLASSICS';
   form.value.formCustom = 'N';
@@ -631,8 +636,9 @@ const handleSubmit = async () => {
   defFormRef.value.validate(async (valid: boolean) => {
     if (valid) {
       loading.value = true;
-      const ext = {};
-      ext.autoPass = autoPass.value;
+      const ext: { autoPass: boolean } = {
+        autoPass: autoPass.value
+      };
       form.value.ext = JSON.stringify(ext);
       if (form.value.id) {
         await edit(form.value).finally(() => (loading.value = false));
@@ -640,7 +646,7 @@ const handleSubmit = async () => {
         await add(form.value).finally(() => (loading.value = false));
         activeName.value = '1';
       }
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       modelDialog.visible = false;
       handleQuery();
     }
@@ -657,7 +663,7 @@ const handleCopyDef = async (row: FlowDefinitionVo) => {
     copy(row.id)
       .then(resp => {
         if (resp.code === 200) {
-          proxy?.$modal.msgSuccess('操作成功');
+          modal.msgSuccess('操作成功');
           activeName.value = '1';
           handleQuery();
         }
@@ -668,7 +674,7 @@ const handleCopyDef = async (row: FlowDefinitionVo) => {
 
 /** 导出按钮操作 */
 const handleExportDef = () => {
-  proxy?.download(`/workflow/definition/exportDef/${ids.value[0]}`, {}, `${flowCodeList.value[0]}.json`);
+  requestDownload(`/workflow/definition/exportDef/${ids.value[0]}`, {}, `${flowCodeList.value[0]}.json`);
 };
 </script>
 

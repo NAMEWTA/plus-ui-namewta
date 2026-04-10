@@ -1,5 +1,5 @@
+import type { RouteLocationMatched, RouteLocationNormalized, RouteLocationRaw } from 'vue-router';
 import router from '@/router';
-import { RouteLocationMatched, RouteLocationNormalized, RouteLocationRaw } from 'vue-router';
 import { useTagsViewStore } from '@/store/modules/tagsView';
 
 export default {
@@ -57,7 +57,9 @@ export default {
   ): Promise<{ visitedViews: RouteLocationNormalized[]; cachedViews: string[] } | any> {
     if (obj === undefined) {
       // prettier-ignore
-      const { visitedViews } = await useTagsViewStore().delView(router.currentRoute.value)
+      const { visitedViews } = await useTagsViewStore().delView(
+				router.currentRoute.value,
+			);
       const latestView = visitedViews.slice(-1)[0];
       if (latestView) {
         return router.push(latestView.fullPath);

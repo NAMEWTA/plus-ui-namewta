@@ -13,8 +13,7 @@ const emits = defineEmits(['scroll', 'updateArrows']);
 const scrollContainerRef = ref<ElScrollbarInstance>();
 
 const getScrollWrapper = (): HTMLElement | null => {
-  const scrollbar = scrollContainerRef.value as any;
-  return scrollbar?.wrapRef || scrollbar?.$refs?.wrapRef || null;
+  return scrollContainerRef.value?.wrapRef ?? null;
 };
 
 const emitScroll = () => {

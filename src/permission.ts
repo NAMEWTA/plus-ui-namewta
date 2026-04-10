@@ -1,14 +1,14 @@
 import { to as tos } from 'await-to-js';
-import router from './router';
+import { ElMessage } from 'element-plus/es';
 import * as NProgressModule from 'nprogress';
 import 'nprogress/nprogress.css';
-import { getToken } from '@/utils/auth';
-import { isHttp, isPathMatch } from '@/utils/validate';
-import { isRelogin } from '@/utils/request';
-import { useUserStore } from '@/store/modules/user';
-import { useSettingsStore } from '@/store/modules/settings';
 import { usePermissionStore } from '@/store/modules/permission';
-import { ElMessage } from 'element-plus/es';
+import { useSettingsStore } from '@/store/modules/settings';
+import { useUserStore } from '@/store/modules/user';
+import { getToken } from '@/utils/auth';
+import { isRelogin } from '@/utils/request';
+import { isHttp, isPathMatch } from '@/utils/validate';
+import router from './router';
 
 const NProgress = ('default' in NProgressModule ? NProgressModule.default : NProgressModule) as typeof NProgressModule;
 

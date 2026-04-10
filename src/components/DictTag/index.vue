@@ -4,7 +4,7 @@
       <template v-if="isValueMatch(item.value)">
         <span
           v-if="
-            (item.elTagType === 'default' || item.elTagType === '') &&
+            ((item.elTagType as string) === 'default' || (item.elTagType as string) === '') &&
             (item.elTagClass === '' || item.elTagClass == null)
           "
           :key="item.value"

@@ -146,7 +146,7 @@
             </el-table-column>
             <el-table-column label="创建时间" align="center" prop="createTime" width="180">
               <template #default="scope">
-                <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+                <span>{{ parseTime(scope.row.createTime) }}</span>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="180" align="center" class-name="small-padding fixed-width">
@@ -231,13 +231,16 @@
 </template>
 
 <script setup name="Post" lang="ts">
-import TreePanel from '@/components/TreePanel/index.vue';
+import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
 import { listPost, addPost, delPost, getPost, updatePost, deptTreeSelect } from '@/api/system/post';
 import { PostForm, PostQuery, PostVO } from '@/api/system/post/types';
-import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
+import TreePanel from '@/components/TreePanel/index.vue';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { download as requestDownload } from '@/utils/request';
+import { parseTime } from '@/utils/ruoyi';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const postList = ref<PostVO[]>([]);
 const loading = ref(true);
@@ -373,7 +376,7 @@ const submitForm = () => {
   postFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       form.value.postId ? await updatePost(form.value) : await addPost(form.value);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
@@ -383,15 +386,15 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: PostVO) => {
   const postIds = row?.postId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除岗位编号为"' + postIds + '"的数据项？');
+  await modal.confirm('是否确认删除岗位编号为"' + postIds + '"的数据项？');
   await delPost(postIds);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'system/post/export',
     {
       ...queryParams.value

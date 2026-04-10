@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { SpelForm, SpelQuery, SpelVO } from '@/api/workflow/spel/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { SpelVO, SpelForm, SpelQuery } from '@/api/workflow/spel/types';
-import { PageResult } from '@/api/types';
 
 /**
  * 查询流程spel表达式定义列表

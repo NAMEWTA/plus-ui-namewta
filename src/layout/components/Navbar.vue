@@ -31,7 +31,7 @@
           </div>
         </el-tooltip>
         <!-- 消息 -->
-        <el-tooltip :content="proxy.$t('navbar.message')" effect="dark" placement="bottom">
+        <el-tooltip :content="$t('navbar.message')" effect="dark" placement="bottom">
           <div>
             <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
               <template #reference>
@@ -51,19 +51,19 @@
           <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
         </el-tooltip>
 
-        <el-tooltip :content="proxy.$t('navbar.document')" effect="dark" placement="bottom">
+        <el-tooltip :content="$t('navbar.document')" effect="dark" placement="bottom">
           <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
         </el-tooltip>
 
-        <el-tooltip :content="proxy.$t('navbar.full')" effect="dark" placement="bottom">
+        <el-tooltip :content="$t('navbar.full')" effect="dark" placement="bottom">
           <screenfull id="screenfull" class="right-menu-item hover-effect" />
         </el-tooltip>
 
-        <el-tooltip :content="proxy.$t('navbar.language')" effect="dark" placement="bottom">
+        <el-tooltip :content="$t('navbar.language')" effect="dark" placement="bottom">
           <lang-select id="lang-select" class="right-menu-item hover-effect" />
         </el-tooltip>
 
-        <el-tooltip :content="proxy.$t('navbar.layoutSize')" effect="dark" placement="bottom">
+        <el-tooltip :content="$t('navbar.layoutSize')" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip>
       </template>
@@ -80,13 +80,13 @@
           <template #dropdown>
             <el-dropdown-menu>
               <router-link to="/user/profile">
-                <el-dropdown-item>{{ proxy.$t('navbar.personalCenter') }}</el-dropdown-item>
+                <el-dropdown-item>{{ $t('navbar.personalCenter') }}</el-dropdown-item>
               </router-link>
               <el-dropdown-item v-if="settingsStore.showSettings" command="setLayout">
-                <span>{{ proxy.$t('navbar.layoutSetting') }}</span>
+                <span>{{ $t('navbar.layoutSetting') }}</span>
               </el-dropdown-item>
               <el-dropdown-item divided command="logout">
-                <span>{{ proxy.$t('navbar.logout') }}</span>
+                <span>{{ $t('navbar.logout') }}</span>
               </el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -97,25 +97,24 @@
 </template>
 
 <script setup lang="ts">
-import SearchMenu from './TopBar/search.vue';
-import { useAppStore } from '@/store/modules/app';
-import { useUserStore } from '@/store/modules/user';
-import { useSettingsStore } from '@/store/modules/settings';
-import { useNoticeStore } from '@/store/modules/notice';
-import notice from './notice/index.vue';
-import router from '@/router';
 import type { ElMessageBoxOptions } from 'element-plus';
-import { NavTypeEnum } from '@/enums/NavTypeEnum';
-import TopBar from './TopBar/index.vue';
 import { CaretBottom } from '@element-plus/icons-vue';
 import appLogo from '@/assets/logo/logo.png';
+import { NavTypeEnum } from '@/enums/NavTypeEnum';
+import tab from '@/plugins/tab';
+import router from '@/router';
+import { useAppStore } from '@/store/modules/app';
+import { useNoticeStore } from '@/store/modules/notice';
+import { useSettingsStore } from '@/store/modules/settings';
+import { useUserStore } from '@/store/modules/user';
+import notice from './notice/index.vue';
+import TopBar from './TopBar/index.vue';
+import SearchMenu from './TopBar/search.vue';
 
 const appStore = useAppStore();
 const userStore = useUserStore();
 const settingsStore = useSettingsStore();
 const noticeStore = storeToRefs(useNoticeStore());
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const navType = computed(() => settingsStore.navType);
 const showLogo = computed(() => settingsStore.sidebarLogo);
@@ -145,7 +144,7 @@ const logout = async () => {
         redirect: encodeURIComponent(router.currentRoute.value.fullPath || '/')
       }
     });
-    proxy?.$tab.closeAllPage();
+    tab.closeAllPage();
   });
 };
 

@@ -17,10 +17,11 @@
 </template>
 
 <script setup lang="ts">
-import { updateUserPwd } from '@/api/system/user';
 import type { ResetPwdForm } from '@/api/system/user/types';
+import { updateUserPwd } from '@/api/system/user';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const pwdRef = ref<ElFormInstance>();
 const user = ref<ResetPwdForm>({
   oldPassword: '',
@@ -45,7 +46,11 @@ const rules = ref({
       message: '长度在 6 到 20 个字符',
       trigger: 'blur'
     },
-    { pattern: /^[^<>"'|\\]+$/, message: '不能包含非法字符：< > " \' \\ |', trigger: 'blur' }
+    {
+      pattern: /^[^<>"'|\\]+$/,
+      message: '不能包含非法字符：< > " \' \\ |',
+      trigger: 'blur'
+    }
   ],
   confirmPassword: [
     { required: true, message: '确认密码不能为空', trigger: 'blur' },
@@ -62,13 +67,13 @@ const submit = () => {
   pwdRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       await updateUserPwd(user.value.oldPassword, user.value.newPassword);
-      proxy?.$modal.msgSuccess('修改成功');
+      modal.msgSuccess('修改成功');
     }
   });
 };
 /** 关闭按钮 */
 const close = () => {
-  proxy?.$tab.closePage();
+  tab.closePage();
 };
 </script>
 

@@ -15,8 +15,8 @@
 </template>
 
 <script setup name="Pagination" lang="ts">
-import { scrollTo } from '@/utils/scroll-to';
 import { propTypes } from '@/utils/propTypes';
+import { scrollTo } from '@/utils/scroll-to';
 
 const props = defineProps({
   total: propTypes.number,

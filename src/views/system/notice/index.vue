@@ -100,7 +100,7 @@
         <el-table-column label="创建者" align="center" prop="createByName" width="100" />
         <el-table-column label="创建时间" align="center" prop="createTime" width="100">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -215,7 +215,7 @@
             </div>
             <div class="notice-detail__meta-item">
               <span class="notice-detail__meta-label">创建时间：</span>
-              <span>{{ proxy.parseTime(detailForm.createTime, '{y}-{m}-{d} {h}:{i}:{s}') || '-' }}</span>
+              <span>{{ parseTime(detailForm.createTime, '{y}-{m}-{d} {h}:{i}:{s}') || '-' }}</span>
             </div>
           </div>
         </div>
@@ -227,13 +227,16 @@
 </template>
 
 <script setup name="Notice" lang="ts">
+import { useRoute, useRouter } from 'vue-router';
 import { listNotice, getNotice, delNotice, addNotice, updateNotice } from '@/api/system/notice';
 import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
-import { sanitizeHtml } from '@/utils/sanitize';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
 import { resolveOssContent } from '@/utils/ossContent';
+import { parseTime } from '@/utils/ruoyi';
+import { sanitizeHtml } from '@/utils/sanitize';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_notice_status, sys_notice_type } = toRefs<any>(proxy?.useDict('sys_notice_status', 'sys_notice_type'));
+const { sys_notice_status, sys_notice_type } = toRefs<any>(useDict('sys_notice_status', 'sys_notice_type'));
 const route = useRoute();
 const router = useRouter();
 
@@ -370,7 +373,7 @@ const submitForm = () => {
   noticeFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       form.value.noticeId ? await updateNotice(form.value) : await addNotice(form.value);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
@@ -379,10 +382,10 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: NoticeVO) => {
   const noticeIds = row?.noticeId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除公告编号为"' + noticeIds + '"的数据项？');
+  await modal.confirm('是否确认删除公告编号为"' + noticeIds + '"的数据项？');
   await delNotice(noticeIds);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 onMounted(() => {

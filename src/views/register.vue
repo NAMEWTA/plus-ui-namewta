@@ -36,7 +36,7 @@
             type="text"
             size="large"
             auto-complete="off"
-            :placeholder="proxy.$t('register.username')"
+            :placeholder="$t('register.username')"
           >
             <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
           </el-input>
@@ -47,7 +47,7 @@
             type="password"
             size="large"
             auto-complete="off"
-            :placeholder="proxy.$t('register.password')"
+            :placeholder="$t('register.password')"
             @keyup.enter="handleRegister"
           >
             <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
@@ -59,7 +59,7 @@
             type="password"
             size="large"
             auto-complete="off"
-            :placeholder="proxy.$t('register.confirmPassword')"
+            :placeholder="$t('register.confirmPassword')"
             @keyup.enter="handleRegister"
           >
             <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
@@ -70,7 +70,7 @@
             v-model="registerForm.code"
             size="large"
             auto-complete="off"
-            :placeholder="proxy.$t('register.code')"
+            :placeholder="$t('register.code')"
             @keyup.enter="handleRegister"
           >
             <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
@@ -82,7 +82,7 @@
 
         <div class="form-meta">
           <span class="register-tip">注册后将返回登录页继续完成认证</span>
-          <router-link class="link-type" :to="'/login'">{{ proxy.$t('register.switchLoginPage') }}</router-link>
+          <router-link class="link-type" :to="'/login'">{{ $t('register.switchLoginPage') }}</router-link>
         </div>
 
         <el-form-item class="submit-row">
@@ -93,8 +93,8 @@
             class="submit-button"
             @click.prevent="handleRegister"
           >
-            <span v-if="!loading">{{ proxy.$t('register.register') }}</span>
-            <span v-else>{{ proxy.$t('register.registering') }}</span>
+            <span v-if="!loading">{{ $t('register.register') }}</span>
+            <span v-else>{{ $t('register.registering') }}</span>
           </el-button>
         </el-form-item>
       </el-form>
@@ -107,12 +107,10 @@
 </template>
 
 <script setup lang="ts">
-import { getCodeImg, register } from '@/api/login';
-import { RegisterForm } from '@/api/types';
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+import { getCodeImg, register } from '@/api/login';
+import { RegisterForm } from '@/api/types';
 
 const title = import.meta.env.VITE_APP_TITLE;
 const currentYear = new Date().getFullYear();
@@ -145,7 +143,11 @@ const equalToPassword = (rule: any, value: string, callback: any) => {
 
 const registerRules: ElFormRules = {
   username: [
-    { required: true, trigger: 'blur', message: t('register.rule.username.required') },
+    {
+      required: true,
+      trigger: 'blur',
+      message: t('register.rule.username.required')
+    },
     {
       min: 2,
       max: 20,
@@ -154,7 +156,11 @@ const registerRules: ElFormRules = {
     }
   ],
   password: [
-    { required: true, trigger: 'blur', message: t('register.rule.password.required') },
+    {
+      required: true,
+      trigger: 'blur',
+      message: t('register.rule.password.required')
+    },
     {
       min: 5,
       max: 20,
@@ -163,15 +169,27 @@ const registerRules: ElFormRules = {
     },
     {
       pattern: /^[^<>"'|\\]+$/,
-      message: t('register.rule.password.pattern', { strings: '< > " \' \\ |' }),
+      message: t('register.rule.password.pattern', {
+        strings: '< > " \' \\ |'
+      }),
       trigger: 'blur'
     }
   ],
   confirmPassword: [
-    { required: true, trigger: 'blur', message: t('register.rule.confirmPassword.required') },
+    {
+      required: true,
+      trigger: 'blur',
+      message: t('register.rule.confirmPassword.required')
+    },
     { required: true, validator: equalToPassword, trigger: 'blur' }
   ],
-  code: [{ required: true, trigger: 'change', message: t('register.rule.code.required') }]
+  code: [
+    {
+      required: true,
+      trigger: 'change',
+      message: t('register.rule.code.required')
+    }
+  ]
 };
 const codeUrl = ref('');
 const loading = ref(false);
@@ -502,5 +520,4 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
-
 </style>

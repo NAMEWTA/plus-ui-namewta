@@ -26,8 +26,12 @@
   </div>
 </template>
 <script setup lang="ts">
+import { useRoute } from 'vue-router';
+import tab from '@/plugins/tab';
+import router from '@/router';
 import { propTypes } from '@/utils/propTypes';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+
+const route = useRoute();
 const props = defineProps({
   status: propTypes.string.def(''),
   pageType: propTypes.string.def(''),
@@ -66,7 +70,7 @@ const approvalButtonShow = computed(() => {
 
 //返回
 const goBack = () => {
-  proxy.$tab.closePage(proxy.$route);
-  proxy.$router.go(-1);
+  tab.closePage(route);
+  router.go(-1);
 };
 </script>

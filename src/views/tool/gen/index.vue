@@ -191,13 +191,16 @@
 </template>
 
 <script setup name="Gen" lang="ts">
+import { useRoute } from 'vue-router';
 import { delTable, genCode, getDataNames, listTable, previewTable, synchDb } from '@/api/tool/gen';
 import { TableQuery, TableVO } from '@/api/tool/gen/types';
+import download from '@/plugins/download';
+import modal from '@/plugins/modal';
 import router from '@/router';
+import { addDateRange } from '@/utils/ruoyi';
 import ImportTable from './importTable.vue';
 
 const route = useRoute();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const tableList = ref<TableVO[]>([]);
 const loading = ref(true);
@@ -206,7 +209,7 @@ const ids = ref<Array<string | number>>([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRange = ref<any>(['', '']);
 const uniqueId = ref('');
 const dataNameList = ref<Array<string>>([]);
 
@@ -242,7 +245,7 @@ const getDataNameList = async () => {
 /** 查询表集合 */
 const getList = async () => {
   loading.value = true;
-  const res = await listTable(proxy?.addDateRange(queryParams.value, dateRange.value));
+  const res = await listTable(addDateRange(queryParams.value, dateRange.value));
   tableList.value = res.data?.rows;
   total.value = res.data?.total;
   loading.value = false;
@@ -256,22 +259,22 @@ const handleQuery = () => {
 const handleGenTable = async (row?: TableVO) => {
   const tbIds = row?.tableId || ids.value;
   if (tbIds == '') {
-    proxy?.$modal.msgError('请选择要生成的数据');
+    modal.msgError('请选择要生成的数据');
     return;
   }
   if (row?.genType === '1') {
     await genCode(row.tableId);
-    proxy?.$modal.msgSuccess('成功生成到自定义路径：' + row.genPath);
+    modal.msgSuccess('成功生成到自定义路径：' + row.genPath);
   } else {
-    proxy?.$download.zip('/tool/gen/batchGenCode?tableIdStr=' + tbIds, 'ruoyi.zip');
+    download.zip('/tool/gen/batchGenCode?tableIdStr=' + tbIds, 'ruoyi.zip');
   }
 };
 /** 同步数据库操作 */
 const handleSynchDb = async (row: TableVO) => {
   const tableId = row.tableId;
-  await proxy?.$modal.confirm('确认要强制同步"' + row.tableName + '"表结构吗？');
+  await modal.confirm('确认要强制同步"' + row.tableName + '"表结构吗？');
   await synchDb(tableId);
-  proxy?.$modal.msgSuccess('同步成功');
+  modal.msgSuccess('同步成功');
 };
 /** 打开导入表弹窗 */
 const openImportTable = () => {
@@ -292,7 +295,7 @@ const handlePreview = async (row: TableVO) => {
 };
 /** 复制代码成功 */
 const copyTextSuccess = () => {
-  proxy?.$modal.msgSuccess('复制成功');
+  modal.msgSuccess('复制成功');
 };
 // 多选框选中数据
 const handleSelectionChange = (selection: TableVO[]) => {
@@ -311,10 +314,10 @@ const handleEditTable = (row?: TableVO) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: TableVO) => {
   const tableIds = row?.tableId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除表编号为"' + tableIds + '"的数据项？');
+  await modal.confirm('是否确认删除表编号为"' + tableIds + '"的数据项？');
   await delTable(tableIds);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 onMounted(() => {

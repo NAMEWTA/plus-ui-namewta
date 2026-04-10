@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar-logo-container" :class="{ collapse: collapse }">
-    <transition :enter-active-class="proxy?.animate.logoAnimate.enter" mode="out-in">
+    <transition :enter-active-class="animateConfig.logoAnimate.enter" mode="out-in">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
         <img v-if="logo" :src="logo" class="sidebar-logo" />
         <h1 v-else class="sidebar-title">
@@ -18,10 +18,10 @@
 </template>
 
 <script setup lang="ts">
+import animateConfig from '@/animate';
 import logo from '@/assets/logo/logo.png';
-import { useSettingsStore } from '@/store/modules/settings';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
+import { useSettingsStore } from '@/store/modules/settings';
 
 defineProps({
   collapse: {

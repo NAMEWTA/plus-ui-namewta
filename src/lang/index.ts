@@ -1,9 +1,8 @@
 // 自定义国际化配置
 import { createI18n } from 'vue-i18n';
-
 import { LanguageEnum } from '@/enums/LanguageEnum';
-import zh_CN from '@/lang/zh_CN';
 import en_US from '@/lang/en_US';
+import zh_CN from '@/lang/zh_CN';
 
 /**
  * 获取当前语言

@@ -1,12 +1,12 @@
-import request from '@/utils/request';
-import {
-  FlowDefinitionQuery,
+import type { PageResult } from '@/api/types';
+import type {
   definitionXmlVO,
   FlowDefinitionForm,
+  FlowDefinitionQuery,
   FlowDefinitionVo
 } from '@/api/workflow/definition/types';
-import { AxiosPromise } from 'axios';
-import { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
+import request from '@/utils/request';
 
 /**
  * 获取流程定义列表

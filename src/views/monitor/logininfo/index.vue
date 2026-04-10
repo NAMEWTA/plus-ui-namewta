@@ -137,7 +137,7 @@
           width="180"
         >
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.loginTime) }}</span>
+            <span>{{ parseTime(scope.row.loginTime) }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -156,10 +156,13 @@
 <script setup name="LoginInfo" lang="ts">
 import { list, delLoginInfo, cleanLoginInfo, unlockLoginInfo } from '@/api/monitor/logininfo';
 import { LoginInfoQuery, LoginInfoVO } from '@/api/monitor/logininfo/types';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { download as requestDownload } from '@/utils/request';
+import { parseTime, addDateRange } from '@/utils/ruoyi';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_type } = toRefs<any>(proxy?.useDict('sys_device_type'));
-const { sys_common_status } = toRefs<any>(proxy?.useDict('sys_common_status'));
+const { sys_device_type } = toRefs<any>(useDict('sys_device_type'));
+const { sys_common_status } = toRefs<any>(useDict('sys_common_status'));
 
 const loginInfoList = ref<LoginInfoVO[]>([]);
 const loading = ref(true);
@@ -169,7 +172,7 @@ const single = ref(true);
 const multiple = ref(true);
 const selectName = ref<Array<string>>([]);
 const total = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRange = ref<any>(['', '']);
 const defaultSort = ref<any>({ prop: 'loginTime', order: 'descending' });
 
 const queryFormRef = ref<ElFormInstance>();
@@ -188,7 +191,7 @@ const queryParams = ref<LoginInfoQuery>({
 /** 查询登录日志列表 */
 const getList = async () => {
   loading.value = true;
-  const res = await list(proxy?.addDateRange(queryParams.value, dateRange.value));
+  const res = await list(addDateRange(queryParams.value, dateRange.value));
   loginInfoList.value = res.data?.rows;
   total.value = res.data?.total;
   loading.value = false;
@@ -221,28 +224,28 @@ const handleSortChange = (column: any) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: LoginInfoVO) => {
   const infoIds = row?.infoId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除访问编号为"' + infoIds + '"的数据项?');
+  await modal.confirm('是否确认删除访问编号为"' + infoIds + '"的数据项?');
   await delLoginInfo(infoIds);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 /** 清空按钮操作 */
 const handleClean = async () => {
-  await proxy?.$modal.confirm('是否确认清空所有登录日志数据项?');
+  await modal.confirm('是否确认清空所有登录日志数据项?');
   await cleanLoginInfo();
   await getList();
-  proxy?.$modal.msgSuccess('清空成功');
+  modal.msgSuccess('清空成功');
 };
 /** 解锁按钮操作 */
 const handleUnlock = async () => {
   const username = selectName.value;
-  await proxy?.$modal.confirm('是否确认解锁用户"' + username + '"数据项?');
+  await modal.confirm('是否确认解锁用户"' + username + '"数据项?');
   await unlockLoginInfo(username);
-  proxy?.$modal.msgSuccess('用户' + username + '解锁成功');
+  modal.msgSuccess('用户' + username + '解锁成功');
 };
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'monitor/loginInfo/export',
     {
       ...queryParams.value

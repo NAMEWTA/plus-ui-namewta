@@ -118,17 +118,17 @@
 </template>
 
 <script setup name="GenEdit" lang="ts">
-import { getGenTable, updateGenTable } from '@/api/tool/gen';
-import { DbColumnVO, DbTableVO } from '@/api/tool/gen/types';
+import { useRoute } from 'vue-router';
 import { optionselect as getDictOptionselect } from '@/api/system/dict/type';
 import { DictTypeVO } from '@/api/system/dict/type/types';
+import { getGenTable, updateGenTable } from '@/api/tool/gen';
+import { DbColumnVO, DbTableVO } from '@/api/tool/gen/types';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
 import BasicInfoForm from './basicInfoForm.vue';
 import GenInfoForm from './genInfoForm.vue';
-import { RouteLocationNormalized } from 'vue-router';
 
 const route = useRoute();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-
 const activeName = ref('columnInfo');
 const tableHeight = ref(document.documentElement.scrollHeight - 245 + 'px');
 const tables = ref<DbTableVO[]>([]);
@@ -140,64 +140,45 @@ const basicInfo = ref<InstanceType<typeof BasicInfoForm>>();
 const genInfo = ref<InstanceType<typeof GenInfoForm>>();
 
 /** 提交按钮 */
-const submitForm = () => {
-  const basicForm = basicInfo.value?.$refs.basicInfoForm;
-  const genForm = genInfo.value?.$refs.genInfoForm;
-
-  Promise.all([basicForm, genForm].map(getFormPromise)).then(async res => {
-    const validateResult = res.every(item => !!item);
-    if (validateResult) {
-      const genTable: any = Object.assign({}, info.value);
-      genTable.columns = columns.value;
-      genTable.params = {
-        treeCode: info.value?.treeCode,
-        treeName: info.value.treeName,
-        treeParentCode: info.value.treeParentCode,
-        parentMenuId: info.value.parentMenuId
-      };
-      const response = await updateGenTable(genTable);
-      proxy?.$modal.msgSuccess(response.msg);
-      if (response.code === 200) {
-        close();
-      }
-    } else {
-      proxy?.$modal.msgError('表单校验未通过，请重新检查提交内容');
-    }
-  });
-};
-const getFormPromise = (form: any) => {
-  return new Promise(resolve => {
-    form.validate((res: any) => {
-      resolve(res);
-    });
-  });
-};
-const close = () => {
-  const obj: RouteLocationNormalized = {
-    path: '/tool/gen',
-    fullPath: '',
-    hash: '',
-    matched: [],
-    meta: undefined,
-    name: undefined,
-    params: undefined,
-    redirectedFrom: undefined,
-    query: { t: Date.now().toString(), pageNum: route.query.pageNum }
-  };
-  proxy?.$tab.closeOpenPage(obj);
-};
-
-(async () => {
-  const tableId = route.params && (route.params.tableId as string);
-  if (tableId) {
-    // 获取表详细信息
-    const res = await getGenTable(tableId);
-    columns.value = res.data.rows;
-    info.value = res.data.info;
-    tables.value = res.data.tables;
-    /** 查询字典下拉列表 */
-    const response = await getDictOptionselect();
-    dictOptions.value = response.data;
+const submitForm = async () => {
+  const basicOk = (await basicInfo.value?.validate()) ?? false;
+  const genOk = (await genInfo.value?.validate()) ?? false;
+  if (!basicOk || !genOk) {
+    modal.msgError('表单校验未通过，请重新检查提交内容');
+    return;
   }
-})();
+  const genTable: Record<string, unknown> = { ...info.value };
+  genTable.columns = columns.value;
+  genTable.params = {
+    treeCode: info.value?.treeCode,
+    treeName: info.value.treeName,
+    treeParentCode: info.value.treeParentCode,
+    parentMenuId: info.value.parentMenuId
+  };
+  const response = await updateGenTable(genTable as any);
+  modal.msgSuccess(response.msg ?? '');
+  if (response.code === 200) {
+    close();
+  }
+};
+
+const close = () => {
+  tab.closeOpenPage({
+    path: '/tool/gen',
+    query: { t: Date.now().toString(), pageNum: route.query.pageNum }
+  });
+};
+
+onMounted(async () => {
+  const tableId = route.params?.tableId as string | undefined;
+  if (!tableId) return;
+  const res = await getGenTable(tableId);
+  const detail = res.data;
+  if (!detail) return;
+  columns.value = detail.rows;
+  info.value = detail.info;
+  tables.value = detail.tables;
+  const response = await getDictOptionselect();
+  dictOptions.value = response.data;
+});
 </script>

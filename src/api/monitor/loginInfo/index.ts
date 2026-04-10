@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { LoginInfoQuery, LoginInfoVO } from './types';
-import { AxiosPromise } from 'axios';
-import { PageResult } from '@/api/types';
+import type { LoginInfoQuery, LoginInfoVO } from './types';
 
 // 查询登录日志列表
 export function list(query: LoginInfoQuery): AxiosPromise<PageResult<LoginInfoVO>> {

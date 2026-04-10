@@ -115,16 +115,16 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import { UserVO } from '@/api/system/user/types';
 import { pageByTaskWait } from '@/api/workflow/task';
 import { TaskQuery, FlowTaskVO } from '@/api/workflow/task/types';
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
+import UserSelect from '@/components/UserSelect/index.vue';
+import { useDict } from '@/utils/dict';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { wf_business_status } = toRefs<any>(proxy?.useDict('wf_business_status'));
-import UserSelect from '@/components/UserSelect';
-import { ref } from 'vue';
-import { UserVO } from '@/api/system/user/types';
+const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 
 const userSelectRef = ref<InstanceType<typeof UserSelect>>();
 //提交组件
@@ -198,7 +198,7 @@ const handleOpen = async (row: FlowTaskVO) => {
     formCustom: row.formCustom,
     formPath: row.formPath
   });
-  workflowCommon.routerJump(routerJumpVo, proxy);
+  workflowCommon.routerJump(routerJumpVo);
 };
 //打开申请人选择
 const openUserSelect = () => {

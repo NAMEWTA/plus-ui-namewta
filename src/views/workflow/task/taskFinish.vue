@@ -129,18 +129,19 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import { UserVO } from '@/api/system/user/types';
 import { pageByTaskFinish } from '@/api/workflow/task';
 import { TaskQuery, FlowTaskVO } from '@/api/workflow/task/types';
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
-//审批记录组件
+import UserSelect from '@/components/UserSelect/index.vue';
+import { useDict } from '@/utils/dict';
+
+const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
+const { wf_task_status } = toRefs<any>(useDict('wf_task_status'));
+
 const queryFormRef = ref<ElFormInstance>();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { wf_business_status } = toRefs<any>(proxy?.useDict('wf_business_status'));
-const { wf_task_status } = toRefs<any>(proxy?.useDict('wf_task_status'));
-import UserSelect from '@/components/UserSelect';
-import { ref } from 'vue';
-import { UserVO } from '@/api/system/user/types';
 
 const userSelectRef = ref<InstanceType<typeof UserSelect>>();
 // 遮罩层
@@ -207,7 +208,7 @@ const handleView = (row: FlowTaskVO) => {
     formCustom: row.formCustom,
     formPath: row.formPath
   });
-  workflowCommon.routerJump(routerJumpVo, proxy);
+  workflowCommon.routerJump(routerJumpVo);
 };
 //打开申请人选择
 const openUserSelect = () => {

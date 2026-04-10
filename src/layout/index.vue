@@ -14,12 +14,12 @@
 </template>
 
 <script setup lang="ts">
-import SideBar from './components/Sidebar/index.vue';
-import { AppMain, Navbar, Settings, TagsView } from './components';
+import { NavTypeEnum } from '@/enums/NavTypeEnum';
 import { useAppStore } from '@/store/modules/app';
 import { useSettingsStore } from '@/store/modules/settings';
-import { NavTypeEnum } from '@/enums/NavTypeEnum';
 import { initMessageBox, initPush } from '@/utils/push';
+import { AppMain, Navbar, Settings, TagsView } from './components';
+import SideBar from './components/Sidebar/index.vue';
 
 const settingsStore = useSettingsStore();
 const theme = computed(() => settingsStore.theme);
@@ -45,14 +45,18 @@ const classObj = computed(() => ({
 const { width } = useWindowSize();
 const WIDTH = 992; // refer to Bootstrap's responsive design
 
-watch(width, (w) => {
-  if (w - 1 < WIDTH) {
-    useAppStore().toggleDevice('mobile');
-    useAppStore().closeSideBar({ withoutAnimation: true });
-  } else {
-    useAppStore().toggleDevice('desktop');
-  }
-}, { immediate: true });
+watch(
+  width,
+  w => {
+    if (w - 1 < WIDTH) {
+      useAppStore().toggleDevice('mobile');
+      useAppStore().closeSideBar({ withoutAnimation: true });
+    } else {
+      useAppStore().toggleDevice('desktop');
+    }
+  },
+  { immediate: true }
+);
 
 const settingRef = ref<InstanceType<typeof Settings>>();
 

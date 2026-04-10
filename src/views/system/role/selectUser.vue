@@ -49,7 +49,7 @@
             </el-table-column>
             <el-table-column label="创建时间" align="center" prop="createTime" width="180">
               <template #default="scope">
-                <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+                <span>{{ parseTime(scope.row.createTime) }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -76,6 +76,9 @@
 import { authUserSelectAll, unallocatedUserList } from '@/api/system/role';
 import { UserVO } from '@/api/system/user/types';
 import { UserQuery } from '@/api/system/user/types';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { parseTime } from '@/utils/ruoyi';
 
 const props = defineProps({
   roleId: {
@@ -84,8 +87,7 @@ const props = defineProps({
   }
 });
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const userList = ref<UserVO[]>([]);
 const visible = ref(false);
@@ -144,11 +146,11 @@ const handleSelectUser = async () => {
   const roleId = queryParams.roleId;
   const ids = userIds.value.join(',');
   if (ids == '') {
-    proxy?.$modal.msgError('请选择要分配的用户');
+    modal.msgError('请选择要分配的用户');
     return;
   }
   await authUserSelectAll({ roleId, userIds: ids });
-  proxy?.$modal.msgSuccess('分配成功');
+  modal.msgSuccess('分配成功');
   emit('ok');
   visible.value = false;
 };

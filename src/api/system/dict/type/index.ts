@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { DictTypeForm, DictTypeVO, DictTypeQuery } from './types';
-import { AxiosPromise } from 'axios';
-import { PageResult } from '@/api/types';
+import type { DictTypeForm, DictTypeQuery, DictTypeVO } from './types';
 
 // 查询字典类型列表
 export function listType(query: DictTypeQuery): AxiosPromise<PageResult<DictTypeVO>> {

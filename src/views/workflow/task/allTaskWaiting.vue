@@ -176,15 +176,18 @@
 </template>
 
 <script setup lang="ts">
+import { TabsPaneContext } from 'element-plus';
+import { UserVO } from '@/api/system/user/types';
 import { pageByAllTaskWait, pageByAllTaskFinish, updateAssignee, urgeTask } from '@/api/workflow/task';
-import UserSelect from '@/components/UserSelect';
 import { TaskQuery } from '@/api/workflow/task/types';
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
-import processMeddle from '@/components/Process/processMeddle';
-import messageType from '@/components/Process/MessageType';
-import { UserVO } from '@/api/system/user/types';
-import { TabsPaneContext } from 'element-plus';
+import messageType from '@/components/Process/MessageType.vue';
+import processMeddle from '@/components/Process/processMeddle.vue';
+import UserSelect from '@/components/UserSelect/index.vue';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+
 //选人组件
 const userSelectRef = ref<InstanceType<typeof UserSelect>>();
 //流程干预组件
@@ -194,9 +197,8 @@ const applyUserSelectRef = ref<InstanceType<typeof UserSelect>>();
 //消息组件
 const messageTypeRef = ref<InstanceType<typeof messageType>>();
 const queryFormRef = ref<ElFormInstance>();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { wf_business_status } = toRefs<any>(proxy?.useDict('wf_business_status'));
-const { wf_task_status } = toRefs<any>(proxy?.useDict('wf_task_status'));
+const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
+const { wf_task_status } = toRefs<any>(useDict('wf_task_status'));
 // 遮罩层
 const loading = ref(true);
 // 选中数组
@@ -289,23 +291,23 @@ const handleUserOpen = () => {
 
 //打开修改选人
 const handleUserTask = async data => {
-  await proxy?.$modal.confirm('是否确认提交？');
+  await modal.confirm('是否确认提交？');
   data.taskIdList = ids.value;
   await urgeTask(data);
   messageTypeRef.value.close();
-  proxy?.$modal.msgSuccess('操作成功');
+  modal.msgSuccess('操作成功');
   handleQuery();
 };
 //修改办理人
 const submitCallback = async data => {
   if (data && data.length > 0) {
-    await proxy?.$modal.confirm('是否确认提交？');
+    await modal.confirm('是否确认提交？');
     loading.value = true;
     await updateAssignee(ids.value, data[0].userId);
     handleQuery();
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    modal.msgWarning('请选择用户！');
   }
 };
 /** 查看按钮操作 */
@@ -317,7 +319,7 @@ const handleView = row => {
     formCustom: row.formCustom,
     formPath: row.formPath
   });
-  workflowCommon.routerJump(routerJumpVo, proxy);
+  workflowCommon.routerJump(routerJumpVo);
 };
 const handleMeddle = row => {
   processMeddleRef.value.open(row.id);

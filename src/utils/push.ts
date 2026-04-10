@@ -1,9 +1,9 @@
-import { getMessageBox } from '@/api/system/message';
+import { ElNotification } from 'element-plus';
 import type { MessageVO } from '@/api/system/message/types';
+import { getMessageBox } from '@/api/system/message';
+import { useNoticeStore } from '@/store/modules/notice';
 import { useUserStore } from '@/store/modules/user';
 import { getToken } from '@/utils/auth';
-import { ElNotification } from 'element-plus';
-import { useNoticeStore } from '@/store/modules/notice';
 import { isMessageRead } from '@/utils/message-read';
 import { parsePushMessage, resolveNoticeGroup, resolveNoticeTitle, shouldAppendNotice } from '@/utils/push-message';
 

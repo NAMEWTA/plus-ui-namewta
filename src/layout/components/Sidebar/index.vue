@@ -2,7 +2,7 @@
   <div class="sidebar-shell" :class="{ 'has-logo': showLogo }" :style="{ backgroundColor: bgColor }">
     <logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar :class="sideTheme" wrap-class="scrollbar-wrapper">
-      <transition :enter-active-class="proxy?.animate.menuSearchAnimate.enter" mode="out-in">
+      <transition :enter-active-class="animateConfig.menuSearchAnimate.enter" mode="out-in">
         <el-menu
           :default-active="activeMenu"
           :collapse="isCollapse"
@@ -22,14 +22,13 @@
 </template>
 
 <script setup lang="ts">
+import { RouteRecordRaw } from 'vue-router';
+import animateConfig from '@/animate';
+import { useAppStore } from '@/store/modules/app';
+import { usePermissionStore } from '@/store/modules/permission';
+import { useSettingsStore } from '@/store/modules/settings';
 import Logo from './Logo.vue';
 import SidebarItem from './SidebarItem.vue';
-import { useAppStore } from '@/store/modules/app';
-import { useSettingsStore } from '@/store/modules/settings';
-import { usePermissionStore } from '@/store/modules/permission';
-import { RouteRecordRaw } from 'vue-router';
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const route = useRoute();
 const appStore = useAppStore();

@@ -68,7 +68,7 @@
         <el-table-column label="浏览器" align="center" prop="browser" :show-overflow-tooltip="true" />
         <el-table-column label="登录时间" align="center" prop="loginTime" width="180">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.loginTime) }}</span>
+            <span>{{ parseTime(scope.row.loginTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -97,13 +97,14 @@
 </template>
 
 <script setup name="Online" lang="ts">
+import { to } from 'await-to-js';
 import { forceLogout, list as initData } from '@/api/monitor/online';
 import { OnlineQuery, OnlineVO } from '@/api/monitor/online/types';
-import api from '@/api/system/user';
-import { to } from 'await-to-js';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { parseTime } from '@/utils/ruoyi';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_type } = toRefs<any>(proxy?.useDict('sys_device_type'));
+const { sys_device_type } = toRefs<any>(useDict('sys_device_type'));
 
 const onlineList = ref<OnlineVO[]>([]);
 const loading = ref(true);
@@ -138,11 +139,11 @@ const resetQuery = () => {
 };
 /** 强退按钮操作 */
 const handleForceLogout = async (row: OnlineVO) => {
-  const [err] = await to(proxy?.$modal.confirm('是否确认强退名称为"' + row.userName + '"的用户?') as any);
+  const [err] = await to(modal.confirm('是否确认强退名称为"' + row.userName + '"的用户?') as any);
   if (!err) {
     await forceLogout(row.tokenId);
     await getList();
-    proxy?.$modal.msgSuccess('删除成功');
+    modal.msgSuccess('删除成功');
   }
 };
 

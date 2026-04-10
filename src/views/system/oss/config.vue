@@ -208,10 +208,10 @@ import {
   changeOssConfigStatus
 } from '@/api/system/ossConfig';
 import { OssConfigForm, OssConfigQuery, OssConfigVO } from '@/api/system/ossConfig/types';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_yes_no } = toRefs<any>(proxy?.useDict('sys_yes_no'));
-
+const { sys_yes_no } = toRefs<any>(useDict('sys_yes_no'));
 const ossConfigList = ref<OssConfigVO[]>([]);
 const buttonLoading = ref(false);
 const loading = ref(true);
@@ -372,7 +372,7 @@ const submitForm = () => {
       } else {
         await addOssConfig(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess('新增成功');
+      modal.msgSuccess('新增成功');
       dialog.visible = false;
       await getList();
     }
@@ -382,10 +382,10 @@ const submitForm = () => {
 const handleStatusChange = async (row: OssConfigVO) => {
   const text = row.status === 'Y' ? '启用' : '停用';
   try {
-    await proxy?.$modal.confirm('确认要"' + text + '""' + row.configKey + '"配置吗?');
+    await modal.confirm('确认要"' + text + '""' + row.configKey + '"配置吗?');
     await changeOssConfigStatus(row.ossConfigId, row.status, row.configKey);
     await getList();
-    proxy?.$modal.msgSuccess(text + '成功');
+    modal.msgSuccess(text + '成功');
   } catch {
     row.status = row.status === 'Y' ? 'N' : 'Y';
   }
@@ -393,11 +393,11 @@ const handleStatusChange = async (row: OssConfigVO) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: OssConfigVO) => {
   const ossConfigIds = row?.ossConfigId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除OSS配置编号为"' + ossConfigIds + '"的数据项?');
+  await modal.confirm('是否确认删除OSS配置编号为"' + ossConfigIds + '"的数据项?');
   loading.value = true;
   await delOssConfig(ossConfigIds).finally(() => (loading.value = false));
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 onMounted(() => {

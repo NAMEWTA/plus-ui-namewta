@@ -4,8 +4,8 @@
 
 <script setup lang="ts">
 import { login, callback } from '@/api/login';
-import { setToken, getToken } from '@/utils/auth';
 import { LoginData } from '@/api/types';
+import { setToken, getToken } from '@/utils/auth';
 
 const route = useRoute();
 const loading = ref(true);

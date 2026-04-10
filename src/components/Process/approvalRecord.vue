@@ -98,12 +98,14 @@
   </div>
 </template>
 <script setup lang="ts">
-import { flowHisTaskList } from '@/api/workflow/instance';
-import { propTypes } from '@/utils/propTypes';
 import { listByIds } from '@/api/system/oss';
+import { flowHisTaskList } from '@/api/workflow/instance';
 import FlowChart from '@/components/Process/flowChart.vue';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { wf_task_status } = toRefs<any>(proxy?.useDict('wf_task_status'));
+import download from '@/plugins/download';
+import { useDict } from '@/utils/dict';
+import { propTypes } from '@/utils/propTypes';
+
+const { wf_task_status } = toRefs<any>(useDict('wf_task_status'));
 const props = defineProps({
   width: propTypes.string.def('80%'),
   height: propTypes.string.def('100%')
@@ -146,7 +148,7 @@ const getIds = async (ids: string | number) => {
 
 /** 下载按钮操作 */
 const handleDownload = (ossId: string) => {
-  proxy?.$download.oss(ossId);
+  download.oss(ossId);
 };
 
 /**

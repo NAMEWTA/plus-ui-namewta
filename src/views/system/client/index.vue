@@ -213,11 +213,13 @@
 <script setup name="Client" lang="ts">
 import { listClient, getClient, delClient, addClient, updateClient, changeStatus } from '@/api/system/client';
 import { ClientVO, ClientQuery, ClientForm } from '@/api/system/client/types';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { download as requestDownload } from '@/utils/request';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
-const { sys_grant_type } = toRefs<any>(proxy?.useDict('sys_grant_type'));
-const { sys_device_type } = toRefs<any>(proxy?.useDict('sys_device_type'));
+const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
+const { sys_grant_type } = toRefs<any>(useDict('sys_grant_type'));
+const { sys_device_type } = toRefs<any>(useDict('sys_device_type'));
 
 const clientList = ref<ClientVO[]>([]);
 const buttonLoading = ref(false);
@@ -340,7 +342,7 @@ const submitForm = () => {
       } else {
         await addClient(form.value).finally(() => (buttonLoading.value = false));
       }
-      proxy?.$modal.msgSuccess('修改成功');
+      modal.msgSuccess('修改成功');
       dialog.visible = false;
       await getList();
     }
@@ -350,17 +352,15 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: ClientVO) => {
   const _ids = row?.id || ids.value;
-  await proxy?.$modal
-    .confirm('是否确认删除客户端管理编号为"' + _ids + '"的数据项？')
-    .finally(() => (loading.value = false));
+  await modal.confirm('是否确认删除客户端管理编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
   await delClient(_ids);
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
   await getList();
 };
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'system/client/export',
     {
       ...queryParams.value
@@ -373,9 +373,9 @@ const handleExport = () => {
 const handleStatusChange = async (row: ClientVO) => {
   const text = row.status === '0' ? '启用' : '停用';
   try {
-    await proxy?.$modal.confirm('确认要"' + text + '"吗?');
+    await modal.confirm('确认要"' + text + '"吗?');
     await changeStatus(row.clientId, row.status);
-    proxy?.$modal.msgSuccess(text + '成功');
+    modal.msgSuccess(text + '成功');
   } catch (err) {
     row.status = row.status === '0' ? '1' : '0';
   }

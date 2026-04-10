@@ -63,8 +63,8 @@
           >
             <div class="p-2user-select-main">
               <transition
-                :enter-active-class="proxy?.animate.searchAnimate.enter"
-                :leave-active-class="proxy?.animate.searchAnimate.leave"
+                :enter-active-class="animateConfig.searchAnimate.enter"
+                :leave-active-class="animateConfig.searchAnimate.leave"
               >
                 <div v-show="showSearch">
                   <el-card shadow="hover" class="search-panel selector-card">
@@ -167,11 +167,14 @@
 </template>
 
 <script setup lang="ts">
+import { VxeTableInstance } from 'vxe-table';
+import animateConfig from '@/animate';
+import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
 import api from '@/api/system/user';
 import { UserQuery, UserVO } from '@/api/system/user/types';
-import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
-import { VxeTableInstance } from 'vxe-table';
 import useDialog from '@/hooks/useDialog';
+import { useDict } from '@/utils/dict';
+import { addDateRange } from '@/utils/ruoyi';
 
 interface PropType {
   modelValue?: UserVO[] | UserVO | undefined;
@@ -187,14 +190,13 @@ const prop = withDefaults(defineProps<PropType>(), {
 });
 const emit = defineEmits(['update:modelValue', 'confirmCallBack']);
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const userList = ref<UserVO[]>();
 const loading = ref(true);
 const showSearch = ref(true);
 const total = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRange = ref<any>(['', '']);
 const deptName = ref('');
 const treeCollapsed = ref(false);
 const deptOptions = ref<DeptTreeVO[]>([]);
@@ -269,7 +271,7 @@ const getTreeSelect = async () => {
 const getList = async () => {
   loading.value = true;
   queryParams.value.userIds = prop.userIds;
-  const res = await api.listUser(proxy?.addDateRange(queryParams.value, dateRange.value));
+  const res = await api.listUser(addDateRange(queryParams.value, dateRange.value));
   loading.value = false;
   userList.value = res.data?.rows;
   total.value = res.data?.total;

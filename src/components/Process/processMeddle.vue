@@ -87,11 +87,12 @@
   </el-dialog>
 </template>
 <script setup lang="ts">
-import { propTypes } from '@/utils/propTypes';
-import { FlowTaskVO, TaskOperationBo } from '@/api/workflow/task/types';
-import UserSelect from '@/components/UserSelect';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import { getTask, taskOperation, currentTaskAllUser, terminationTask } from '@/api/workflow/task';
+import { FlowTaskVO, TaskOperationBo } from '@/api/workflow/task/types';
+import UserSelect from '@/components/UserSelect/index.vue';
+import modal from '@/plugins/modal';
+import { propTypes } from '@/utils/propTypes';
+
 const props = defineProps({
   width: propTypes.string.def('50%'),
   height: propTypes.string.def('100%')
@@ -128,8 +129,10 @@ const task = ref<FlowTaskVO>({
   nodeRatio: undefined,
   version: undefined,
   applyNode: undefined,
-  buttonList: []
-});
+  buttonList: [],
+  businessCode: '',
+  businessTitle: ''
+} as FlowTaskVO);
 
 const open = (taskId: string) => {
   visible.value = true;
@@ -153,7 +156,7 @@ const handleTransferTask = async data => {
       message: '',
       messageType: ['1']
     });
-    await proxy?.$modal.confirm('是否确认提交？');
+    await modal.confirm('是否确认提交？');
     loading.value = true;
     buttonDisabled.value = true;
     await taskOperation(taskOperationBo, 'transferTask').finally(() => {
@@ -162,9 +165,9 @@ const handleTransferTask = async data => {
     });
     visible.value = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    modal.msgWarning('请选择用户！');
   }
 };
 //加签
@@ -180,7 +183,7 @@ const addMultiInstanceUser = async data => {
       message: '',
       messageType: ['1']
     });
-    await proxy?.$modal.confirm('是否确认提交？');
+    await modal.confirm('是否确认提交？');
     loading.value = true;
     buttonDisabled.value = true;
     await taskOperation(taskOperationBo, 'addSignature').finally(() => {
@@ -189,14 +192,14 @@ const addMultiInstanceUser = async data => {
     });
     visible.value = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    modal.msgWarning('请选择用户！');
   }
 };
 //减签
 const deleteMultiInstanceUser = async row => {
-  await proxy?.$modal.confirm('是否确认提交？');
+  await modal.confirm('是否确认提交？');
   loading.value = true;
   buttonDisabled.value = true;
   const taskOperationBo = reactive<TaskOperationBo>({
@@ -211,7 +214,7 @@ const deleteMultiInstanceUser = async row => {
   });
   visible.value = false;
   emits('submitCallback');
-  proxy?.$modal.msgSuccess('操作成功');
+  modal.msgSuccess('操作成功');
 };
 //获取办理人
 const handleTaskUser = async () => {
@@ -231,7 +234,7 @@ const handleTerminationTask = async () => {
     taskId: task.value.id,
     comment: ''
   };
-  await proxy?.$modal.confirm('是否确认终止？');
+  await modal.confirm('是否确认终止？');
   loading.value = true;
   buttonDisabled.value = true;
   await terminationTask(params).finally(() => {
@@ -240,7 +243,7 @@ const handleTerminationTask = async () => {
   });
   visible.value = false;
   emits('submitCallback');
-  proxy?.$modal.msgSuccess('操作成功');
+  modal.msgSuccess('操作成功');
 };
 /**
  * 对外暴露子组件方法

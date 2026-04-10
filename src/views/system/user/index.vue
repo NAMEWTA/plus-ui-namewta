@@ -451,22 +451,27 @@
 </template>
 
 <script setup name="User" lang="ts">
-import TreePanel from '@/components/TreePanel/index.vue';
+import { to } from 'await-to-js';
+import { useRouter } from 'vue-router';
+import { getConfigKey } from '@/api/system/config';
+import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
+import { optionselect } from '@/api/system/post';
+import { PostVO } from '@/api/system/post/types';
+import { RoleVO } from '@/api/system/role/types';
 import api from '@/api/system/user';
 import { UserForm, UserQuery, UserVO } from '@/api/system/user/types';
-import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
-import { RoleVO } from '@/api/system/role/types';
-import { PostVO } from '@/api/system/post/types';
-import { globalHeaders } from '@/utils/request';
-import { to } from 'await-to-js';
-import { optionselect } from '@/api/system/post';
-import { checkPermi } from '@/utils/permission';
+import TreePanel from '@/components/TreePanel/index.vue';
+import modal from '@/plugins/modal';
 import { useUserStore } from '@/store/modules/user';
+import { useDict } from '@/utils/dict';
+import { checkPermi } from '@/utils/permission';
+import { globalHeaders } from '@/utils/request';
+import { download as requestDownload } from '@/utils/request';
+import { addDateRange } from '@/utils/ruoyi';
 import UserViewDrawer from './view.vue';
 
 const router = useRouter();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable, sys_user_gender } = toRefs<any>(proxy?.useDict('sys_normal_disable', 'sys_user_gender'));
+const { sys_normal_disable, sys_user_gender } = toRefs<any>(useDict('sys_normal_disable', 'sys_user_gender'));
 const userList = ref<UserVO[]>();
 const loading = ref(true);
 const showSearch = ref(true);
@@ -474,7 +479,7 @@ const ids = ref<Array<number | string>>([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRange = ref<any>(['', '']);
 const treeCollapsed = ref(false);
 const deptOptions = ref<DeptTreeVO[]>([]);
 const enabledDeptOptions = ref<DeptTreeVO[]>([]);
@@ -564,7 +569,11 @@ const initData: PageData<UserForm, UserQuery> = {
         message: '用户密码长度必须介于 5 和 20 之间',
         trigger: 'blur'
       },
-      { pattern: /^[^<>"'|\\]+$/, message: '不能包含非法字符：< > " \' \\ |', trigger: 'blur' }
+      {
+        pattern: /^[^<>"'|\\]+$/,
+        message: '不能包含非法字符：< > " \' \\ |',
+        trigger: 'blur'
+      }
     ],
     email: [
       {
@@ -590,7 +599,7 @@ const { queryParams, form, rules } = toRefs<PageData<UserForm, UserQuery>>(data)
 /** 查询用户列表 */
 const getList = async () => {
   loading.value = true;
-  const res = await api.listUser(proxy?.addDateRange(queryParams.value, dateRange.value));
+  const res = await api.listUser(addDateRange(queryParams.value, dateRange.value));
   loading.value = false;
   userList.value = res.data?.rows;
   total.value = res.data?.total;
@@ -640,21 +649,21 @@ const resetQuery = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: UserVO) => {
   const userIds = row?.userId || ids.value;
-  const [err] = await to(proxy?.$modal.confirm('是否确认删除用户编号为"' + userIds + '"的数据项？') as any);
+  const [err] = await to(modal.confirm('是否确认删除用户编号为"' + userIds + '"的数据项？') as any);
   if (!err) {
     await api.delUser(userIds);
     await getList();
-    proxy?.$modal.msgSuccess('删除成功');
+    modal.msgSuccess('删除成功');
   }
 };
 
 /** 解锁按钮操作 */
 const handleUnlock = async () => {
   const userId = ids.value[0];
-  const [err] = await to(proxy?.$modal.confirm('是否确认解锁用户编号为"' + userId + '"的数据项?') as any);
+  const [err] = await to(modal.confirm('是否确认解锁用户编号为"' + userId + '"的数据项?') as any);
   if (!err) {
     await api.unlockUser(userId);
-    proxy?.$modal.msgSuccess('用户编号"' + userId + '"解锁成功');
+    modal.msgSuccess('用户编号"' + userId + '"解锁成功');
   }
 };
 
@@ -662,9 +671,9 @@ const handleUnlock = async () => {
 const handleStatusChange = async (row: UserVO) => {
   const text = row.status === '0' ? '启用' : '停用';
   try {
-    await proxy?.$modal.confirm('确认要"' + text + '""' + row.userName + '"用户吗?');
+    await modal.confirm('确认要"' + text + '""' + row.userName + '"用户吗?');
     await api.changeUserStatus(row.userId, row.status);
-    proxy?.$modal.msgSuccess(text + '成功');
+    modal.msgSuccess(text + '成功');
   } catch (err) {
     row.status = row.status === '0' ? '1' : '0';
   }
@@ -693,7 +702,7 @@ const handleResetPwd = async (row: UserVO) => {
   );
   if (!err && res) {
     await api.resetUserPwd(row.userId, res.value);
-    proxy?.$modal.msgSuccess('修改成功，新密码是：' + res.value);
+    modal.msgSuccess('修改成功，新密码是：' + res.value);
   }
 };
 
@@ -716,7 +725,7 @@ const handleImport = () => {
 };
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'system/user/export',
     {
       ...queryParams.value
@@ -726,7 +735,7 @@ const handleExport = () => {
 };
 /** 下载模板操作 */
 const importTemplate = () => {
-  proxy?.download('system/user/importTemplate', {}, `user_template_${new Date().getTime()}.xlsx`);
+  requestDownload('system/user/importTemplate', {}, `user_template_${new Date().getTime()}.xlsx`);
 };
 
 /**文件上传中处理 */
@@ -811,7 +820,7 @@ const submitForm = () => {
       } else {
         await api.addUser(form.value);
       }
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
@@ -839,7 +848,7 @@ const resetForm = () => {
 onMounted(() => {
   getDeptTree(); // 初始化部门数据
   getList(); // 初始化列表数据
-  proxy?.getConfigKey('sys.user.initPassword').then(response => {
+  getConfigKey('sys.user.initPassword').then(response => {
     initPassword.value = response.data;
   });
 });

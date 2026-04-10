@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { OssConfigForm, OssConfigQuery, OssConfigVO } from './types';
-import { AxiosPromise } from 'axios';
-import { PageResult } from '@/api/types';
+import type { OssConfigForm, OssConfigQuery, OssConfigVO } from './types';
 
 // 查询对象存储配置列表
 export function listOssConfig(query: OssConfigQuery): AxiosPromise<PageResult<OssConfigVO>> {

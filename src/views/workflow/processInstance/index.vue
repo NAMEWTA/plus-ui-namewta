@@ -9,7 +9,7 @@
         placeholder="请输入流程分类名"
         :data="categoryOptions"
         :expanded-span="4"
-        filter-field="categoryName"
+        filter-field="label"
         @node-click="handleNodeClick"
       />
       <el-col
@@ -60,7 +60,7 @@
                   plain
                   icon="Delete"
                   :disabled="multiple"
-                  @click="handleDelete"
+                  @click="() => handleDelete()"
                 >
                   删除
                 </el-button>
@@ -143,7 +143,12 @@
                 <template #default="scope">
                   <el-row v-if="tab === 'running'" :gutter="10" class="mb8">
                     <el-col :span="1.5">
-                      <el-popover :ref="`popoverRef${scope.$index}`" trigger="click" placement="left" :width="300">
+                      <el-popover
+                        :ref="el => setPopoverRef(el, scope.$index)"
+                        trigger="click"
+                        placement="left"
+                        :width="300"
+                      >
                         <el-input
                           v-model="deleteReason"
                           resize="none"
@@ -295,7 +300,12 @@
 </template>
 
 <script setup lang="ts">
-import TreePanel from '@/components/TreePanel/index.vue';
+import { ElForm, FormInstance, type TabsPaneContext } from 'element-plus';
+import { ref } from 'vue';
+import VueJsonPretty from 'vue-json-pretty';
+import { UserVO } from '@/api/system/user/types';
+import { categoryTree } from '@/api/workflow/category';
+import { CategoryTreeVO } from '@/api/workflow/category/types';
 import {
   pageByRunning,
   pageByFinish,
@@ -305,22 +315,24 @@ import {
   invalid,
   updateVariable
 } from '@/api/workflow/instance';
-import { categoryTree } from '@/api/workflow/category';
-import { CategoryTreeVO } from '@/api/workflow/category/types';
 import { FlowInstanceQuery, FlowInstanceVO } from '@/api/workflow/instance/types';
+import 'vue-json-pretty/lib/styles.css';
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
-import VueJsonPretty from 'vue-json-pretty';
-import 'vue-json-pretty/lib/styles.css';
+import TreePanel from '@/components/TreePanel/index.vue';
 import UserSelect from '@/components/UserSelect/index.vue';
-import { ElForm, FormInstance } from 'element-plus';
-//审批记录组件
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { wf_business_status } = toRefs<any>(proxy?.useDict('wf_business_status'));
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+
+const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 const queryFormRef = ref<ElFormInstance>();
 const treePanelRef = ref<InstanceType<typeof TreePanel>>();
-import { ref } from 'vue';
-import { UserVO } from '@/api/system/user/types';
+const popoverRefs = ref<Record<number, { hide?: () => void } | null>>({});
+const setPopoverRef = (el: unknown, index: number) => {
+  if (el) {
+    popoverRefs.value[index] = el as { hide?: () => void };
+  }
+};
 const form = ref<Record<string, any>>({
   instanceId: undefined,
   key: undefined,
@@ -354,19 +366,13 @@ const processDefinitionName = ref();
 // 模型定义表格数据
 const processInstanceList = ref<FlowInstanceVO[]>([]);
 const processDefinitionHistoryList = ref<Array<any>>([]);
-const categoryOptions = ref<CategoryOption[]>([]);
+const categoryOptions = ref<CategoryTreeVO[]>([]);
 const treeCollapsed = ref(false);
 
 const processDefinitionDialog = reactive<DialogOption>({
   visible: false,
   title: '流程定义'
 });
-
-type CategoryOption = {
-  id: string;
-  categoryName: string;
-  children?: CategoryOption[];
-};
 
 const tab = ref('running');
 // 作废原因
@@ -446,9 +452,9 @@ const getProcessInstanceFinishList = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row: FlowInstanceVO) => {
-  const instanceIdList = row.id || instanceIds.value;
-  await proxy?.$modal.confirm('是否确认删除？');
+const handleDelete = async (row?: FlowInstanceVO) => {
+  const instanceIdList = row?.id ?? instanceIds.value;
+  await modal.confirm('是否确认删除？');
   loading.value = true;
   if ('running' === tab.value) {
     await deleteByInstanceIds(instanceIdList).finally(() => (loading.value = false));
@@ -457,12 +463,12 @@ const handleDelete = async (row: FlowInstanceVO) => {
     await deleteHisByInstanceIds(instanceIdList).finally(() => (loading.value = false));
     getProcessInstanceFinishList();
   }
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
-const changeTab = async (data: string) => {
+const changeTab = async (pane: TabsPaneContext) => {
   processInstanceList.value = [];
   queryParams.value.pageNum = 1;
-  if ('running' === data.paneName) {
+  if ('running' === pane.paneName) {
     getProcessInstanceRunningList();
   } else {
     getProcessInstanceFinishList();
@@ -470,7 +476,7 @@ const changeTab = async (data: string) => {
 };
 /** 作废按钮操作 */
 const handleInvalid = async (row: FlowInstanceVO) => {
-  await proxy?.$modal.confirm('是否确认作废？');
+  await modal.confirm('是否确认作废？');
   loading.value = true;
   if ('running' === tab.value) {
     const param = {
@@ -479,11 +485,11 @@ const handleInvalid = async (row: FlowInstanceVO) => {
     };
     await invalid(param).finally(() => (loading.value = false));
     getProcessInstanceRunningList();
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   }
 };
-const cancelPopover = async (index: any) => {
-  (proxy?.$refs[`popoverRef${index}`] as any)?.hide(); //关闭弹窗
+const cancelPopover = async (index: number) => {
+  popoverRefs.value[index]?.hide?.();
 };
 /** 查看按钮操作 */
 const handleView = row => {
@@ -494,7 +500,7 @@ const handleView = row => {
     formCustom: row.formCustom,
     formPath: row.formPath
   });
-  workflowCommon.routerJump(routerJumpVo, proxy);
+  workflowCommon.routerJump(routerJumpVo);
 };
 
 //查询流程变量
@@ -560,9 +566,9 @@ const handleVariable = async (formEl: FormInstance | undefined) => {
   await formEl.validate(async (valid, fields) => {
     if (valid) {
       form.value.instanceId = instanceId.value;
-      await proxy?.$modal.confirm('是否确认提交？');
+      await modal.confirm('是否确认提交？');
       await updateVariable(form.value);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       const data = await instanceVariable(instanceId.value);
       variables.value = data.data.variable;
     }

@@ -1,9 +1,8 @@
-import { UserVO } from '@/api/system/user/types';
-import { UserQuery } from '@/api/system/user/types';
-import { AxiosPromise } from 'axios';
-import { RoleQuery, RoleVO, RoleDeptTree } from './types';
+import type { UserQuery, UserVO } from '@/api/system/user/types';
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { PageResult } from '@/api/types';
+import type { RoleDeptTree, RoleQuery, RoleVO } from './types';
 
 export const listRole = (query: RoleQuery): AxiosPromise<PageResult<RoleVO>> => {
   return request({

@@ -9,8 +9,8 @@
     >
       <div class="p-2 role-select-shell">
         <transition
-          :enter-active-class="proxy?.animate.searchAnimate.enter"
-          :leave-active-class="proxy?.animate.searchAnimate.leave"
+          :enter-active-class="animateConfig.searchAnimate.enter"
+          :leave-active-class="animateConfig.searchAnimate.leave"
         >
           <div v-show="showSearch">
             <el-card shadow="hover" class="search-panel selector-card">
@@ -81,7 +81,7 @@
             </vxe-column>
             <vxe-column field="createTime" title="创建时间" align="center">
               <template #default="scope">
-                <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+                <span>{{ parseTime(scope.row.createTime) }}</span>
               </template>
             </vxe-column>
           </vxe-table>
@@ -104,10 +104,14 @@
 </template>
 
 <script setup lang="ts">
-import { RoleVO, RoleQuery } from '@/api/system/role/types';
 import { VxeTableInstance } from 'vxe-table';
-import useDialog from '@/hooks/useDialog';
+import animateConfig from '@/animate';
 import api from '@/api/system/role';
+import { RoleVO, RoleQuery } from '@/api/system/role/types';
+import useDialog from '@/hooks/useDialog';
+import { useDict } from '@/utils/dict';
+import { parseTime, addDateRange } from '@/utils/ruoyi';
+
 interface PropType {
   modelValue?: RoleVO[] | RoleVO | undefined;
   multiple?: boolean;
@@ -120,14 +124,13 @@ const prop = withDefaults(defineProps<PropType>(), {
 });
 const emit = defineEmits(['update:modelValue', 'confirmCallBack']);
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const roleList = ref<RoleVO[]>();
 const loading = ref(true);
 const showSearch = ref(true);
 const total = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRange = ref<any>(['', '']);
 const selectRoleList = ref<RoleVO[]>([]);
 
 const roleDialog = useDialog({
@@ -171,7 +174,7 @@ const computedIds = data => {
  */
 const getList = () => {
   loading.value = true;
-  api.listRole(proxy?.addDateRange(queryParams.value, dateRange.value)).then(res => {
+  api.listRole(addDateRange(queryParams.value, dateRange.value)).then(res => {
     roleList.value = res.data?.rows;
     total.value = res.data?.total;
     loading.value = false;

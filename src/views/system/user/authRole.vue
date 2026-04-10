@@ -54,7 +54,7 @@
         <el-table-column label="权限字符" align="center" prop="roleKey" />
         <el-table-column label="创建时间" align="center" prop="createTime" width="180">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -64,14 +64,15 @@
 </template>
 
 <script setup name="AuthRole" lang="ts">
+import { RouteLocationNormalized } from 'vue-router';
 import { RoleVO } from '@/api/system/role/types';
 import { getAuthRole, updateAuthRole } from '@/api/system/user';
 import { UserForm } from '@/api/system/user/types';
-import { RouteLocationNormalized } from 'vue-router';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
 import { parseTime } from '@/utils/ruoyi';
 
 const route = useRoute();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const loading = ref(true);
 const total = ref(0);
@@ -119,14 +120,14 @@ const close = () => {
     redirectedFrom: undefined,
     path: '/system/user'
   };
-  proxy?.$tab.closeOpenPage(obj);
+  tab.closeOpenPage(obj as any);
 };
 /** 提交按钮 */
 const submitForm = async () => {
   const userId = form.value.userId;
   const rIds = roleIds.value.join(',');
   await updateAuthRole({ userId: userId as string, roleIds: rIds });
-  proxy?.$modal.msgSuccess('授权成功');
+  modal.msgSuccess('授权成功');
   close();
 };
 

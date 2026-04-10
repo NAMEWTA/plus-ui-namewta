@@ -103,7 +103,13 @@ export interface DbTableQuery extends PageQuery {
   tableComment: string;
 }
 
-export interface GenTableVO {
+/**
+ * 代码生成表详情接口 data 结构（与后端 Map 三键一致）
+ * - info：当前表 GenTable
+ * - rows：字段列表 GenTableColumn[]
+ * - tables：全部表 GenTable[]（主子表等选项）
+ */
+export interface GenTableDetailPayload {
   info: DbTableVO;
   rows: DbColumnVO[];
   tables: DbTableVO[];

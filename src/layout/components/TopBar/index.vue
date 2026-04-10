@@ -7,10 +7,10 @@
     mode="horizontal"
   >
     <sidebar-item
-      :key="route.path + index"
-      v-for="(route, index) in topMenus"
-      :item="route"
-      :base-path="route.path"
+      :key="menuRoute.path + index"
+      v-for="(menuRoute, index) in topMenus"
+      :item="menuRoute"
+      :base-path="menuRoute.path"
       popper-class="topbar-menu-popper"
     />
 
@@ -24,10 +24,10 @@
         <span>更多菜单</span>
       </template>
       <sidebar-item
-        :key="route.path + index"
-        v-for="(route, index) in moreRoutes"
-        :item="route"
-        :base-path="route.path"
+        :key="menuRoute.path + index"
+        v-for="(menuRoute, index) in moreRoutes"
+        :item="menuRoute"
+        :base-path="menuRoute.path"
         popper-class="topbar-menu-popper"
       />
     </el-sub-menu>
@@ -35,9 +35,10 @@
 </template>
 
 <script setup lang="ts">
-import SidebarItem from '../Sidebar/SidebarItem';
-import { useSettingsStore } from '@/store/modules/settings';
+import type { RouteRecordRaw } from 'vue-router';
 import { usePermissionStore } from '@/store/modules/permission';
+import { useSettingsStore } from '@/store/modules/settings';
+import SidebarItem from '../Sidebar/SidebarItem.vue';
 
 const route = useRoute();
 const settingsStore = useSettingsStore();
@@ -53,11 +54,11 @@ const activeMenu = computed(() => {
 });
 
 const visibleNumber = ref(5);
-const topMenus = computed(() => {
-  return permissionStore.sidebarRouters.filter(f => !f.hidden).slice(0, visibleNumber.value);
+const topMenus = computed((): RouteRecordRaw[] => {
+  return permissionStore.sidebarRouters.filter(f => !f.hidden).slice(0, visibleNumber.value) as RouteRecordRaw[];
 });
-const moreRoutes = computed(() => {
-  return permissionStore.sidebarRouters.filter(f => !f.hidden).slice(visibleNumber.value);
+const moreRoutes = computed((): RouteRecordRaw[] => {
+  return permissionStore.sidebarRouters.filter(f => !f.hidden).slice(visibleNumber.value) as RouteRecordRaw[];
 });
 function setVisibleNumber() {
   let width = document.body.getBoundingClientRect().width;

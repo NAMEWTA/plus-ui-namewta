@@ -92,14 +92,15 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { pageByTaskCopy } from '@/api/workflow/task';
 import { TaskQuery } from '@/api/workflow/task/types';
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
-//审批记录组件
+import { useDict } from '@/utils/dict';
+
 const queryFormRef = ref<ElFormInstance>();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { wf_business_status } = toRefs<any>(proxy?.useDict('wf_business_status'));
+const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 // 遮罩层
 const loading = ref(true);
 // 选中数组
@@ -158,7 +159,7 @@ const handleView = row => {
     formCustom: row.formCustom,
     formPath: row.formPath
   });
-  workflowCommon.routerJump(routerJumpVo, proxy);
+  workflowCommon.routerJump(routerJumpVo);
 };
 
 onMounted(() => {

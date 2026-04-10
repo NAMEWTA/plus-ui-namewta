@@ -20,17 +20,19 @@
 </template>
 
 <script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router';
 import errImage from '@/assets/401_images/401.gif';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const route = useRoute();
+const router = useRouter();
 
 const errGif = ref(errImage + '?' + +new Date());
 
 function back() {
-  if (proxy?.$route.query.noGoBack) {
-    proxy.$router.push({ path: '/' });
+  if (route.query.noGoBack) {
+    router.push({ path: '/' });
   } else {
-    proxy?.$router.go(-1);
+    router.go(-1);
   }
 }
 </script>

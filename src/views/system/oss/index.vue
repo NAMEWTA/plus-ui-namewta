@@ -128,7 +128,7 @@
         </el-table-column>
         <el-table-column label="创建时间" align="center" prop="createTime" width="180" sortable="custom">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
+            <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
         <el-table-column label="上传人" align="center" prop="createByName" />
@@ -184,12 +184,16 @@
 </template>
 
 <script setup name="Oss" lang="ts">
+import { useRouter } from 'vue-router';
+import { getConfigKey, updateConfigByKey } from '@/api/system/config';
 import { listOss, delOss } from '@/api/system/oss';
-import ImagePreview from '@/components/ImagePreview/index.vue';
 import { OssForm, OssQuery, OssVO } from '@/api/system/oss/types';
+import ImagePreview from '@/components/ImagePreview/index.vue';
+import download from '@/plugins/download';
+import modal from '@/plugins/modal';
+import { parseTime, addDateRange } from '@/utils/ruoyi';
 
 const router = useRouter();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const ossList = ref<OssVO[]>([]);
 const showTable = ref(true);
@@ -202,7 +206,7 @@ const multiple = ref(true);
 const total = ref(0);
 const type = ref(0);
 const previewListResource = ref(true);
-const dateRangeCreateTime = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRangeCreateTime = ref<any>(['', '']);
 
 const dialog = reactive<DialogOption>({
   visible: false,
@@ -242,9 +246,9 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询OSS对象存储列表 */
 const getList = async () => {
   loading.value = true;
-  const res = await proxy?.getConfigKey('sys.oss.previewListResource');
+  const res = await getConfigKey('sys.oss.previewListResource');
   previewListResource.value = res?.data === undefined ? true : res.data === 'true';
-  const response = await listOss(proxy?.addDateRange(queryParams.value, dateRangeCreateTime.value, 'CreateTime'));
+  const response = await listOss(addDateRange(queryParams.value, dateRangeCreateTime.value, 'CreateTime'));
   ossList.value = response.data?.rows;
   total.value = response.data?.total;
   loading.value = false;
@@ -355,14 +359,14 @@ const submitForm = () => {
 };
 /** 下载按钮操作 */
 const handleDownload = (row: OssVO) => {
-  proxy?.$download.oss(row.ossId);
+  download.oss(row.ossId);
 };
 /** 预览开关按钮  */
 const handlePreviewListResource = async (preview: boolean) => {
   try {
-    await proxy?.updateConfigByKey('sys.oss.previewListResource', preview);
+    await updateConfigByKey('sys.oss.previewListResource', preview);
     await getList();
-    proxy?.$modal.msgSuccess((preview ? '启用' : '停用') + '成功');
+    modal.msgSuccess((preview ? '启用' : '停用') + '成功');
   } catch {
     return;
   }
@@ -370,11 +374,11 @@ const handlePreviewListResource = async (preview: boolean) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: OssVO) => {
   const ossIds = row?.ossId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除OSS对象存储编号为"' + ossIds + '"的数据项?');
+  await modal.confirm('是否确认删除OSS对象存储编号为"' + ossIds + '"的数据项?');
   loading.value = true;
   await delOss(ossIds).finally(() => (loading.value = false));
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 onMounted(() => {

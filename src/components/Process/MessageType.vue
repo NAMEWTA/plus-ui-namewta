@@ -29,10 +29,9 @@
   </el-dialog>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
-import { ComponentInternalInstance } from 'vue';
 import { ElForm, FormInstance } from 'element-plus';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+import { ref } from 'vue';
+
 const emits = defineEmits(['submitCallback', 'cancelCallback']);
 const props = defineProps({
   title: {

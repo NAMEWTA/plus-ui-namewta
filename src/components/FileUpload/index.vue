@@ -47,8 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import { propTypes } from '@/utils/propTypes';
 import { delOss, listByIds } from '@/api/system/oss';
+import modal from '@/plugins/modal';
+import { propTypes } from '@/utils/propTypes';
 import { globalHeaders } from '@/utils/request';
 
 const props = defineProps({
@@ -68,7 +69,6 @@ const props = defineProps({
   disabled: propTypes.bool.def(false)
 });
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const emit = defineEmits(['update:modelValue']);
 const number = ref(0);
 const uploadList = ref<any[]>([]);
@@ -94,7 +94,7 @@ watch(
       let list: any[] = [];
       if (Array.isArray(val)) {
         list = val;
-      } else {
+      } else if (typeof val === 'string' || typeof val === 'number') {
         const res = await listByIds(val);
         list = res.data.map(oss => {
           return {
@@ -103,6 +103,8 @@ watch(
             ossId: oss.ossId
           };
         });
+      } else {
+        list = [];
       }
       // 然后将数组转为对象数组
       fileList.value = list.map(item => {
@@ -126,36 +128,36 @@ const handleBeforeUpload = (file: any) => {
     const fileExt = fileName[fileName.length - 1];
     const isTypeOk = props.fileType.indexOf(fileExt) >= 0;
     if (!isTypeOk) {
-      proxy?.$modal.msgError(`文件格式不正确, 请上传${props.fileType.join('/')}格式文件!`);
+      modal.msgError(`文件格式不正确, 请上传${props.fileType.join('/')}格式文件!`);
       return false;
     }
   }
   // 校检文件名是否包含特殊字符
   if (file.name.includes(',')) {
-    proxy?.$modal.msgError('文件名不正确，不能包含英文逗号!');
+    modal.msgError('文件名不正确，不能包含英文逗号!');
     return false;
   }
   // 校检文件大小
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize;
     if (!isLt) {
-      proxy?.$modal.msgError(`上传文件大小不能超过 ${props.fileSize} MB!`);
+      modal.msgError(`上传文件大小不能超过 ${props.fileSize} MB!`);
       return false;
     }
   }
-  proxy?.$modal.loading('正在上传文件，请稍候...');
+  modal.loading('正在上传文件，请稍候...');
   number.value++;
   return true;
 };
 
 // 文件个数超出
 const handleExceed = () => {
-  proxy?.$modal.msgError(`上传文件数量不能超过 ${props.limit} 个!`);
+  modal.msgError(`上传文件数量不能超过 ${props.limit} 个!`);
 };
 
 // 上传失败
 const handleUploadError = () => {
-  proxy?.$modal.msgError('上传文件失败');
+  modal.msgError('上传文件失败');
 };
 
 // 上传成功回调
@@ -169,8 +171,8 @@ const handleUploadSuccess = (res: any, file: UploadFile) => {
     uploadedSuccessfully();
   } else {
     number.value--;
-    proxy?.$modal.closeLoading();
-    proxy?.$modal.msgError(res.msg);
+    modal.closeLoading();
+    modal.msgError(res.msg);
     fileUploadRef.value?.handleRemove(file);
     uploadedSuccessfully();
   }
@@ -191,7 +193,7 @@ const uploadedSuccessfully = () => {
     uploadList.value = [];
     number.value = 0;
     emit('update:modelValue', listToString(fileList.value));
-    proxy?.$modal.closeLoading();
+    modal.closeLoading();
   }
 };
 

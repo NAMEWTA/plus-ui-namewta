@@ -368,6 +368,9 @@
 import { addMenu, cascadeDelMenu, delMenu, getMenu, listMenu, updateMenu } from '@/api/system/menu';
 import { MenuForm, MenuQuery, MenuVO } from '@/api/system/menu/types';
 import { MenuTypeEnum } from '@/enums/MenuTypeEnum';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { handleTree } from '@/utils/ruoyi';
 
 interface MenuOptionsType {
   menuId: number;
@@ -375,8 +378,7 @@ interface MenuOptionsType {
   children: MenuOptionsType[] | undefined;
 }
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_show_hide, sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_show_hide', 'sys_normal_disable'));
+const { sys_show_hide, sys_normal_disable } = toRefs<any>(useDict('sys_show_hide', 'sys_normal_disable'));
 
 const menuList = ref<MenuVO[]>([]);
 const menuChildrenListMap = ref({});
@@ -512,7 +514,7 @@ const getTreeselect = async () => {
   menuOptions.value = [];
   const response = await listMenu();
   const menu: MenuOptionsType = { menuId: 0, menuName: '主类目', children: [] };
-  menu.children = proxy?.handleTree<MenuOptionsType>(response.data, 'menuId');
+  menu.children = handleTree<MenuOptionsType>(response.data, 'menuId');
   menuOptions.value.push(menu);
 };
 /** 取消按钮 */
@@ -559,7 +561,7 @@ const submitForm = () => {
   menuFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       form.value.menuId ? await updateMenu(form.value) : await addMenu(form.value);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
@@ -567,10 +569,10 @@ const submitForm = () => {
 };
 /** 删除按钮操作 */
 const handleDelete = async (row: MenuVO) => {
-  await proxy?.$modal.confirm('是否确认删除名称为"' + row.menuName + '"的数据项?');
+  await modal.confirm('是否确认删除名称为"' + row.menuName + '"的数据项?');
   await delMenu(row.menuId);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 const deleteLoading = ref<boolean>(false);
@@ -598,14 +600,14 @@ const cancelCascade = () => {
 const submitDeleteForm = async () => {
   const menuIds = menuTreeRef.value?.getCheckedKeys();
   if (menuIds.length < 0) {
-    proxy?.$modal.msgWarning('请选择要删除的菜单');
+    modal.msgWarning('请选择要删除的菜单');
     return;
   }
 
   deleteLoading.value = true;
   await cascadeDelMenu(menuIds).finally(() => (deleteLoading.value = false));
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
   deleteDialog.visible = false;
 };
 

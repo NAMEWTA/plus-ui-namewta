@@ -196,9 +196,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { ComponentInternalInstance } from 'vue';
 import { ElForm } from 'element-plus';
+import { ref } from 'vue';
 import {
   completeTask,
   backProcess,
@@ -209,10 +208,9 @@ import {
   currentTaskAllUser,
   getNextNodeList
 } from '@/api/workflow/task';
-import UserSelect from '@/components/UserSelect';
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 import { FlowCopyVo, FlowTaskVO, TaskOperationBo } from '@/api/workflow/task/types';
+import UserSelect from '@/components/UserSelect/index.vue';
+import modal from '@/plugins/modal';
 
 const userSelectCopyRef = ref<InstanceType<typeof UserSelect>>();
 const transferTaskRef = ref<InstanceType<typeof UserSelect>>();
@@ -362,7 +360,7 @@ const handleCompleteTask = async () => {
       }
     });
     if (verify) {
-      proxy?.$modal.msgWarning('请选择审批人！');
+      modal.msgWarning('请选择审批人！');
       return false;
     }
   } else {
@@ -379,14 +377,14 @@ const handleCompleteTask = async () => {
     });
     form.value.flowCopyList = flowCopyList;
   }
-  await proxy?.$modal.confirm('是否确认提交？');
+  await modal.confirm('是否确认提交？');
   loading.value = true;
   buttonDisabled.value = true;
   try {
     await completeTask(form.value);
     dialog.visible = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   } finally {
     loading.value = false;
     buttonDisabled.value = false;
@@ -409,7 +407,7 @@ const handleBackProcessOpen = async () => {
 /** 驳回流程 */
 const handleBackProcess = async () => {
   backForm.value.taskId = taskId.value;
-  await proxy?.$modal.confirm('是否确认驳回到申请人？');
+  await modal.confirm('是否确认驳回到申请人？');
   loading.value = true;
   backLoading.value = true;
   backButtonDisabled.value = true;
@@ -421,7 +419,7 @@ const handleBackProcess = async () => {
   backLoading.value = false;
   backButtonDisabled.value = false;
   emits('submitCallback');
-  proxy?.$modal.msgSuccess('操作成功');
+  modal.msgSuccess('操作成功');
 };
 //取消
 const cancel = async () => {
@@ -463,7 +461,7 @@ const addMultiInstanceUser = async data => {
       message: form.value.message,
       messageType: ['1']
     });
-    await proxy?.$modal.confirm('是否确认提交？');
+    await modal.confirm('是否确认提交？');
     loading.value = true;
     buttonDisabled.value = true;
     await taskOperation(taskOperationBo, 'addSignature').finally(() => {
@@ -472,14 +470,14 @@ const addMultiInstanceUser = async data => {
     });
     dialog.visible = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    modal.msgWarning('请选择用户！');
   }
 };
 //减签
 const deleteMultiInstanceUser = async row => {
-  await proxy?.$modal.confirm('是否确认提交？');
+  await modal.confirm('是否确认提交？');
   loading.value = true;
   buttonDisabled.value = true;
   const taskOperationBo = reactive<TaskOperationBo>({
@@ -494,7 +492,7 @@ const deleteMultiInstanceUser = async row => {
   });
   dialog.visible = false;
   emits('submitCallback');
-  proxy?.$modal.msgSuccess('操作成功');
+  modal.msgSuccess('操作成功');
 };
 //打开转办
 const openTransferTask = () => {
@@ -509,7 +507,7 @@ const handleTransferTask = async data => {
       message: form.value.message,
       messageType: ['1']
     });
-    await proxy?.$modal.confirm('是否确认提交？');
+    await modal.confirm('是否确认提交？');
     loading.value = true;
     buttonDisabled.value = true;
     await taskOperation(taskOperationBo, 'transferTask').finally(() => {
@@ -518,9 +516,9 @@ const handleTransferTask = async data => {
     });
     dialog.visible = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    modal.msgWarning('请选择用户！');
   }
 };
 
@@ -537,7 +535,7 @@ const handleDelegateTask = async data => {
       message: form.value.message,
       messageType: ['1']
     });
-    await proxy?.$modal.confirm('是否确认提交？');
+    await modal.confirm('是否确认提交？');
     loading.value = true;
     buttonDisabled.value = true;
     await taskOperation(taskOperationBo, 'delegateTask').finally(() => {
@@ -546,9 +544,9 @@ const handleDelegateTask = async data => {
     });
     dialog.visible = false;
     emits('submitCallback');
-    proxy?.$modal.msgSuccess('操作成功');
+    modal.msgSuccess('操作成功');
   } else {
-    proxy?.$modal.msgWarning('请选择用户！');
+    modal.msgWarning('请选择用户！');
   }
 };
 //终止任务
@@ -557,7 +555,7 @@ const handleTerminationTask = async () => {
     taskId: taskId.value,
     comment: form.value.message
   };
-  await proxy?.$modal.confirm('是否确认终止？');
+  await modal.confirm('是否确认终止？');
   loading.value = true;
   buttonDisabled.value = true;
   await terminationTask(params).finally(() => {
@@ -566,7 +564,7 @@ const handleTerminationTask = async () => {
   });
   dialog.visible = false;
   emits('submitCallback');
-  proxy?.$modal.msgSuccess('操作成功');
+  modal.msgSuccess('操作成功');
 };
 const handleTaskUser = async () => {
   const data = await currentTaskAllUser(taskId.value);
@@ -581,7 +579,7 @@ const handleTaskUser = async () => {
 // 选择人员
 const choosePeople = async data => {
   if (!data.permissionFlag) {
-    proxy?.$modal.msgError('没有可选择的人员，请联系管理员！');
+    modal.msgError('没有可选择的人员，请联系管理员！');
   }
   popUserIds.value = data.permissionFlag;
   nodeCode.value = data.nodeCode;

@@ -1,8 +1,8 @@
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { PostForm, PostQuery, PostVO } from './types';
-import { AxiosPromise } from 'axios';
-import { DeptTreeVO } from '../dept/types';
-import { PageResult } from '@/api/types';
+import type { DeptTreeVO } from '../dept/types';
+import type { PostForm, PostQuery, PostVO } from './types';
 
 // 查询岗位列表
 export function listPost(query: PostQuery): AxiosPromise<PageResult<PostVO>> {

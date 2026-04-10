@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { ConfigForm, ConfigQuery, ConfigVO } from './types';
-import { AxiosPromise } from 'axios';
-import { PageResult } from '@/api/types';
+import type { ConfigForm, ConfigQuery, ConfigVO } from './types';
 
 // 查询参数列表
 export function listConfig(query: ConfigQuery): AxiosPromise<PageResult<ConfigVO>> {

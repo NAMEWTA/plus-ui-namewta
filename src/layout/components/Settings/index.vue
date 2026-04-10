@@ -162,16 +162,16 @@
 </template>
 
 <script setup lang="ts">
-import { useDynamicTitle } from '@/utils/dynamicTitle';
-import { useAppStore } from '@/store/modules/app';
-import { useSettingsStore } from '@/store/modules/settings';
-import { usePermissionStore } from '@/store/modules/permission';
-import { handleThemeStyle } from '@/utils/theme';
-import { SideThemeEnum } from '@/enums/SideThemeEnum';
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
+import { SideThemeEnum } from '@/enums/SideThemeEnum';
+import modal from '@/plugins/modal';
 import defaultSettings from '@/settings';
+import { useAppStore } from '@/store/modules/app';
+import { usePermissionStore } from '@/store/modules/permission';
+import { useSettingsStore } from '@/store/modules/settings';
+import { useDynamicTitle } from '@/utils/dynamicTitle';
+import { handleThemeStyle } from '@/utils/theme';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const appStore = useAppStore();
 const settingsStore = useSettingsStore();
 const permissionStore = usePermissionStore();
@@ -245,7 +245,7 @@ const handleTheme = (val: string) => {
   settingsStore.sideTheme = val;
 };
 const saveSetting = () => {
-  proxy?.$modal.loading('正在保存到本地，请稍候...');
+  modal.loading('正在保存到本地，请稍候...');
   const settings = useStorage<LayoutSetting>('layout-setting', defaultSettings);
   if (!storeSettings.value.tagsViewPersist) {
     localStorage.removeItem('tags-view-visited');
@@ -261,11 +261,11 @@ const saveSetting = () => {
   settings.value.navType = storeSettings.value.navType;
   settings.value.radiusBase = storeSettings.value.radiusBase;
   setTimeout(() => {
-    proxy?.$modal.closeLoading();
+    modal.closeLoading();
   }, 1000);
 };
 const resetSetting = () => {
-  proxy?.$modal.loading('正在清除设置缓存并刷新，请稍候...');
+  modal.loading('正在清除设置缓存并刷新，请稍候...');
   localStorage.removeItem('tags-view-visited');
   useStorage<any>('layout-setting', null).value = null;
   setTimeout('window.location.reload()', 1000);

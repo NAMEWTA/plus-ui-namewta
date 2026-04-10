@@ -79,7 +79,7 @@
         </el-table-column>
         <el-table-column label="创建时间" align="center" prop="createTime" width="200">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column fixed="right" align="center" label="操作">
@@ -192,8 +192,11 @@
 <script setup name="Dept" lang="ts">
 import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild } from '@/api/system/dept';
 import { DeptForm, DeptQuery, DeptVO } from '@/api/system/dept/types';
-import { UserVO } from '@/api/system/user/types';
 import { listUserByDeptId } from '@/api/system/user';
+import { UserVO } from '@/api/system/user/types';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { handleTree, parseTime } from '@/utils/ruoyi';
 
 interface DeptOptionsType {
   deptId: number | string;
@@ -201,8 +204,7 @@ interface DeptOptionsType {
   children: DeptOptionsType[];
 }
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const deptList = ref<DeptVO[]>([]);
 const loading = ref(true);
@@ -244,8 +246,20 @@ const initData: PageData<DeptForm, DeptQuery> = {
     parentId: [{ required: true, message: '上级部门不能为空', trigger: 'blur' }],
     deptName: [{ required: true, message: '部门名称不能为空', trigger: 'blur' }],
     orderNum: [{ required: true, message: '显示排序不能为空', trigger: 'blur' }],
-    email: [{ type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }],
-    phone: [{ pattern: /^1[3456789][0-9]\d{8}$/, message: '请输入正确的手机号码', trigger: 'blur' }]
+    email: [
+      {
+        type: 'email',
+        message: '请输入正确的邮箱地址',
+        trigger: ['blur', 'change']
+      }
+    ],
+    phone: [
+      {
+        pattern: /^1[3456789][0-9]\d{8}$/,
+        message: '请输入正确的手机号码',
+        trigger: 'blur'
+      }
+    ]
   }
 };
 const data = reactive<PageData<DeptForm, DeptQuery>>(initData);
@@ -256,7 +270,7 @@ const { queryParams, form, rules } = toRefs<PageData<DeptForm, DeptQuery>>(data)
 const getList = async () => {
   loading.value = true;
   const res = await listDept(queryParams.value);
-  const data = proxy?.handleTree<DeptVO>(res.data, 'deptId');
+  const data = handleTree<DeptVO>(res.data, 'deptId');
   if (data) {
     deptList.value = data;
   }
@@ -309,7 +323,7 @@ const toggleExpandAll = (data: DeptVO[], status: boolean) => {
 const handleAdd = async (row?: DeptVO) => {
   reset();
   const res = await listDept();
-  const data = proxy?.handleTree<DeptOptionsType>(res.data, 'deptId');
+  const data = handleTree<DeptOptionsType>(res.data, 'deptId');
   if (data) {
     deptOptions.value = data;
     if (row && row.deptId) {
@@ -328,7 +342,7 @@ const handleUpdate = async (row: DeptVO) => {
   const res = await getDept(row.deptId);
   form.value = res.data;
   const response = await listDeptExcludeChild(row.deptId);
-  const data = proxy?.handleTree<DeptOptionsType>(response.data, 'deptId');
+  const data = handleTree<DeptOptionsType>(response.data, 'deptId');
   if (data) {
     deptOptions.value = data;
     if (data.length === 0) {
@@ -348,7 +362,7 @@ const submitForm = () => {
   deptFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       form.value.deptId ? await updateDept(form.value) : await addDept(form.value);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
@@ -356,10 +370,10 @@ const submitForm = () => {
 };
 /** 删除按钮操作 */
 const handleDelete = async (row: DeptVO) => {
-  await proxy?.$modal.confirm('是否确认删除名称为"' + row.deptName + '"的数据项?');
+  await modal.confirm('是否确认删除名称为"' + row.deptName + '"的数据项?');
   await delDept(row.deptId);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 onMounted(() => {

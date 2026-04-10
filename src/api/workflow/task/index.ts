@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { FlowTaskVO, TaskOperationBo, TaskQuery } from '@/api/workflow/task/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { TaskQuery, FlowTaskVO, TaskOperationBo } from '@/api/workflow/task/types';
-import { PageResult } from '@/api/types';
 
 /**
  * 查询待办列表

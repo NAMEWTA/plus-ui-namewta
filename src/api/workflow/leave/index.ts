@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { LeaveForm, LeaveQuery, LeaveVO } from '@/api/workflow/leave/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { AxiosPromise } from 'axios';
-import { LeaveVO, LeaveQuery, LeaveForm } from '@/api/workflow/leave/types';
-import { PageResult } from '@/api/types';
 
 /**
  * 查询请假列表

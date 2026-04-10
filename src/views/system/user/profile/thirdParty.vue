@@ -62,9 +62,9 @@
 
 <script setup lang="ts">
 import { authUnlock, authRouterUrl } from '@/api/system/social/auth';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
 import { propTypes } from '@/utils/propTypes';
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const props = defineProps({
   auths: propTypes.any.isRequired
@@ -78,10 +78,10 @@ const unlockAuth = (row: any) => {
     })
     .then((res: any) => {
       if (res.code === 200) {
-        proxy?.$modal.msgSuccess('解绑成功');
-        proxy?.$tab.refreshPage();
+        modal.msgSuccess('解绑成功');
+        tab.refreshPage();
       } else {
-        proxy?.$modal.msgError(res.msg);
+        modal.msgError(res.msg);
       }
     })
     .catch(() => {});
@@ -92,7 +92,7 @@ const authUrl = (source: string) => {
     if (res.code === 200) {
       window.location.href = res.data;
     } else {
-      proxy?.$modal.msgError(res.msg);
+      modal.msgError(res.msg);
     }
   });
 };

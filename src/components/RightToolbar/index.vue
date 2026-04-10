@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { propTypes } from '@/utils/propTypes';
 import cache from '@/plugins/cache';
+import { propTypes } from '@/utils/propTypes';
 
 const props = defineProps({
   showSearch: propTypes.bool.def(true),

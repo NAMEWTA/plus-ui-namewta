@@ -161,7 +161,7 @@
           :sort-orders="['descending', 'ascending']"
         >
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.operTime) }}</span>
+            <span>{{ parseTime(scope.row.operTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -208,11 +208,14 @@
 <script setup name="Operlog" lang="ts">
 import { list, delOperlog, cleanOperlog } from '@/api/monitor/operlog';
 import { OperLogForm, OperLogQuery, OperLogVO } from '@/api/monitor/operlog/types';
-import OperInfoDialog from './oper-info-dialog.vue';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { download as requestDownload } from '@/utils/request';
+import { parseTime, addDateRange, selectDictLabel } from '@/utils/ruoyi';
+import OperInfoDialog from './operInfoDialog.vue';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_oper_type, sys_common_status, sys_device_type } = toRefs<any>(
-  proxy?.useDict('sys_oper_type', 'sys_common_status', 'sys_device_type')
+  useDict('sys_oper_type', 'sys_common_status', 'sys_device_type')
 );
 
 const operlogList = ref<OperLogVO[]>([]);
@@ -221,7 +224,7 @@ const showSearch = ref(true);
 const ids = ref<Array<number | string>>([]);
 const multiple = ref(true);
 const total = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRange = ref<any>(['', '']);
 const defaultSort = ref<any>({ prop: 'operTime', order: 'descending' });
 
 const operLogTableRef = ref<ElTableInstance>();
@@ -280,14 +283,14 @@ const { queryParams, form } = toRefs(data);
 /** 查询登录日志 */
 const getList = async () => {
   loading.value = true;
-  const res = await list(proxy?.addDateRange(queryParams.value, dateRange.value));
+  const res = await list(addDateRange(queryParams.value, dateRange.value));
   operlogList.value = res.data?.rows;
   total.value = res.data?.total;
   loading.value = false;
 };
 /** 操作日志类型字典翻译 */
 const typeFormat = (row: OperLogForm) => {
-  return proxy?.selectDictLabel(sys_oper_type.value, row.businessType);
+  return selectDictLabel(sys_oper_type.value, row.businessType);
 };
 /** 搜索按钮操作 */
 const handleQuery = () => {
@@ -322,23 +325,23 @@ const handleView = (row: OperLogVO) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: OperLogVO) => {
   const operIds = row?.operId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除日志编号为"' + operIds + '"的数据项?');
+  await modal.confirm('是否确认删除日志编号为"' + operIds + '"的数据项?');
   await delOperlog(operIds);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 
 /** 清空按钮操作 */
 const handleClean = async () => {
-  await proxy?.$modal.confirm('是否确认清空所有操作日志数据项?');
+  await modal.confirm('是否确认清空所有操作日志数据项?');
   await cleanOperlog();
   await getList();
-  proxy?.$modal.msgSuccess('清空成功');
+  modal.msgSuccess('清空成功');
 };
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'monitor/operlog/export',
     {
       ...queryParams.value

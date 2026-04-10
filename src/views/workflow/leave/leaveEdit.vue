@@ -61,15 +61,19 @@
 </template>
 
 <script setup name="Leave" lang="ts">
+import { useRoute } from 'vue-router';
 import { addLeave, getLeave, submitAndFlowStart, updateLeave } from '@/api/workflow/leave';
 import { LeaveForm, LeaveQuery, LeaveVO } from '@/api/workflow/leave/types';
 import { startWorkFlow } from '@/api/workflow/task';
-import SubmitVerify from '@/components/Process/submitVerify.vue';
-import ApprovalRecord from '@/components/Process/approvalRecord.vue';
-import ApprovalButton from '@/components/Process/approvalButton.vue';
-import { AxiosResponse } from 'axios';
 import { StartProcessBo } from '@/api/workflow/workflowCommon/types';
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+import ApprovalButton from '@/components/Process/approvalButton.vue';
+import ApprovalRecord from '@/components/Process/approvalRecord.vue';
+import SubmitVerify from '@/components/Process/submitVerify.vue';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
+import router from '@/router';
+
+const route = useRoute();
 
 const buttonLoading = ref(false);
 const loading = ref(true);
@@ -197,7 +201,7 @@ const getInfo = () => {
 /** 提交按钮 */
 const submitForm = (status: string, mode: boolean) => {
   if (leaveTime.value.length === 0) {
-    proxy?.$modal.msgError('请假时间不能为空');
+    modal.msgError('请假时间不能为空');
     return;
   }
   try {
@@ -211,9 +215,9 @@ const submitForm = (status: string, mode: boolean) => {
           const res = await submitAndFlowStart(form.value).finally(() => (buttonLoading.value = false));
           form.value = res.data;
           buttonLoading.value = false;
-          proxy?.$modal.msgSuccess('操作成功');
-          proxy.$tab.closePage(proxy.$route);
-          proxy.$router.go(-1);
+          modal.msgSuccess('操作成功');
+          tab.closePage(route);
+          router.go(-1);
         } else {
           let res;
           if (form.value.id) {
@@ -224,9 +228,9 @@ const submitForm = (status: string, mode: boolean) => {
           form.value = res.data;
           if (status === 'draft') {
             buttonLoading.value = false;
-            proxy?.$modal.msgSuccess('暂存成功');
-            proxy.$tab.closePage(proxy.$route);
-            proxy.$router.go(-1);
+            modal.msgSuccess('暂存成功');
+            tab.closePage(route);
+            router.go(-1);
           } else {
             await handleStartWorkFlow(res.data);
           }
@@ -272,8 +276,8 @@ const handleApprovalRecord = () => {
 };
 //提交回调
 const submitCallback = async () => {
-  await proxy.$tab.closePage(proxy.$route);
-  proxy.$router.go(-1);
+  await tab.closePage(route);
+  router.go(-1);
 };
 //审批
 const approvalVerifyOpen = async () => {
@@ -282,7 +286,7 @@ const approvalVerifyOpen = async () => {
 
 onMounted(() => {
   nextTick(async () => {
-    routeParams.value = proxy.$route.query;
+    routeParams.value = route.query;
     reset();
     loading.value = false;
     if (

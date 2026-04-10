@@ -1,7 +1,7 @@
+import type { PageResult } from '@/api/types';
+import type { FlowInstanceQuery, FlowInstanceVO } from '@/api/workflow/instance/types';
+import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { FlowInstanceQuery, FlowInstanceVO } from '@/api/workflow/instance/types';
-import { AxiosPromise } from 'axios';
-import { PageResult } from '@/api/types';
 
 /**
  * 查询运行中实例列表
@@ -34,7 +34,7 @@ export const pageByFinish = (query: FlowInstanceQuery): AxiosPromise<PageResult<
  */
 export const flowHisTaskList = (businessId: string | number) => {
   return request({
-    url: `/workflow/instance/flowHisTaskList/${businessId}` + '?t' + Math.random(),
+    url: `/workflow/instance/flowHisTaskList/${businessId}?t=${Math.random()}`,
     method: 'get'
   });
 };

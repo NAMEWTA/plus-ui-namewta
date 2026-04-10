@@ -106,15 +106,17 @@
 </template>
 
 <script setup name="AuthUser" lang="ts">
+import { RouteLocationNormalized } from 'vue-router';
 import { allocatedUserList, authUserCancel, authUserCancelAll } from '@/api/system/role';
 import { UserQuery } from '@/api/system/user/types';
 import { UserVO } from '@/api/system/user/types';
+import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
+import { useDict } from '@/utils/dict';
 import SelectUser from './selectUser.vue';
-import { RouteLocationNormalized } from 'vue-router';
 
 const route = useRoute();
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_normal_disable } = toRefs<any>(proxy?.useDict('sys_normal_disable'));
+const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const userList = ref<UserVO[]>([]);
 const loading = ref(true);
@@ -155,7 +157,7 @@ const handleClose = () => {
     query: undefined,
     redirectedFrom: undefined
   };
-  proxy?.$tab.closeOpenPage(obj);
+  tab.closeOpenPage(obj as any);
 };
 /** 搜索按钮操作 */
 const handleQuery = () => {
@@ -178,19 +180,19 @@ const openSelectUser = () => {
 };
 /** 取消授权按钮操作 */
 const cancelAuthUser = async (row: UserVO) => {
-  await proxy?.$modal.confirm('确认要取消该用户"' + row.userName + '"角色吗？');
+  await modal.confirm('确认要取消该用户"' + row.userName + '"角色吗？');
   await authUserCancel({ userId: row.userId, roleId: queryParams.roleId });
   await getList();
-  proxy?.$modal.msgSuccess('取消授权成功');
+  modal.msgSuccess('取消授权成功');
 };
 /** 批量取消授权按钮操作 */
 const cancelAuthUserAll = async () => {
   const roleId = queryParams.roleId;
   const uIds = userIds.value.join(',');
-  await proxy?.$modal.confirm('是否取消选中用户授权数据项?');
+  await modal.confirm('是否取消选中用户授权数据项?');
   await authUserCancelAll({ roleId: roleId, userIds: uIds });
   await getList();
-  proxy?.$modal.msgSuccess('取消授权成功');
+  modal.msgSuccess('取消授权成功');
 };
 
 onMounted(() => {

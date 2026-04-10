@@ -120,7 +120,7 @@
         <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
         <el-table-column label="创建时间" align="center" prop="createTime" width="180">
           <template #default="scope">
-            <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
@@ -189,9 +189,12 @@
 <script setup name="Config" lang="ts">
 import { listConfig, getConfig, delConfig, addConfig, updateConfig, refreshCache } from '@/api/system/config';
 import { ConfigForm, ConfigQuery, ConfigVO } from '@/api/system/config/types';
+import modal from '@/plugins/modal';
+import { useDict } from '@/utils/dict';
+import { download as requestDownload } from '@/utils/request';
+import { parseTime, addDateRange } from '@/utils/ruoyi';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_yes_no } = toRefs<any>(proxy?.useDict('sys_yes_no'));
+const { sys_yes_no } = toRefs<any>(useDict('sys_yes_no'));
 
 const configList = ref<ConfigVO[]>([]);
 const loading = ref(true);
@@ -200,7 +203,7 @@ const ids = ref<Array<number | string>>([]);
 const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
+const dateRange = ref<any>(['', '']);
 
 const queryFormRef = ref<ElFormInstance>();
 const configFormRef = ref<ElFormInstance>();
@@ -237,7 +240,7 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询参数列表 */
 const getList = async () => {
   loading.value = true;
-  const res = await listConfig(proxy?.addDateRange(queryParams.value, dateRange.value));
+  const res = await listConfig(addDateRange(queryParams.value, dateRange.value));
   configList.value = res.data?.rows;
   total.value = res.data?.total;
   loading.value = false;
@@ -289,7 +292,7 @@ const submitForm = () => {
   configFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       form.value.configId ? await updateConfig(form.value) : await addConfig(form.value);
-      proxy?.$modal.msgSuccess('操作成功');
+      modal.msgSuccess('操作成功');
       dialog.visible = false;
       await getList();
     }
@@ -298,14 +301,14 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: ConfigVO) => {
   const configIds = row?.configId || ids.value;
-  await proxy?.$modal.confirm('是否确认删除参数编号为"' + configIds + '"的数据项？');
+  await modal.confirm('是否确认删除参数编号为"' + configIds + '"的数据项？');
   await delConfig(configIds);
   await getList();
-  proxy?.$modal.msgSuccess('删除成功');
+  modal.msgSuccess('删除成功');
 };
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download(
+  requestDownload(
     'system/config/export',
     {
       ...queryParams.value
@@ -316,7 +319,7 @@ const handleExport = () => {
 /** 刷新缓存按钮操作 */
 const handleRefreshCache = async () => {
   await refreshCache();
-  proxy?.$modal.msgSuccess('刷新缓存成功');
+  modal.msgSuccess('刷新缓存成功');
 };
 
 onMounted(() => {

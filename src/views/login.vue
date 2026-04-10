@@ -36,7 +36,7 @@
             type="text"
             size="large"
             auto-complete="off"
-            :placeholder="proxy.$t('login.username')"
+            :placeholder="$t('login.username')"
           >
             <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
           </el-input>
@@ -48,7 +48,7 @@
             type="password"
             size="large"
             auto-complete="off"
-            :placeholder="proxy.$t('login.password')"
+            :placeholder="$t('login.password')"
             @keyup.enter="handleLogin"
           >
             <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
@@ -60,7 +60,7 @@
             v-model="loginForm.code"
             size="large"
             auto-complete="off"
-            :placeholder="proxy.$t('login.code')"
+            :placeholder="$t('login.code')"
             @keyup.enter="handleLogin"
           >
             <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
@@ -71,28 +71,28 @@
         </el-form-item>
 
         <div class="form-meta">
-          <el-checkbox v-model="loginForm.rememberMe">{{ proxy.$t('login.rememberPassword') }}</el-checkbox>
+          <el-checkbox v-model="loginForm.rememberMe">{{ $t('login.rememberPassword') }}</el-checkbox>
           <router-link v-if="register" class="link-type" :to="'/register'">
-            {{ proxy.$t('login.switchRegisterPage') }}
+            {{ $t('login.switchRegisterPage') }}
           </router-link>
         </div>
 
         <div class="social-panel">
           <span class="social-label">第三方登录</span>
           <div class="social-actions">
-            <el-button circle :title="proxy.$t('login.social.wechat')" @click="doSocialLogin('wechat')">
+            <el-button circle :title="$t('login.social.wechat')" @click="doSocialLogin('wechat')">
               <svg-icon icon-class="wechat" />
             </el-button>
-            <el-button circle :title="proxy.$t('login.social.maxkey')" @click="doSocialLogin('maxkey')">
+            <el-button circle :title="$t('login.social.maxkey')" @click="doSocialLogin('maxkey')">
               <svg-icon icon-class="maxkey" />
             </el-button>
-            <el-button circle :title="proxy.$t('login.social.topiam')" @click="doSocialLogin('topiam')">
+            <el-button circle :title="$t('login.social.topiam')" @click="doSocialLogin('topiam')">
               <svg-icon icon-class="topiam" />
             </el-button>
-            <el-button circle :title="proxy.$t('login.social.gitee')" @click="doSocialLogin('gitee')">
+            <el-button circle :title="$t('login.social.gitee')" @click="doSocialLogin('gitee')">
               <svg-icon icon-class="gitee" />
             </el-button>
-            <el-button circle :title="proxy.$t('login.social.github')" @click="doSocialLogin('github')">
+            <el-button circle :title="$t('login.social.github')" @click="doSocialLogin('github')">
               <svg-icon icon-class="github" />
             </el-button>
           </div>
@@ -100,8 +100,8 @@
 
         <el-form-item class="submit-row">
           <el-button :loading="loading" size="large" type="primary" class="submit-button" @click.prevent="handleLogin">
-            <span v-if="!loading">{{ proxy.$t('login.login') }}</span>
-            <span v-else>{{ proxy.$t('login.logging') }}</span>
+            <span v-if="!loading">{{ $t('login.login') }}</span>
+            <span v-else>{{ $t('login.logging') }}</span>
           </el-button>
         </el-form-item>
       </el-form>
@@ -114,15 +114,13 @@
 </template>
 
 <script setup lang="ts">
+import { to } from 'await-to-js';
+import { useI18n } from 'vue-i18n';
 import { getCodeImg } from '@/api/login';
 import { authRouterUrl } from '@/api/system/social/auth';
-import { useUserStore } from '@/store/modules/user';
 import { LoginData } from '@/api/types';
-import { to } from 'await-to-js';
 import { HttpStatus } from '@/enums/RespEnum';
-import { useI18n } from 'vue-i18n';
-
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+import { useUserStore } from '@/store/modules/user';
 
 const title = import.meta.env.VITE_APP_TITLE;
 const currentYear = new Date().getFullYear();
@@ -145,9 +143,27 @@ const loginForm = ref<LoginData>({
 } as LoginData);
 
 const loginRules: ElFormRules = {
-  username: [{ required: true, trigger: 'blur', message: t('login.rule.username.required') }],
-  password: [{ required: true, trigger: 'blur', message: t('login.rule.password.required') }],
-  code: [{ required: true, trigger: 'change', message: t('login.rule.code.required') }]
+  username: [
+    {
+      required: true,
+      trigger: 'blur',
+      message: t('login.rule.username.required')
+    }
+  ],
+  password: [
+    {
+      required: true,
+      trigger: 'blur',
+      message: t('login.rule.password.required')
+    }
+  ],
+  code: [
+    {
+      required: true,
+      trigger: 'change',
+      message: t('login.rule.code.required')
+    }
+  ]
 };
 
 const codeUrl = ref('');
@@ -561,5 +577,4 @@ onMounted(() => {
     grid-template-columns: 1fr;
   }
 }
-
 </style>

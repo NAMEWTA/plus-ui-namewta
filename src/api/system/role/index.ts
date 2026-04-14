@@ -45,23 +45,23 @@ export const addRole = (data: any) => {
 };
 
 /**
- * 修改角色
+ * 修改角色基础信息
  * @param data
  */
 export const updateRole = (data: any) => {
   return request({
-    url: '/system/role',
+    url: '/system/role/baseInfo',
     method: 'put',
     data: data
   });
 };
 
 /**
- * 角色数据权限
+ * 修改角色权限（菜单权限 + 数据权限）
  */
-export const dataScope = (data: any) => {
+export const updateRolePermission = (data: any) => {
   return request({
-    url: '/system/role/dataScope',
+    url: '/system/role/permission',
     method: 'put',
     data: data
   });

@@ -50,7 +50,7 @@ export const addRole = (data: any) => {
  */
 export const updateRole = (data: any) => {
   return request({
-    url: '/system/role/baseInfo',
+    url: '/system/role',
     method: 'put',
     data: data
   });

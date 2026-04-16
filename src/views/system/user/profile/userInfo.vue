@@ -11,8 +11,9 @@
     </el-form-item>
     <el-form-item label="性别">
       <el-radio-group v-model="userForm.gender">
-        <el-radio value="0">男</el-radio>
-        <el-radio value="1">女</el-radio>
+        <el-radio v-for="dict in sys_user_gender" :key="dict.value" :value="dict.value">
+          {{ dict.label }}
+        </el-radio>
       </el-radio-group>
     </el-form-item>
     <el-form-item class="profile-form__actions">
@@ -26,8 +27,10 @@
 import { updateUserProfile } from '@/api/system/user';
 import modal from '@/plugins/modal';
 import tab from '@/plugins/tab';
+import { useDict } from '@/utils/dict';
 import { propTypes } from '@/utils/propTypes';
 
+const { sys_user_gender } = toRefs<any>(useDict('sys_user_gender'));
 const props = defineProps({
   user: propTypes.any.isRequired
 });

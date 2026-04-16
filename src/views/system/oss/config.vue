@@ -24,8 +24,12 @@
           </el-form-item>
           <el-form-item label="是否默认" prop="status">
             <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-              <el-option key="Y" label="是" value="Y" />
-              <el-option key="N" label="否" value="N" />
+              <el-option
+                v-for="dict in sys_yes_no"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
           <el-form-item>

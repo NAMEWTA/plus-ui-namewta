@@ -182,8 +182,9 @@
                 </span>
               </template>
               <el-radio-group v-model="form.isFrame">
-                <el-radio value="Y">是</el-radio>
-                <el-radio value="N">否</el-radio>
+                <el-radio v-for="dict in sys_yes_no" :key="dict.value" :value="dict.value">
+                  {{ dict.label }}
+                </el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -378,7 +379,9 @@ interface MenuOptionsType {
   children: MenuOptionsType[] | undefined;
 }
 
-const { sys_show_hide, sys_normal_disable } = toRefs<any>(useDict('sys_show_hide', 'sys_normal_disable'));
+const { sys_show_hide, sys_normal_disable, sys_yes_no } = toRefs<any>(
+  useDict('sys_show_hide', 'sys_normal_disable', 'sys_yes_no')
+);
 
 const menuList = ref<MenuVO[]>([]);
 const menuChildrenListMap = ref({});

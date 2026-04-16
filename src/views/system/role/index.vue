@@ -221,6 +221,25 @@
     <el-dialog v-model="openDataScope" :title="dialog.title" width="760px" append-to-body>
       <el-form ref="dataScopeRef" :model="form" label-width="90px" class="dialog-grid-form permission-dialog-form">
         <el-tabs v-model="permissionTab">
+          <el-tab-pane label="菜单权限" name="menu">
+            <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
+            <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event, 'menu')">
+              全选/全不选
+            </el-checkbox>
+            <el-checkbox v-model="form.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">
+              父子联动
+            </el-checkbox>
+            <el-tree
+              ref="menuRef"
+              class="tree-border"
+              :data="menuOptions"
+              show-checkbox
+              node-key="id"
+              :check-strictly="!form.menuCheckStrictly"
+              empty-text="加载中，请稍候"
+              :props="{ label: 'label', children: 'children' } as any"
+            ></el-tree>
+          </el-tab-pane>
           <el-tab-pane label="数据权限" name="data">
             <el-form-item label="权限范围">
               <el-select v-model="form.dataScope" @change="dataScopeSelectChange">
@@ -252,25 +271,6 @@
                 :props="{ label: 'label', children: 'children' } as any"
               ></el-tree>
             </el-form-item>
-          </el-tab-pane>
-          <el-tab-pane label="菜单权限" name="menu">
-            <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
-            <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event, 'menu')">
-              全选/全不选
-            </el-checkbox>
-            <el-checkbox v-model="form.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">
-              父子联动
-            </el-checkbox>
-            <el-tree
-              ref="menuRef"
-              class="tree-border"
-              :data="menuOptions"
-              show-checkbox
-              node-key="id"
-              :check-strictly="!form.menuCheckStrictly"
-              empty-text="加载中，请稍候"
-              :props="{ label: 'label', children: 'children' } as any"
-            ></el-tree>
           </el-tab-pane>
         </el-tabs>
       </el-form>
@@ -326,7 +326,7 @@ const openDataScope = ref(false);
  * 权限分配弹窗 Tab：
  * data=数据权限，menu=菜单权限
  */
-const permissionTab = ref<'data' | 'menu'>('data');
+const permissionTab = ref<'data' | 'menu'>('menu');
 
 /** 数据范围选项*/
 const dataScopeOptions = ref([
@@ -579,7 +579,7 @@ const dataScopeSelectChange = (value: string) => {
 };
 /** 分配数据权限操作 */
 const handleDataScope = async (row: RoleVO) => {
-  permissionTab.value = 'data';
+  permissionTab.value = 'menu';
   const response = await getRole(row.roleId);
   Object.assign(form.value, response.data);
   const menuRes = await getRoleMenuTreeselect(row.roleId);
@@ -607,7 +607,7 @@ const submitDataScope = async () => {
 const cancelDataScope = () => {
   dataScopeRef.value?.resetFields();
   form.value = { ...initForm };
-  permissionTab.value = 'data';
+  permissionTab.value = 'menu';
   menuRef.value?.setCheckedKeys([]);
   openDataScope.value = false;
 };

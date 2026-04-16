@@ -97,6 +97,41 @@
             <dict-tag :options="sys_device_type" :value="scope.row.deviceType" />
           </template>
         </el-table-column>
+        <el-table-column label="白名单路径" align="center">
+          <template #default="scope">
+            <div class="rule-tag-list">
+              <el-tag
+                v-for="path in getRuleList(scope.row.accessPathList, scope.row.accessPath)"
+                :key="path"
+                size="small"
+                effect="plain"
+              >
+                {{ path }}
+              </el-tag>
+              <span v-if="!getRuleList(scope.row.accessPathList, scope.row.accessPath).length" class="rule-empty">
+                全部路径
+              </span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="白名单IP" align="center">
+          <template #default="scope">
+            <div class="rule-tag-list">
+              <el-tag
+                v-for="ip in getRuleList(scope.row.ipWhitelistList, scope.row.ipWhitelist)"
+                :key="ip"
+                size="small"
+                type="success"
+                effect="plain"
+              >
+                {{ ip }}
+              </el-tag>
+              <span v-if="!getRuleList(scope.row.ipWhitelistList, scope.row.ipWhitelist).length" class="rule-empty">
+                全部IP
+              </span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="Token活跃超时时间" align="center" prop="activeTimeout" />
         <el-table-column label="Token固定超时时间" align="center" prop="timeout" />
         <el-table-column key="status" label="状态" align="center">
@@ -142,7 +177,7 @@
       />
     </el-card>
     <!-- 添加或修改客户端管理对话框 -->
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
+    <el-dialog v-model="dialog.visible" :title="dialog.title" width="760px" append-to-body>
       <el-form ref="clientFormRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="客户端key" prop="clientKey">
           <el-input v-model="form.clientKey" :disabled="form.id != null" placeholder="请输入客户端key" />
@@ -169,6 +204,38 @@
               :value="dict.value"
             ></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item prop="accessPath" label-width="auto">
+          <template #label>
+            <span>
+              <el-tooltip content="多个路径可按换行、逗号或分号分隔；为空表示允许访问所有接口路径" placement="top">
+                <el-icon><question-filled /></el-icon>
+              </el-tooltip>
+              允许访问路径
+            </span>
+          </template>
+          <el-input
+            v-model="form.accessPath"
+            type="textarea"
+            :rows="4"
+            placeholder="示例：/app/**"
+          />
+        </el-form-item>
+        <el-form-item prop="ipWhitelist" label-width="auto">
+          <template #label>
+            <span>
+              <el-tooltip content="支持精确IP、通配符和CIDR；多个规则可按换行、逗号或分号分隔；为空表示允许所有IP" placement="top">
+                <el-icon><question-filled /></el-icon>
+              </el-tooltip>
+              IP白名单
+            </span>
+          </template>
+          <el-input
+            v-model="form.ipWhitelist"
+            type="textarea"
+            :rows="4"
+            placeholder="示例：127.0.0.1&#10;192.168.*.*&#10;10.0.0.0/24"
+          />
         </el-form-item>
         <el-form-item prop="activeTimeout" label-width="auto">
           <template #label>
@@ -245,6 +312,10 @@ const initFormData: ClientForm = {
   clientSecret: undefined,
   grantTypeList: undefined,
   deviceType: undefined,
+  accessPath: undefined,
+  accessPathList: undefined,
+  ipWhitelist: undefined,
+  ipWhitelistList: undefined,
   activeTimeout: undefined,
   timeout: undefined,
   status: '0'
@@ -259,6 +330,8 @@ const data = reactive<PageData<ClientForm, ClientQuery>>({
     clientSecret: undefined,
     grantType: undefined,
     deviceType: undefined,
+    accessPath: undefined,
+    ipWhitelist: undefined,
     activeTimeout: undefined,
     timeout: undefined,
     status: undefined
@@ -274,6 +347,19 @@ const data = reactive<PageData<ClientForm, ClientQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+
+const getRuleList = (ruleList?: string[], ruleValue?: string) => {
+  if (Array.isArray(ruleList) && ruleList.length) {
+    return ruleList;
+  }
+  if (!ruleValue) {
+    return [];
+  }
+  return ruleValue
+    .split(/[\n,;]+/)
+    .map(item => item.trim())
+    .filter(Boolean);
+};
 
 /** 查询客户端管理列表 */
 const getList = async () => {
@@ -399,6 +485,17 @@ onMounted(() => {
   :deep(.grant-type-tag .el-tag) {
     margin-left: 0 !important;
     margin-right: 0 !important;
+  }
+
+  .rule-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .rule-empty {
+    color: var(--el-text-color-secondary);
   }
 }
 </style>

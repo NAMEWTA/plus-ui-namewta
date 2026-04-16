@@ -8,12 +8,24 @@ export interface MenuTreeOption {
   label: string;
   parentId: string | number;
   weight: number;
+  menuType?: MenuTypeEnum | string;
   children?: MenuTreeOption[];
 }
 
 export interface RoleMenuTree {
   menus: MenuTreeOption[];
-  checkedKeys: string[];
+  checkedKeys: Array<string | number>;
+  buttonsMap: Record<string, RoleMenuButtonOption[]>;
+}
+
+/**
+ * 角色菜单分配中的按钮节点类型
+ */
+export interface RoleMenuButtonOption {
+  menuId: string | number;
+  menuName: string;
+  parentId: string | number;
+  perms?: string;
 }
 
 /**

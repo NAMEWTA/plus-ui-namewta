@@ -229,16 +229,49 @@
             <el-checkbox v-model="form.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">
               父子联动
             </el-checkbox>
-            <el-tree
-              ref="menuRef"
-              class="tree-border"
-              :data="menuOptions"
-              show-checkbox
-              node-key="id"
-              :check-strictly="!form.menuCheckStrictly"
-              empty-text="加载中，请稍候"
-              :props="{ label: 'label', children: 'children' } as any"
-            ></el-tree>
+            <!-- 表头与树同框，避免与树内「展开 + 勾选 + 名称」区域错位 -->
+            <div class="menu-tree-permission-wrap tree-border">
+              <div class="menu-tree-header" role="row">
+                <span class="menu-tree-header-name">菜单名称</span>
+                <span class="menu-tree-header-buttons">按钮权限</span>
+              </div>
+              <el-tree
+                ref="menuRef"
+                class="menu-tree-panel"
+                :data="menuOptions"
+                :indent="0"
+                show-checkbox
+                node-key="id"
+                :check-strictly="!form.menuCheckStrictly"
+                empty-text="加载中，请稍候"
+                :props="{ label: 'label', children: 'children', class: getMenuNodeClass } as any"
+                @check="syncCheckedButtonIdsFromTree"
+              >
+                <template #default="{ data, node }">
+                  <div class="menu-tree-node-row">
+                    <span class="menu-tree-node-label" :style="getMenuNodeLabelStyle(node.level)">
+                      {{ data.label }}
+                    </span>
+                    <el-checkbox-group
+                      v-if="getMenuButtons(data.id).length"
+                      v-model="checkedButtonIds"
+                      class="menu-tree-node-buttons"
+                      @click.stop
+                    >
+                      <el-checkbox
+                        v-for="button in getMenuButtons(data.id)"
+                        :key="button.menuId"
+                        :value="button.menuId"
+                        @change="handleButtonPermissionChange($event, button.menuId)"
+                        @click.stop
+                      >
+                        {{ button.menuName }}
+                      </el-checkbox>
+                    </el-checkbox-group>
+                  </div>
+                </template>
+              </el-tree>
+            </div>
           </el-tab-pane>
           <el-tab-pane label="数据权限" name="data">
             <el-form-item label="权限范围">
@@ -287,7 +320,7 @@
 <script setup name="Role" lang="ts">
 import { useRouter } from 'vue-router';
 import { roleMenuTreeselect, treeselect as menuTreeselect } from '@/api/system/menu/index';
-import { MenuTreeOption, RoleMenuTree } from '@/api/system/menu/types';
+import { MenuTreeOption, RoleMenuButtonOption, RoleMenuTree } from '@/api/system/menu/types';
 import {
   addRole,
   changeRoleStatus,
@@ -316,6 +349,10 @@ const multiple = ref(true);
 const total = ref(0);
 const dateRange = ref<any>(['', '']);
 const menuOptions = ref<MenuTreeOption[]>([]);
+/** 菜单ID到按钮列表映射（后端返回） */
+const buttonsMap = ref<Record<string, RoleMenuButtonOption[]>>({});
+/** 按钮权限勾选集合 */
+const checkedButtonIds = ref<Array<string | number>>([]);
 const menuExpand = ref(false);
 const menuNodeAll = ref(false);
 const deptExpand = ref(true);
@@ -343,6 +380,56 @@ const roleFormRef = ref<ElFormInstance>();
 const dataScopeRef = ref<ElFormInstance>();
 const menuRef = ref<ElTreeInstance>();
 const deptRef = ref<ElTreeInstance>();
+
+/**
+ * 根据菜单节点ID获取其按钮列表，用于树节点行内展示。
+ */
+const getMenuButtons = (menuId: string | number): RoleMenuButtonOption[] => {
+  return buttonsMap.value[String(menuId)] ?? [];
+};
+
+/**
+ * 按钮节点ID集合：用于隐藏树中按钮节点并同步按钮勾选状态。
+ */
+const buttonIdSet = computed(() => {
+  const buttonIds = new Set<string>();
+  Object.values(buttonsMap.value).forEach(buttons => {
+    buttons.forEach(button => buttonIds.add(String(button.menuId)));
+  });
+  return buttonIds;
+});
+
+/**
+ * 按钮节点在树中隐藏，避免与右侧按钮区重复展示。
+ */
+const getMenuNodeClass = (data: MenuTreeOption): string => {
+  return buttonIdSet.value.has(String(data.id)) ? 'is-hidden-button-node' : '';
+};
+
+/**
+ * 将树的勾选状态同步到右侧按钮勾选集合。
+ */
+const syncCheckedButtonIdsFromTree = () => {
+  const checkedKeys = (menuRef.value?.getCheckedKeys(false) ?? []) as Array<string | number>;
+  checkedButtonIds.value = checkedKeys.filter(id => buttonIdSet.value.has(String(id)));
+};
+
+/**
+ * 点击右侧按钮时，直接勾选/取消隐藏按钮节点，由树自动处理级联关系。
+ */
+const handleButtonPermissionChange = (checked: string | number | boolean, buttonMenuId: string | number) => {
+  menuRef.value?.setChecked(buttonMenuId, Boolean(checked), false);
+  syncCheckedButtonIdsFromTree();
+};
+
+/**
+ * 基于节点层级给菜单名称增加缩进，确保按钮列始终固定对齐。
+ */
+const getMenuNodeLabelStyle = (level: number) => {
+  return {
+    paddingLeft: `${Math.max(0, level - 1) * 18}px`
+  };
+};
 
 const initForm: RoleForm = {
   roleId: undefined,
@@ -468,6 +555,8 @@ const getDeptAllCheckedKeys = (): any => {
 /** 重置新增的表单以及其他数据  */
 const reset = () => {
   menuRef.value?.setCheckedKeys([]);
+  buttonsMap.value = {};
+  checkedButtonIds.value = [];
   menuExpand.value = false;
   menuNodeAll.value = false;
   deptExpand.value = true;
@@ -499,6 +588,7 @@ const handleUpdate = async (row?: RoleVO) => {
 const getRoleMenuTreeselect = (roleId: string | number) => {
   return roleMenuTreeselect(roleId).then((res): RoleMenuTree => {
     menuOptions.value = res.data.menus;
+    buttonsMap.value = res.data.buttonsMap ?? {};
     return res.data;
   });
 };
@@ -512,11 +602,11 @@ const getRoleDeptTreeSelect = async (roleId: string | number) => {
 const handleCheckedTreeExpand = (value: unknown, type: string) => {
   const expanded = Boolean(value);
   if (type == 'menu') {
-    const treeList = menuOptions.value;
-    for (let i = 0; i < treeList.length; i++) {
-      if (menuRef.value) {
-        menuRef.value.store.nodesMap[treeList[i].id].expanded = expanded;
-      }
+    const nodeMap = menuRef.value?.store?.nodesMap as Record<string, { expanded: boolean }> | undefined;
+    if (nodeMap) {
+      Object.keys(nodeMap).forEach(nodeId => {
+        nodeMap[nodeId].expanded = expanded;
+      });
     }
   } else if (type == 'dept') {
     const treeList = deptOptions.value;
@@ -552,7 +642,7 @@ const getMenuAllCheckedKeys = (): any => {
   if (halfCheckedKeys) {
     checkedKeys?.unshift(...halfCheckedKeys);
   }
-  return checkedKeys;
+  return checkedKeys ?? [];
 };
 /** 提交按钮 */
 const submitForm = () => {
@@ -588,6 +678,7 @@ const handleDataScope = async (row: RoleVO) => {
   dialog.title = '分配权限';
   await nextTick(() => {
     menuRef.value?.setCheckedKeys(menuRes.checkedKeys);
+    syncCheckedButtonIdsFromTree();
     deptRef.value?.setCheckedKeys(res.checkedKeys);
   });
 };
@@ -609,6 +700,8 @@ const cancelDataScope = () => {
   form.value = { ...initForm };
   permissionTab.value = 'menu';
   menuRef.value?.setCheckedKeys([]);
+  buttonsMap.value = {};
+  checkedButtonIds.value = [];
   openDataScope.value = false;
 };
 
@@ -633,6 +726,10 @@ onMounted(() => {
 }
 
 .permission-dialog-form {
+  --menu-name-col-width: 220px;
+  /* 与 el-tree 首级「展开图标 + 勾选框」占位大致对齐，减轻表头与节点文字错位感 */
+  --menu-tree-leading-offset: 44px;
+
   :deep(.el-tabs__header) {
     margin-bottom: 16px;
   }
@@ -642,6 +739,93 @@ onMounted(() => {
     padding: 8px;
     border-radius: 6px;
     overflow: auto;
+  }
+
+  /* 菜单权限：表头 + 树同一容器，滚动只发生在树区域 */
+  .menu-tree-permission-wrap.tree-border {
+    display: flex;
+    flex-direction: column;
+    max-height: 320px;
+    margin-top: 8px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .menu-tree-permission-wrap .menu-tree-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 8px;
+    overflow: auto;
+  }
+
+  /* 覆盖 el-tree 默认固定行高，允许节点行按按钮数量自适应高度。 */
+  :deep(.menu-tree-panel .el-tree-node__content) {
+    min-height: 28px;
+    height: auto;
+    align-items: flex-start;
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+
+  /* 按钮节点保留在树数据中参与级联，但在左侧树区域中隐藏。 */
+  :deep(.menu-tree-panel .el-tree-node.is-hidden-button-node) {
+    display: none !important;
+  }
+
+  :deep(.menu-tree-panel .el-tree-node__content.is-hidden-button-node) {
+    display: none !important;
+  }
+
+  .menu-tree-permission-wrap .menu-tree-header {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 12px;
+    padding: 8px 12px 8px calc(var(--menu-tree-leading-offset) + 8px);
+    color: var(--el-text-color-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    background: var(--el-fill-color-light);
+    border-bottom: 1px solid var(--el-border-color-lighter);
+  }
+
+  .menu-tree-permission-wrap .menu-tree-header-name {
+    width: var(--menu-name-col-width);
+    flex: none;
+  }
+
+  .menu-tree-permission-wrap .menu-tree-header-buttons {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* 菜单与按钮同一树节点行展示，模拟树表“名称列 + 按钮列”效果。 */
+  :deep(.menu-tree-node-row) {
+    width: 100%;
+    min-height: 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  :deep(.menu-tree-node-label) {
+    width: var(--menu-name-col-width);
+    flex: none;
+    line-height: 24px;
+    color: var(--el-text-color-primary);
+    box-sizing: border-box;
+  }
+
+  :deep(.menu-tree-node-buttons) {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+
+  @media (max-width: 900px) {
+    --menu-name-col-width: 160px;
   }
 }
 </style>

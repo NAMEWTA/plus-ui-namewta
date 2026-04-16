@@ -83,7 +83,7 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column v-if="true" label="id" align="center" prop="id" />
+        <el-table-column v-if="false" label="id" align="center" prop="id" />
         <el-table-column label="客户端id" align="center" prop="clientId" />
         <el-table-column label="客户端key" align="center" prop="clientKey" />
         <el-table-column label="客户端秘钥" align="center" prop="clientSecret" />

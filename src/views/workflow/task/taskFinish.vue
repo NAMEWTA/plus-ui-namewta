@@ -80,11 +80,9 @@
           :show-overflow-tooltip="true"
           label="申请人"
         ></el-table-column>
-        <el-table-column align="center" prop="approverName" label="办理人">
+        <el-table-column align="center" prop="approverName" label="办理人" min-width="180">
           <template #default="scope">
-            <el-tag type="success">
-              {{ scope.row.approveName || '无' }}
-            </el-tag>
+            <UserNameDisplay :content="scope.row.approveName" />
           </template>
         </el-table-column>
         <el-table-column align="center" label="流程状态" prop="flowStatus" min-width="80">
@@ -135,6 +133,7 @@ import { pageByTaskFinish } from '@/api/workflow/task';
 import { TaskQuery, FlowTaskVO } from '@/api/workflow/task/types';
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
+import UserNameDisplay from '@/components/Process/UserNameDisplay.vue';
 import UserSelect from '@/components/UserSelect/index.vue';
 import { useDict } from '@/utils/dict';
 

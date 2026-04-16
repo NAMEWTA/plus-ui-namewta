@@ -72,16 +72,9 @@
         <el-table-column align="center" prop="categoryName" label="流程分类"></el-table-column>
         <el-table-column align="center" prop="nodeName" label="任务名称"></el-table-column>
         <el-table-column align="center" prop="createByName" label="申请人"></el-table-column>
-        <el-table-column align="center" label="办理人">
+        <el-table-column align="center" label="办理人" min-width="180">
           <template #default="scope">
-            <template v-if="scope.row.assigneeNames">
-              <el-tag v-for="(name, index) in scope.row.assigneeNames.split(',')" :key="index" type="success">
-                {{ name }}
-              </el-tag>
-            </template>
-            <template v-else>
-              <el-tag type="success">无</el-tag>
-            </template>
+            <UserNameDisplay :content="scope.row.assigneeNames" />
           </template>
         </el-table-column>
         <el-table-column align="center" label="流程状态" prop="flowStatusName" min-width="70">
@@ -121,6 +114,7 @@ import { pageByTaskWait } from '@/api/workflow/task';
 import { TaskQuery, FlowTaskVO } from '@/api/workflow/task/types';
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
+import UserNameDisplay from '@/components/Process/UserNameDisplay.vue';
 import UserSelect from '@/components/UserSelect/index.vue';
 import { useDict } from '@/utils/dict';
 

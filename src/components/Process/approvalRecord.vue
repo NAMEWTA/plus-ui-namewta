@@ -17,14 +17,9 @@
             <el-table :data="historyList" style="width: 100%" border fit>
               <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
               <el-table-column prop="nodeName" label="任务名称" sortable align="center"></el-table-column>
-              <el-table-column prop="approveName" :show-overflow-tooltip="true" label="办理人" sortable align="center">
+              <el-table-column prop="approveName" label="办理人" sortable align="center" min-width="180">
                 <template #default="scope">
-                  <template v-if="scope.row.approveName">
-                    <el-tag v-for="(item, index) in scope.row.approveName.split(',')" :key="index" type="success">
-                      {{ item }}
-                    </el-tag>
-                  </template>
-                  <template v-else><el-tag type="success">无</el-tag></template>
+                  <UserNameDisplay :content="scope.row.approveName" />
                 </template>
               </el-table-column>
               <el-table-column prop="flowStatus" label="状态" width="80" sortable align="center">
@@ -101,6 +96,7 @@
 import { listByIds } from '@/api/system/oss';
 import { flowHisTaskList } from '@/api/workflow/instance';
 import FlowChart from '@/components/Process/flowChart.vue';
+import UserNameDisplay from '@/components/Process/UserNameDisplay.vue';
 import download from '@/plugins/download';
 import { useDict } from '@/utils/dict';
 import { propTypes } from '@/utils/propTypes';

@@ -107,20 +107,13 @@
             :show-overflow-tooltip="true"
             label="申请人"
           ></el-table-column>
-          <el-table-column align="center" label="办理人">
+          <el-table-column align="center" label="办理人" min-width="180">
             <template #default="scope">
               <template v-if="tab === 'waiting'">
-                <template v-if="scope.row.assigneeNames">
-                  <el-tag v-for="(name, index) in scope.row.assigneeNames.split(',')" :key="index" type="success">
-                    {{ name }}
-                  </el-tag>
-                </template>
-                <template v-else>
-                  <el-tag type="success">无</el-tag>
-                </template>
+                <UserNameDisplay :content="scope.row.assigneeNames" />
               </template>
               <template v-else>
-                <el-tag type="success">{{ scope.row.approveName }}</el-tag>
+                <UserNameDisplay :content="scope.row.approveName" />
               </template>
             </template>
           </el-table-column>
@@ -184,6 +177,7 @@ import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
 import messageType from '@/components/Process/MessageType.vue';
 import processMeddle from '@/components/Process/processMeddle.vue';
+import UserNameDisplay from '@/components/Process/UserNameDisplay.vue';
 import UserSelect from '@/components/UserSelect/index.vue';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';

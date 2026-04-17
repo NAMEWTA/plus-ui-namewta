@@ -338,13 +338,14 @@ import {
 import { RoleVO, RoleForm, RoleQuery, DeptTreeOption } from '@/api/system/role/types';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
-import { parseTime, addDateRange } from '@/utils/ruoyi';
+import { parseTime } from '@/utils/ruoyi';
 
 const router = useRouter();
 const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
@@ -368,7 +369,7 @@ const roleList = ref<RoleVO[]>();
 const { loading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 const total = ref(0);
-const dateRange = ref<any>(['', '']);
+const { dateRange, applyDateRange, resetDateRange } = useDateRangeQuery();
 const menuPermissionMeta = ref<RoleMenuPermissionMeta>({
   treeOptions: [],
   buttonIds: new Set<string>(),
@@ -795,7 +796,7 @@ const { dialog, openDialog, closeDialog, setTitle } = useDialogState();
  */
 const getList = () => {
   withLoading(async () => {
-    const res = await listRole(addDateRange(queryParams.value, dateRange.value));
+    const res = await listRole(applyDateRange(queryParams.value));
     roleList.value = res.data?.rows;
     total.value = res.data?.total;
   });
@@ -814,7 +815,7 @@ const { resetQuery } = useSearchReset({
   queryParams,
   pageNumKey: 'pageNum',
   resetExtras: () => {
-    dateRange.value = ['', ''];
+    resetDateRange();
   },
   afterReset: () => {
     handleQuery();

@@ -463,6 +463,7 @@ import { UserForm, UserQuery, UserVO } from '@/api/system/user/types';
 import TreePanel from '@/components/TreePanel/index.vue';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
@@ -473,7 +474,6 @@ import { useDict } from '@/utils/dict';
 import { checkPermi } from '@/utils/permission';
 import { globalHeaders } from '@/utils/request';
 import { download as requestDownload } from '@/utils/request';
-import { addDateRange } from '@/utils/ruoyi';
 import UserViewDrawer from './view.vue';
 
 const router = useRouter();
@@ -482,7 +482,7 @@ const userList = ref<UserVO[]>();
 const { loading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 const total = ref(0);
-const dateRange = ref<any>(['', '']);
+const { dateRange, applyDateRange, resetDateRange } = useDateRangeQuery();
 const { treeCollapsed } = useTreeCollapsed();
 const deptOptions = ref<DeptTreeVO[]>([]);
 const enabledDeptOptions = ref<DeptTreeVO[]>([]);
@@ -599,7 +599,7 @@ const { dialog, openDialog: openUserDialog, closeDialog: closeUserDialog, setTit
 /** 查询用户列表 */
 const getList = async () => {
   await withLoading(async () => {
-    const res = await api.listUser(addDateRange(queryParams.value, dateRange.value));
+    const res = await api.listUser(applyDateRange(queryParams.value));
     userList.value = res.data?.rows;
     total.value = res.data?.total;
   });
@@ -641,7 +641,7 @@ const { resetQuery } = useSearchReset({
   queryParams,
   pageNumKey: 'pageNum',
   resetExtras: () => {
-    dateRange.value = ['', ''];
+    resetDateRange();
     queryParams.value.deptId = undefined;
     treePanelRef.value?.setCurrentKey(undefined);
   },

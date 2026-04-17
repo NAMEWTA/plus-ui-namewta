@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-dialog
-      v-model="roleDialog.visible.value"
-      :title="roleDialog.title.value"
+      v-model="dialog.visible"
+      :title="dialog.title"
       width="80%"
       append-to-body
       class="role-select-dialog"
@@ -108,9 +108,10 @@ import { VxeTableInstance } from 'vxe-table';
 import animateConfig from '@/animate';
 import api from '@/api/system/role';
 import { RoleVO, RoleQuery } from '@/api/system/role/types';
-import useDialog from '@/hooks/useDialog';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useDict } from '@/utils/dict';
-import { parseTime, addDateRange } from '@/utils/ruoyi';
+import { parseTime } from '@/utils/ruoyi';
 
 interface PropType {
   modelValue?: RoleVO[] | RoleVO | undefined;
@@ -130,12 +131,10 @@ const roleList = ref<RoleVO[]>();
 const loading = ref(true);
 const showSearch = ref(true);
 const total = ref(0);
-const dateRange = ref<any>(['', '']);
+const { dateRange, applyDateRange, resetDateRange } = useDateRangeQuery();
 const selectRoleList = ref<RoleVO[]>([]);
 
-const roleDialog = useDialog({
-  title: '角色选择'
-});
+const { dialog, openDialog, closeDialog } = useDialogState('角色选择');
 
 const queryFormRef = ref<ElFormInstance>();
 const tableRef = ref<VxeTableInstance<RoleVO>>();
@@ -153,7 +152,7 @@ const defaultSelectRoleIds = computed(() => computedIds(prop.data));
 const confirm = () => {
   emit('update:modelValue', selectRoleList.value);
   emit('confirmCallBack', selectRoleList.value);
-  roleDialog.closeDialog();
+  closeDialog();
 };
 
 const computedIds = data => {
@@ -174,7 +173,7 @@ const computedIds = data => {
  */
 const getList = () => {
   loading.value = true;
-  api.listRole(addDateRange(queryParams.value, dateRange.value)).then(res => {
+  api.listRole(applyDateRange(queryParams.value)).then(res => {
     roleList.value = res.data?.rows;
     total.value = res.data?.total;
     loading.value = false;
@@ -197,7 +196,7 @@ const handleQuery = () => {
 
 /** 重置 */
 const resetQuery = () => {
-  dateRange.value = ['', ''];
+  resetDateRange();
   queryFormRef.value?.resetFields();
   handleQuery();
 };
@@ -255,10 +254,10 @@ const initSelectRole = async () => {
   }
 };
 const close = () => {
-  roleDialog.closeDialog();
+  closeDialog();
 };
 watch(
-  () => roleDialog.visible.value,
+  () => dialog.visible,
   (newValue: boolean) => {
     if (newValue) {
       initSelectRole();
@@ -275,8 +274,8 @@ onMounted(() => {
 });
 
 defineExpose({
-  open: roleDialog.openDialog,
-  close: roleDialog.closeDialog
+  open: openDialog,
+  close: closeDialog
 });
 </script>
 

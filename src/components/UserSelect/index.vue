@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-dialog
-      v-model="userDialog.visible.value"
-      :title="userDialog.title.value"
+      v-model="dialog.visible"
+      :title="dialog.title"
       width="80%"
       append-to-body
       class="user-select-dialog"
@@ -172,9 +172,9 @@ import animateConfig from '@/animate';
 import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
 import api from '@/api/system/user';
 import { UserQuery, UserVO } from '@/api/system/user/types';
-import useDialog from '@/hooks/useDialog';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useDict } from '@/utils/dict';
-import { addDateRange } from '@/utils/ruoyi';
 
 interface PropType {
   modelValue?: UserVO[] | UserVO | undefined;
@@ -196,7 +196,7 @@ const userList = ref<UserVO[]>();
 const loading = ref(true);
 const showSearch = ref(true);
 const total = ref(0);
-const dateRange = ref<any>(['', '']);
+const { dateRange, applyDateRange, resetDateRange } = useDateRangeQuery();
 const deptName = ref('');
 const treeCollapsed = ref(false);
 const deptOptions = ref<DeptTreeVO[]>([]);
@@ -206,9 +206,7 @@ const deptTreeRef = ref<ElTreeInstance>();
 const queryFormRef = ref<ElFormInstance>();
 const tableRef = ref<VxeTableInstance<UserVO>>();
 
-const userDialog = useDialog({
-  title: '用户选择'
-});
+const { dialog, openDialog, closeDialog } = useDialogState('用户选择');
 
 const queryParams = ref<UserQuery>({
   pageNum: 1,
@@ -236,7 +234,7 @@ watchEffect(
 const confirm = () => {
   emit('update:modelValue', selectUserList.value);
   emit('confirmCallBack', selectUserList.value);
-  userDialog.closeDialog();
+  closeDialog();
 };
 
 const computedIds = data => {
@@ -271,7 +269,7 @@ const getTreeSelect = async () => {
 const getList = async () => {
   loading.value = true;
   queryParams.value.userIds = prop.userIds;
-  const res = await api.listUser(addDateRange(queryParams.value, dateRange.value));
+  const res = await api.listUser(applyDateRange(queryParams.value));
   loading.value = false;
   userList.value = res.data?.rows;
   total.value = res.data?.total;
@@ -298,7 +296,7 @@ const handleQuery = () => {
 };
 /** 重置按钮操作 */
 const resetQuery = (refresh = true) => {
-  dateRange.value = ['', ''];
+  resetDateRange();
   queryFormRef.value?.resetFields();
   queryParams.value.pageNum = 1;
   queryParams.value.deptId = undefined;
@@ -357,11 +355,11 @@ const initSelectUser = async () => {
   }
 };
 const close = () => {
-  userDialog.closeDialog();
+  closeDialog();
 };
 
 watch(
-  () => userDialog.visible.value,
+  () => dialog.visible,
   async (newValue: boolean) => {
     if (newValue) {
       await getTreeSelect(); // 初始化部门数据
@@ -377,8 +375,8 @@ watch(
 );
 
 defineExpose({
-  open: userDialog.openDialog,
-  close: userDialog.closeDialog
+  open: openDialog,
+  close: closeDialog
 });
 </script>
 

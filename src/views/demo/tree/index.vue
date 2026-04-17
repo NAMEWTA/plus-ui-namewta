@@ -120,6 +120,7 @@ import { useLoading } from '@/hooks/async/useLoading';
 import { useFormDialog } from '@/hooks/dialog/useFormDialog';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTreeTableExpand } from '@/hooks/tree/useTreeTableExpand';
 import modal from '@/plugins/modal';
 import { handleTree } from '@/utils/ruoyi';
 
@@ -133,12 +134,15 @@ const treeList = ref<TreeVO[]>([]);
 const treeOptions = ref<TreeOption[]>([]);
 const buttonLoading = ref(false);
 const { showSearch } = useSearchToggle();
-const isExpandAll = ref(true);
 const { loading, setLoading, withLoading } = useLoading();
 
 const queryFormRef = ref<ElFormInstance>();
 const treeFormRef = ref<ElFormInstance>();
 const treeTableRef = ref<ElTableInstance>();
+const { isExpandAll, handleToggleExpandAll } = useTreeTableExpand<TreeVO>({
+  tableRef: treeTableRef,
+  data: treeList
+});
 
 const initFormData: TreeForm = {
   id: undefined,
@@ -220,20 +224,6 @@ const handleAdd = (row?: TreeVO) => {
   } else {
     form.value.parentId = 0;
   }
-};
-
-/** 展开/折叠操作 */
-const handleToggleExpandAll = () => {
-  isExpandAll.value = !isExpandAll.value;
-  toggleExpandAll(treeList.value, isExpandAll.value);
-};
-
-/** 展开/折叠操作 */
-const toggleExpandAll = (data: TreeVO[], status: boolean) => {
-  data.forEach(item => {
-    treeTableRef.value?.toggleRowExpansion(item, status);
-    if (item.children && item.children.length > 0) toggleExpandAll(item.children, status);
-  });
 };
 
 /** 修改按钮操作 */

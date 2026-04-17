@@ -157,13 +157,15 @@
 import { list, delLoginInfo, cleanLoginInfo, unlockLoginInfo } from '@/api/monitor/logininfo';
 import { LoginInfoQuery, LoginInfoVO } from '@/api/monitor/logininfo/types';
 import { useLoading } from '@/hooks/async/useLoading';
+import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
+import { useTableSortQuery } from '@/hooks/table/useTableSortQuery';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
-import { parseTime, addDateRange } from '@/utils/ruoyi';
+import { parseTime } from '@/utils/ruoyi';
 
 const { sys_device_type } = toRefs<any>(useDict('sys_device_type'));
 const { sys_common_status } = toRefs<any>(useDict('sys_common_status'));
@@ -172,8 +174,7 @@ const loginInfoList = ref<LoginInfoVO[]>([]);
 const { loading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 const total = ref(0);
-const dateRange = ref<any>(['', '']);
-const defaultSort = ref<any>({ prop: 'loginTime', order: 'descending' });
+const { dateRange, applyDateRange, resetDateRange } = useDateRangeQuery();
 
 const queryFormRef = ref<ElFormInstance>();
 const loginInfoTableRef = ref<ElTableInstance>();
@@ -184,8 +185,8 @@ const queryParams = ref<LoginInfoQuery>({
   ipaddr: '',
   userName: '',
   status: '',
-  orderByColumn: defaultSort.value.prop,
-  isAsc: defaultSort.value.order
+  orderByColumn: 'loginTime',
+  isAsc: 'descending'
 });
 const {
   ids,
@@ -199,11 +200,17 @@ const selectName = computed(() => selectedRows.value.map(item => item.userName))
 /** 查询登录日志列表 */
 const getList = async () => {
   await withLoading(async () => {
-    const res = await list(addDateRange(queryParams.value, dateRange.value));
+    const res = await list(applyDateRange(queryParams.value));
     loginInfoList.value = res.data?.rows;
     total.value = res.data?.total;
   });
 };
+const { defaultSort, handleSortChange, resetSort } = useTableSortQuery<LoginInfoQuery>({
+  queryParams,
+  tableRef: loginInfoTableRef,
+  defaultSort: { prop: 'loginTime', order: 'descending' },
+  onSortChange: getList
+});
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
@@ -214,20 +221,14 @@ const { resetQuery } = useSearchReset({
   queryParams,
   pageNumKey: 'pageNum',
   resetExtras: () => {
-    dateRange.value = ['', ''];
+    resetDateRange();
   },
   afterReset: () => {
-    loginInfoTableRef.value?.sort(defaultSort.value.prop, defaultSort.value.order);
+    resetSort();
   }
 });
 const handleSelectionChange = (selection: LoginInfoVO[]) => {
   handleTableSelectionChange(selection);
-};
-/** 排序触发事件 */
-const handleSortChange = (column: any) => {
-  queryParams.value.orderByColumn = column.prop;
-  queryParams.value.isAsc = column.order;
-  getList();
 };
 /** 删除按钮操作 */
 const handleDelete = async (row?: LoginInfoVO) => {

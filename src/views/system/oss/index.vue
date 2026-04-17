@@ -191,12 +191,13 @@ import { OssForm, OssQuery, OssVO } from '@/api/system/oss/types';
 import ImagePreview from '@/components/ImagePreview/index.vue';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import download from '@/plugins/download';
 import modal from '@/plugins/modal';
-import { parseTime, addDateRange } from '@/utils/ruoyi';
+import { parseTime } from '@/utils/ruoyi';
 
 const router = useRouter();
 
@@ -208,7 +209,11 @@ const { showSearch } = useSearchToggle();
 const total = ref(0);
 const type = ref(0);
 const previewListResource = ref(true);
-const dateRangeCreateTime = ref<any>(['', '']);
+const {
+  dateRange: dateRangeCreateTime,
+  applyDateRange: applyCreateTimeDateRange,
+  resetDateRange: resetCreateTimeDateRange
+} = useDateRangeQuery('CreateTime');
 
 // 默认排序
 const defaultSort = ref({ prop: 'createTime', order: 'ascending' });
@@ -251,7 +256,7 @@ const getList = async () => {
   await withLoading(async () => {
     const res = await getConfigKey('sys.oss.previewListResource');
     previewListResource.value = res?.data === undefined ? true : res.data === 'true';
-    const response = await listOss(addDateRange(queryParams.value, dateRangeCreateTime.value, 'CreateTime'));
+    const response = await listOss(applyCreateTimeDateRange(queryParams.value));
     ossList.value = response.data?.rows;
     total.value = response.data?.total;
     showTable.value = true;
@@ -278,7 +283,7 @@ const { resetQuery } = useSearchReset({
   pageNumKey: 'pageNum',
   resetExtras: () => {
     showTable.value = false;
-    dateRangeCreateTime.value = ['', ''];
+    resetCreateTimeDateRange();
     queryParams.value.orderByColumn = defaultSort.value.prop;
     queryParams.value.isAsc = defaultSort.value.order;
   },

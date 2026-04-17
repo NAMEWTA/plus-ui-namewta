@@ -196,13 +196,13 @@ import { delTable, genCode, getDataNames, listTable, previewTable, synchDb } fro
 import { TableQuery, TableVO } from '@/api/tool/gen/types';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import download from '@/plugins/download';
 import modal from '@/plugins/modal';
 import router from '@/router';
-import { addDateRange } from '@/utils/ruoyi';
 import ImportTable from './importTable.vue';
 
 const route = useRoute();
@@ -211,7 +211,7 @@ const tableList = ref<TableVO[]>([]);
 const { loading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 const total = ref(0);
-const dateRange = ref<any>(['', '']);
+const { dateRange, applyDateRange, resetDateRange } = useDateRangeQuery();
 const uniqueId = ref('');
 const dataNameList = ref<Array<string>>([]);
 
@@ -245,7 +245,7 @@ const getDataNameList = async () => {
 /** 查询表集合 */
 const getList = async () => {
   await withLoading(async () => {
-    const res = await listTable(addDateRange(queryParams.value, dateRange.value));
+    const res = await listTable(applyDateRange(queryParams.value));
     tableList.value = res.data?.rows;
     total.value = res.data?.total;
   });
@@ -285,7 +285,7 @@ const { resetQuery } = useSearchReset({
   queryParams,
   pageNumKey: 'pageNum',
   resetExtras: () => {
-    dateRange.value = ['', ''];
+    resetDateRange();
   },
   afterReset: () => {
     handleQuery();
@@ -324,7 +324,7 @@ onMounted(() => {
   if (time != null && time != uniqueId.value) {
     uniqueId.value = time as string;
     queryParams.value.pageNum = Number(route.query.pageNum);
-    dateRange.value = ['', ''];
+    resetDateRange();
     queryFormRef.value?.resetFields();
   }
   getList();

@@ -209,13 +209,15 @@
 import { list, delOperlog, cleanOperlog } from '@/api/monitor/operlog';
 import { OperLogForm, OperLogQuery, OperLogVO } from '@/api/monitor/operlog/types';
 import { useLoading } from '@/hooks/async/useLoading';
+import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
+import { useTableSortQuery } from '@/hooks/table/useTableSortQuery';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
-import { parseTime, addDateRange, selectDictLabel } from '@/utils/ruoyi';
+import { parseTime, selectDictLabel } from '@/utils/ruoyi';
 import OperInfoDialog from './operInfoDialog.vue';
 
 const { sys_oper_type, sys_common_status, sys_device_type } = toRefs<any>(
@@ -226,8 +228,7 @@ const operlogList = ref<OperLogVO[]>([]);
 const { loading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 const total = ref(0);
-const dateRange = ref<any>(['', '']);
-const defaultSort = ref<any>({ prop: 'operTime', order: 'descending' });
+const { dateRange, applyDateRange, resetDateRange } = useDateRangeQuery();
 
 const operLogTableRef = ref<ElTableInstance>();
 const queryFormRef = ref<ElFormInstance>();
@@ -274,8 +275,8 @@ const data = reactive<PageData<OperLogForm, OperLogQuery>>({
     os: '',
     businessType: '',
     status: '',
-    orderByColumn: defaultSort.value.prop,
-    isAsc: defaultSort.value.order
+    orderByColumn: 'operTime',
+    isAsc: 'descending'
   },
   rules: {}
 });
@@ -286,11 +287,17 @@ const { ids, multiple, handleSelectionChange: handleTableSelectionChange } = use
 /** 查询登录日志 */
 const getList = async () => {
   await withLoading(async () => {
-    const res = await list(addDateRange(queryParams.value, dateRange.value));
+    const res = await list(applyDateRange(queryParams.value));
     operlogList.value = res.data?.rows;
     total.value = res.data?.total;
   });
 };
+const { defaultSort, handleSortChange, resetSort } = useTableSortQuery<OperLogQuery>({
+  queryParams,
+  tableRef: operLogTableRef,
+  defaultSort: { prop: 'operTime', order: 'descending' },
+  onSortChange: getList
+});
 /** 操作日志类型字典翻译 */
 const typeFormat = (row: OperLogForm) => {
   return selectDictLabel(sys_oper_type.value, row.businessType);
@@ -305,20 +312,14 @@ const { resetQuery } = useSearchReset({
   queryParams,
   pageNumKey: 'pageNum',
   resetExtras: () => {
-    dateRange.value = ['', ''];
+    resetDateRange();
   },
   afterReset: () => {
-    operLogTableRef.value?.sort(defaultSort.value.prop, defaultSort.value.order);
+    resetSort();
   }
 });
 const handleSelectionChange = (selection: OperLogVO[]) => {
   handleTableSelectionChange(selection);
-};
-/** 排序触发事件 */
-const handleSortChange = (column: any) => {
-  queryParams.value.orderByColumn = column.prop;
-  queryParams.value.isAsc = column.order;
-  getList();
 };
 
 const operInfoDialogRef = ref<InstanceType<typeof OperInfoDialog>>();

@@ -198,6 +198,7 @@ import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTreeTableExpand } from '@/hooks/tree/useTreeTableExpand';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { handleTree, parseTime } from '@/utils/ruoyi';
@@ -214,12 +215,15 @@ const deptList = ref<DeptVO[]>([]);
 const { loading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 const deptOptions = ref<DeptOptionsType[]>([]);
-const isExpandAll = ref(true);
 const deptUserList = ref<UserVO[]>([]);
 
 const deptTableRef = ref<ElTableInstance>();
 const queryFormRef = ref<ElFormInstance>();
 const deptFormRef = ref<ElFormInstance>();
+const { isExpandAll, handleToggleExpandAll } = useTreeTableExpand<DeptVO>({
+  tableRef: deptTableRef,
+  data: deptList
+});
 
 const initFormData: DeptForm = {
   deptId: undefined,
@@ -307,19 +311,6 @@ const { resetQuery } = useSearchReset({
     handleQuery();
   }
 });
-
-/** 展开/折叠操作 */
-const handleToggleExpandAll = () => {
-  isExpandAll.value = !isExpandAll.value;
-  toggleExpandAll(deptList.value, isExpandAll.value);
-};
-/** 展开/折叠所有 */
-const toggleExpandAll = (data: DeptVO[], status: boolean) => {
-  data.forEach(item => {
-    deptTableRef.value?.toggleRowExpansion(item, status);
-    if (item.children && item.children.length > 0) toggleExpandAll(item.children, status);
-  });
-};
 
 /** 新增按钮操作 */
 const handleAdd = async (row?: DeptVO) => {

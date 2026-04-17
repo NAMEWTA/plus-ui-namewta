@@ -208,6 +208,10 @@
 <script setup name="Operlog" lang="ts">
 import { list, delOperlog, cleanOperlog } from '@/api/monitor/operlog';
 import { OperLogForm, OperLogQuery, OperLogVO } from '@/api/monitor/operlog/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
@@ -219,10 +223,8 @@ const { sys_oper_type, sys_common_status, sys_device_type } = toRefs<any>(
 );
 
 const operlogList = ref<OperLogVO[]>([]);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<number | string>>([]);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const total = ref(0);
 const dateRange = ref<any>(['', '']);
 const defaultSort = ref<any>({ prop: 'operTime', order: 'descending' });
@@ -279,14 +281,15 @@ const data = reactive<PageData<OperLogForm, OperLogQuery>>({
 });
 
 const { queryParams, form } = toRefs(data);
+const { ids, multiple, handleSelectionChange: handleTableSelectionChange } = useTableSelection<OperLogVO>(item => item.operId);
 
 /** 查询登录日志 */
 const getList = async () => {
-  loading.value = true;
-  const res = await list(addDateRange(queryParams.value, dateRange.value));
-  operlogList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await list(addDateRange(queryParams.value, dateRange.value));
+    operlogList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 /** 操作日志类型字典翻译 */
 const typeFormat = (row: OperLogForm) => {
@@ -297,17 +300,19 @@ const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  dateRange.value = ['', ''];
-  queryFormRef.value?.resetFields();
-  queryParams.value.pageNum = 1;
-  operLogTableRef.value?.sort(defaultSort.value.prop, defaultSort.value.order);
-};
-/** 多选框选中数据 */
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  resetExtras: () => {
+    dateRange.value = ['', ''];
+  },
+  afterReset: () => {
+    operLogTableRef.value?.sort(defaultSort.value.prop, defaultSort.value.order);
+  }
+});
 const handleSelectionChange = (selection: OperLogVO[]) => {
-  ids.value = selection.map(item => item.operId);
-  multiple.value = !selection.length;
+  handleTableSelectionChange(selection);
 };
 /** 排序触发事件 */
 const handleSortChange = (column: any) => {

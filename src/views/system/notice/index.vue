@@ -230,6 +230,12 @@
 import { useRoute, useRouter } from 'vue-router';
 import { listNotice, getNotice, delNotice, addNotice, updateNotice } from '@/api/system/notice';
 import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { resolveOssContent } from '@/utils/ossContent';
@@ -241,23 +247,12 @@ const route = useRoute();
 const router = useRouter();
 
 const noticeList = ref<NoticeVO[]>([]);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<string | number>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const total = ref(0);
 
 const queryFormRef = ref<ElFormInstance>();
 const noticeFormRef = ref<ElFormInstance>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
-const detailDialog = reactive({
-  visible: false
-});
 const routeDetailSyncing = ref(false);
 const emptyNoticeContent = '<p>暂无公告内容</p>';
 
@@ -289,49 +284,46 @@ const data = reactive<PageData<NoticeForm, NoticeQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<NoticeVO>(item => item.noticeId);
+const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: noticeFormRef,
+  initialFormData: initFormData
+});
+const { dialog: detailDialog, openDialog: openDetailDialog, closeDialog: closeDetailDialog } = useDialogState('公告详情');
 
 /** 查询公告列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listNotice(queryParams.value);
-  noticeList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listNotice(queryParams.value);
+    noticeList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 /** 取消按钮 */
 const cancel = () => {
-  dialog.visible = false;
+  closeDialog();
 };
 /** 对话框关闭后重置 */
 const handleDialogClosed = () => {
   reset();
-};
-/** 表单重置 */
-const reset = () => {
-  form.value = { ...initFormData };
-  noticeFormRef.value?.resetFields();
 };
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
-/** 多选框选中数据 */
-const handleSelectionChange = (selection: NoticeVO[]) => {
-  ids.value = selection.map(item => item.noticeId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  afterReset: () => {
+    handleQuery();
+  }
+});
 /** 新增按钮操作 */
 const handleAdd = () => {
-  reset();
-  dialog.visible = true;
-  dialog.title = '添加公告';
+  openDialog('添加公告');
 };
 /**修改按钮操作 */
 const handleUpdate = async (row?: NoticeVO) => {
@@ -339,8 +331,7 @@ const handleUpdate = async (row?: NoticeVO) => {
   const noticeId = row?.noticeId || ids.value[0];
   const { data } = await getNotice(noticeId);
   Object.assign(form.value, data);
-  dialog.visible = true;
-  dialog.title = '修改公告';
+  showDialog('修改公告');
 };
 /** 详情按钮操作 */
 const handleDetail = async (row: NoticeVO) => {
@@ -351,7 +342,7 @@ const openDetail = async (noticeId: string | number) => {
   const { data } = await getNotice(noticeId);
   data.noticeContent = await resolveOssContent(data.noticeContent);
   detailForm.value = data;
-  detailDialog.visible = true;
+  openDetailDialog();
 };
 /** 详情弹窗关闭后移除路由参数 */
 const handleDetailDialogClosed = async () => {
@@ -374,7 +365,7 @@ const submitForm = () => {
     if (valid) {
       form.value.noticeId ? await updateNotice(form.value) : await addNotice(form.value);
       modal.msgSuccess('操作成功');
-      dialog.visible = false;
+      closeDialog();
       await getList();
     }
   });

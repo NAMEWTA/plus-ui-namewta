@@ -235,6 +235,12 @@ import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
 import { listPost, addPost, delPost, getPost, updatePost, deptTreeSelect } from '@/api/system/post';
 import { PostForm, PostQuery, PostVO } from '@/api/system/post/types';
 import TreePanel from '@/components/TreePanel/index.vue';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
+import { useTreeCollapsed } from '@/hooks/tree/useTreeCollapsed';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
@@ -243,22 +249,15 @@ import { parseTime } from '@/utils/ruoyi';
 const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const postList = ref<PostVO[]>([]);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<number | string>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<PostVO>(item => item.postId);
 const total = ref(0);
-const treeCollapsed = ref(false);
+const { treeCollapsed } = useTreeCollapsed();
 const deptOptions = ref<DeptTreeVO[]>([]);
 const treePanelRef = ref<InstanceType<typeof TreePanel>>();
 const postFormRef = ref<ElFormInstance>();
 const queryFormRef = ref<ElFormInstance>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const initFormData: PostForm = {
   postId: undefined,
@@ -292,6 +291,24 @@ const data = reactive<PageData<PostForm, PostQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs<PageData<PostForm, PostQuery>>(data);
+const { dialog, resetForm, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: postFormRef,
+  initialFormData: initFormData
+});
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  resetExtras: () => {
+    queryParams.value.deptId = undefined;
+    treePanelRef.value?.setCurrentKey(undefined);
+    queryParams.value.belongDeptId = undefined;
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 查询部门下拉树结构 */
 const getTreeSelect = async () => {
@@ -308,23 +325,17 @@ const handleNodeClick = (data: DeptVO) => {
 
 /** 查询岗位列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listPost(queryParams.value);
-  postList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listPost(queryParams.value);
+    postList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 
 /** 取消按钮 */
 const cancel = () => {
-  reset();
-  dialog.visible = false;
-};
-
-/** 表单重置 */
-const reset = () => {
-  form.value = { ...initFormData };
-  postFormRef.value?.resetFields();
+  closeDialog();
+  resetForm();
 };
 
 /** 搜索按钮操作 */
@@ -336,39 +347,18 @@ const handleQuery = () => {
   getList();
 };
 
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  queryParams.value.pageNum = 1;
-  queryParams.value.deptId = undefined;
-  treePanelRef.value?.setCurrentKey(undefined);
-  /** 清空左边部门树选中值 */
-  queryParams.value.belongDeptId = undefined;
-  handleQuery();
-};
-
-/** 多选框选中数据 */
-const handleSelectionChange = (selection: PostVO[]) => {
-  ids.value = selection.map(item => item.postId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-};
-
 /** 新增按钮操作 */
 const handleAdd = () => {
-  reset();
-  dialog.visible = true;
-  dialog.title = '添加岗位';
+  openDialog('添加岗位');
 };
 
 /** 修改按钮操作 */
 const handleUpdate = async (row?: PostVO) => {
-  reset();
+  resetForm();
   const postId = row?.postId || ids.value[0];
   const res = await getPost(postId);
   Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = '修改岗位';
+  showDialog('修改岗位');
 };
 
 /** 提交按钮 */
@@ -377,7 +367,7 @@ const submitForm = () => {
     if (valid) {
       form.value.postId ? await updatePost(form.value) : await addPost(form.value);
       modal.msgSuccess('操作成功');
-      dialog.visible = false;
+      closeDialog();
       await getList();
     }
   });

@@ -49,7 +49,7 @@
         :default-expand-all="isExpandAll"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
-        <el-table-column label="父id" align="center" prop="parentId" />
+        <el-table-column label="父id" prop="parentId" />
         <el-table-column label="部门id" align="center" prop="deptId" />
         <el-table-column label="用户id" align="center" prop="userId" />
         <el-table-column label="树节点名" align="center" prop="treeName" />
@@ -116,6 +116,10 @@
 <script setup name="Tree" lang="ts">
 import { listTree, getTree, delTree, addTree, updateTree } from '@/api/demo/tree';
 import { TreeVO, TreeQuery, TreeForm } from '@/api/demo/tree/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import modal from '@/plugins/modal';
 import { handleTree } from '@/utils/ruoyi';
 
@@ -128,18 +132,13 @@ type TreeOption = {
 const treeList = ref<TreeVO[]>([]);
 const treeOptions = ref<TreeOption[]>([]);
 const buttonLoading = ref(false);
-const showSearch = ref(true);
+const { showSearch } = useSearchToggle();
 const isExpandAll = ref(true);
-const loading = ref(false);
+const { loading, setLoading, withLoading } = useLoading();
 
 const queryFormRef = ref<ElFormInstance>();
 const treeFormRef = ref<ElFormInstance>();
 const treeTableRef = ref<ElTableInstance>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const initFormData: TreeForm = {
   id: undefined,
@@ -167,16 +166,21 @@ const data = reactive<PageData<TreeForm, TreeQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: treeFormRef,
+  initialFormData: initFormData
+});
 
 /** 查询测试树列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listTree(queryParams.value);
-  const data = handleTree<TreeVO>(res.data, 'id', 'parentId');
-  if (data) {
-    treeList.value = data;
-    loading.value = false;
-  }
+  await withLoading(async () => {
+    const res = await listTree(queryParams.value);
+    const data = handleTree<TreeVO>(res.data, 'id', 'parentId');
+    if (data) {
+      treeList.value = data;
+    }
+  });
 };
 
 /** 查询测试树下拉树结构 */
@@ -191,13 +195,7 @@ const getTreeselect = async () => {
 // 取消按钮
 const cancel = () => {
   reset();
-  dialog.visible = false;
-};
-
-// 表单重置
-const reset = () => {
-  form.value = { ...initFormData };
-  treeFormRef.value?.resetFields();
+  closeDialog();
 };
 
 /** 搜索按钮操作 */
@@ -205,23 +203,23 @@ const handleQuery = () => {
   getList();
 };
 
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 新增按钮操作 */
 const handleAdd = (row?: TreeVO) => {
-  reset();
+  openDialog('添加测试树');
   getTreeselect();
   if (row && row.id) {
     form.value.parentId = row.id;
   } else {
     form.value.parentId = 0;
   }
-  dialog.visible = true;
-  dialog.title = '添加测试树';
 };
 
 /** 展开/折叠操作 */
@@ -247,8 +245,7 @@ const handleUpdate = async (row: TreeVO) => {
   }
   const res = await getTree(row.id);
   Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = '修改测试树';
+  showDialog('修改测试树');
 };
 
 /** 提交按钮 */
@@ -262,7 +259,7 @@ const submitForm = () => {
         await addTree(form.value).finally(() => (buttonLoading.value = false));
       }
       modal.msgSuccess('操作成功');
-      dialog.visible = false;
+      closeDialog();
       await getList();
     }
   });
@@ -271,8 +268,8 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row: TreeVO) => {
   await modal.confirm('是否确认删除测试树编号为"' + row.id + '"的数据项？');
-  loading.value = true;
-  await delTree(row.id).finally(() => (loading.value = false));
+  setLoading(true);
+  await delTree(row.id).finally(() => setLoading(false));
   await getList();
   modal.msgSuccess('删除成功');
 };

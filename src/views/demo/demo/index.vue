@@ -138,25 +138,22 @@
 <script setup name="Demo" lang="ts">
 import { listDemo, getDemo, delDemo, addDemo, updateDemo } from '@/api/demo/demo';
 import { DemoVO, DemoQuery, DemoForm } from '@/api/demo/demo/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { download as requestDownload } from '@/utils/request';
 
 const demoList = ref<DemoVO[]>([]);
 const buttonLoading = ref(false);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<string | number>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const total = ref(0);
 
 const queryFormRef = ref<ElFormInstance>();
 const demoFormRef = ref<ElFormInstance>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const initFormData: DemoForm = {
   id: undefined,
@@ -188,26 +185,26 @@ const data = reactive<PageData<DemoForm, DemoQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<DemoVO>(item => item.id);
+const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: demoFormRef,
+  initialFormData: initFormData
+});
 
 /** 查询测试单列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listDemo(queryParams.value);
-  demoList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listDemo(queryParams.value);
+    demoList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 
 /** 取消按钮 */
 const cancel = () => {
   reset();
-  dialog.visible = false;
-};
-
-/** 表单重置 */
-const reset = () => {
-  form.value = { ...initFormData };
-  demoFormRef.value?.resetFields();
+  closeDialog();
 };
 
 /** 搜索按钮操作 */
@@ -216,24 +213,18 @@ const handleQuery = () => {
   getList();
 };
 
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
-
-/** 多选框选中数据 */
-const handleSelectionChange = (selection: DemoVO[]) => {
-  ids.value = selection.map(item => item.id);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 新增按钮操作 */
 const handleAdd = () => {
-  reset();
-  dialog.visible = true;
-  dialog.title = '添加测试单';
+  openDialog('添加测试单');
 };
 
 /** 修改按钮操作 */
@@ -242,8 +233,7 @@ const handleUpdate = async (row?: DemoVO) => {
   const _id = row?.id || ids.value[0];
   const res = await getDemo(_id);
   Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = '修改测试单';
+  showDialog('修改测试单');
 };
 
 /** 提交按钮 */
@@ -257,7 +247,7 @@ const submitForm = () => {
         await addDemo(form.value).finally(() => (buttonLoading.value = false));
       }
       modal.msgSuccess('修改成功');
-      dialog.visible = false;
+      closeDialog();
       await getList();
     }
   });
@@ -266,7 +256,7 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: DemoVO) => {
   const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除测试单编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
+  await modal.confirm('是否确认删除测试单编号为"' + _ids + '"的数据项？');
   await delDemo(_ids);
   modal.msgSuccess('删除成功');
   await getList();

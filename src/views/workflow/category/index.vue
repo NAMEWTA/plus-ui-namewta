@@ -123,6 +123,10 @@
 <script setup name="Category" lang="ts">
 import { listCategory, getCategory, delCategory, addCategory, updateCategory } from '@/api/workflow/category';
 import { CategoryVO, CategoryQuery, CategoryForm } from '@/api/workflow/category/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import modal from '@/plugins/modal';
 import { handleTree } from '@/utils/ruoyi';
 
@@ -135,18 +139,13 @@ type CategoryOption = {
 const categoryList = ref<CategoryVO[]>([]);
 const categoryOptions = ref<CategoryOption[]>([]);
 const buttonLoading = ref(false);
-const showSearch = ref(true);
+const { showSearch } = useSearchToggle();
 const isExpandAll = ref(true);
-const loading = ref(false);
+const { loading, setLoading, withLoading } = useLoading();
 
 const queryFormRef = ref<ElFormInstance>();
 const categoryFormRef = ref<ElFormInstance>();
 const categoryTableRef = ref<ElTableInstance>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const initFormData: CategoryForm = {
   categoryId: undefined,
@@ -168,16 +167,21 @@ const data = reactive<PageData<CategoryForm, CategoryQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: categoryFormRef,
+  initialFormData: initFormData
+});
 
 /** 查询流程分类列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listCategory(queryParams.value);
-  const data = handleTree<CategoryVO>(res.data, 'categoryId', 'parentId');
-  if (data) {
-    categoryList.value = data;
-    loading.value = false;
-  }
+  await withLoading(async () => {
+    const res = await listCategory(queryParams.value);
+    const data = handleTree<CategoryVO>(res.data, 'categoryId', 'parentId');
+    if (data) {
+      categoryList.value = data;
+    }
+  });
 };
 
 /** 查询流程分类下拉树结构 */
@@ -194,13 +198,7 @@ const getTreeselect = async () => {
 // 取消按钮
 const cancel = () => {
   reset();
-  dialog.visible = false;
-};
-
-// 表单重置
-const reset = () => {
-  form.value = { ...initFormData };
-  categoryFormRef.value?.resetFields();
+  closeDialog();
 };
 
 /** 搜索按钮操作 */
@@ -208,23 +206,23 @@ const handleQuery = () => {
   getList();
 };
 
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 新增按钮操作 */
 const handleAdd = (row?: CategoryVO) => {
-  reset();
+  openDialog('添加流程分类');
   getTreeselect();
   if (row?.categoryId) {
     form.value.parentId = row.categoryId;
   } else {
     form.value.parentId = undefined;
   }
-  dialog.visible = true;
-  dialog.title = '添加流程分类';
 };
 
 /** 展开/折叠操作 */
@@ -250,8 +248,7 @@ const handleUpdate = async (row: CategoryVO) => {
   }
   const res = await getCategory(row.categoryId);
   Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = '修改流程分类';
+  showDialog('修改流程分类');
 };
 
 /** 提交按钮 */
@@ -265,7 +262,7 @@ const submitForm = () => {
         await addCategory(form.value).finally(() => (buttonLoading.value = false));
       }
       modal.msgSuccess('操作成功');
-      dialog.visible = false;
+      closeDialog();
       getList();
     }
   });
@@ -274,8 +271,8 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row: CategoryVO) => {
   await modal.confirm('是否确认删除"' + row.categoryName + '"的分类？');
-  loading.value = true;
-  await delCategory(row.categoryId).finally(() => (loading.value = false));
+  setLoading(true);
+  await delCategory(row.categoryId).finally(() => setLoading(false));
   await getList();
   modal.msgSuccess('删除成功');
 };

@@ -210,27 +210,25 @@
 <script setup name="Spel" lang="ts">
 import { listSpel, getSpel, delSpel, addSpel, updateSpel } from '@/api/workflow/spel';
 import { SpelVO, SpelQuery, SpelForm } from '@/api/workflow/spel/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 
 const { sys_show_hide, sys_normal_disable } = toRefs<any>(useDict('sys_show_hide', 'sys_normal_disable'));
 
 const spelList = ref<SpelVO[]>([]);
-const buttonLoading = ref(false);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<string | number>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { loading: buttonLoading, withLoading: withButtonLoading } = useLoading();
+const { showSearch } = useSearchToggle();
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<SpelVO>(item => item.id);
 const total = ref(0);
 
 const queryFormRef = ref<ElFormInstance>();
 const spelFormRef = ref<ElFormInstance>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const initFormData: SpelForm = {
   id: undefined,
@@ -259,26 +257,33 @@ const data = reactive<PageData<SpelForm, SpelQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const { dialog, resetForm, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: spelFormRef,
+  initialFormData: initFormData
+});
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 查询流程spel表达式定义列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listSpel(queryParams.value);
-  spelList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listSpel(queryParams.value);
+    spelList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 
 /** 取消按钮 */
 const cancel = () => {
-  reset();
-  dialog.visible = false;
-};
-
-/** 表单重置 */
-const reset = () => {
-  form.value = { ...initFormData };
-  spelFormRef.value?.resetFields();
+  closeDialog();
+  resetForm();
 };
 
 /** 搜索按钮操作 */
@@ -287,48 +292,33 @@ const handleQuery = () => {
   getList();
 };
 
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
-
-/** 多选框选中数据 */
-const handleSelectionChange = (selection: SpelVO[]) => {
-  ids.value = selection.map(item => item.id);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-};
-
 /** 新增按钮操作 */
 const handleAdd = () => {
-  reset();
-  dialog.visible = true;
-  dialog.title = '添加流程spel表达式定义';
+  openDialog('添加流程spel表达式定义');
 };
 
 /** 修改按钮操作 */
 const handleUpdate = async (row?: SpelVO) => {
-  reset();
+  resetForm();
   const _id = row?.id || ids.value[0];
   const res = await getSpel(_id);
   Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = '修改流程spel表达式定义';
+  showDialog('修改流程spel表达式定义');
 };
 
 /** 提交按钮 */
 const submitForm = () => {
   spelFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      buttonLoading.value = true;
-      if (form.value.id) {
-        await updateSpel(form.value).finally(() => (buttonLoading.value = false));
-      } else {
-        await addSpel(form.value).finally(() => (buttonLoading.value = false));
-      }
+      await withButtonLoading(async () => {
+        if (form.value.id) {
+          await updateSpel(form.value);
+        } else {
+          await addSpel(form.value);
+        }
+      });
       modal.msgSuccess('操作成功');
-      dialog.visible = false;
+      closeDialog();
       await getList();
     }
   });
@@ -337,9 +327,7 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: SpelVO) => {
   const _ids = row?.id || ids.value;
-  await modal
-    .confirm('是否确认删除流程spel表达式定义编号为"' + _ids + '"的数据项？')
-    .finally(() => (loading.value = false));
+  await modal.confirm('是否确认删除流程spel表达式定义编号为"' + _ids + '"的数据项？');
   await delSpel(_ids);
   modal.msgSuccess('删除成功');
   await getList();

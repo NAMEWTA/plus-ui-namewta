@@ -280,6 +280,11 @@
 <script setup name="Client" lang="ts">
 import { listClient, getClient, delClient, addClient, updateClient, changeStatus } from '@/api/system/client';
 import { ClientVO, ClientQuery, ClientForm } from '@/api/system/client/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
@@ -289,21 +294,14 @@ const { sys_grant_type } = toRefs<any>(useDict('sys_grant_type'));
 const { sys_device_type } = toRefs<any>(useDict('sys_device_type'));
 
 const clientList = ref<ClientVO[]>([]);
-const buttonLoading = ref(false);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<string | number>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { loading: buttonLoading, withLoading: withButtonLoading } = useLoading();
+const { showSearch } = useSearchToggle();
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<ClientVO>(item => item.id);
 const total = ref(0);
 
 const queryFormRef = ref<ElFormInstance>();
 const clientFormRef = ref<ElFormInstance>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const initFormData: ClientForm = {
   id: undefined,
@@ -347,6 +345,19 @@ const data = reactive<PageData<ClientForm, ClientQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const { dialog, resetForm, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: clientFormRef,
+  initialFormData: initFormData
+});
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 const getRuleList = (ruleList?: string[], ruleValue?: string) => {
   if (Array.isArray(ruleList) && ruleList.length) {
@@ -363,23 +374,17 @@ const getRuleList = (ruleList?: string[], ruleValue?: string) => {
 
 /** 查询客户端管理列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listClient(queryParams.value);
-  clientList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listClient(queryParams.value);
+    clientList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 
 /** 取消按钮 */
 const cancel = () => {
-  reset();
-  dialog.visible = false;
-};
-
-/** 表单重置 */
-const reset = () => {
-  form.value = { ...initFormData };
-  clientFormRef.value?.resetFields();
+  closeDialog();
+  resetForm();
 };
 
 /** 搜索按钮操作 */
@@ -388,48 +393,33 @@ const handleQuery = () => {
   getList();
 };
 
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
-
-/** 多选框选中数据 */
-const handleSelectionChange = (selection: ClientVO[]) => {
-  ids.value = selection.map(item => item.id);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-};
-
 /** 新增按钮操作 */
 const handleAdd = () => {
-  reset();
-  dialog.visible = true;
-  dialog.title = '添加客户端管理';
+  openDialog('添加客户端管理');
 };
 
 /** 修改按钮操作 */
 const handleUpdate = async (row?: ClientVO) => {
-  reset();
+  resetForm();
   const _id = row?.id || ids.value[0];
   const res = await getClient(_id);
   Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = '修改客户端管理';
+  showDialog('修改客户端管理');
 };
 
 /** 提交按钮 */
 const submitForm = () => {
   clientFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      buttonLoading.value = true;
-      if (form.value.id) {
-        await updateClient(form.value).finally(() => (buttonLoading.value = false));
-      } else {
-        await addClient(form.value).finally(() => (buttonLoading.value = false));
-      }
+      await withButtonLoading(async () => {
+        if (form.value.id) {
+          await updateClient(form.value);
+        } else {
+          await addClient(form.value);
+        }
+      });
       modal.msgSuccess('修改成功');
-      dialog.visible = false;
+      closeDialog();
       await getList();
     }
   });
@@ -438,7 +428,7 @@ const submitForm = () => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: ClientVO) => {
   const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除客户端管理编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
+  await modal.confirm('是否确认删除客户端管理编号为"' + _ids + '"的数据项？');
   await delClient(_ids);
   modal.msgSuccess('删除成功');
   await getList();

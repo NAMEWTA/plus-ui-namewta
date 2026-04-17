@@ -156,30 +156,27 @@ import { FlowInstanceQuery, FlowInstanceVO } from '@/api/workflow/instance/types
 import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
 import TreePanel from '@/components/TreePanel/index.vue';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
+import { useTreeCollapsed } from '@/hooks/tree/useTreeCollapsed';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 
 const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 const queryFormRef = ref<ElFormInstance>();
 
-// 遮罩层
-const loading = ref(true);
-// 选中数组
-const businessIds = ref<Array<number | string>>([]);
-const instanceIds = ref<Array<number | string>>([]);
-// 非单个禁用
-const single = ref(true);
-// 非多个禁用
-const multiple = ref(true);
-// 显示搜索条件
-const showSearch = ref(true);
+const { loading, setLoading, withLoading } = useLoading(true);
+const { ids: instanceIds, single, multiple, handleSelectionChange } = useTableSelection<FlowInstanceVO>(item => item.id);
+const { showSearch } = useSearchToggle();
 // 总条数
 const total = ref(0);
 // 模型定义表格数据
 const processInstanceList = ref<FlowInstanceVO[]>([]);
 
 const categoryOptions = ref<CategoryTreeVO[]>([]);
-const treeCollapsed = ref(false);
+const { treeCollapsed } = useTreeCollapsed();
 
 const tab = ref('running');
 // 查询参数
@@ -213,28 +210,25 @@ const getTreeselect = async () => {
 const handleQuery = () => {
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  queryParams.value.category = '';
-  queryParams.value.pageNum = 1;
-  queryParams.value.pageSize = 10;
-  handleQuery();
-};
-// 多选框选中数据
-const handleSelectionChange = (selection: FlowInstanceVO[]) => {
-  businessIds.value = selection.map((item: any) => item.businessId);
-  instanceIds.value = selection.map((item: FlowInstanceVO) => item.id);
-  single.value = selection.length !== 1;
-  multiple.value = !selection.length;
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  pageSizeKey: 'pageSize',
+  initialPageSize: 10,
+  resetExtras: () => {
+    queryParams.value.category = '';
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 //分页
 const getList = () => {
-  loading.value = true;
-  pageByCurrent(queryParams.value).then(resp => {
+  withLoading(async () => {
+    const resp = await pageByCurrent(queryParams.value);
     processInstanceList.value = resp.data?.rows;
     total.value = resp.data?.total;
-    loading.value = false;
   });
 };
 
@@ -242,9 +236,9 @@ const getList = () => {
 const handleDelete = async (row: FlowInstanceVO) => {
   const instanceIdList = row.id || instanceIds.value;
   await modal.confirm('是否确认删除？');
-  loading.value = true;
+  setLoading(true);
   if ('running' === tab.value) {
-    await deleteByInstanceIds(instanceIdList).finally(() => (loading.value = false));
+    await deleteByInstanceIds(instanceIdList).finally(() => setLoading(false));
     getList();
   }
   modal.msgSuccess('删除成功');
@@ -253,13 +247,13 @@ const handleDelete = async (row: FlowInstanceVO) => {
 /** 撤销按钮操作 */
 const handleCancelProcessApply = async (businessId: string) => {
   await modal.confirm('是否确认撤销当前单据？');
-  loading.value = true;
+  setLoading(true);
   if ('running' === tab.value) {
     const data = {
       businessId: businessId,
       message: '申请人撤销流程！'
     };
-    await cancelProcessApply(data).finally(() => (loading.value = false));
+    await cancelProcessApply(data).finally(() => setLoading(false));
     getList();
   }
   modal.msgSuccess('撤销成功');

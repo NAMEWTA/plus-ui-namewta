@@ -461,6 +461,12 @@ import { RoleVO } from '@/api/system/role/types';
 import api from '@/api/system/user';
 import { UserForm, UserQuery, UserVO } from '@/api/system/user/types';
 import TreePanel from '@/components/TreePanel/index.vue';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
+import { useTreeCollapsed } from '@/hooks/tree/useTreeCollapsed';
 import modal from '@/plugins/modal';
 import { useUserStore } from '@/store/modules/user';
 import { useDict } from '@/utils/dict';
@@ -473,14 +479,11 @@ import UserViewDrawer from './view.vue';
 const router = useRouter();
 const { sys_normal_disable, sys_user_gender } = toRefs<any>(useDict('sys_normal_disable', 'sys_user_gender'));
 const userList = ref<UserVO[]>();
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<number | string>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const total = ref(0);
 const dateRange = ref<any>(['', '']);
-const treeCollapsed = ref(false);
+const { treeCollapsed } = useTreeCollapsed();
 const deptOptions = ref<DeptTreeVO[]>([]);
 const enabledDeptOptions = ref<DeptTreeVO[]>([]);
 const initPassword = ref<string>('');
@@ -518,11 +521,6 @@ const userFormRef = ref<ElFormInstance>();
 const uploadRef = ref<ElUploadInstance>();
 const formDialogRef = ref<ElDialogInstance>();
 const userViewRef = ref<InstanceType<typeof UserViewDrawer>>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const initFormData: UserForm = {
   userId: undefined,
@@ -595,14 +593,16 @@ const initData: PageData<UserForm, UserQuery> = {
 const data = reactive<PageData<UserForm, UserQuery>>(initData);
 
 const { queryParams, form, rules } = toRefs<PageData<UserForm, UserQuery>>(data);
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<UserVO>(item => item.userId);
+const { dialog, openDialog: openUserDialog, closeDialog: closeUserDialog, setTitle: setDialogTitle } = useDialogState();
 
 /** 查询用户列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await api.listUser(addDateRange(queryParams.value, dateRange.value));
-  loading.value = false;
-  userList.value = res.data?.rows;
-  total.value = res.data?.total;
+  await withLoading(async () => {
+    const res = await api.listUser(addDateRange(queryParams.value, dateRange.value));
+    userList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 
 /** 查询部门下拉树结构 */
@@ -636,15 +636,19 @@ const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  dateRange.value = ['', ''];
-  queryFormRef.value?.resetFields();
-  queryParams.value.pageNum = 1;
-  queryParams.value.deptId = undefined;
-  treePanelRef.value?.setCurrentKey(undefined);
-  handleQuery();
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  resetExtras: () => {
+    dateRange.value = ['', ''];
+    queryParams.value.deptId = undefined;
+    treePanelRef.value?.setCurrentKey(undefined);
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: UserVO) => {
@@ -704,13 +708,6 @@ const handleResetPwd = async (row: UserVO) => {
     await api.resetUserPwd(row.userId, res.value);
     modal.msgSuccess('修改成功，新密码是：' + res.value);
   }
-};
-
-/** 选择条数  */
-const handleSelectionChange = (selection: UserVO[]) => {
-  ids.value = selection.map(item => item.userId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
 };
 
 /** 详情按钮操作 */
@@ -773,7 +770,7 @@ const reset = () => {
 };
 /** 取消按钮 */
 const cancel = () => {
-  dialog.visible = false;
+  closeUserDialog();
   reset();
 };
 
@@ -781,8 +778,8 @@ const cancel = () => {
 const handleAdd = async () => {
   reset();
   const { data } = await api.getUser();
-  dialog.visible = true;
-  dialog.title = '新增用户';
+  setDialogTitle('新增用户');
+  openUserDialog();
   postOptions.value = data.posts;
   roleOptions.value = data.roles;
   form.value.password = initPassword.value.toString();
@@ -793,8 +790,8 @@ const handleUpdate = async (row?: UserForm) => {
   reset();
   const userId = row?.userId || ids.value[0];
   const { data } = await api.getUser(userId);
-  dialog.visible = true;
-  dialog.title = '修改用户';
+  setDialogTitle('修改用户');
+  openUserDialog();
   Object.assign(form.value, data.user);
   postOptions.value = data.posts;
   roleOptions.value = Array.from(
@@ -821,7 +818,7 @@ const submitForm = () => {
         await api.addUser(form.value);
       }
       modal.msgSuccess('操作成功');
-      dialog.visible = false;
+      closeUserDialog();
       await getList();
     }
   });
@@ -831,7 +828,7 @@ const submitForm = () => {
  * 关闭用户弹窗
  */
 const closeDialog = () => {
-  dialog.visible = false;
+  closeUserDialog();
   resetForm();
 };
 

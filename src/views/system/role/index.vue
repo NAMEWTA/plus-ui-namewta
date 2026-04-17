@@ -336,6 +336,11 @@ import {
   deptTreeSelect
 } from '@/api/system/role';
 import { RoleVO, RoleForm, RoleQuery, DeptTreeOption } from '@/api/system/role/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
@@ -360,10 +365,8 @@ interface RoleMenuPermissionMeta {
 }
 
 const roleList = ref<RoleVO[]>();
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<string | number>>([]);
-const single = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const total = ref(0);
 const dateRange = ref<any>(['', '']);
 const menuPermissionMeta = ref<RoleMenuPermissionMeta>({
@@ -784,21 +787,17 @@ const data = reactive<PageData<RoleForm, RoleQuery>>({
   }
 });
 const { form, queryParams, rules } = toRefs(data);
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
+const { ids, single, handleSelectionChange } = useTableSelection<RoleVO>(item => item.roleId);
+const { dialog, openDialog, closeDialog, setTitle } = useDialogState();
 
 /**
  * 查询角色列表
  */
 const getList = () => {
-  loading.value = true;
-  listRole(addDateRange(queryParams.value, dateRange.value)).then(res => {
+  withLoading(async () => {
+    const res = await listRole(addDateRange(queryParams.value, dateRange.value));
     roleList.value = res.data?.rows;
     total.value = res.data?.total;
-    loading.value = false;
   });
 };
 
@@ -810,12 +809,17 @@ const handleQuery = () => {
   getList();
 };
 
-/** 重置 */
-const resetQuery = () => {
-  dateRange.value = ['', ''];
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  resetExtras: () => {
+    dateRange.value = ['', ''];
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 /**删除按钮操作 */
 const handleDelete = async (row?: RoleVO) => {
   const roleids = row?.roleId || ids.value;
@@ -835,12 +839,6 @@ const handleExport = () => {
     `role_${new Date().getTime()}.xlsx`
   );
 };
-/** 多选框选中数据 */
-const handleSelectionChange = (selection: RoleVO[]) => {
-  ids.value = selection.map((item: RoleVO) => item.roleId);
-  single.value = selection.length != 1;
-};
-
 /** 角色状态修改 */
 const handleStatusChange = async (row: RoleVO) => {
   const text = row.status === '0' ? '启用' : '停用';
@@ -888,8 +886,8 @@ const reset = () => {
 /** 添加角色 */
 const handleAdd = () => {
   reset();
-  dialog.visible = true;
-  dialog.title = '添加角色';
+  setTitle('添加角色');
+  openDialog();
 };
 /** 修改角色 */
 const handleUpdate = async (row?: RoleVO) => {
@@ -901,8 +899,8 @@ const handleUpdate = async (row?: RoleVO) => {
   // 菜单分配已迁移到“分配权限”弹窗，这里预置已有菜单，避免基础信息保存时误清空菜单权限。
   const { checkedKeys } = await getRoleMenuTreeselect(roleId);
   form.value.menuIds = checkedKeys;
-  dialog.title = '修改角色';
-  dialog.visible = true;
+  setTitle('修改角色');
+  openDialog();
 };
 /** 根据角色ID查询菜单树结构 */
 const getRoleMenuTreeselect = (roleId: string | number) => {
@@ -963,19 +961,19 @@ const getMenuAllCheckedKeys = (): any => {
 /** 提交按钮 */
 const submitForm = () => {
   roleFormRef.value?.validate(async (valid: boolean) => {
-    if (valid) {
-      syncFormMenuPermissionIds();
-      form.value.roleId ? await updateRole(form.value) : await addRole(form.value);
-      modal.msgSuccess('操作成功');
-      dialog.visible = false;
-      getList();
-    }
+      if (valid) {
+        syncFormMenuPermissionIds();
+        form.value.roleId ? await updateRole(form.value) : await addRole(form.value);
+        modal.msgSuccess('操作成功');
+        closeDialog();
+        getList();
+      }
   });
 };
 /** 取消按钮 */
 const cancel = () => {
   reset();
-  dialog.visible = false;
+  closeDialog();
 };
 /** 选择角色权限范围触发 */
 const dataScopeSelectChange = (value: string) => {
@@ -991,7 +989,7 @@ const handleDataScope = async (row: RoleVO) => {
   const menuRes = await getRoleMenuTreeselect(row.roleId);
   const res = await getRoleDeptTreeSelect(row.roleId);
   openDataScope.value = true;
-  dialog.title = '分配权限';
+  setTitle('分配权限');
   await nextTick(() => {
     initPermissionState(menuRes.checkedKeys);
     syncFormMenuPermissionIds();

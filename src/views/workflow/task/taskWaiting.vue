@@ -116,6 +116,10 @@ import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
 import UserNameDisplay from '@/components/Process/UserNameDisplay.vue';
 import UserSelect from '@/components/UserSelect/index.vue';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import { useDict } from '@/utils/dict';
 
 const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
@@ -123,16 +127,9 @@ const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 const userSelectRef = ref<InstanceType<typeof UserSelect>>();
 //提交组件
 const queryFormRef = ref<ElFormInstance>();
-// 遮罩层
-const loading = ref(true);
-// 选中数组
-const ids = ref<Array<any>>([]);
-// 非单个禁用
-const single = ref(true);
-// 非多个禁用
-const multiple = ref(true);
-// 显示搜索条件
-const showSearch = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<any>(item => item.id);
+const { showSearch } = useSearchToggle();
 // 总条数
 const total = ref(0);
 // 模型定义表格数据
@@ -151,6 +148,21 @@ const queryParams = ref<TaskQuery>({
   flowCode: undefined,
   createByIds: []
 });
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  pageSizeKey: 'pageSize',
+  initialPageSize: 10,
+  resetExtras: () => {
+    queryParams.value.createByIds = [];
+    userSelectCount.value = 0;
+    selectUserIds.value = [];
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 onMounted(() => {
   getWaitingList();
 });
@@ -158,29 +170,12 @@ onMounted(() => {
 const handleQuery = () => {
   getWaitingList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  queryParams.value.pageNum = 1;
-  queryParams.value.pageSize = 10;
-  queryParams.value.createByIds = [];
-  userSelectCount.value = 0;
-  selectUserIds.value = [];
-  handleQuery();
-};
-// 多选框选中数据
-const handleSelectionChange = (selection: any) => {
-  ids.value = selection.map((item: any) => item.id);
-  single.value = selection.length !== 1;
-  multiple.value = !selection.length;
-};
 //分页
 const getWaitingList = () => {
-  loading.value = true;
-  pageByTaskWait(queryParams.value).then(resp => {
+  withLoading(async () => {
+    const resp = await pageByTaskWait(queryParams.value);
     taskList.value = resp.data?.rows;
     total.value = resp.data?.total;
-    loading.value = false;
   });
 };
 //办理

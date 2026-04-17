@@ -369,6 +369,10 @@
 import { addMenu, cascadeDelMenu, delMenu, getMenu, listMenu, updateMenu } from '@/api/system/menu';
 import { MenuForm, MenuQuery, MenuVO } from '@/api/system/menu/types';
 import { MenuTypeEnum } from '@/enums/MenuTypeEnum';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { handleTree } from '@/utils/ruoyi';
@@ -386,14 +390,9 @@ const { sys_show_hide, sys_normal_disable, sys_yes_no } = toRefs<any>(
 const menuList = ref<MenuVO[]>([]);
 const menuChildrenListMap = ref({});
 const menuExpandMap = ref({});
-const loading = ref(true);
-const showSearch = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const menuOptions = ref<MenuOptionsType[]>([]);
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const queryFormRef = ref<ElFormInstance>();
 const menuFormRef = ref<ElFormInstance>();
@@ -428,6 +427,7 @@ const data = reactive<PageData<MenuForm, MenuQuery>>({
 const menuTableRef = ref<ElTableInstance>();
 
 const { queryParams, form, rules } = toRefs<PageData<MenuForm, MenuQuery>>(data);
+const { dialog, openDialog, closeDialog, setTitle } = useDialogState();
 
 type MenuTagType = 'warning' | 'primary' | 'success' | 'danger';
 
@@ -486,31 +486,31 @@ const refreshAllExpandMenuData = () => {
 
 /** 查询菜单列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listMenu(queryParams.value);
+  await withLoading(async () => {
+    const res = await listMenu(queryParams.value);
 
-  const tempMap = {};
-  // 存储 父菜单:子菜单列表
-  for (const menu of res.data) {
-    const parentId = menu.parentId;
-    if (!tempMap[parentId]) {
-      tempMap[parentId] = [];
+    const tempMap = {};
+    // 存储 父菜单:子菜单列表
+    for (const menu of res.data) {
+      const parentId = menu.parentId;
+      if (!tempMap[parentId]) {
+        tempMap[parentId] = [];
+      }
+      tempMap[parentId].push(menu);
     }
-    tempMap[parentId].push(menu);
-  }
-  // 创建一个当前所有 menuId 的 Set，用于查找父菜单是否存在于当前数据中
-  const menuIdSet = new Set();
-  // 设置有没有子菜单
-  for (const menu of res.data) {
-    menu['hasChildren'] = tempMap[menu.menuId]?.length > 0;
-    menuIdSet.add(menu.menuId);
-  }
-  menuChildrenListMap.value = tempMap;
-  // 找出所有父ID不在当前菜单ID集合中的菜单项，作为新的顶层菜单
-  menuList.value = res.data.filter(menu => !menuIdSet.has(menu.parentId));
-  // 根据新数据重新加载子菜单数据
-  refreshAllExpandMenuData();
-  loading.value = false;
+    // 创建一个当前所有 menuId 的 Set，用于查找父菜单是否存在于当前数据中
+    const menuIdSet = new Set();
+    // 设置有没有子菜单
+    for (const menu of res.data) {
+      menu['hasChildren'] = tempMap[menu.menuId]?.length > 0;
+      menuIdSet.add(menu.menuId);
+    }
+    menuChildrenListMap.value = tempMap;
+    // 找出所有父ID不在当前菜单ID集合中的菜单项，作为新的顶层菜单
+    menuList.value = res.data.filter(menu => !menuIdSet.has(menu.parentId));
+    // 根据新数据重新加载子菜单数据
+    refreshAllExpandMenuData();
+  });
 };
 /** 查询菜单下拉树结构 */
 const getTreeselect = async () => {
@@ -523,7 +523,7 @@ const getTreeselect = async () => {
 /** 取消按钮 */
 const cancel = () => {
   reset();
-  dialog.visible = false;
+  closeDialog();
 };
 /** 表单重置 */
 const reset = () => {
@@ -535,18 +535,20 @@ const reset = () => {
 const handleQuery = () => {
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  afterReset: () => {
+    handleQuery();
+  }
+});
 /** 新增按钮操作 */
 const handleAdd = (row?: MenuVO) => {
   reset();
   getTreeselect();
   row && row.menuId ? (form.value.parentId = row.menuId) : (form.value.parentId = 0);
-  dialog.visible = true;
-  dialog.title = '添加菜单';
+  setTitle('添加菜单');
+  openDialog();
 };
 /** 修改按钮操作 */
 const handleUpdate = async (row: MenuVO) => {
@@ -556,18 +558,18 @@ const handleUpdate = async (row: MenuVO) => {
     const { data } = await getMenu(row.menuId);
     form.value = data;
   }
-  dialog.visible = true;
-  dialog.title = '修改菜单';
+  setTitle('修改菜单');
+  openDialog();
 };
 /** 提交按钮 */
 const submitForm = () => {
   menuFormRef.value?.validate(async (valid: boolean) => {
-    if (valid) {
-      form.value.menuId ? await updateMenu(form.value) : await addMenu(form.value);
-      modal.msgSuccess('操作成功');
-      dialog.visible = false;
-      await getList();
-    }
+      if (valid) {
+        form.value.menuId ? await updateMenu(form.value) : await addMenu(form.value);
+        modal.msgSuccess('操作成功');
+        closeDialog();
+        await getList();
+      }
   });
 };
 /** 删除按钮操作 */
@@ -581,22 +583,19 @@ const handleDelete = async (row: MenuVO) => {
 const deleteLoading = ref<boolean>(false);
 const menuTreeRef = ref<ElTreeInstance>();
 
-const deleteDialog = reactive<DialogOption>({
-  visible: false,
-  title: '级联删除菜单'
-});
+const { dialog: deleteDialog, openDialog: openDeleteDialog, closeDialog: closeDeleteDialog } = useDialogState('级联删除菜单');
 
 /** 级联删除按钮操作 */
 const handleCascadeDelete = () => {
   menuTreeRef.value?.setCheckedKeys([]);
   getTreeselect();
-  deleteDialog.visible = true;
+  openDeleteDialog();
 };
 
 /** 取消按钮 */
 const cancelCascade = () => {
   menuTreeRef.value?.setCheckedKeys([]);
-  deleteDialog.visible = false;
+  closeDeleteDialog();
 };
 
 /** 删除提交按钮 */
@@ -611,7 +610,7 @@ const submitDeleteForm = async () => {
   await cascadeDelMenu(menuIds).finally(() => (deleteLoading.value = false));
   await getList();
   modal.msgSuccess('删除成功');
-  deleteDialog.visible = false;
+  closeDeleteDialog();
 };
 
 onMounted(() => {

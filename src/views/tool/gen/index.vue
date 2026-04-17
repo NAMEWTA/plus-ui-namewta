@@ -194,6 +194,11 @@
 import { useRoute } from 'vue-router';
 import { delTable, genCode, getDataNames, listTable, previewTable, synchDb } from '@/api/tool/gen';
 import { TableQuery, TableVO } from '@/api/tool/gen/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import download from '@/plugins/download';
 import modal from '@/plugins/modal';
 import router from '@/router';
@@ -203,11 +208,8 @@ import ImportTable from './importTable.vue';
 const route = useRoute();
 
 const tableList = ref<TableVO[]>([]);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<string | number>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const total = ref(0);
 const dateRange = ref<any>(['', '']);
 const uniqueId = ref('');
@@ -231,10 +233,8 @@ const preview = ref<{
   data: {},
   activeName: 'domain.java'
 });
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: '代码预览'
-});
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<TableVO>(item => item.tableId);
+const { dialog, openDialog: openPreviewDialog } = useDialogState('代码预览');
 
 /** 查询多数据源名称 */
 const getDataNameList = async () => {
@@ -244,11 +244,11 @@ const getDataNameList = async () => {
 
 /** 查询表集合 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listTable(addDateRange(queryParams.value, dateRange.value));
-  tableList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listTable(addDateRange(queryParams.value, dateRange.value));
+    tableList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 /** 搜索按钮操作 */
 const handleQuery = () => {
@@ -280,28 +280,27 @@ const handleSynchDb = async (row: TableVO) => {
 const openImportTable = () => {
   importRef.value?.show(queryParams.value.dataName);
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  dateRange.value = ['', ''];
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  resetExtras: () => {
+    dateRange.value = ['', ''];
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 /** 预览按钮 */
 const handlePreview = async (row: TableVO) => {
   const res = await previewTable(row.tableId);
   preview.value.data = res.data;
-  dialog.visible = true;
+  openPreviewDialog();
   preview.value.activeName = 'domain.java';
 };
 /** 复制代码成功 */
 const copyTextSuccess = () => {
   modal.msgSuccess('复制成功');
-};
-// 多选框选中数据
-const handleSelectionChange = (selection: TableVO[]) => {
-  ids.value = selection.map(item => item.tableId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
 };
 /** 修改按钮操作 */
 const handleEditTable = (row?: TableVO) => {

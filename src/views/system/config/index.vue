@@ -189,6 +189,11 @@
 <script setup name="Config" lang="ts">
 import { listConfig, getConfig, delConfig, addConfig, updateConfig, refreshCache } from '@/api/system/config';
 import { ConfigForm, ConfigQuery, ConfigVO } from '@/api/system/config/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
@@ -197,20 +202,14 @@ import { parseTime, addDateRange } from '@/utils/ruoyi';
 const { sys_yes_no } = toRefs<any>(useDict('sys_yes_no'));
 
 const configList = ref<ConfigVO[]>([]);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<number | string>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<ConfigVO>(item => item.configId);
 const total = ref(0);
 const dateRange = ref<any>(['', '']);
 
 const queryFormRef = ref<ElFormInstance>();
 const configFormRef = ref<ElFormInstance>();
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 const initFormData: ConfigForm = {
   configId: undefined,
   configName: '',
@@ -236,56 +235,52 @@ const data = reactive<PageData<ConfigForm, ConfigQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const { dialog, resetForm, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: configFormRef,
+  initialFormData: initFormData
+});
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  resetExtras: () => {
+    dateRange.value = ['', ''];
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 查询参数列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listConfig(addDateRange(queryParams.value, dateRange.value));
-  configList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listConfig(addDateRange(queryParams.value, dateRange.value));
+    configList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 /** 取消按钮 */
 const cancel = () => {
-  reset();
-  dialog.visible = false;
-};
-/** 表单重置 */
-const reset = () => {
-  form.value = { ...initFormData };
-  configFormRef.value?.resetFields();
+  closeDialog();
+  resetForm();
 };
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  dateRange.value = ['', ''];
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
-/** 多选框选中数据 */
-const handleSelectionChange = (selection: ConfigVO[]) => {
-  ids.value = selection.map(item => item.configId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-};
 /** 新增按钮操作 */
 const handleAdd = () => {
-  reset();
-  dialog.visible = true;
-  dialog.title = '添加参数';
+  openDialog('添加参数');
 };
 /** 修改按钮操作 */
 const handleUpdate = async (row?: ConfigVO) => {
-  reset();
+  resetForm();
   const configId = row?.configId || ids.value[0];
   const res = await getConfig(configId);
   Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = '修改参数';
+  showDialog('修改参数');
 };
 /** 提交按钮 */
 const submitForm = () => {
@@ -293,7 +288,7 @@ const submitForm = () => {
     if (valid) {
       form.value.configId ? await updateConfig(form.value) : await addConfig(form.value);
       modal.msgSuccess('操作成功');
-      dialog.visible = false;
+      closeDialog();
       await getList();
     }
   });

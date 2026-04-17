@@ -81,7 +81,7 @@
                   v-hasPermi="['workflow:definition:import']"
                   type="primary"
                   icon="UploadFilled"
-                  @click="uploadDialog.visible = true"
+                  @click="openUploadDialog()"
                 >
                   部署流程文件
                 </el-button>
@@ -315,7 +315,7 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="modelDialog.visible = false">取消</el-button>
+          <el-button @click="closeModelDialog()">取消</el-button>
           <el-button type="primary" @click="handleSubmit">保存</el-button>
         </div>
       </template>
@@ -342,6 +342,13 @@ import {
 } from '@/api/workflow/definition';
 import { FlowDefinitionQuery, FlowDefinitionVo, FlowDefinitionForm } from '@/api/workflow/definition/types';
 import TreePanel from '@/components/TreePanel/index.vue';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
+import { useTreeCollapsed } from '@/hooks/tree/useTreeCollapsed';
 import modal from '@/plugins/modal';
 import { download as requestDownload } from '@/utils/request';
 
@@ -351,31 +358,18 @@ const router = useRouter();
 const queryFormRef = ref<ElFormInstance>();
 const treePanelRef = ref<InstanceType<typeof TreePanel>>();
 
-const loading = ref(true);
-const ids = ref<Array<any>>([]);
-const flowCodeList = ref<Array<any>>([]);
-const single = ref(true);
-const multiple = ref(true);
-const showSearch = ref(true);
+const { loading, setLoading, withLoading } = useLoading(true);
 const total = ref(0);
 const uploadDialogLoading = ref(false);
 const processDefinitionList = ref<FlowDefinitionVo[]>([]);
 const categoryOptions = ref<CategoryTreeVO[]>([]);
-const treeCollapsed = ref(false);
+const { treeCollapsed } = useTreeCollapsed();
+const { showSearch } = useSearchToggle();
 const autoPass = ref(false);
 /** 部署文件分类选择 */
 const selectCategory = ref();
 const defFormRef = ref<ElFormInstance>();
 const activeName = ref('0');
-const uploadDialog = reactive<DialogOption>({
-  visible: false,
-  title: '部署流程文件'
-});
-
-const modelDialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 // 查询参数
 const queryParams = ref<FlowDefinitionQuery>({
@@ -413,6 +407,20 @@ const form = ref<FlowDefinitionForm>({
   formCustom: '',
   modelValue: ''
 });
+const {
+  ids,
+  selectedRows,
+  single,
+  multiple,
+  handleSelectionChange
+} = useTableSelection<FlowDefinitionVo, string>(item => String(item.id));
+const flowCodeList = computed(() => selectedRows.value.map(item => item.flowCode));
+const { dialog: uploadDialog, openDialog: openUploadDialog, closeDialog: closeUploadDialog } = useDialogState('部署流程文件');
+const { dialog: modelDialog, resetForm: reset, showDialog: showModelDialog, closeDialog: closeModelDialog } = useFormDialog({
+  form,
+  formRef: defFormRef,
+  initialFormData: initFormData
+});
 onMounted(() => {
   getPageList();
   getTreeselect();
@@ -445,21 +453,19 @@ const handleQuery = () => {
     getUnPublishList();
   }
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  queryParams.value.category = '';
-  queryParams.value.pageNum = 1;
-  queryParams.value.pageSize = 10;
-  handleQuery();
-};
-// 多选框选中数据
-const handleSelectionChange = (selection: any) => {
-  ids.value = selection.map((item: any) => item.id);
-  flowCodeList.value = selection.map((item: any) => item.flowCode);
-  single.value = selection.length !== 1;
-  multiple.value = !selection.length;
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  pageSizeKey: 'pageSize',
+  initialPageSize: 10,
+  resetExtras: () => {
+    queryParams.value.category = '';
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 //分页
 const getPageList = async () => {
   if (route.query.activeName) {
@@ -476,19 +482,19 @@ const getPageList = async () => {
 };
 //分页
 const getList = async () => {
-  loading.value = true;
-  const resp = await listDefinition(queryParams.value);
-  processDefinitionList.value = resp.data?.rows;
-  total.value = resp.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const resp = await listDefinition(queryParams.value);
+    processDefinitionList.value = resp.data?.rows;
+    total.value = resp.data?.total;
+  });
 };
 //查询未发布的流程定义列表
 const getUnPublishList = async () => {
-  loading.value = true;
-  const resp = await unPublishList(queryParams.value);
-  processDefinitionList.value = resp.data?.rows;
-  total.value = resp.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const resp = await unPublishList(queryParams.value);
+    processDefinitionList.value = resp.data?.rows;
+    total.value = resp.data?.total;
+  });
 };
 
 /** 删除按钮操作 */
@@ -496,8 +502,8 @@ const handleDelete = async (row?: FlowDefinitionVo) => {
   const id = row?.id || ids.value;
   const defList = processDefinitionList.value.filter(x => id.indexOf(x.id) != -1).map(x => x.flowCode);
   await modal.confirm('是否确认删除流程定义编码为【' + defList + '】的数据项？');
-  loading.value = true;
-  await deleteDefinition(id).finally(() => (loading.value = false));
+  setLoading(true);
+  await deleteDefinition(id).finally(() => setLoading(false));
   await handleQuery();
   modal.msgSuccess('删除成功');
 };
@@ -511,8 +517,8 @@ const handlePublish = async (row?: FlowDefinitionVo) => {
       row.version +
       '】的数据项？，发布后会将已发布流程定义改为失效！'
   );
-  loading.value = true;
-  await publish(row.id).finally(() => (loading.value = false));
+  setLoading(true);
+  await publish(row.id).finally(() => setLoading(false));
   activeName.value = '0';
   await handleQuery();
   modal.msgSuccess('发布成功');
@@ -526,7 +532,7 @@ const handleProcessDefState = async (row: FlowDefinitionVo, status: number | str
     msg = `启动后，此流程下的所有任务都允许往后流转，您确定激活【${row.flowName || row.flowCode}】吗？`;
   }
   try {
-    loading.value = true;
+    setLoading(true);
     await modal.confirm(msg);
     await active(row.id, !!status);
     await handleQuery();
@@ -535,7 +541,7 @@ const handleProcessDefState = async (row: FlowDefinitionVo, status: number | str
     row.activityStatus = status === 0 ? 1 : 0;
     console.error(error);
   } finally {
-    loading.value = false;
+    setLoading(false);
   }
 };
 
@@ -558,7 +564,7 @@ const handlerImportDefinition = (data: UploadRequestOptions): XMLHttpRequest => 
   formData.append('category', selectCategory.value);
   importDef(formData)
     .then(() => {
-      uploadDialog.visible = false;
+      closeUploadDialog();
       modal.msgSuccess('部署成功');
       activeName.value = '1';
       handleQuery();
@@ -597,11 +603,6 @@ const designView = async (row: FlowDefinitionVo) => {
     }
   });
 };
-/** 表单重置 */
-const reset = () => {
-  form.value = { ...initFormData };
-  defFormRef.value?.resetFields();
-};
 /**
  * 新增
  */
@@ -612,8 +613,7 @@ const handleAdd = async () => {
   }
   form.value.modelValue = 'CLASSICS';
   form.value.formCustom = 'N';
-  modelDialog.visible = true;
-  modelDialog.title = '新增流程';
+  showModelDialog('新增流程');
 };
 /** 修改按钮操作 */
 const handleUpdate = async (row?: FlowDefinitionVo) => {
@@ -628,26 +628,25 @@ const handleUpdate = async (row?: FlowDefinitionVo) => {
       autoPass.value = extJson.autoPass;
     }
   }
-  modelDialog.visible = true;
-  modelDialog.title = '修改流程';
+  showModelDialog('修改流程');
 };
 
 const handleSubmit = async () => {
   defFormRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      loading.value = true;
+      setLoading(true);
       const ext: { autoPass: boolean } = {
         autoPass: autoPass.value
       };
       form.value.ext = JSON.stringify(ext);
       if (form.value.id) {
-        await edit(form.value).finally(() => (loading.value = false));
+        await edit(form.value).finally(() => setLoading(false));
       } else {
-        await add(form.value).finally(() => (loading.value = false));
+        await add(form.value).finally(() => setLoading(false));
         activeName.value = '1';
       }
       modal.msgSuccess('操作成功');
-      modelDialog.visible = false;
+      closeModelDialog();
       handleQuery();
     }
   });
@@ -659,7 +658,7 @@ const handleCopyDef = async (row: FlowDefinitionVo) => {
     cancelButtonText: '取消',
     type: 'warning'
   } as ElMessageBoxOptions).then(() => {
-    loading.value = true;
+    setLoading(true);
     copy(row.id)
       .then(resp => {
         if (resp.code === 200) {
@@ -668,7 +667,7 @@ const handleCopyDef = async (row: FlowDefinitionVo) => {
           handleQuery();
         }
       })
-      .finally(() => (loading.value = false));
+      .finally(() => setLoading(false));
   });
 };
 

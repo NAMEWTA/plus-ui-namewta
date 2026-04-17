@@ -110,6 +110,10 @@ import { RouteLocationNormalized } from 'vue-router';
 import { allocatedUserList, authUserCancel, authUserCancelAll } from '@/api/system/role';
 import { UserQuery } from '@/api/system/user/types';
 import { UserVO } from '@/api/system/user/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import tab from '@/plugins/tab';
 import { useDict } from '@/utils/dict';
@@ -119,11 +123,9 @@ const route = useRoute();
 const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const userList = ref<UserVO[]>([]);
-const loading = ref(true);
-const showSearch = ref(true);
-const multiple = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const total = ref(0);
-const userIds = ref<Array<string | number>>([]);
 
 const queryFormRef = ref<ElFormInstance>();
 const selectRef = ref<InstanceType<typeof SelectUser>>();
@@ -135,14 +137,15 @@ const queryParams = reactive<UserQuery>({
   userName: undefined,
   phoneNumber: undefined
 });
+const { ids: userIds, multiple, handleSelectionChange } = useTableSelection<UserVO>(item => item.userId);
 
 /** 查询授权用户列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await allocatedUserList(queryParams);
-  userList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await allocatedUserList(queryParams);
+    userList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 // 返回按钮
 const handleClose = () => {
@@ -164,16 +167,12 @@ const handleQuery = () => {
   queryParams.pageNum = 1;
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
-// 多选框选中数据
-const handleSelectionChange = (selection: UserVO[]) => {
-  userIds.value = selection.map(item => item.userId);
-  multiple.value = !selection.length;
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  afterReset: () => {
+    handleQuery();
+  }
+});
 /** 打开授权用户表弹窗 */
 const openSelectUser = () => {
   selectRef.value?.show();

@@ -321,6 +321,12 @@ import workflowCommon from '@/api/workflow/workflowCommon';
 import { RouterJumpVo } from '@/api/workflow/workflowCommon/types';
 import TreePanel from '@/components/TreePanel/index.vue';
 import UserSelect from '@/components/UserSelect/index.vue';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
+import { useTreeCollapsed } from '@/hooks/tree/useTreeCollapsed';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 
@@ -340,18 +346,9 @@ const form = ref<Record<string, any>>({
 });
 const ruleFormRef = ref<FormInstance>();
 const userSelectRef = ref<InstanceType<typeof UserSelect>>();
-// 遮罩层
-const loading = ref(true);
-// 选中数组
-const ids = ref<Array<any>>([]);
-// 选中实例id数组
-const instanceIds = ref<Array<number | string>>([]);
-// 非单个禁用
-const single = ref(true);
-// 非多个禁用
-const multiple = ref(true);
-// 显示搜索条件
-const showSearch = ref(true);
+const { loading, setLoading, withLoading } = useLoading(true);
+const { ids: instanceIds, single, multiple, handleSelectionChange } = useTableSelection<FlowInstanceVO>(item => item.id);
+const { showSearch } = useSearchToggle();
 // 总条数
 const total = ref(0);
 // 实例id
@@ -367,12 +364,9 @@ const processDefinitionName = ref();
 const processInstanceList = ref<FlowInstanceVO[]>([]);
 const processDefinitionHistoryList = ref<Array<any>>([]);
 const categoryOptions = ref<CategoryTreeVO[]>([]);
-const treeCollapsed = ref(false);
+const { treeCollapsed } = useTreeCollapsed();
 
-const processDefinitionDialog = reactive<DialogOption>({
-  visible: false,
-  title: '流程定义'
-});
+const { dialog: processDefinitionDialog } = useDialogState('流程定义');
 
 const tab = ref('running');
 // 作废原因
@@ -415,39 +409,36 @@ const handleQuery = () => {
     getProcessInstanceFinishList();
   }
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  queryParams.value.category = '';
-  queryParams.value.pageNum = 1;
-  queryParams.value.pageSize = 10;
-  queryParams.value.createByIds = [];
-  userSelectCount.value = 0;
-  handleQuery();
-};
-// 多选框选中数据
-const handleSelectionChange = (selection: FlowInstanceVO[]) => {
-  ids.value = selection.map((item: any) => item.id);
-  instanceIds.value = selection.map((item: FlowInstanceVO) => item.id);
-  single.value = selection.length !== 1;
-  multiple.value = !selection.length;
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  pageSizeKey: 'pageSize',
+  initialPageSize: 10,
+  resetExtras: () => {
+    queryParams.value.category = '';
+    queryParams.value.createByIds = [];
+    userSelectCount.value = 0;
+    selectUserIds.value = [];
+  },
+  afterReset: () => {
+    handleQuery();
+  }
+});
 //分页
 const getProcessInstanceRunningList = () => {
-  loading.value = true;
-  pageByRunning(queryParams.value).then(resp => {
+  withLoading(async () => {
+    const resp = await pageByRunning(queryParams.value);
     processInstanceList.value = resp.data?.rows;
     total.value = resp.data?.total;
-    loading.value = false;
   });
 };
 //分页
 const getProcessInstanceFinishList = () => {
-  loading.value = true;
-  pageByFinish(queryParams.value).then(resp => {
+  withLoading(async () => {
+    const resp = await pageByFinish(queryParams.value);
     processInstanceList.value = resp.data?.rows;
     total.value = resp.data?.total;
-    loading.value = false;
   });
 };
 
@@ -455,12 +446,12 @@ const getProcessInstanceFinishList = () => {
 const handleDelete = async (row?: FlowInstanceVO) => {
   const instanceIdList = row?.id ?? instanceIds.value;
   await modal.confirm('是否确认删除？');
-  loading.value = true;
+  setLoading(true);
   if ('running' === tab.value) {
-    await deleteByInstanceIds(instanceIdList).finally(() => (loading.value = false));
+    await deleteByInstanceIds(instanceIdList).finally(() => setLoading(false));
     getProcessInstanceRunningList();
   } else {
-    await deleteHisByInstanceIds(instanceIdList).finally(() => (loading.value = false));
+    await deleteHisByInstanceIds(instanceIdList).finally(() => setLoading(false));
     getProcessInstanceFinishList();
   }
   modal.msgSuccess('删除成功');
@@ -477,13 +468,13 @@ const changeTab = async (pane: TabsPaneContext) => {
 /** 作废按钮操作 */
 const handleInvalid = async (row: FlowInstanceVO) => {
   await modal.confirm('是否确认作废？');
-  loading.value = true;
+  setLoading(true);
   if ('running' === tab.value) {
     const param = {
       id: row.id,
       comment: deleteReason.value
     };
-    await invalid(param).finally(() => (loading.value = false));
+    await invalid(param).finally(() => setLoading(false));
     getProcessInstanceRunningList();
     modal.msgSuccess('操作成功');
   }

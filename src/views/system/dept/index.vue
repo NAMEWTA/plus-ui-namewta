@@ -194,6 +194,10 @@ import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild }
 import { DeptForm, DeptQuery, DeptVO } from '@/api/system/dept/types';
 import { listUserByDeptId } from '@/api/system/user';
 import { UserVO } from '@/api/system/user/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useDialogState } from '@/hooks/dialog/useDialogState';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { handleTree, parseTime } from '@/utils/ruoyi';
@@ -207,16 +211,11 @@ interface DeptOptionsType {
 const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
 const deptList = ref<DeptVO[]>([]);
-const loading = ref(true);
-const showSearch = ref(true);
+const { loading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const deptOptions = ref<DeptOptionsType[]>([]);
 const isExpandAll = ref(true);
 const deptUserList = ref<UserVO[]>([]);
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 const deptTableRef = ref<ElTableInstance>();
 const queryFormRef = ref<ElFormInstance>();
@@ -265,16 +264,17 @@ const initData: PageData<DeptForm, DeptQuery> = {
 const data = reactive<PageData<DeptForm, DeptQuery>>(initData);
 
 const { queryParams, form, rules } = toRefs<PageData<DeptForm, DeptQuery>>(data);
+const { dialog, openDialog, closeDialog, setTitle } = useDialogState();
 
 /** 查询菜单列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listDept(queryParams.value);
-  const data = handleTree<DeptVO>(res.data, 'deptId');
-  if (data) {
-    deptList.value = data;
-  }
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listDept(queryParams.value);
+    const data = handleTree<DeptVO>(res.data, 'deptId');
+    if (data) {
+      deptList.value = data;
+    }
+  });
 };
 
 /** 查询当前部门的所有用户 */
@@ -288,7 +288,7 @@ async function getDeptAllUser(deptId: any) {
 /** 取消按钮 */
 const cancel = () => {
   reset();
-  dialog.visible = false;
+  closeDialog();
 };
 /** 表单重置 */
 const reset = () => {
@@ -300,11 +300,13 @@ const reset = () => {
 const handleQuery = () => {
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 展开/折叠操作 */
 const handleToggleExpandAll = () => {
@@ -329,8 +331,8 @@ const handleAdd = async (row?: DeptVO) => {
     if (row && row.deptId) {
       form.value.parentId = row?.deptId;
     }
-    dialog.visible = true;
-    dialog.title = '添加部门';
+    setTitle('添加部门');
+    openDialog();
   }
 };
 
@@ -354,18 +356,18 @@ const handleUpdate = async (row: DeptVO) => {
       deptOptions.value.push(noResultsOptions);
     }
   }
-  dialog.visible = true;
-  dialog.title = '修改部门';
+  setTitle('修改部门');
+  openDialog();
 };
 /** 提交按钮 */
 const submitForm = () => {
   deptFormRef.value?.validate(async (valid: boolean) => {
-    if (valid) {
-      form.value.deptId ? await updateDept(form.value) : await addDept(form.value);
-      modal.msgSuccess('操作成功');
-      dialog.visible = false;
-      await getList();
-    }
+      if (valid) {
+        form.value.deptId ? await updateDept(form.value) : await addDept(form.value);
+        modal.msgSuccess('操作成功');
+        closeDialog();
+        await getList();
+      }
   });
 };
 /** 删除按钮操作 */

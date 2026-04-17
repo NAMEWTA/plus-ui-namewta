@@ -155,6 +155,10 @@ import { useRoute } from 'vue-router';
 import { cancelProcessApply } from '@/api/workflow/instance';
 import { delLeave, listLeave } from '@/api/workflow/leave';
 import { LeaveForm, LeaveQuery, LeaveVO } from '@/api/workflow/leave/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import tab from '@/plugins/tab';
 import router from '@/router';
@@ -165,11 +169,9 @@ import { parseTime } from '@/utils/ruoyi';
 const route = useRoute();
 const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 const leaveList = ref<LeaveVO[]>([]);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<string | number>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, setLoading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<LeaveVO>(item => item.id);
 const total = ref(0);
 const options = [
   {
@@ -207,11 +209,11 @@ const { queryParams } = toRefs(data);
 
 /** 查询请假列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listLeave(queryParams.value);
-  leaveList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listLeave(queryParams.value);
+    leaveList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 
 /** 搜索按钮操作 */
@@ -220,18 +222,14 @@ const handleQuery = () => {
   getList();
 };
 
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
-
-/** 多选框选中数据 */
-const handleSelectionChange = (selection: LeaveVO[]) => {
-  ids.value = selection.map(item => item.id);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  afterReset: () => {
+    handleQuery();
+  }
+});
 
 /** 新增按钮操作 */
 const handleAdd = () => {
@@ -271,7 +269,7 @@ const handleView = (row?: LeaveVO) => {
 /** 删除按钮操作 */
 const handleDelete = async (row?: LeaveVO) => {
   const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除请假编号为"' + _ids + '"的数据项？').finally(() => (loading.value = false));
+  await modal.confirm('是否确认删除请假编号为"' + _ids + '"的数据项？');
   await delLeave(_ids);
   modal.msgSuccess('删除成功');
   await getList();
@@ -291,12 +289,12 @@ const handleExport = () => {
 /** 撤销按钮操作 */
 const handleCancelProcessApply = async (id: string) => {
   await modal.confirm('是否确认撤销当前单据？');
-  loading.value = true;
+  setLoading(true);
   const data = {
     businessId: id,
     message: '申请人撤销流程！'
   };
-  await cancelProcessApply(data).finally(() => (loading.value = false));
+  await cancelProcessApply(data).finally(() => setLoading(false));
   await getList();
   modal.msgSuccess('撤销成功');
 };

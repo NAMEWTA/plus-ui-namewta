@@ -212,26 +212,23 @@ import {
   changeOssConfigStatus
 } from '@/api/system/ossConfig';
 import { OssConfigForm, OssConfigQuery, OssConfigVO } from '@/api/system/ossConfig/types';
+import { useLoading } from '@/hooks/async/useLoading';
+import { useFormDialog } from '@/hooks/dialog/useFormDialog';
+import { useSearchReset } from '@/hooks/form/useSearchReset';
+import { useSearchToggle } from '@/hooks/form/useSearchToggle';
+import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 
 const { sys_yes_no } = toRefs<any>(useDict('sys_yes_no'));
 const ossConfigList = ref<OssConfigVO[]>([]);
 const buttonLoading = ref(false);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref<Array<number | string>>([]);
-const single = ref(true);
-const multiple = ref(true);
+const { loading, setLoading, withLoading } = useLoading(true);
+const { showSearch } = useSearchToggle();
 const total = ref(0);
 
 const queryFormRef = ref<ElFormInstance>();
 const ossConfigFormRef = ref<ElFormInstance>();
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: ''
-});
 
 // 列显隐信息
 const columns = ref<FieldOption[]>([
@@ -314,48 +311,43 @@ const data = reactive<PageData<OssConfigForm, OssConfigQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
-
 const protocol = computed(() => (form.value.isHttps === 'Y' ? 'https://' : 'http://'));
+const { ids, single, multiple, handleSelectionChange } = useTableSelection<OssConfigVO>(item => item.ossConfigId);
+const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+  form,
+  formRef: ossConfigFormRef,
+  initialFormData: initFormData
+});
 
 /** 查询对象存储配置列表 */
 const getList = async () => {
-  loading.value = true;
-  const res = await listOssConfig(queryParams.value);
-  ossConfigList.value = res.data?.rows;
-  total.value = res.data?.total;
-  loading.value = false;
+  await withLoading(async () => {
+    const res = await listOssConfig(queryParams.value);
+    ossConfigList.value = res.data?.rows;
+    total.value = res.data?.total;
+  });
 };
 /** 取消按钮 */
 const cancel = () => {
-  dialog.visible = false;
   reset();
-};
-/** 表单重置 */
-const reset = () => {
-  form.value = { ...initFormData };
-  ossConfigFormRef.value?.resetFields();
+  closeDialog();
 };
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.value.pageNum = 1;
   getList();
 };
-/** 重置按钮操作 */
-const resetQuery = () => {
-  queryFormRef.value?.resetFields();
-  handleQuery();
-};
-/** 选择条数  */
-const handleSelectionChange = (selection: OssConfigVO[]) => {
-  ids.value = selection.map(item => item.ossConfigId);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-};
+const { resetQuery } = useSearchReset({
+  queryFormRef,
+  queryParams,
+  pageNumKey: 'pageNum',
+  afterReset: () => {
+    handleQuery();
+  }
+});
 /** 新增按钮操作 */
 const handleAdd = () => {
-  reset();
-  dialog.visible = true;
-  dialog.title = '添加对象存储配置';
+  openDialog('添加对象存储配置');
 };
 /** 修改按钮操作 */
 const handleUpdate = async (row?: OssConfigVO) => {
@@ -363,8 +355,7 @@ const handleUpdate = async (row?: OssConfigVO) => {
   const ossConfigId = row?.ossConfigId || ids.value[0];
   const res = await getOssConfig(ossConfigId);
   Object.assign(form.value, res.data);
-  dialog.visible = true;
-  dialog.title = '修改对象存储配置';
+  showDialog('修改对象存储配置');
 };
 /** 提交按钮 */
 const submitForm = () => {
@@ -377,7 +368,7 @@ const submitForm = () => {
         await addOssConfig(form.value).finally(() => (buttonLoading.value = false));
       }
       modal.msgSuccess('新增成功');
-      dialog.visible = false;
+      closeDialog();
       await getList();
     }
   });
@@ -398,8 +389,8 @@ const handleStatusChange = async (row: OssConfigVO) => {
 const handleDelete = async (row?: OssConfigVO) => {
   const ossConfigIds = row?.ossConfigId || ids.value;
   await modal.confirm('是否确认删除OSS配置编号为"' + ossConfigIds + '"的数据项?');
-  loading.value = true;
-  await delOssConfig(ossConfigIds).finally(() => (loading.value = false));
+  setLoading(true);
+  await delOssConfig(ossConfigIds).finally(() => setLoading(false));
   await getList();
   modal.msgSuccess('删除成功');
 };

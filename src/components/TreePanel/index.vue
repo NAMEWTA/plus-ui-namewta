@@ -24,13 +24,22 @@
           class="mt-2 dept-tree"
           :node-key="nodeKey"
           :data="data"
-          :props="treeProps as any"
+          :props="mergedTreeProps as any"
           :expand-on-click-node="false"
           :filter-node-method="internalFilterNode"
           highlight-current
           default-expand-all
           @node-click="onNodeClick"
-        />
+        >
+          <template #default="{ data: nodeData }">
+            <span class="tree-node-label" :class="{ 'is-disabled': isNodeDisabled(nodeData) }">
+              <span>{{ getNodeLabel(nodeData) }}</span>
+              <el-tooltip v-if="isNodeDisabled(nodeData)" content="停用" placement="top">
+                <el-icon class="tree-node-disabled-icon"><CircleCloseFilled /></el-icon>
+              </el-tooltip>
+            </span>
+          </template>
+        </el-tree>
       </template>
     </el-card>
   </el-col>
@@ -49,6 +58,8 @@ const props = withDefaults(
     nodeKey?: string;
     /** el-tree props 配置 */
     treeProps?: Record<string, string>;
+    /** 节点禁用字段名，未提供或字段不存在则忽略 */
+    disabledField?: string;
     /** 展开时占的栅格列数 (lg) */
     expandedSpan?: number;
     /** 默认过滤字段名 (用于内置 filterNode) */
@@ -62,6 +73,7 @@ const props = withDefaults(
     placeholder: '请输入名称',
     nodeKey: 'id',
     treeProps: () => ({ label: 'label', children: 'children' }),
+    disabledField: 'disabled',
     expandedSpan: 5,
     filterField: 'label',
     collapsed: false
@@ -80,6 +92,28 @@ const modelCollapsed = computed({
 
 const filterText = ref('');
 const treeRef = ref<ElTreeInstance>();
+
+const mergedTreeProps = computed(() => {
+  if (!props.disabledField) {
+    return props.treeProps;
+  }
+  return {
+    ...props.treeProps,
+    disabled: props.treeProps?.disabled ?? props.disabledField
+  };
+});
+
+const getNodeLabel = (data: any) => {
+  const labelField = props.treeProps?.label ?? 'label';
+  return data?.[labelField] ?? '';
+};
+
+const isNodeDisabled = (data: any) => {
+  if (!props.disabledField) {
+    return false;
+  }
+  return Boolean(data?.[props.disabledField]);
+};
 
 const toggleCollapsed = () => {
   modelCollapsed.value = !modelCollapsed.value;
@@ -101,6 +135,10 @@ watchEffect(
 );
 
 const onNodeClick = (data: any, node: any, component: any) => {
+  if (isNodeDisabled(data)) {
+    treeRef.value?.setCurrentKey(undefined);
+    return;
+  }
   emit('node-click', data, node, component);
 };
 
@@ -209,6 +247,26 @@ $mobile-breakpoint: 900px;
 
 .dept-tree::-webkit-scrollbar-track {
   background: transparent;
+}
+
+.tree-panel-shell :deep(.tree-node-label) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  line-height: 22px;
+  color: var(--el-text-color-primary);
+}
+
+.tree-panel-shell :deep(.tree-node-label.is-disabled) {
+  color: var(--el-color-danger);
+}
+
+.tree-panel-shell :deep(.tree-node-disabled-icon) {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  font-size: 14px;
+  color: var(--el-color-danger);
 }
 
 @media (max-width: $mobile-breakpoint) {

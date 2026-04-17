@@ -91,7 +91,7 @@
         border
         class="data-table"
         :data="tableList"
-        @selection-change="handleSelectionChange"
+        @selection-change="handleTableSelectionChange"
       >
         <el-table-column type="selection" align="center" width="55"></el-table-column>
         <el-table-column label="序号" type="index" width="50" align="center">
@@ -217,6 +217,7 @@ const dataNameList = ref<Array<string>>([]);
 
 const queryFormRef = ref<ElFormInstance>();
 const importRef = ref<InstanceType<typeof ImportTable>>();
+const selectedRows = ref<TableVO[]>([]);
 
 const queryParams = ref<TableQuery>({
   pageNum: 1,
@@ -233,8 +234,13 @@ const preview = ref<{
   data: {},
   activeName: 'domain.java'
 });
-const { ids, single, multiple, handleSelectionChange } = useTableSelection<TableVO>(item => item.tableId);
+const { ids, single, multiple, handleSelectionChange: updateSelection } = useTableSelection<TableVO>(item => item.tableId);
 const { dialog, openDialog: openPreviewDialog } = useDialogState('代码预览');
+
+const handleTableSelectionChange = (selection: TableVO[]) => {
+  selectedRows.value = selection;
+  updateSelection(selection);
+};
 
 /** 查询多数据源名称 */
 const getDataNameList = async () => {
@@ -257,16 +263,30 @@ const handleQuery = () => {
 };
 /** 生成代码操作 */
 const handleGenTable = async (row?: TableVO) => {
-  const tbIds = row?.tableId || ids.value;
-  if (tbIds == '') {
+  const currentRows = row ? [row] : selectedRows.value;
+  if (!currentRows.length) {
     modal.msgError('请选择要生成的数据');
     return;
   }
-  if (row?.genType === '1') {
-    await genCode(row.tableId);
-    modal.msgSuccess('成功生成到自定义路径：' + row.genPath);
-  } else {
-    download.zip('/tool/gen/batchGenCode?tableIdStr=' + tbIds, 'ruoyi.zip');
+
+  const customRows = currentRows.filter(item => item.genType === '1');
+  const zipRows = currentRows.filter(item => item.genType !== '1');
+
+  for (const item of customRows) {
+    await genCode(item.tableId);
+  }
+
+  if (customRows.length === 1 && zipRows.length === 0) {
+    modal.msgSuccess('成功生成到自定义路径：' + customRows[0].genPath);
+    return;
+  }
+  if (customRows.length > 1) {
+    modal.msgSuccess('已生成到自定义路径，共 ' + customRows.length + ' 张表');
+  }
+
+  if (zipRows.length > 0) {
+    const zipIds = zipRows.map(item => item.tableId).join(',');
+    download.zip('/tool/gen/batchGenCode?tableIdStr=' + zipIds, 'ruoyi.zip');
   }
 };
 /** 同步数据库操作 */

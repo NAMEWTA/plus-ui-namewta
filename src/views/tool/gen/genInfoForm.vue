@@ -4,7 +4,7 @@
       <el-col :span="12">
         <el-form-item prop="tplCategory">
           <template #label>生成模板</template>
-          <el-select v-model="infoForm.tplCategory" @change="tplSelectChange">
+          <el-select v-model="infoForm.tplCategory">
             <el-option label="单表（增删改查）" value="crud" />
             <el-option label="树表（增删改查）" value="tree" />
           </el-select>
@@ -122,6 +122,109 @@
       </el-col>
     </el-row>
 
+    <h4 class="form-header">增强选项</h4>
+    <el-row class="enhance-options" :gutter="20">
+      <el-col :span="24">
+        <el-row :gutter="20" class="enhance-option-row">
+          <el-col :span="8">
+            <el-form-item prop="enableExport" class="enhance-toggle-item">
+              <template #label>
+                导出能力
+                <el-tooltip content="关闭后将不生成 export 接口与前端导出按钮" placement="top">
+                  <el-icon><question-filled /></el-icon>
+                </el-tooltip>
+              </template>
+              <el-switch v-model="infoForm.enableExport" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-col>
+
+      <el-col :span="24">
+        <el-row :gutter="20" class="enhance-option-row">
+          <el-col :span="8">
+            <el-form-item prop="enableStatus" class="enhance-toggle-item">
+              <template #label>
+                状态切换
+                <el-tooltip content="开启后生成 changeStatus 接口与列表状态开关列" placement="top">
+                  <el-icon><question-filled /></el-icon>
+                </el-tooltip>
+              </template>
+              <el-switch v-model="infoForm.enableStatus" />
+            </el-form-item>
+          </el-col>
+          <el-col v-if="infoForm.enableStatus" :span="16">
+            <el-form-item prop="statusField">
+              <el-select v-model="infoForm.statusField" placeholder="请选择状态字段">
+                <el-option
+                  v-for="column in availableColumns"
+                  :key="column.columnName"
+                  :label="column.columnName + '：' + column.columnComment"
+                  :value="column.columnName"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-col>
+
+      <el-col :span="24">
+        <el-row :gutter="20" class="enhance-option-row">
+          <el-col :span="8">
+            <el-form-item prop="enableUnique" class="enhance-toggle-item">
+              <template #label>
+                组合唯一校验
+                <el-tooltip content="开启后按选中的字段生成组合唯一校验，新增和修改都会校验" placement="top">
+                  <el-icon><question-filled /></el-icon>
+                </el-tooltip>
+              </template>
+              <el-switch v-model="infoForm.enableUnique" />
+            </el-form-item>
+          </el-col>
+          <el-col v-if="infoForm.enableUnique" :span="16">
+            <el-form-item prop="uniqueFields">
+              <el-select v-model="infoForm.uniqueFields" multiple clearable filterable placeholder="请选择唯一字段">
+                <el-option
+                  v-for="column in availableColumns"
+                  :key="column.columnName"
+                  :label="column.columnName + '：' + column.columnComment"
+                  :value="column.columnName"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-col>
+
+      <el-col :span="24">
+        <el-row :gutter="20" class="enhance-option-row">
+          <el-col :span="8">
+            <el-form-item prop="enableSort" class="enhance-toggle-item">
+              <template #label>
+                排序调整
+                <el-tooltip content="开启后生成 updateSort 接口，并在列表中以输入框形式快速调整排序字段" placement="top">
+                  <el-icon><question-filled /></el-icon>
+                </el-tooltip>
+              </template>
+              <el-switch v-model="infoForm.enableSort" />
+            </el-form-item>
+          </el-col>
+          <el-col v-if="infoForm.enableSort" :span="16">
+            <el-form-item prop="sortField">
+              <el-select v-model="infoForm.sortField" placeholder="请选择排序字段">
+                <el-option
+                  v-for="column in sortableColumns"
+                  :key="column.columnName"
+                  :label="column.columnName + '：' + column.columnComment"
+                  :value="column.columnName"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-col>
+    </el-row>
+
     <template v-if="info.tplCategory == 'tree'">
       <h4 class="form-header">其他信息</h4>
       <el-row v-show="info.tplCategory == 'tree'">
@@ -135,7 +238,7 @@
             </template>
             <el-select v-model="infoForm.treeCode" placeholder="请选择">
               <el-option
-                v-for="(column, index) in info.columns"
+                v-for="(column, index) in availableColumns"
                 :key="index"
                 :label="column.columnName + '：' + column.columnComment"
                 :value="column.columnName"
@@ -153,7 +256,7 @@
             </template>
             <el-select v-model="infoForm.treeParentCode" placeholder="请选择">
               <el-option
-                v-for="(column, index) in infoForm.columns"
+                v-for="(column, index) in availableColumns"
                 :key="index"
                 :label="column.columnName + '：' + column.columnComment"
                 :value="column.columnName"
@@ -171,58 +274,64 @@
             </template>
             <el-select v-model="infoForm.treeName" placeholder="请选择">
               <el-option
-                v-for="(column, index) in info.columns"
+                v-for="(column, index) in availableColumns"
                 :key="index"
                 :label="column.columnName + '：' + column.columnComment"
                 :value="column.columnName"
               ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item prop="treeRootValue">
+            <template #label>
+              根节点值
+              <el-tooltip content="默认是 0，用于根节点 parentId 的默认值" placement="top">
+                <el-icon><question-filled /></el-icon>
+              </el-tooltip>
+            </template>
+            <el-input v-model="infoForm.treeRootValue" placeholder="请输入根节点值" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item prop="treeAncestorsField">
+            <template #label>
+              祖级字段
+              <el-tooltip content="选择 ancestors 一类字段后，生成器会自动维护祖级链，避免依赖数据库递归语法" placement="top">
+                <el-icon><question-filled /></el-icon>
+              </el-tooltip>
+            </template>
+            <el-select v-model="infoForm.treeAncestorsField" clearable placeholder="请选择祖级字段">
+              <el-option
+                v-for="column in availableColumns"
+                :key="column.columnName"
+                :label="column.columnName + '：' + column.columnComment"
+                :value="column.columnName"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item prop="treeOrderField">
+            <template #label>
+              树排序字段
+              <el-tooltip content="树列表默认按祖级、父节点、树排序字段、主键升序排列" placement="top">
+                <el-icon><question-filled /></el-icon>
+              </el-tooltip>
+            </template>
+            <el-select v-model="infoForm.treeOrderField" clearable placeholder="请选择树排序字段">
+              <el-option
+                v-for="column in sortableColumns"
+                :key="column.columnName"
+                :label="column.columnName + '：' + column.columnComment"
+                :value="column.columnName"
+              />
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
     </template>
 
-    <template v-if="info.tplCategory == 'sub'">
-      <h4 class="form-header">关联信息</h4>
-      <el-row>
-        <el-col :span="12">
-          <el-form-item>
-            <template #label>
-              关联子表的表名
-              <el-tooltip content="关联子表的表名， 如：sys_user" placement="top">
-                <el-icon><question-filled /></el-icon>
-              </el-tooltip>
-            </template>
-            <el-select v-model="infoForm.subTableName" placeholder="请选择" @change="subSelectChange">
-              <el-option
-                v-for="(t, index) in table"
-                :key="index"
-                :label="t.tableName + '：' + t.tableComment"
-                :value="t.tableName"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item>
-            <template #label>
-              子表关联的外键名
-              <el-tooltip content="子表关联的外键名， 如：user_id" placement="top">
-                <el-icon><question-filled /></el-icon>
-              </el-tooltip>
-            </template>
-            <el-select v-model="infoForm.subTableFkName" placeholder="请选择">
-              <el-option
-                v-for="(column, index) in subColumns"
-                :key="index"
-                :label="column.columnName + '：' + column.columnComment"
-                :value="column.columnName"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </template>
   </el-form>
 </template>
 
@@ -238,18 +347,21 @@ interface MenuOptionsType {
   children?: MenuOptionsType[];
 }
 
-const subColumns = ref<any>([]);
 const menuOptions = ref<Array<MenuOptionsType>>([]);
 const formRef = ref<FormInstance>();
 
 const props = defineProps({
   info: propTypes.any.isRequired,
-  tables: propTypes.any.isRequired
+  columns: propTypes.any.isRequired
 });
 
 const infoForm = computed(() => props.info);
-
-const table = computed(() => props.tables);
+const availableColumns = computed(() => props.columns ?? []);
+const sortableColumns = computed(() =>
+  availableColumns.value.filter((column: any) =>
+    ['Integer', 'Long', 'Double', 'BigDecimal', 'LocalDateTime'].includes(column.javaType)
+  )
+);
 
 // 表单校验
 const rules = ref({
@@ -257,27 +369,56 @@ const rules = ref({
   packageName: [{ required: true, message: '请输入生成包路径', trigger: 'blur' }],
   moduleName: [{ required: true, message: '请输入生成模块名', trigger: 'blur' }],
   businessName: [{ required: true, message: '请输入生成业务名', trigger: 'blur' }],
-  functionName: [{ required: true, message: '请输入生成功能名', trigger: 'blur' }]
-});
-const subSelectChange = () => {
-  infoForm.value.subTableFkName = '';
-};
-const tplSelectChange = (value: string) => {
-  if (value !== 'sub') {
-    infoForm.value.subTableName = '';
-    infoForm.value.subTableFkName = '';
-  }
-};
-const setSubTableColumns = (value: string) => {
-  table.value.forEach((item: any) => {
-    const name = item.tableName;
-    if (value === name) {
-      subColumns.value = item.columns;
-      return;
+  functionName: [{ required: true, message: '请输入生成功能名', trigger: 'blur' }],
+  statusField: [
+    {
+      validator: (_rule: any, value: string, callback: (error?: Error) => void) => {
+        if (infoForm.value.enableStatus && !value) {
+          callback(new Error('请选择状态字段'));
+          return;
+        }
+        callback();
+      },
+      trigger: 'change'
     }
-  });
-};
-
+  ],
+  uniqueFields: [
+    {
+      validator: (_rule: any, value: string[], callback: (error?: Error) => void) => {
+        if (infoForm.value.enableUnique && (!value || value.length === 0)) {
+          callback(new Error('请选择唯一字段'));
+          return;
+        }
+        callback();
+      },
+      trigger: 'change'
+    }
+  ],
+  sortField: [
+    {
+      validator: (_rule: any, value: string, callback: (error?: Error) => void) => {
+        if (infoForm.value.enableSort && !value) {
+          callback(new Error('请选择排序字段'));
+          return;
+        }
+        callback();
+      },
+      trigger: 'change'
+    }
+  ],
+  treeRootValue: [
+    {
+      validator: (_rule: any, value: string, callback: (error?: Error) => void) => {
+        if (infoForm.value.tplCategory === 'tree' && !value) {
+          callback(new Error('请输入根节点值'));
+          return;
+        }
+        callback();
+      },
+      trigger: 'blur'
+    }
+  ]
+});
 /** 查询菜单下拉树结构 */
 const getMenuTreeselect = async () => {
   const res = await listMenu();
@@ -289,9 +430,29 @@ const getMenuTreeselect = async () => {
 };
 
 watch(
-  () => props.info.subTableName,
+  () => infoForm.value.enableStatus,
   val => {
-    setSubTableColumns(val);
+    if (!val) {
+      infoForm.value.statusField = '';
+    }
+  }
+);
+
+watch(
+  () => infoForm.value.enableUnique,
+  val => {
+    if (!val) {
+      infoForm.value.uniqueFields = [];
+    }
+  }
+);
+
+watch(
+  () => infoForm.value.enableSort,
+  val => {
+    if (!val) {
+      infoForm.value.sortField = '';
+    }
   }
 );
 
@@ -311,3 +472,28 @@ onMounted(() => {
   getMenuTreeselect();
 });
 </script>
+
+<style scoped>
+.enhance-options {
+  margin-top: 4px;
+}
+
+.enhance-option-row {
+  min-height: 52px;
+}
+
+.enhance-toggle-item :deep(.el-form-item__content) {
+  justify-content: flex-start;
+}
+
+@media (max-width: 992px) {
+  .enhance-options :deep(.el-col) {
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+
+  .enhance-option-row {
+    min-height: auto;
+  }
+}
+</style>

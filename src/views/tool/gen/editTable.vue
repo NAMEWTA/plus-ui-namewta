@@ -22,7 +22,7 @@
                 <el-option label="Integer" value="Integer" />
                 <el-option label="Double" value="Double" />
                 <el-option label="BigDecimal" value="BigDecimal" />
-                <el-option label="Date" value="Date" />
+                <el-option label="LocalDateTime" value="LocalDateTime" />
                 <el-option label="Boolean" value="Boolean" />
               </el-select>
             </template>
@@ -74,12 +74,14 @@
           </el-table-column>
           <el-table-column label="显示类型" min-width="12%">
             <template #default="scope">
-              <el-select v-model="scope.row.htmlType">
+              <el-select v-model="scope.row.htmlType" @change="handleHtmlTypeChange(scope.row)">
                 <el-option label="文本框" value="input" />
+                <el-option label="数字输入" value="inputNumber" />
                 <el-option label="文本域" value="textarea" />
                 <el-option label="下拉框" value="select" />
                 <el-option label="单选框" value="radio" />
                 <el-option label="复选框" value="checkbox" />
+                <el-option label="开关" value="switch" />
                 <el-option label="日期控件" value="datetime" />
                 <el-option label="图片上传" value="imageUpload" />
                 <el-option label="文件上传" value="fileUpload" />
@@ -89,7 +91,14 @@
           </el-table-column>
           <el-table-column label="字典类型" min-width="12%">
             <template #default="scope">
-              <el-select v-model="scope.row.dictType" clearable filterable placeholder="请选择" value-on-clear="">
+              <el-select
+                v-model="scope.row.dictType"
+                clearable
+                filterable
+                placeholder="请选择"
+                value-on-clear=""
+                :disabled="!supportsDictHtmlType(scope.row.htmlType)"
+              >
                 <el-option
                   v-for="dict in dictOptions"
                   :key="dict.dictType"
@@ -105,7 +114,7 @@
         </el-table>
       </el-tab-pane>
       <el-tab-pane label="生成信息" name="genInfo">
-        <gen-info-form ref="genInfo" :info="info" :tables="tables" />
+        <gen-info-form ref="genInfo" :info="info" :columns="columns" />
       </el-tab-pane>
     </el-tabs>
     <el-form label-width="100px">
@@ -131,13 +140,25 @@ import GenInfoForm from './genInfoForm.vue';
 const route = useRoute();
 const activeName = ref('columnInfo');
 const tableHeight = ref(document.documentElement.scrollHeight - 245 + 'px');
-const tables = ref<DbTableVO[]>([]);
 const columns = ref<DbColumnVO[]>([]);
 const dictOptions = ref<DictTypeVO[]>([]);
 const info = ref<Partial<DbTableVO>>({});
+const DICT_HTML_TYPES = ['select', 'radio', 'checkbox', 'switch'];
 
 const basicInfo = ref<InstanceType<typeof BasicInfoForm>>();
 const genInfo = ref<InstanceType<typeof GenInfoForm>>();
+
+const supportsDictHtmlType = (htmlType?: string) => DICT_HTML_TYPES.includes(htmlType ?? '');
+
+const normalizeColumnDictType = (column: Partial<DbColumnVO>) => {
+  if (!supportsDictHtmlType(String(column.htmlType ?? ''))) {
+    column.dictType = '';
+  }
+};
+
+const handleHtmlTypeChange = (column: DbColumnVO) => {
+  normalizeColumnDictType(column);
+};
 
 /** 提交按钮 */
 const submitForm = async () => {
@@ -147,13 +168,24 @@ const submitForm = async () => {
     modal.msgError('表单校验未通过，请重新检查提交内容');
     return;
   }
+  columns.value.forEach(normalizeColumnDictType);
   const genTable: Record<string, unknown> = { ...info.value };
   genTable.columns = columns.value;
   genTable.params = {
     treeCode: info.value?.treeCode,
     treeName: info.value.treeName,
     treeParentCode: info.value.treeParentCode,
-    parentMenuId: info.value.parentMenuId
+    parentMenuId: info.value.parentMenuId,
+    enableExport: info.value.enableExport,
+    enableStatus: info.value.enableStatus,
+    statusField: info.value.statusField,
+    enableUnique: info.value.enableUnique,
+    uniqueFields: info.value.uniqueFields,
+    enableSort: info.value.enableSort,
+    sortField: info.value.sortField,
+    treeRootValue: info.value.treeRootValue,
+    treeAncestors: info.value.treeAncestorsField,
+    treeOrderField: info.value.treeOrderField
   };
   const response = await updateGenTable(genTable as any);
   modal.msgSuccess(response.msg ?? '');
@@ -175,9 +207,24 @@ onMounted(async () => {
   const res = await getGenTable(tableId);
   const detail = res.data;
   if (!detail) return;
-  columns.value = detail.rows;
-  info.value = detail.info;
-  tables.value = detail.tables;
+  columns.value = (detail.rows ?? []).map(column => {
+    const item = { ...column };
+    normalizeColumnDictType(item);
+    return item;
+  });
+  info.value = {
+    enableExport: detail.info.enableExport ?? true,
+    enableStatus: detail.info.enableStatus ?? false,
+    statusField: detail.info.statusField ?? '',
+    enableUnique: detail.info.enableUnique ?? false,
+    uniqueFields: detail.info.uniqueFields ?? [],
+    enableSort: detail.info.enableSort ?? false,
+    sortField: detail.info.sortField ?? '',
+    treeRootValue: detail.info.treeRootValue ?? '0',
+    treeAncestorsField: detail.info.treeAncestorsField ?? '',
+    treeOrderField: detail.info.treeOrderField ?? '',
+    ...detail.info
+  };
   const response = await getDictOptionselect();
   dictOptions.value = response.data;
 });

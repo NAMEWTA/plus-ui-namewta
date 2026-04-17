@@ -612,17 +612,18 @@ const getDeptTree = async () => {
   enabledDeptOptions.value = filterDisabledDept(res.data);
 };
 
-/** 过滤禁用的部门 */
-const filterDisabledDept = (deptList: DeptTreeVO[]) => {
-  return deptList.filter(dept => {
+/** 过滤禁用的部门，并返回独立的新树，避免污染左侧完整部门树 */
+const filterDisabledDept = (deptList: DeptTreeVO[]): DeptTreeVO[] => {
+  return deptList.reduce<DeptTreeVO[]>((result, dept) => {
     if (dept.disabled) {
-      return false;
+      return result;
     }
-    if (dept.children && dept.children.length) {
-      dept.children = filterDisabledDept(dept.children);
-    }
-    return true;
-  });
+    result.push({
+      ...dept,
+      children: dept.children?.length ? filterDisabledDept(dept.children) : []
+    });
+    return result;
+  }, []);
 };
 
 /** 节点单击事件 */

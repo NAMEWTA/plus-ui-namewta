@@ -9,13 +9,15 @@ export interface MenuTreeOption {
   parentId: string | number;
   weight: number;
   menuType?: MenuTypeEnum | string;
+  visible?: string;
+  status?: string;
+  disabled?: boolean;
   children?: MenuTreeOption[];
 }
 
 export interface RoleMenuTree {
   menus: MenuTreeOption[];
   checkedKeys: Array<string | number>;
-  buttonsMap: Record<string, RoleMenuButtonOption[]>;
 }
 
 /**
@@ -26,6 +28,8 @@ export interface RoleMenuButtonOption {
   menuName: string;
   parentId: string | number;
   perms?: string;
+  status?: string;
+  disabled?: boolean;
 }
 
 /**

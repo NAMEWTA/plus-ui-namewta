@@ -87,14 +87,7 @@
         </div>
       </template>
 
-      <el-table
-        ref="roleTableRef"
-        border
-        class="data-table"
-        v-loading="loading"
-        :data="roleList"
-        @selection-change="handleSelectionChange"
-      >
+      <el-table border class="data-table" v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="角色编号" prop="roleId" width="120" />
         <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
@@ -229,7 +222,6 @@
             <el-checkbox v-model="form.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">
               父子联动
             </el-checkbox>
-            <!-- 表头与树同框，避免与树内「展开 + 勾选 + 名称」区域错位 -->
             <div class="menu-tree-permission-wrap tree-border">
               <div class="menu-tree-header" role="row">
                 <span class="menu-tree-header-name">菜单名称</span>
@@ -244,30 +236,41 @@
                 node-key="id"
                 :check-strictly="!form.menuCheckStrictly"
                 empty-text="加载中，请稍候"
-                :props="{ label: 'label', children: 'children', class: getMenuNodeClass } as any"
-                @check="syncCheckedButtonIdsFromTree"
+                :props="{ label: 'label', children: 'children', disabled: 'disabled' } as any"
+                @check="handleMenuTreeCheck"
               >
                 <template #default="{ data, node }">
                   <div class="menu-tree-node-row">
-                    <span class="menu-tree-node-label" :style="getMenuNodeLabelStyle(node.level)">
-                      {{ data.label }}
-                    </span>
-                    <el-checkbox-group
-                      v-if="getMenuButtons(data.id).length"
-                      v-model="checkedButtonIds"
-                      class="menu-tree-node-buttons"
-                      @click.stop
+                    <span
+                      class="menu-tree-node-label"
+                      :class="{ 'is-hidden': isMenuPermissionHidden(data), 'is-disabled': data.disabled }"
+                      :style="getMenuNodeLabelStyle(node.level)"
                     >
+                      <span>{{ data.label }}</span>
+                      <el-tooltip v-if="isMenuPermissionHidden(data)" content="隐藏" placement="top">
+                        <el-icon class="menu-visibility-icon"><Hide /></el-icon>
+                      </el-tooltip>
+                      <el-tooltip v-if="data.disabled" content="停用" placement="top">
+                        <el-icon class="menu-disabled-icon"><CircleCloseFilled /></el-icon>
+                      </el-tooltip>
+                    </span>
+                    <div v-if="data.buttonPermissions?.length" class="menu-tree-node-buttons" @click.stop>
                       <el-checkbox
-                        v-for="button in getMenuButtons(data.id)"
+                        v-for="button in data.buttonPermissions"
                         :key="button.menuId"
-                        :value="button.menuId"
-                        @change="handleButtonPermissionChange($event, button.menuId)"
+                        :model-value="isPermissionChecked(button.menuId)"
+                        :disabled="button.disabled"
+                        @change="handleButtonPermissionChange(data.id, button.menuId, $event)"
                         @click.stop
                       >
-                        {{ button.menuName }}
+                        <span class="menu-button-label" :class="{ 'is-disabled': button.disabled }">
+                          <span>{{ button.menuName }}</span>
+                          <el-tooltip v-if="button.disabled" content="停用" placement="top">
+                            <el-icon class="menu-button-disabled-icon"><CircleCloseFilled /></el-icon>
+                          </el-tooltip>
+                        </span>
                       </el-checkbox>
-                    </el-checkbox-group>
+                    </div>
                   </div>
                 </template>
               </el-tree>
@@ -319,7 +322,8 @@
 
 <script setup name="Role" lang="ts">
 import { useRouter } from 'vue-router';
-import { roleMenuTreeselect, treeselect as menuTreeselect } from '@/api/system/menu/index';
+import { roleMenuTreeselect } from '@/api/system/menu';
+import { MenuTypeEnum } from '@/enums/MenuTypeEnum';
 import { MenuTreeOption, RoleMenuButtonOption, RoleMenuTree } from '@/api/system/menu/types';
 import {
   addRole,
@@ -340,19 +344,36 @@ import { parseTime, addDateRange } from '@/utils/ruoyi';
 const router = useRouter();
 const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 
+interface RoleMenuPermissionOption extends MenuTreeOption {
+  buttonPermissions: RoleMenuButtonOption[];
+  disabled?: boolean;
+  children?: RoleMenuPermissionOption[];
+}
+
+interface RoleMenuPermissionMeta {
+  treeOptions: RoleMenuPermissionOption[];
+  buttonIds: Set<string>;
+  disabledButtonIds: Set<string>;
+  buttonParentMap: Map<string, string>;
+  menuAncestorMap: Map<string, Array<string | number>>;
+  menuButtonIdsMap: Map<string, Array<string | number>>;
+}
+
 const roleList = ref<RoleVO[]>();
 const loading = ref(true);
 const showSearch = ref(true);
 const ids = ref<Array<string | number>>([]);
 const single = ref(true);
-const multiple = ref(true);
 const total = ref(0);
 const dateRange = ref<any>(['', '']);
-const menuOptions = ref<MenuTreeOption[]>([]);
-/** 菜单ID到按钮列表映射（后端返回） */
-const buttonsMap = ref<Record<string, RoleMenuButtonOption[]>>({});
-/** 按钮权限勾选集合 */
-const checkedButtonIds = ref<Array<string | number>>([]);
+const menuPermissionMeta = ref<RoleMenuPermissionMeta>({
+  treeOptions: [],
+  buttonIds: new Set<string>(),
+  disabledButtonIds: new Set<string>(),
+  buttonParentMap: new Map<string, string>(),
+  menuAncestorMap: new Map<string, Array<string | number>>(),
+  menuButtonIdsMap: new Map<string, Array<string | number>>()
+});
 const menuExpand = ref(false);
 const menuNodeAll = ref(false);
 const deptExpand = ref(true);
@@ -380,47 +401,26 @@ const roleFormRef = ref<ElFormInstance>();
 const dataScopeRef = ref<ElFormInstance>();
 const menuRef = ref<ElTreeInstance>();
 const deptRef = ref<ElTreeInstance>();
+const selectedMenuPermissionIds = ref<Array<string | number>>([]);
+const selectedButtonPermissionIds = ref<Array<string | number>>([]);
+const lastCheckedMenuKeys = ref<string[]>([]);
+const syncingMenuTree = ref(false);
 
-/**
- * 根据菜单节点ID获取其按钮列表，用于树节点行内展示。
- */
-const getMenuButtons = (menuId: string | number): RoleMenuButtonOption[] => {
-  return buttonsMap.value[String(menuId)] ?? [];
+const menuOptions = computed(() => menuPermissionMeta.value.treeOptions);
+
+const isButtonPermission = (permissionId: string | number) => {
+  return menuPermissionMeta.value.buttonIds.has(String(permissionId));
 };
 
-/**
- * 按钮节点ID集合：用于隐藏树中按钮节点并同步按钮勾选状态。
- */
-const buttonIdSet = computed(() => {
-  const buttonIds = new Set<string>();
-  Object.values(buttonsMap.value).forEach(buttons => {
-    buttons.forEach(button => buttonIds.add(String(button.menuId)));
-  });
-  return buttonIds;
-});
-
-/**
- * 按钮节点在树中隐藏，避免与右侧按钮区重复展示。
- */
-const getMenuNodeClass = (data: MenuTreeOption): string => {
-  return buttonIdSet.value.has(String(data.id)) ? 'is-hidden-button-node' : '';
+const isButtonPermissionDisabled = (permissionId: string | number) => {
+  return menuPermissionMeta.value.disabledButtonIds.has(String(permissionId));
 };
 
-/**
- * 将树的勾选状态同步到右侧按钮勾选集合。
- */
-const syncCheckedButtonIdsFromTree = () => {
-  const checkedKeys = (menuRef.value?.getCheckedKeys(false) ?? []) as Array<string | number>;
-  checkedButtonIds.value = checkedKeys.filter(id => buttonIdSet.value.has(String(id)));
+const isPermissionChecked = (permissionId: string | number) => {
+  return selectedButtonPermissionIds.value.some(menuId => String(menuId) === String(permissionId));
 };
 
-/**
- * 点击右侧按钮时，直接勾选/取消隐藏按钮节点，由树自动处理级联关系。
- */
-const handleButtonPermissionChange = (checked: string | number | boolean, buttonMenuId: string | number) => {
-  menuRef.value?.setChecked(buttonMenuId, Boolean(checked), false);
-  syncCheckedButtonIdsFromTree();
-};
+const isMenuPermissionHidden = (menu: MenuTreeOption) => menu.visible === '1';
 
 /**
  * 基于节点层级给菜单名称增加缩进，确保按钮列始终固定对齐。
@@ -429,6 +429,329 @@ const getMenuNodeLabelStyle = (level: number) => {
   return {
     paddingLeft: `${Math.max(0, level - 1) * 18}px`
   };
+};
+
+const getCheckedMenuKeys = () => {
+  const checkedKeys = (menuRef.value?.getCheckedKeys(false) ?? []) as Array<string | number>;
+  const halfCheckedKeys = (menuRef.value?.getHalfCheckedKeys() ?? []) as Array<string | number>;
+  return {
+    checkedKeys,
+    halfCheckedKeys,
+    allCheckedKeys: [...halfCheckedKeys, ...checkedKeys]
+  };
+};
+
+const createEmptyMenuPermissionMeta = (): RoleMenuPermissionMeta => ({
+  treeOptions: [],
+  buttonIds: new Set<string>(),
+  disabledButtonIds: new Set<string>(),
+  buttonParentMap: new Map<string, string>(),
+  menuAncestorMap: new Map<string, Array<string | number>>(),
+  menuButtonIdsMap: new Map<string, Array<string | number>>()
+});
+
+const isMenuPermissionDisabledByStatus = (menu: MenuTreeOption) => menu.status === '1';
+
+const buildRoleMenuPermissionOptions = (
+  menuTree: MenuTreeOption[],
+  disabledButtonIds: Set<string>,
+  buttonIds: Set<string>,
+  buttonParentMap: Map<string, string>,
+  ancestorDirectoryDisabled = false
+): RoleMenuPermissionOption[] => {
+  return menuTree.reduce<RoleMenuPermissionOption[]>((options, menu) => {
+    if (menu.menuType === MenuTypeEnum.F) {
+      return options;
+    }
+
+    const selfDisabled = isMenuPermissionDisabledByStatus(menu);
+    const nextDirectoryDisabled = ancestorDirectoryDisabled || (menu.menuType === MenuTypeEnum.M && selfDisabled);
+    const nodeDisabled = ancestorDirectoryDisabled || selfDisabled;
+    const buttonPermissions =
+      menu.children
+        ?.filter(child => child.menuType === MenuTypeEnum.F)
+        .map(button => {
+          const buttonDisabled = nodeDisabled || isMenuPermissionDisabledByStatus(button);
+          buttonIds.add(String(button.id));
+          buttonParentMap.set(String(button.id), String(menu.id));
+          if (buttonDisabled) {
+            disabledButtonIds.add(String(button.id));
+          }
+          return {
+            menuId: button.id,
+            menuName: button.label,
+            parentId: button.parentId,
+            status: button.status,
+            disabled: buttonDisabled
+          };
+        }) ?? [];
+    const children = menu.children?.length
+      ? buildRoleMenuPermissionOptions(menu.children, disabledButtonIds, buttonIds, buttonParentMap, nextDirectoryDisabled)
+      : [];
+    options.push({
+      ...menu,
+      disabled: nodeDisabled,
+      buttonPermissions,
+      children
+    });
+    return options;
+  }, []);
+};
+
+const buildMenuPermissionMeta = (menuTree: MenuTreeOption[]): RoleMenuPermissionMeta => {
+  const buttonIds = new Set<string>();
+  const disabledButtonIds = new Set<string>();
+  const buttonParentMap = new Map<string, string>();
+  const treeOptions = buildRoleMenuPermissionOptions(menuTree, disabledButtonIds, buttonIds, buttonParentMap);
+  const menuAncestorMap = new Map<string, Array<string | number>>();
+  const menuButtonIdsMap = new Map<string, Array<string | number>>();
+
+  const collectMenuMeta = (nodes: RoleMenuPermissionOption[], ancestors: Array<string | number> = []) => {
+    return nodes.reduce<Array<string | number>>((permissionIds, node) => {
+      menuAncestorMap.set(String(node.id), ancestors);
+      const childButtonIds = node.children?.length ? collectMenuMeta(node.children, [...ancestors, node.id]) : [];
+      const ownButtonIds = node.buttonPermissions.map(button => button.menuId);
+      const currentButtonIds = [...ownButtonIds, ...childButtonIds];
+      menuButtonIdsMap.set(String(node.id), currentButtonIds);
+      permissionIds.push(...currentButtonIds);
+      return permissionIds;
+    }, []);
+  };
+
+  collectMenuMeta(treeOptions);
+  return {
+    treeOptions,
+    buttonIds,
+    disabledButtonIds,
+    buttonParentMap,
+    menuAncestorMap,
+    menuButtonIdsMap
+  };
+};
+
+const collectMenuNodeIds = (
+  nodes: RoleMenuPermissionOption[] = menuOptions.value,
+  includeDisabled = true
+): Array<string | number> => {
+  return nodes.reduce<Array<string | number>>((menuIds, node) => {
+    if (includeDisabled || !node.disabled) {
+      menuIds.push(node.id);
+    }
+    if (node.children?.length) {
+      menuIds.push(...collectMenuNodeIds(node.children, includeDisabled));
+    }
+    return menuIds;
+  }, []);
+};
+
+const collectButtonPermissionIds = (includeDisabled = true) => {
+  const buttonIds = new Set<string | number>();
+  menuPermissionMeta.value.menuButtonIdsMap.forEach(ids => {
+    ids.forEach(id => {
+      if (includeDisabled || !isButtonPermissionDisabled(id)) {
+        buttonIds.add(id);
+      }
+    });
+  });
+  return [...buttonIds];
+};
+
+const getSelectedButtonPermissionIds = () => {
+  return selectedButtonPermissionIds.value;
+};
+
+const getSelectedMenuPermissionIds = () => {
+  return selectedMenuPermissionIds.value;
+};
+
+const normalizePermissionIds = (permissionIds: Iterable<string | number>) => {
+  const normalizedIds = new Map<string, string | number>();
+  for (const permissionId of permissionIds) {
+    normalizedIds.set(String(permissionId), permissionId);
+  }
+  return [...normalizedIds.values()];
+};
+
+const getPermissionStateIds = () => {
+  return normalizePermissionIds([...getSelectedMenuPermissionIds(), ...getSelectedButtonPermissionIds()]);
+};
+
+const getDerivedMenuIdsFromButtons = (buttonIds: Iterable<string | number> = getSelectedButtonPermissionIds()) => {
+  if (!form.value.menuCheckStrictly) {
+    return [];
+  }
+
+  const derivedMenuIds = new Map<string, string | number>();
+  for (const buttonId of buttonIds) {
+    const parentMenuId = menuPermissionMeta.value.buttonParentMap.get(String(buttonId));
+    if (!parentMenuId) {
+      continue;
+    }
+    derivedMenuIds.set(String(parentMenuId), parentMenuId);
+    menuPermissionMeta.value.menuAncestorMap.get(parentMenuId)?.forEach(ancestorId => {
+      derivedMenuIds.set(String(ancestorId), ancestorId);
+    });
+  }
+  return [...derivedMenuIds.values()];
+};
+
+const setSelectedButtonPermissionIds = (permissionIds: Iterable<string | number>) => {
+  selectedButtonPermissionIds.value = normalizePermissionIds(permissionIds);
+};
+
+const setSelectedMenuPermissionIds = (permissionIds: Iterable<string | number>) => {
+  selectedMenuPermissionIds.value = normalizePermissionIds(permissionIds);
+};
+
+const syncFormMenuPermissionIds = () => {
+  form.value.menuIds = getMenuAllCheckedKeys();
+};
+
+const initPermissionState = (permissionIds: Array<string | number>) => {
+  setSelectedMenuPermissionIds(permissionIds.filter(permissionId => !isButtonPermission(permissionId)));
+  setSelectedButtonPermissionIds(permissionIds.filter(permissionId => isButtonPermission(permissionId)));
+};
+
+const updateMenuCheckAllState = () => {
+  const checkedMenuIds = new Set(getCheckedMenuKeys().checkedKeys.map(menuId => String(menuId)));
+  const allMenuIds = collectMenuNodeIds(menuOptions.value, false);
+  const allButtonIds = collectButtonPermissionIds(false);
+  menuNodeAll.value =
+    allMenuIds.length > 0 &&
+    allMenuIds.every(menuId => checkedMenuIds.has(String(menuId))) &&
+    allButtonIds.every(buttonId =>
+      selectedButtonPermissionIds.value.some(permissionId => String(permissionId) === String(buttonId))
+    );
+};
+
+const updateMenuPermissionOptions = (menuTree: MenuTreeOption[]) => {
+  menuPermissionMeta.value = buildMenuPermissionMeta(menuTree);
+};
+
+const getDisplayCheckedMenuKeys = (checkedKeys: Array<string | number>) => {
+  const displayMenuKeys = new Set<string | number>();
+
+  checkedKeys.forEach(key => {
+    if (form.value.menuCheckStrictly && isButtonPermission(key)) {
+      const parentMenuId = menuPermissionMeta.value.buttonParentMap.get(String(key));
+      if (parentMenuId) {
+        displayMenuKeys.add(parentMenuId);
+      }
+      return;
+    }
+    displayMenuKeys.add(key);
+  });
+
+  return [...displayMenuKeys];
+};
+
+const applyMenuTreeCheckedState = (checkedKeys: Array<string | number>) => {
+  const tree = menuRef.value;
+  if (!tree) {
+    return;
+  }
+
+  syncingMenuTree.value = true;
+  tree.setCheckedKeys([]);
+  getDisplayCheckedMenuKeys(checkedKeys).forEach(key => {
+    tree.setChecked(key, true, false);
+  });
+  syncingMenuTree.value = false;
+};
+
+const buildCheckedButtonPermissionIds = (
+  selectedButtonIds: Iterable<string | number>,
+  newlyCheckedMenuIds: Array<string | number> = []
+) => {
+  const { allCheckedKeys } = getCheckedMenuKeys();
+  const activeMenuIds = new Set(allCheckedKeys.map(key => String(key)));
+  const nextButtonIds = new Set<string | number>();
+
+  for (const buttonId of selectedButtonIds) {
+    if (!form.value.menuCheckStrictly) {
+      nextButtonIds.add(buttonId);
+      continue;
+    }
+    const parentMenuId = menuPermissionMeta.value.buttonParentMap.get(String(buttonId));
+    if (parentMenuId && activeMenuIds.has(parentMenuId)) {
+      nextButtonIds.add(buttonId);
+    }
+  }
+  if (form.value.menuCheckStrictly) {
+    newlyCheckedMenuIds.forEach(menuId => {
+      menuPermissionMeta.value.menuButtonIdsMap.get(String(menuId))?.forEach(buttonId => nextButtonIds.add(buttonId));
+    });
+  }
+
+  return [...nextButtonIds];
+};
+
+const syncButtonPermissionStateFromTree = () => {
+  const previousCheckedMenuIds = new Set(lastCheckedMenuKeys.value);
+  const checkedMenuIds = getCheckedMenuKeys().checkedKeys;
+  const newlyCheckedMenuIds = checkedMenuIds.filter(menuId => !previousCheckedMenuIds.has(String(menuId)));
+  const selectedButtonIds = getSelectedButtonPermissionIds();
+
+  setSelectedButtonPermissionIds(buildCheckedButtonPermissionIds(selectedButtonIds, newlyCheckedMenuIds));
+  updateMenuCheckAllState();
+  lastCheckedMenuKeys.value = checkedMenuIds.map(key => String(key));
+};
+
+const refreshMenuTreeCheckedState = (checkedKeys: Array<string | number>) => {
+  applyMenuTreeCheckedState(checkedKeys);
+  updateMenuCheckAllState();
+  lastCheckedMenuKeys.value = getCheckedMenuKeys().checkedKeys.map(key => String(key));
+};
+
+const handleMenuTreeCheck = () => {
+  if (syncingMenuTree.value) {
+    return;
+  }
+
+  const previousEffectiveMenuIds = new Set([
+    ...getSelectedMenuPermissionIds().map(menuId => String(menuId)),
+    ...getDerivedMenuIdsFromButtons().map(menuId => String(menuId))
+  ]);
+  const currentMenuIds = getCheckedMenuKeys().allCheckedKeys;
+  const currentMenuIdSet = new Set(currentMenuIds.map(menuId => String(menuId)));
+  const nextManualMenuIds = new Set(getSelectedMenuPermissionIds().map(menuId => String(menuId)));
+
+  currentMenuIds.forEach(menuId => {
+    const normalizedMenuId = String(menuId);
+    if (!previousEffectiveMenuIds.has(normalizedMenuId)) {
+      nextManualMenuIds.add(normalizedMenuId);
+    }
+  });
+
+  previousEffectiveMenuIds.forEach(menuId => {
+    if (!currentMenuIdSet.has(menuId)) {
+      nextManualMenuIds.delete(menuId);
+    }
+  });
+
+  setSelectedMenuPermissionIds(currentMenuIds.filter(menuId => nextManualMenuIds.has(String(menuId))));
+  syncButtonPermissionStateFromTree();
+};
+
+const handleButtonPermissionChange = (
+  _parentMenuId: string | number,
+  buttonMenuId: string | number,
+  checked: string | number | boolean
+) => {
+  if (isButtonPermissionDisabled(buttonMenuId)) {
+    return;
+  }
+
+  const selectedButtonIds = new Set(getSelectedButtonPermissionIds());
+
+  if (checked) {
+    selectedButtonIds.add(buttonMenuId);
+  } else {
+    selectedButtonIds.delete(buttonMenuId);
+  }
+
+  setSelectedButtonPermissionIds(selectedButtonIds);
+  refreshMenuTreeCheckedState(getPermissionStateIds());
 };
 
 const initForm: RoleForm = {
@@ -516,7 +839,6 @@ const handleExport = () => {
 const handleSelectionChange = (selection: RoleVO[]) => {
   ids.value = selection.map((item: RoleVO) => item.roleId);
   single.value = selection.length != 1;
-  multiple.value = !selection.length;
 };
 
 /** 角色状态修改 */
@@ -536,11 +858,6 @@ const handleAuthUser = (row: RoleVO) => {
   router.push('/system/role-auth/user/' + row.roleId);
 };
 
-/** 查询菜单树结构 */
-const getMenuTreeselect = async () => {
-  const res = await menuTreeselect();
-  menuOptions.value = res.data;
-};
 /** 所有部门节点数据 */
 const getDeptAllCheckedKeys = (): any => {
   // 目前被选中的部门节点
@@ -555,8 +872,11 @@ const getDeptAllCheckedKeys = (): any => {
 /** 重置新增的表单以及其他数据  */
 const reset = () => {
   menuRef.value?.setCheckedKeys([]);
-  buttonsMap.value = {};
-  checkedButtonIds.value = [];
+  menuPermissionMeta.value = createEmptyMenuPermissionMeta();
+  setSelectedMenuPermissionIds([]);
+  setSelectedButtonPermissionIds([]);
+  lastCheckedMenuKeys.value = [];
+  syncingMenuTree.value = false;
   menuExpand.value = false;
   menuNodeAll.value = false;
   deptExpand.value = true;
@@ -587,8 +907,7 @@ const handleUpdate = async (row?: RoleVO) => {
 /** 根据角色ID查询菜单树结构 */
 const getRoleMenuTreeselect = (roleId: string | number) => {
   return roleMenuTreeselect(roleId).then((res): RoleMenuTree => {
-    menuOptions.value = res.data.menus;
-    buttonsMap.value = res.data.buttonsMap ?? {};
+    updateMenuPermissionOptions(res.data.menus);
     return res.data;
   });
 };
@@ -620,35 +939,32 @@ const handleCheckedTreeExpand = (value: unknown, type: string) => {
 /** 树权限（全选/全不选） */
 const handleCheckedTreeNodeAll = (value: any, type: string) => {
   if (type == 'menu') {
-    menuRef.value?.setCheckedNodes(value ? (menuOptions.value as any) : []);
+    setSelectedMenuPermissionIds(value ? collectMenuNodeIds(menuOptions.value, false) : []);
+    setSelectedButtonPermissionIds(value ? collectButtonPermissionIds(false) : []);
+    refreshMenuTreeCheckedState(getPermissionStateIds());
   } else if (type == 'dept') {
     deptRef.value?.setCheckedNodes(value ? (deptOptions.value as any) : []);
   }
 };
 /** 树权限（父子联动） */
-const handleCheckedTreeConnect = (value: any, type: string) => {
+const handleCheckedTreeConnect = async (value: any, type: string) => {
   if (type == 'menu') {
     form.value.menuCheckStrictly = value;
+    await nextTick();
+    refreshMenuTreeCheckedState(getPermissionStateIds());
   } else if (type == 'dept') {
     form.value.deptCheckStrictly = value;
   }
 };
 /** 所有菜单节点数据 */
 const getMenuAllCheckedKeys = (): any => {
-  // 目前被选中的菜单节点
-  const checkedKeys = menuRef.value?.getCheckedKeys();
-  // 半选中的菜单节点
-  const halfCheckedKeys = menuRef.value?.getHalfCheckedKeys();
-  if (halfCheckedKeys) {
-    checkedKeys?.unshift(...halfCheckedKeys);
-  }
-  return checkedKeys ?? [];
+  return normalizePermissionIds([...getCheckedMenuKeys().allCheckedKeys, ...getSelectedButtonPermissionIds()]);
 };
 /** 提交按钮 */
 const submitForm = () => {
   roleFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      form.value.menuIds = getMenuAllCheckedKeys();
+      syncFormMenuPermissionIds();
       form.value.roleId ? await updateRole(form.value) : await addRole(form.value);
       modal.msgSuccess('操作成功');
       dialog.visible = false;
@@ -677,16 +993,19 @@ const handleDataScope = async (row: RoleVO) => {
   openDataScope.value = true;
   dialog.title = '分配权限';
   await nextTick(() => {
-    menuRef.value?.setCheckedKeys(menuRes.checkedKeys);
-    syncCheckedButtonIdsFromTree();
+    initPermissionState(menuRes.checkedKeys);
+    syncFormMenuPermissionIds();
+    refreshMenuTreeCheckedState(getPermissionStateIds());
     deptRef.value?.setCheckedKeys(res.checkedKeys);
+    handleCheckedTreeExpand(menuExpand.value, 'menu');
+    handleCheckedTreeExpand(deptExpand.value, 'dept');
   });
 };
 /** 提交按钮（数据权限） */
 const submitDataScope = async () => {
   if (form.value.roleId) {
     // 权限信息统一提交：菜单权限 + 数据权限。
-    form.value.menuIds = getMenuAllCheckedKeys();
+    syncFormMenuPermissionIds();
     form.value.deptIds = getDeptAllCheckedKeys();
     await updateRolePermission(form.value);
     modal.msgSuccess('修改成功');
@@ -700,8 +1019,15 @@ const cancelDataScope = () => {
   form.value = { ...initForm };
   permissionTab.value = 'menu';
   menuRef.value?.setCheckedKeys([]);
-  buttonsMap.value = {};
-  checkedButtonIds.value = [];
+  menuPermissionMeta.value = createEmptyMenuPermissionMeta();
+  setSelectedMenuPermissionIds([]);
+  setSelectedButtonPermissionIds([]);
+  lastCheckedMenuKeys.value = [];
+  syncingMenuTree.value = false;
+  menuExpand.value = false;
+  menuNodeAll.value = false;
+  deptExpand.value = true;
+  deptNodeAll.value = false;
   openDataScope.value = false;
 };
 
@@ -727,7 +1053,6 @@ onMounted(() => {
 
 .permission-dialog-form {
   --menu-name-col-width: 220px;
-  /* 与 el-tree 首级「展开图标 + 勾选框」占位大致对齐，减轻表头与节点文字错位感 */
   --menu-tree-leading-offset: 44px;
 
   :deep(.el-tabs__header) {
@@ -758,22 +1083,12 @@ onMounted(() => {
     overflow: auto;
   }
 
-  /* 覆盖 el-tree 默认固定行高，允许节点行按按钮数量自适应高度。 */
   :deep(.menu-tree-panel .el-tree-node__content) {
     min-height: 28px;
     height: auto;
     align-items: flex-start;
     padding-top: 3px;
     padding-bottom: 3px;
-  }
-
-  /* 按钮节点保留在树数据中参与级联，但在左侧树区域中隐藏。 */
-  :deep(.menu-tree-panel .el-tree-node.is-hidden-button-node) {
-    display: none !important;
-  }
-
-  :deep(.menu-tree-panel .el-tree-node__content.is-hidden-button-node) {
-    display: none !important;
   }
 
   .menu-tree-permission-wrap .menu-tree-header {
@@ -800,7 +1115,6 @@ onMounted(() => {
     min-width: 0;
   }
 
-  /* 菜单与按钮同一树节点行展示，模拟树表“名称列 + 按钮列”效果。 */
   :deep(.menu-tree-node-row) {
     width: 100%;
     min-height: 22px;
@@ -812,9 +1126,34 @@ onMounted(() => {
   :deep(.menu-tree-node-label) {
     width: var(--menu-name-col-width);
     flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     line-height: 24px;
     color: var(--el-text-color-primary);
     box-sizing: border-box;
+  }
+
+  :deep(.menu-tree-node-label.is-hidden:not(.is-disabled)) {
+    color: var(--el-text-color-secondary);
+  }
+
+  :deep(.menu-tree-node-label.is-disabled) {
+    color: var(--el-color-danger);
+  }
+
+  :deep(.menu-visibility-icon) {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    font-size: 14px;
+    color: var(--el-text-color-secondary);
+  }
+
+  :deep(.menu-disabled-icon) {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    font-size: 14px;
+    color: var(--el-color-danger);
   }
 
   :deep(.menu-tree-node-buttons) {
@@ -822,6 +1161,23 @@ onMounted(() => {
     display: flex;
     flex-wrap: wrap;
     gap: 8px 12px;
+  }
+
+  :deep(.menu-button-label) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  :deep(.menu-button-label.is-disabled) {
+    color: var(--el-color-danger);
+  }
+
+  :deep(.menu-button-disabled-icon) {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    font-size: 14px;
+    color: var(--el-color-danger);
   }
 
   @media (max-width: 900px) {

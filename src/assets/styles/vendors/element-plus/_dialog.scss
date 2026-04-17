@@ -24,6 +24,7 @@
         var(--app-surface-bg);
 
       .el-dialog__header {
+        position: relative;
         padding: 18px 20px 14px;
         box-sizing: border-box;
         border-bottom: 1px solid var(--app-surface-border);
@@ -40,12 +41,20 @@
       }
 
       .el-dialog__headerbtn {
-        top: 15px;
+        position: absolute;
+        top: 50%;
         right: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         width: 32px;
         height: 32px;
+        padding: 0;
+        margin: 0;
+        border: 0;
         border-radius: 10px;
         background: var(--app-elevated-close-bg);
+        transform: translateY(-50%);
         transition:
           background-color 0.2s ease,
           transform 0.2s ease,
@@ -58,7 +67,7 @@
 
         &:hover {
           background: var(--app-elevated-close-hover-bg);
-          transform: translateY(-1px);
+          transform: translateY(calc(-50% - 1px));
 
           .el-dialog__close {
             color: var(--app-accent-strong);

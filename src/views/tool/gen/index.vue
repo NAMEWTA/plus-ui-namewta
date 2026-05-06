@@ -192,7 +192,7 @@
 
 <script setup name="Gen" lang="ts">
 import { useRoute } from 'vue-router';
-import { delTable, genCode, getDataNames, listTable, previewTable, synchDb } from '@/api/tool/gen';
+import { delTable, getDataNames, listTable, previewTable, synchDb } from '@/api/tool/gen';
 import { TableQuery, TableVO } from '@/api/tool/gen/types';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
@@ -269,25 +269,8 @@ const handleGenTable = async (row?: TableVO) => {
     return;
   }
 
-  const customRows = currentRows.filter(item => item.genType === '1');
-  const zipRows = currentRows.filter(item => item.genType !== '1');
-
-  for (const item of customRows) {
-    await genCode(item.tableId);
-  }
-
-  if (customRows.length === 1 && zipRows.length === 0) {
-    modal.msgSuccess('成功生成到自定义路径：' + customRows[0].genPath);
-    return;
-  }
-  if (customRows.length > 1) {
-    modal.msgSuccess('已生成到自定义路径，共 ' + customRows.length + ' 张表');
-  }
-
-  if (zipRows.length > 0) {
-    const zipIds = zipRows.map(item => item.tableId).join(',');
-    download.zip('/tool/gen/batchGenCode?tableIdStr=' + zipIds, 'ruoyi.zip');
-  }
+  const zipIds = currentRows.map(item => item.tableId).join(',');
+  download.zip('/tool/gen/batchGenCode?tableIdStr=' + zipIds, 'ruoyi.zip');
 };
 /** 同步数据库操作 */
 const handleSynchDb = async (row: TableVO) => {

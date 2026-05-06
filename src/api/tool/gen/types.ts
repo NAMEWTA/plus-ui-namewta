@@ -11,8 +11,6 @@ export interface TableVO extends BaseEntity {
   businessName: string;
   functionName: string;
   functionAuthor: string;
-  genType: string;
-  genPath: string;
   pkColumn?: any;
   columns?: any;
   options?: any;
@@ -87,8 +85,6 @@ export interface DbTableVO {
   businessName?: any;
   functionName?: any;
   functionAuthor?: any;
-  genType?: any;
-  genPath?: any;
   pkColumn?: any;
   columns: DbColumnVO[];
   options?: any;
@@ -190,8 +186,6 @@ export interface DbTableForm extends BaseEntity {
   businessName: string;
   functionName: string;
   functionAuthor: string;
-  genType: string;
-  genPath: string;
   pkColumn?: any;
   columns: DbColumnForm[];
   options: string;

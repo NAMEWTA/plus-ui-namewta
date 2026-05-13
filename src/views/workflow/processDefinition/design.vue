@@ -1,6 +1,6 @@
 <template>
-  <div ref="container" class="w-full h-[calc(100vh-88px)]">
-    <iframe ref="iframe" :src="iframeUrl" frameborder="0" height="100%" style="height: 100%; width: inherit"></iframe>
+  <div ref="container" class="warm-flow-designer-page">
+    <iframe ref="iframe" :src="iframeUrl" frameborder="0" class="warm-flow-designer-page__iframe"></iframe>
   </div>
 </template>
 
@@ -49,3 +49,17 @@ defineExpose({
   open
 });
 </script>
+
+<style lang="scss" scoped>
+.warm-flow-designer-page {
+  width: 100%;
+  height: calc(100vh - 123px);
+  overflow: hidden;
+}
+
+.warm-flow-designer-page__iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+</style>

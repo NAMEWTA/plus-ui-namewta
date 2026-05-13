@@ -17,9 +17,9 @@
             <el-table :data="historyList" style="width: 100%" border fit>
               <el-table-column type="index" label="序号" align="center" width="60"></el-table-column>
               <el-table-column prop="nodeName" label="任务名称" sortable align="center"></el-table-column>
-              <el-table-column prop="approveName" label="办理人" sortable align="center" min-width="180">
+              <el-table-column prop="approverName" label="办理人" sortable align="center" min-width="180">
                 <template #default="scope">
-                  <UserNameDisplay :content="scope.row.approveName" />
+                  <UserNameDisplay :content="scope.row.approverName" />
                 </template>
               </el-table-column>
               <el-table-column prop="flowStatus" label="状态" width="80" sortable align="center">

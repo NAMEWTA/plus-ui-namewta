@@ -113,7 +113,7 @@
                 <UserNameDisplay :content="scope.row.assigneeNames" />
               </template>
               <template v-else>
-                <UserNameDisplay :content="scope.row.approveName" />
+                <UserNameDisplay :content="scope.row.approverName" />
               </template>
             </template>
           </el-table-column>

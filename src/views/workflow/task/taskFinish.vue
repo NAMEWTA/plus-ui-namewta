@@ -82,7 +82,7 @@
         ></el-table-column>
         <el-table-column align="center" prop="approverName" label="办理人" min-width="180">
           <template #default="scope">
-            <UserNameDisplay :content="scope.row.approveName" />
+            <UserNameDisplay :content="scope.row.approverName" />
           </template>
         </el-table-column>
         <el-table-column align="center" label="流程状态" prop="flowStatus" min-width="80">

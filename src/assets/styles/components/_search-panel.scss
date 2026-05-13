@@ -18,7 +18,15 @@
   margin-bottom: 0 !important;
 }
 
+.search-panel,
+.table-panel {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
 .search-panel {
+  isolation: isolate;
+
   .el-card__header {
     display: block;
     padding: 12px 16px !important;

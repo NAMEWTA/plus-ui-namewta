@@ -4,7 +4,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px 14px;
-  align-items: end;
+  align-items: center;
 }
 
 .query-form .el-form-item {
@@ -12,7 +12,7 @@
   margin-bottom: 0;
   margin-right: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   min-width: 0;
 }
 
@@ -22,7 +22,7 @@
 
 .query-form .el-form-item:last-child {
   margin-left: auto;
-  align-self: end;
+  align-self: center;
 }
 
 .query-form .el-form-item:last-child .el-form-item__content {
@@ -40,6 +40,21 @@
 
 .query-form .el-form-item:last-child .el-button + .el-button {
   margin-left: 0 !important;
+}
+
+.query-form .el-form-item[style*='width: 308px'] {
+  width: auto !important;
+  min-width: 376px;
+}
+
+.query-form .el-form-item[style*='width: 308px'] .el-form-item__content {
+  flex: 0 0 308px;
+  min-width: 308px;
+}
+
+.query-form .el-form-item[style*='width: 308px'] .el-date-editor.el-range-editor {
+  width: 308px;
+  min-width: 308px;
 }
 
 .query-form .el-input__wrapper,
@@ -73,6 +88,15 @@
 
   .query-form .el-form-item {
     width: 100%;
+  }
+
+  .query-form .el-form-item[style*='width: 308px'] {
+    min-width: 0;
+  }
+
+  .query-form .el-form-item[style*='width: 308px'] .el-form-item__content {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .query-form .el-input,

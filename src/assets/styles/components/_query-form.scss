@@ -20,6 +20,17 @@
   min-width: 0;
 }
 
+.query-form.el-form--inline .el-form-item__label {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 68px;
+  overflow: visible;
+  white-space: nowrap;
+  word-break: keep-all;
+  line-break: strict;
+  justify-content: flex-end;
+}
+
 .query-form .el-form-item:last-child {
   margin-left: auto;
   align-self: center;

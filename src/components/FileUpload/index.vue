@@ -158,6 +158,7 @@ const handleExceed = () => {
 // 上传失败
 const handleUploadError = () => {
   modal.msgError('上传文件失败');
+  modal.closeLoading();
 };
 
 // 上传成功回调

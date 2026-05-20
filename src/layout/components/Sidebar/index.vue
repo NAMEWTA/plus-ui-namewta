@@ -1,15 +1,12 @@
 <template>
-  <div class="sidebar-shell" :class="{ 'has-logo': showLogo }" :style="{ backgroundColor: bgColor }">
+  <div class="sidebar-shell" :class="{ 'has-logo': showLogo }" :style="menuStyle">
     <logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar :class="sideTheme" wrap-class="scrollbar-wrapper">
       <transition :enter-active-class="animateConfig.menuSearchAnimate.enter" mode="out-in">
         <el-menu
           :default-active="activeMenu"
           :collapse="isCollapse"
-          :background-color="bgColor"
-          :text-color="textColor"
           :unique-opened="true"
-          :active-text-color="theme"
           :collapse-transition="false"
           :popper-offset="12"
           mode="vertical"
@@ -51,6 +48,12 @@ const activeMenu = computed(() => {
 
 const bgColor = computed(() => (sideTheme.value === 'theme-dark' ? '#111827' : '#ffffff'));
 const textColor = computed(() => (sideTheme.value === 'theme-dark' ? '#e5edf8' : '#1f2937'));
+const menuStyle = computed(() => ({
+  backgroundColor: bgColor.value,
+  '--el-menu-bg-color': bgColor.value,
+  '--el-menu-text-color': textColor.value,
+  '--el-menu-active-color': theme.value
+}));
 </script>
 
 <style lang="scss" scoped>

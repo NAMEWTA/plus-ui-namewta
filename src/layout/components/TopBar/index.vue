@@ -3,7 +3,7 @@
     class="topbar-menu"
     :ellipsis="false"
     :default-active="activeMenu"
-    :active-text-color="theme"
+    :style="{ '--el-menu-active-color': theme }"
     mode="horizontal"
   >
     <sidebar-item

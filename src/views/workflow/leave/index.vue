@@ -268,9 +268,9 @@ const handleView = (row?: LeaveVO) => {
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: LeaveVO) => {
-  const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除请假编号为"' + _ids + '"的数据项？');
-  await delLeave(_ids);
+  const leaveIds = row?.id || ids.value;
+  await modal.confirm('是否确认删除请假编号为"' + leaveIds + '"的数据项？');
+  await delLeave(leaveIds);
   modal.msgSuccess('删除成功');
   await getList();
 };

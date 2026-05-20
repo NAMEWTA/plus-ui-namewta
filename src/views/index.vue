@@ -362,7 +362,7 @@ const goTarget = (url: string) => {
   }
 }
 
-:global(html.dark) {
+html.dark {
   .hero-panel {
     background: radial-gradient(circle at top left, rgba(53, 109, 255, 0.18), transparent 30%), var(--app-surface-bg);
   }

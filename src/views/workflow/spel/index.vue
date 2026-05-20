@@ -188,7 +188,7 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.value">
+            <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">
               {{ dict.label }}
             </el-radio>
           </el-radio-group>
@@ -300,8 +300,8 @@ const handleAdd = () => {
 /** 修改按钮操作 */
 const handleUpdate = async (row?: SpelVO) => {
   resetForm();
-  const _id = row?.id || ids.value[0];
-  const res = await getSpel(_id);
+  const spelId = row?.id || ids.value[0];
+  const res = await getSpel(spelId);
   Object.assign(form.value, res.data);
   showDialog('修改流程spel表达式定义');
 };
@@ -326,9 +326,9 @@ const submitForm = () => {
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: SpelVO) => {
-  const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除流程spel表达式定义编号为"' + _ids + '"的数据项？');
-  await delSpel(_ids);
+  const spelIds = row?.id || ids.value;
+  await modal.confirm('是否确认删除流程spel表达式定义编号为"' + spelIds + '"的数据项？');
+  await delSpel(spelIds);
   modal.msgSuccess('删除成功');
   await getList();
 };

@@ -361,7 +361,7 @@ onMounted(() => {
   --el-button-hover-border-color: var(--el-color-warning-light-5);
 }
 
-:global(html.dark) {
+html.dark {
   .todo-action-btn {
     --el-button-bg-color: rgba(148, 163, 184, 0.12);
     --el-button-border-color: rgba(148, 163, 184, 0.3);

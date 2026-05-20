@@ -188,7 +188,7 @@ td > img {
   word-break: break-word;
 }
 
-:global(html.dark) {
+html.dark {
   .user-bind .third-app {
     background: rgba(15, 23, 42, 0.64);
   }

@@ -230,8 +230,8 @@ const handleAdd = () => {
 /** 修改按钮操作 */
 const handleUpdate = async (row?: DemoVO) => {
   reset();
-  const _id = row?.id || ids.value[0];
-  const res = await getDemo(_id);
+  const demoId = row?.id || ids.value[0];
+  const res = await getDemo(demoId);
   Object.assign(form.value, res.data);
   showDialog('修改测试单');
 };
@@ -255,9 +255,9 @@ const submitForm = () => {
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: DemoVO) => {
-  const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除测试单编号为"' + _ids + '"的数据项？');
-  await delDemo(_ids);
+  const demoIds = row?.id || ids.value;
+  await modal.confirm('是否确认删除测试单编号为"' + demoIds + '"的数据项？');
+  await delDemo(demoIds);
   modal.msgSuccess('删除成功');
   await getList();
 };

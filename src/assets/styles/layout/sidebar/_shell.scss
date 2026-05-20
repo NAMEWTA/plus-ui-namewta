@@ -1,6 +1,6 @@
 /* 侧栏外壳：固定定位宽度、主区左边距、滚动条与 el-menu 根级样式；与 _menu/_collapsed/_responsive 分工。 */
 
-@use '../../variables.module.scss' as *;
+@use '../../tokens/sass-vars' as *;
 
 #app {
   // --- 主内容区相对侧栏的偏移 ---

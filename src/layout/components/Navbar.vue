@@ -451,7 +451,7 @@ const handleCommand = (command: string) => {
   }
 }
 
-:global(html.dark) {
+html.dark {
   .navbar.navtop .navtop-logo-shell {
     background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.82));
     border-color: rgba(71, 85, 105, 0.42);

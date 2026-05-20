@@ -401,8 +401,8 @@ const handleAdd = () => {
 /** 修改按钮操作 */
 const handleUpdate = async (row?: ClientVO) => {
   resetForm();
-  const _id = row?.id || ids.value[0];
-  const res = await getClient(_id);
+  const clientId = row?.id || ids.value[0];
+  const res = await getClient(clientId);
   Object.assign(form.value, res.data);
   showDialog('修改客户端管理');
 };
@@ -427,9 +427,9 @@ const submitForm = () => {
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: ClientVO) => {
-  const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除客户端管理编号为"' + _ids + '"的数据项？');
-  await delClient(_ids);
+  const clientIds = row?.id || ids.value;
+  await modal.confirm('是否确认删除客户端管理编号为"' + clientIds + '"的数据项？');
+  await delClient(clientIds);
   modal.msgSuccess('删除成功');
   await getList();
 };

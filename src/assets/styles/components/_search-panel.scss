@@ -83,7 +83,7 @@
   transform: rotate(45deg);
 }
 
-:global(html.dark) {
+html.dark {
   .tree-border {
     background: var(--app-surface-bg);
     border-color: var(--app-surface-border);

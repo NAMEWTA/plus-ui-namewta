@@ -145,9 +145,9 @@
         </el-form-item>
         <el-form-item label="消息提醒">
           <el-checkbox-group v-model="backForm.messageType">
-            <el-checkbox label="1" name="type" disabled>站内信</el-checkbox>
-            <el-checkbox label="2" name="type">邮件</el-checkbox>
-            <el-checkbox label="3" name="type">短信</el-checkbox>
+            <el-checkbox value="1" name="type" disabled>站内信</el-checkbox>
+            <el-checkbox value="2" name="type">邮件</el-checkbox>
+            <el-checkbox value="3" name="type">短信</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
         <el-form-item v-if="task.flowStatus === 'waiting'" label="附件">

@@ -39,16 +39,16 @@ function submit() {
 
 <style scoped lang="scss">
 .chat-input-wrap {
-  padding: 10px 18px 14px;
+  padding: 8px 14px 10px;
 }
 
 .chat-input-box {
   max-width: 920px;
   margin: 0 auto;
-  border-radius: 8px;
+  border-radius: var(--app-radius-base);
   border: 1px solid var(--app-surface-border);
   background: var(--app-surface-bg);
-  padding: 12px;
+  padding: 10px;
   box-shadow: var(--app-shadow-sm);
 }
 

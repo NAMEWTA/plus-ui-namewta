@@ -319,7 +319,7 @@ onBeforeUnmount(() => {
 
 .chat-scroll {
   flex: 1;
-  padding: 16px 18px 0;
+  padding: 10px 14px 0;
   min-height: 0;
 }
 
@@ -332,9 +332,9 @@ onBeforeUnmount(() => {
 .welcome-card {
   background: var(--app-surface-bg);
   border: 1px solid var(--app-surface-border);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 14px;
+  border-radius: var(--app-radius-base);
+  padding: 12px;
+  margin-bottom: 10px;
   box-shadow: var(--app-shadow-sm);
 }
 
@@ -349,43 +349,43 @@ onBeforeUnmount(() => {
 }
 
 .agent-name {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--app-text-title);
 }
 
 .agent-desc {
-  margin-top: 4px;
+  margin-top: 2px;
   color: var(--app-text-muted);
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .greeting {
-  margin-top: 12px;
+  margin-top: 8px;
   color: var(--app-text-title);
 }
 
 .question-title {
-  margin-top: 14px;
-  padding-top: 10px;
+  margin-top: 10px;
+  padding-top: 8px;
   border-top: 1px solid var(--app-surface-border);
   color: var(--app-text-muted);
   font-size: 13px;
 }
 
 .question-list {
-  margin-top: 8px;
+  margin-top: 6px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 
 .question-pill {
   border: 1px solid var(--app-surface-border);
   background: var(--app-surface-bg);
   color: var(--app-text-title);
-  border-radius: 8px;
-  padding: 6px 12px;
+  border-radius: var(--app-radius-md);
+  padding: 5px 10px;
   cursor: pointer;
 }
 
@@ -396,7 +396,7 @@ onBeforeUnmount(() => {
 
 .msg-row {
   display: flex;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .msg-row.user {
@@ -406,11 +406,11 @@ onBeforeUnmount(() => {
 .msg-bubble {
   max-width: 80%;
   white-space: pre-wrap;
-  line-height: 1.7;
+  line-height: 1.6;
   background: var(--app-surface-bg);
   border: 1px solid var(--app-surface-border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: var(--app-radius-base);
+  padding: 8px 10px;
   color: var(--app-text-title);
   box-shadow: var(--app-shadow-sm);
 }

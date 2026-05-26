@@ -93,6 +93,14 @@ async function onSelectAgent(agent: AgentItem) {
   await loadConversations(agent.id);
 }
 
+async function handleNewChat() {
+  if (!currentAgent.value && agents.value.length) {
+    currentAgent.value = agents.value[0];
+    await loadConversations(currentAgent.value.id);
+  }
+  currentConversationId.value = '';
+}
+
 async function onDeleteConversation(conversationId: string) {
   if (!currentAgent.value) return;
   try {
@@ -140,7 +148,7 @@ onMounted(() => {
         @select-agent="onSelectAgent"
         @select-conversation="currentConversationId = $event"
         @delete-conversation="onDeleteConversation"
-        @new-chat="currentConversationId = ''"
+        @new-chat="handleNewChat"
       />
       <ChatMain
         :agent="currentAgent"
@@ -155,16 +163,20 @@ onMounted(() => {
 .ai-chat-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 84px);
+  height: calc(100vh - 123px);
   min-height: 0;
   background: var(--el-bg-color-page);
+  border-radius: var(--app-radius-base);
   overflow: hidden;
 }
 
 .chat-header {
-  height: 46px;
-  padding: 0 14px;
+  flex: 0 0 38px;
+  height: 38px;
+  padding: 0 12px;
   border-bottom: 1px solid var(--app-surface-border);
+  border-top-left-radius: var(--app-radius-base);
+  border-top-right-radius: var(--app-radius-base);
   background: var(--app-surface-bg);
   display: flex;
   align-items: center;
@@ -175,14 +187,14 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   color: var(--app-text-title);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .brand-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--app-radius-sm);
   background: var(--el-color-primary);
 }
 
@@ -195,7 +207,7 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .ai-chat-page {
-    height: calc(100vh - 64px);
+    height: calc(100vh - 88px);
   }
 
   .chat-body {

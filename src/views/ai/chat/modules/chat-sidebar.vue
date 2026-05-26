@@ -35,7 +35,7 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 <template>
   <aside class="chat-sidebar">
     <div class="sidebar-block sidebar-head">
-      <el-button class="new-btn" type="primary" plain :disabled="!currentAgent" @click="emit('newChat')">
+      <el-button class="new-btn" type="primary" plain :disabled="!agents.length" @click="emit('newChat')">
         <el-icon><Plus /></el-icon>
         <span>新对话</span>
       </el-button>
@@ -96,7 +96,7 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 }
 
 .sidebar-head {
-  padding-bottom: 8px;
+  padding-bottom: 6px;
 }
 
 .new-btn {
@@ -108,19 +108,19 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 }
 
 .sidebar-block {
-  padding: 12px;
+  padding: 10px 12px;
 }
 
 .block-title {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: var(--app-text-muted);
   font-size: 12px;
 }
 
 .agent-item,
 .conv-item {
-  height: 36px;
-  border-radius: 8px;
+  height: 32px;
+  border-radius: var(--app-radius-md);
   padding: 0 10px;
   display: flex;
   align-items: center;
@@ -143,7 +143,7 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 .avatar-dot {
   width: 14px;
   height: 14px;
-  border-radius: 50%;
+  border-radius: var(--el-border-radius-round);
   background: var(--el-color-primary);
 }
 
@@ -179,7 +179,7 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 
 .sidebar-foot {
   border-top: 1px solid var(--app-surface-border);
-  padding: 10px 12px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -189,7 +189,7 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 .user-avatar {
   width: 30px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: var(--el-border-radius-round);
   background: var(--el-color-success);
   color: var(--el-color-white);
   display: flex;

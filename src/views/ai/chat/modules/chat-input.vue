@@ -29,7 +29,7 @@ function submit() {
           placeholder="给智能体发消息"
           @keydown.enter.exact.prevent="submit"
         />
-        <el-button type="primary" circle :disabled="sending" @click="submit">
+        <el-button type="primary" circle :loading="sending" :disabled="sending" @click="submit">
           <el-icon><Promotion /></el-icon>
         </el-button>
       </div>
@@ -45,10 +45,11 @@ function submit() {
 .chat-input-box {
   max-width: 920px;
   margin: 0 auto;
-  border-radius: 16px;
-  border: 1px solid #dde2eb;
-  background: #fff;
+  border-radius: 8px;
+  border: 1px solid var(--app-surface-border);
+  background: var(--app-surface-bg);
   padding: 12px;
+  box-shadow: var(--app-shadow-sm);
 }
 
 .input-row {

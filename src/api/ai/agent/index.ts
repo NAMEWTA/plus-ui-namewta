@@ -1,7 +1,15 @@
 import type { AxiosPromise } from '@/utils/api-types';
-import request from '@/utils/request';
-import { getToken } from '@/utils/auth';
-import type { AgentChatRequest, AgentItem, ConversationMessage, ConversationSummaryList, SnailOpenApiUser } from './types';
+import request, { globalHeaders } from '@/utils/request';
+import { getLanguage } from '@/lang';
+import type {
+  AgentChatRequest,
+  AgentChatSyncResponse,
+  AgentItem,
+  ConversationMessage,
+  ConversationSummaryItem,
+  ConversationSummaryList,
+  SnailOpenApiUser
+} from './types';
 
 export const fetchMyAgents = (): AxiosPromise<AgentItem[]> => {
   return request({
@@ -35,11 +43,18 @@ export const fetchConversationMessages = (agentId: number, conversationId: strin
   });
 };
 
-export const createConversation = (agentId: number, data: { title?: string }): AxiosPromise<{ conversationId: string; title?: string }> => {
+export const createConversation = (agentId: number, data: { title?: string }): AxiosPromise<ConversationSummaryItem> => {
   return request({
     url: `/snail-ai/agent/${agentId}/conversation`,
     method: 'post',
     data
+  });
+};
+
+export const deleteConversation = (agentId: number, conversationId: string): AxiosPromise<void> => {
+  return request({
+    url: `/snail-ai/agent/${agentId}/conversation/${conversationId}`,
+    method: 'delete'
   });
 };
 
@@ -57,7 +72,7 @@ export const fetchChatMode = (): AxiosPromise<{ mode?: 'stream' | 'sync' }> => {
   });
 };
 
-export const fetchAgentChat = (
+export const fetchAgentChat = async (
   agentId: number,
   data: AgentChatRequest,
   options: {
@@ -67,25 +82,24 @@ export const fetchAgentChat = (
     onError: (error: Error) => void;
     signal?: AbortSignal;
   }
-) => {
+): Promise<void> => {
   const baseURL = import.meta.env.VITE_APP_BASE_API;
-  const token = getToken();
-  const query = new URLSearchParams({ content: data.content });
-  if (data.conversationId) {
-    query.set('conversationId', data.conversationId);
-  }
 
-  fetch(`${baseURL}/snail-ai/agent/${agentId}/chat/stream?${query.toString()}`, {
-    method: 'GET',
+  await fetch(`${baseURL}/snail-ai/agent/${agentId}/chat/stream`, {
+    method: 'POST',
     headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-      clientid: import.meta.env.VITE_APP_CLIENT_ID
+      ...globalHeaders(),
+      'Content-Language': getLanguage(),
+      Accept: 'text/event-stream',
+      'Content-Type': 'application/json;charset=utf-8'
     },
+    body: JSON.stringify(data),
     signal: options.signal
   })
     .then(async response => {
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}`);
       }
 
       const reader = response.body?.getReader();
@@ -100,21 +114,21 @@ export const fetchAgentChat = (
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        const eventBlocks = buffer.split('\n\n');
+        const eventBlocks = buffer.split(/\r?\n\r?\n/);
         buffer = eventBlocks.pop() || '';
 
         for (const block of eventBlocks) {
           if (!block.trim()) continue;
           let eventName = 'message';
           let payload = '';
-          for (const line of block.split('\n')) {
+          for (const line of block.split(/\r?\n/)) {
             if (line.startsWith('event:')) {
               eventName = line.slice(6).trim();
             } else if (line.startsWith('data:')) {
               payload += line.slice(5).trim();
             }
           }
-          if (!payload) continue;
+          if (!payload && eventName !== 'done') continue;
           if (eventName === 'thinking') {
             options.onThinking?.(payload);
           } else if (eventName === 'text') {
@@ -139,7 +153,7 @@ export const fetchAgentChat = (
     });
 };
 
-export const fetchAgentChatSync = (agentId: number, data: AgentChatRequest): AxiosPromise<any> => {
+export const fetchAgentChatSync = (agentId: number, data: AgentChatRequest): AxiosPromise<AgentChatSyncResponse> => {
   return request({
     url: `/snail-ai/agent/${agentId}/chat/sync`,
     method: 'post',

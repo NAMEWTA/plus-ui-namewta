@@ -16,6 +16,7 @@ interface ConversationItem {
 const emit = defineEmits<{
   selectAgent: [agent: AgentItem];
   selectConversation: [conversationId: string];
+  deleteConversation: [conversationId: string];
   newChat: [];
 }>();
 
@@ -34,12 +35,16 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 <template>
   <aside class="chat-sidebar">
     <div class="sidebar-block sidebar-head">
-      <el-button class="new-btn" :disabled="!currentAgent" @click="emit('newChat')">+ 新对话</el-button>
+      <el-button class="new-btn" type="primary" plain :disabled="!currentAgent" @click="emit('newChat')">
+        <el-icon><Plus /></el-icon>
+        <span>新对话</span>
+      </el-button>
     </div>
 
     <el-scrollbar class="sidebar-scroll">
       <div class="sidebar-block">
         <div class="block-title">我的智能体</div>
+        <el-empty v-if="!agents.length" :image-size="54" description="暂无智能体" />
         <div
           v-for="agent in agents"
           :key="agent.id"
@@ -54,6 +59,7 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 
       <div class="sidebar-block">
         <div class="block-title">对话记录</div>
+        <el-empty v-if="!conversations.length" :image-size="54" description="暂无会话" />
         <div
           v-for="conv in conversations"
           :key="conv.conversationId"
@@ -61,13 +67,16 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
           :class="{ active: currentConversationId === conv.conversationId }"
           @click="emit('selectConversation', conv.conversationId)"
         >
-          {{ conv.title || '未命名会话' }}
+          <span class="conv-title">{{ conv.title || '未命名会话' }}</span>
+          <el-button class="delete-btn" link type="danger" circle @click.stop="emit('deleteConversation', conv.conversationId)">
+            <el-icon><Delete /></el-icon>
+          </el-button>
         </div>
       </div>
     </el-scrollbar>
 
     <div class="sidebar-foot">
-        <div class="user-avatar">{{ avatarText }}</div>
+      <div class="user-avatar">{{ avatarText }}</div>
       <div>
         <div class="user-name">{{ displayNickname }}</div>
         <div class="user-status">已登录</div>
@@ -79,10 +88,11 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 <style scoped lang="scss">
 .chat-sidebar {
   width: 234px;
-  border-right: 1px solid #e5e8ef;
-  background: #f8f9fc;
+  border-right: 1px solid var(--app-surface-border);
+  background: var(--app-elevated-soft-bg);
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .sidebar-head {
@@ -103,14 +113,8 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 
 .block-title {
   margin-bottom: 10px;
-  color: #8a8fa2;
+  color: var(--app-text-muted);
   font-size: 12px;
-}
-
-.sub-title {
-  margin-bottom: 6px;
-  color: #9399aa;
-  font-size: 13px;
 }
 
 .agent-item,
@@ -121,51 +125,73 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #2a2e38;
+  color: var(--app-text-title);
   cursor: pointer;
 }
 
 .agent-item:hover,
 .conv-item:hover {
-  background: #eef1f6;
+  background: var(--el-fill-color-light);
 }
 
 .agent-item.active,
 .conv-item.active {
-  background: #e9ecff;
-  color: #4d57ea;
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
 }
 
 .avatar-dot {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #3f434b;
+  background: var(--el-color-primary);
 }
 
 .name {
   font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .conv-item {
   font-size: 13px;
 }
 
+.conv-title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delete-btn {
+  width: 24px;
+  height: 24px;
+  visibility: hidden;
+}
+
+.conv-item:hover .delete-btn,
+.conv-item.active .delete-btn {
+  visibility: visible;
+}
+
 .sidebar-foot {
-  border-top: 1px solid #e5e8ef;
+  border-top: 1px solid var(--app-surface-border);
   padding: 10px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fff;
+  background: var(--app-surface-bg);
 }
 
 .user-avatar {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: #1dbf73;
-  color: #fff;
+  background: var(--el-color-success);
+  color: var(--el-color-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -175,10 +201,28 @@ const avatarText = computed(() => (displayNickname.value ? displayNickname.value
 .user-name {
   font-size: 14px;
   font-weight: 600;
+  color: var(--app-text-title);
 }
 
 .user-status {
-  color: #8f95a3;
+  color: var(--app-text-muted);
   font-size: 12px;
+}
+
+:deep(.el-empty) {
+  --el-empty-padding: 8px 0 12px;
+}
+
+@media (max-width: 768px) {
+  .chat-sidebar {
+    width: 100%;
+    height: 224px;
+    border-right: 0;
+    border-bottom: 1px solid var(--app-surface-border);
+  }
+
+  .sidebar-foot {
+    display: none;
+  }
 }
 </style>

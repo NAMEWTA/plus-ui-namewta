@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { fetchAgentConversations, fetchMyAgents, registerCurrentSnailUser } from '@/api/ai/agent';
+import { deleteConversation, fetchAgentConversations, fetchMyAgents, registerCurrentSnailUser } from '@/api/ai/agent';
 import type { AgentItem, ConversationSummaryItem } from '@/api/ai/agent/types';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import ChatMain from './modules/chat-main.vue';
 import ChatSidebar from './modules/chat-sidebar.vue';
 
@@ -12,6 +13,29 @@ const conversations = ref<ConversationSummaryItem[]>([]);
 const currentAgent = ref<AgentItem | null>(null);
 const currentConversationId = ref('');
 const currentNickname = ref('');
+const loading = ref(false);
+
+function normalizeAgentList(payload: any): AgentItem[] {
+  const container = payload?.data ?? payload;
+  const source =
+    (Array.isArray(container) && container) ||
+    (Array.isArray(container?.rows) && container.rows) ||
+    (Array.isArray(container?.list) && container.list) ||
+    (Array.isArray(container?.records) && container.records) ||
+    [];
+
+  return source
+    .map((item: any) => ({
+      id: Number(item?.id ?? item?.agentId),
+      name: String(item?.name ?? item?.title ?? ''),
+      description: item?.description,
+      avatar: item?.avatar,
+      greeting: item?.greeting,
+      status: item?.status,
+      presetQuestions: Array.isArray(item?.presetQuestions) ? item.presetQuestions : []
+    }))
+    .filter((item: AgentItem) => Number.isFinite(item.id) && !!item.name);
+}
 
 function normalizeConversationList(payload: any): ConversationSummaryItem[] {
   const container = payload?.data ?? payload;
@@ -29,11 +53,12 @@ function normalizeConversationList(payload: any): ConversationSummaryItem[] {
     .map((item: any) => ({
       conversationId: String(item?.conversationId ?? item?.id ?? ''),
       title: String(item?.title ?? item?.name ?? ''),
-      lastMessageDt: item?.lastMessageDt ?? item?.updateTime ?? item?.updateDt,
-      createDt: item?.createDt ?? item?.createTime
+      lastMessageDt: item?.lastMessageDt ?? item?.updateDt ?? item?.updateTime,
+      createDt: item?.createDt ?? item?.createTime,
+      updateDt: item?.updateDt
     }))
     .filter((item: ConversationSummaryItem) => !!item.conversationId)
-    .sort((a: ConversationSummaryItem, b: ConversationSummaryItem) => {
+    .toSorted((a: ConversationSummaryItem, b: ConversationSummaryItem) => {
       const ta = new Date(a.lastMessageDt || a.createDt || 0).getTime();
       const tb = new Date(b.lastMessageDt || b.createDt || 0).getTime();
       return tb - ta;
@@ -41,11 +66,16 @@ function normalizeConversationList(payload: any): ConversationSummaryItem[] {
 }
 
 async function loadAgents() {
-  const { data: user } = await registerCurrentSnailUser();
-  currentNickname.value = user?.nickname || '';
-  const { data } = await fetchMyAgents();
-  agents.value = Array.isArray(data) ? data : [];
-  currentAgent.value = agents.value[0] || null;
+  loading.value = true;
+  try {
+    const { data: user } = await registerCurrentSnailUser();
+    currentNickname.value = user?.nickname || '';
+    const { data } = await fetchMyAgents();
+    agents.value = normalizeAgentList(data);
+    currentAgent.value = agents.value.find(item => item.id === currentAgent.value?.id) || agents.value[0] || null;
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function loadConversations(agentId: number) {
@@ -61,6 +91,25 @@ async function onSelectAgent(agent: AgentItem) {
   currentAgent.value = agent;
   currentConversationId.value = '';
   await loadConversations(agent.id);
+}
+
+async function onDeleteConversation(conversationId: string) {
+  if (!currentAgent.value) return;
+  try {
+    await ElMessageBox.confirm('确认删除该会话记录？', '系统提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    });
+  } catch {
+    return;
+  }
+  await deleteConversation(currentAgent.value.id, conversationId);
+  if (currentConversationId.value === conversationId) {
+    currentConversationId.value = '';
+  }
+  await loadConversations(currentAgent.value.id);
+  ElMessage.success('删除成功');
 }
 
 onMounted(() => {
@@ -82,6 +131,7 @@ onMounted(() => {
     </header>
     <div class="chat-body">
       <ChatSidebar
+        v-loading="loading"
         :agents="agents"
         :conversations="conversations"
         :current-agent="currentAgent"
@@ -89,6 +139,7 @@ onMounted(() => {
         :current-nickname="currentNickname"
         @select-agent="onSelectAgent"
         @select-conversation="currentConversationId = $event"
+        @delete-conversation="onDeleteConversation"
         @new-chat="currentConversationId = ''"
       />
       <ChatMain
@@ -106,15 +157,15 @@ onMounted(() => {
   flex-direction: column;
   height: calc(100vh - 84px);
   min-height: 0;
-  background: #f5f6f8;
+  background: var(--el-bg-color-page);
   overflow: hidden;
 }
 
 .chat-header {
   height: 46px;
   padding: 0 14px;
-  border-bottom: 1px solid #e6e8ee;
-  background: #fff;
+  border-bottom: 1px solid var(--app-surface-border);
+  background: var(--app-surface-bg);
   display: flex;
   align-items: center;
 }
@@ -123,7 +174,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #8b90a0;
+  color: var(--app-text-title);
   font-size: 18px;
   font-weight: 600;
 }
@@ -132,7 +183,7 @@ onMounted(() => {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #6f76ff;
+  background: var(--el-color-primary);
 }
 
 .chat-body {
@@ -140,5 +191,15 @@ onMounted(() => {
   display: flex;
   overflow: hidden;
   min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .ai-chat-page {
+    height: calc(100vh - 64px);
+  }
+
+  .chat-body {
+    flex-direction: column;
+  }
 }
 </style>

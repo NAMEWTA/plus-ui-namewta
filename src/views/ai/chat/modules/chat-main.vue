@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { createConversation, fetchAgentChat, fetchAgentChatSync, fetchChatMode, fetchConversationMessages } from '@/api/ai/agent';
+import type { AgentItem } from '@/api/ai/agent/types';
 import { ElMessage } from 'element-plus';
 import ChatInput from './chat-input.vue';
-
-interface AgentItem {
-  id: number;
-  name: string;
-  description?: string;
-  greeting?: string;
-  presetQuestions?: string[];
-  webSearchEnabled?: boolean;
-}
 
 const props = defineProps<{
   agent: AgentItem | null;
@@ -29,7 +21,9 @@ interface ChatMessage {
 const messages = ref<ChatMessage[]>([]);
 const sending = ref(false);
 const sendMode = ref<'stream' | 'sync'>('stream');
+const streamTimeout = 300000;
 let sendingTimer: ReturnType<typeof setTimeout> | null = null;
+let activeController: AbortController | null = null;
 
 const showWelcome = computed(() => !!props.agent && !props.conversationId && !messages.value.length);
 const displayQuestions = computed(() => {
@@ -154,31 +148,47 @@ async function loadMessages() {
   messages.value = normalizeMessageList(data);
 }
 
+function clearSendingTimer() {
+  if (sendingTimer) {
+    clearTimeout(sendingTimer);
+    sendingTimer = null;
+  }
+}
+
+function finishSending() {
+  sending.value = false;
+  clearSendingTimer();
+  activeController = null;
+}
+
 async function onSend(content: string) {
   if (!props.agent || !content.trim() || sending.value) return;
   sending.value = true;
-  if (sendingTimer) clearTimeout(sendingTimer);
+  clearSendingTimer();
   sendingTimer = setTimeout(() => {
     if (sending.value) {
-      sending.value = false;
+      activeController?.abort();
+      finishSending();
       ElMessage.warning('响应超时，已恢复发送按钮，请重试');
     }
-  }, 60000);
+  }, streamTimeout);
   let targetConversationId = props.conversationId;
   if (!targetConversationId) {
     messages.value = [];
-    const { data } = await createConversation(props.agent.id, { title: content.slice(0, 20) });
-    if (!data?.conversationId) {
-      sending.value = false;
-      if (sendingTimer) {
-        clearTimeout(sendingTimer);
-        sendingTimer = null;
+    try {
+      const { data } = await createConversation(props.agent.id, { title: content.slice(0, 20) });
+      if (!data?.conversationId) {
+        finishSending();
+        ElMessage.error('创建会话失败，请稍后重试');
+        return;
       }
-      ElMessage.error('创建会话失败，请稍后重试');
+      targetConversationId = data.conversationId;
+      emit('conversationCreated', targetConversationId);
+    } catch (error: any) {
+      finishSending();
+      ElMessage.error(error?.message || '创建会话失败，请稍后重试');
       return;
     }
-    targetConversationId = data.conversationId;
-    emit('conversationCreated', targetConversationId);
   }
 
   messages.value.push({ role: 'user', content });
@@ -186,60 +196,49 @@ async function onSend(content: string) {
     try {
       const { data } = await fetchAgentChatSync(props.agent.id, {
         conversationId: targetConversationId,
-        content,
-        webSearchEnabled: props.agent.webSearchEnabled
+        content
       });
       const reply = extractSyncReply(data) || '（后端已返回空消息）';
       messages.value.push({ role: 'assistant', content: reply });
     } catch (error: any) {
       ElMessage.error(error?.message || '对话失败，请稍后重试');
     } finally {
-      sending.value = false;
-      if (sendingTimer) {
-        clearTimeout(sendingTimer);
-        sendingTimer = null;
-      }
+      finishSending();
     }
     return;
   }
 
   messages.value.push({ role: 'assistant', content: '' });
   const assistantIndex = messages.value.length - 1;
-  fetchAgentChat(
-      props.agent.id,
-      {
-        conversationId: targetConversationId,
-        content,
-        webSearchEnabled: props.agent.webSearchEnabled
+  activeController?.abort();
+  activeController = new AbortController();
+  void fetchAgentChat(
+    props.agent.id,
+    {
+      conversationId: targetConversationId,
+      content
+    },
+    {
+      signal: activeController.signal,
+      onMessage(chunk) {
+        const msg = messages.value[assistantIndex];
+        if (msg) msg.content += normalizeStreamChunk(chunk);
       },
-      {
-        onMessage(chunk) {
-          const msg = messages.value[assistantIndex];
-          if (msg) msg.content += normalizeStreamChunk(chunk);
-        },
-        onThinking() {},
-        onDone() {
-          const msg = messages.value[assistantIndex];
-          if (msg && !msg.content.trim()) {
-            msg.content = '（后端已返回空消息）';
-          }
-          sending.value = false;
-          if (sendingTimer) {
-            clearTimeout(sendingTimer);
-            sendingTimer = null;
-          }
-        },
-        onError(error) {
-          messages.value.splice(assistantIndex, 1);
-          sending.value = false;
-          if (sendingTimer) {
-            clearTimeout(sendingTimer);
-            sendingTimer = null;
-          }
-          ElMessage.error(error.message || '对话失败，请稍后重试');
+      onThinking() {},
+      onDone() {
+        const msg = messages.value[assistantIndex];
+        if (msg && !msg.content.trim()) {
+          msg.content = '（后端已返回空消息）';
         }
+        finishSending();
+      },
+      onError(error) {
+        messages.value.splice(assistantIndex, 1);
+        finishSending();
+        ElMessage.error(error.message || '对话失败，请稍后重试');
       }
-    );
+    }
+  );
 }
 
 watch(
@@ -248,11 +247,8 @@ watch(
     if (sending.value && convId) {
       return;
     }
-    sending.value = false;
-    if (sendingTimer) {
-      clearTimeout(sendingTimer);
-      sendingTimer = null;
-    }
+    activeController?.abort();
+    finishSending();
     if (agentId && convId) {
       await loadMessages();
     } else if (agentId && !convId) {
@@ -263,6 +259,11 @@ watch(
 );
 
 loadSendMode();
+
+onBeforeUnmount(() => {
+  activeController?.abort();
+  clearSendingTimer();
+});
 </script>
 
 <template>
@@ -273,28 +274,23 @@ loadSendMode();
         <div class="chat-content">
           <div v-if="showWelcome" class="welcome-card">
             <div class="card-head">
-              <span class="avatar-dot" />
+              <el-avatar class="agent-avatar" :size="36" :src="agent.avatar">{{ agent.name.slice(0, 1) }}</el-avatar>
               <div class="title-block">
                 <div class="agent-name">{{ agent.name }}</div>
-              <div class="agent-desc">{{ agent.description || '暂无描述' }}</div>
+                <div class="agent-desc">{{ agent.description || '暂无描述' }}</div>
+              </div>
             </div>
-          </div>
             <div class="greeting">{{ agent.greeting || '你好，我是你的智能助手。' }}</div>
             <div v-if="displayQuestions.length" class="question-title">推荐问题</div>
             <div v-if="displayQuestions.length" class="question-list">
-              <button
-                v-for="q in displayQuestions"
-                :key="q"
-                class="question-pill"
-                @click="onSend(q)"
-              >
+              <button v-for="q in displayQuestions" :key="q" class="question-pill" @click="onSend(q)">
                 {{ q }}
               </button>
             </div>
           </div>
 
           <div v-for="(msg, idx) in messages" :key="idx" class="msg-row" :class="{ user: msg.role === 'user' }">
-            <div class="msg-bubble">{{ msg.content }}</div>
+            <div class="msg-bubble" :class="{ pending: msg.role === 'assistant' && !msg.content }">{{ msg.content || '正在生成...' }}</div>
           </div>
         </div>
       </el-scrollbar>
@@ -318,7 +314,7 @@ loadSendMode();
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #98a0af;
+  color: var(--app-text-muted);
 }
 
 .chat-scroll {
@@ -334,11 +330,12 @@ loadSendMode();
 }
 
 .welcome-card {
-  background: #fff;
-  border: 1px solid #e4e8f0;
-  border-radius: 14px;
+  background: var(--app-surface-bg);
+  border: 1px solid var(--app-surface-border);
+  border-radius: 8px;
   padding: 16px;
   margin-bottom: 14px;
+  box-shadow: var(--app-shadow-sm);
 }
 
 .card-head {
@@ -346,36 +343,33 @@ loadSendMode();
   gap: 10px;
 }
 
-.avatar-dot {
-  margin-top: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #3f434b;
+.agent-avatar {
+  flex-shrink: 0;
+  background: var(--el-color-primary);
 }
 
 .agent-name {
   font-size: 20px;
   font-weight: 700;
-  color: #1f2430;
+  color: var(--app-text-title);
 }
 
 .agent-desc {
   margin-top: 4px;
-  color: #6f7687;
+  color: var(--app-text-muted);
   line-height: 1.6;
 }
 
 .greeting {
   margin-top: 12px;
-  color: #2b3240;
+  color: var(--app-text-title);
 }
 
 .question-title {
   margin-top: 14px;
   padding-top: 10px;
-  border-top: 1px solid #edf0f5;
-  color: #6f7687;
+  border-top: 1px solid var(--app-surface-border);
+  color: var(--app-text-muted);
   font-size: 13px;
 }
 
@@ -387,12 +381,17 @@ loadSendMode();
 }
 
 .question-pill {
-  border: 1px solid #e0e5ef;
-  background: #fff;
-  color: #3a4252;
-  border-radius: 999px;
+  border: 1px solid var(--app-surface-border);
+  background: var(--app-surface-bg);
+  color: var(--app-text-title);
+  border-radius: 8px;
   padding: 6px 12px;
   cursor: pointer;
+}
+
+.question-pill:hover {
+  border-color: var(--el-color-primary);
+  color: var(--el-color-primary);
 }
 
 .msg-row {
@@ -408,15 +407,31 @@ loadSendMode();
   max-width: 80%;
   white-space: pre-wrap;
   line-height: 1.7;
-  background: #fff;
-  border: 1px solid #e4e8f0;
-  border-radius: 12px;
+  background: var(--app-surface-bg);
+  border: 1px solid var(--app-surface-border);
+  border-radius: 8px;
   padding: 10px 12px;
+  color: var(--app-text-title);
+  box-shadow: var(--app-shadow-sm);
 }
 
 .msg-row.user .msg-bubble {
-  background: #e9ecff;
-  border-color: #d7dcff;
-  color: #4552d9;
+  background: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary-light-7);
+  color: var(--el-color-primary);
+}
+
+.msg-bubble.pending {
+  color: var(--app-text-muted);
+}
+
+@media (max-width: 768px) {
+  .chat-scroll {
+    padding: 12px 12px 0;
+  }
+
+  .msg-bubble {
+    max-width: 92%;
+  }
 }
 </style>

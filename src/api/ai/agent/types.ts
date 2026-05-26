@@ -1,26 +1,25 @@
+import type { PageResult } from '@/api/types';
+
 export interface AgentItem {
   id: number;
   name: string;
   description?: string;
   avatar?: string;
   greeting?: string;
+  status?: number;
   presetQuestions?: string[];
-  webSearchEnabled?: boolean;
 }
 
 export interface ConversationSummaryItem {
   conversationId: string;
+  agentId?: number;
   title: string;
   lastMessageDt?: string;
   createDt?: string;
+  updateDt?: string;
 }
 
-export interface ConversationSummaryList {
-  data: ConversationSummaryItem[];
-  page?: number;
-  size?: number;
-  total?: number;
-}
+export type ConversationSummaryList = PageResult<ConversationSummaryItem>;
 
 export interface ConversationMessage {
   role?: string;
@@ -33,8 +32,13 @@ export interface AgentChatRequest {
   content: string;
   disabledMcpServerIds?: number[];
   disabledSkillIds?: number[];
-  deepPlanEnabled?: boolean;
-  webSearchEnabled?: boolean;
+}
+
+export interface AgentChatSyncResponse {
+  conversationId?: string;
+  content?: string;
+  traceId?: string;
+  durationMs?: number;
 }
 
 export interface SnailOpenApiUser {

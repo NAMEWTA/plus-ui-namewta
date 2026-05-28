@@ -26,6 +26,20 @@ html.dark {
     --el-color-primary-light-9: rgba(53, 109, 255, 0.14);
   }
 
+  .el-button:not(.el-button--primary):not(.el-button--success):not(.el-button--warning):not(.el-button--danger):not(.el-button--info):not(.is-text):not(
+      .is-link
+    ) {
+    --el-button-bg-color: rgba(15, 23, 42, 0.44);
+    --el-button-border-color: rgba(96, 165, 250, 0.38);
+    --el-button-text-color: #dbeafe;
+    --el-button-hover-bg-color: rgba(96, 165, 250, 0.16);
+    --el-button-hover-border-color: rgba(96, 165, 250, 0.58);
+    --el-button-hover-text-color: #bfdbfe;
+    --el-button-active-bg-color: rgba(59, 130, 246, 0.22);
+    --el-button-active-border-color: rgba(96, 165, 250, 0.72);
+    --el-button-active-text-color: #dbeafe;
+  }
+
   // --- 各类型按钮（含 plain）在暗色下的 EP CSS 变量 ---
   .el-button--primary {
     --el-button-bg-color: #2b6bd3;
@@ -41,8 +55,10 @@ html.dark {
     --el-button-bg-color: rgba(43, 107, 211, 0.12);
     --el-button-border-color: rgba(58, 123, 232, 0.5);
     --el-button-text-color: #dbe8ff;
+    --el-button-hover-text-color: #dbe8ff;
     --el-button-hover-bg-color: rgba(58, 123, 232, 0.2);
     --el-button-hover-border-color: rgba(58, 123, 232, 0.7);
+    --el-button-active-text-color: #dbe8ff;
     --el-button-active-bg-color: rgba(43, 107, 211, 0.28);
     --el-button-active-border-color: rgba(43, 107, 211, 0.8);
   }
@@ -61,8 +77,10 @@ html.dark {
     --el-button-bg-color: rgba(31, 138, 90, 0.12);
     --el-button-border-color: rgba(41, 164, 109, 0.5);
     --el-button-text-color: #dbf6e8;
+    --el-button-hover-text-color: #dbf6e8;
     --el-button-hover-bg-color: rgba(41, 164, 109, 0.2);
     --el-button-hover-border-color: rgba(41, 164, 109, 0.7);
+    --el-button-active-text-color: #dbf6e8;
     --el-button-active-bg-color: rgba(31, 138, 90, 0.28);
     --el-button-active-border-color: rgba(31, 138, 90, 0.8);
   }
@@ -81,8 +99,10 @@ html.dark {
     --el-button-bg-color: rgba(184, 121, 34, 0.12);
     --el-button-border-color: rgba(214, 149, 59, 0.5);
     --el-button-text-color: #ffecc8;
+    --el-button-hover-text-color: #ffecc8;
     --el-button-hover-bg-color: rgba(214, 149, 59, 0.2);
     --el-button-hover-border-color: rgba(214, 149, 59, 0.7);
+    --el-button-active-text-color: #ffecc8;
     --el-button-active-bg-color: rgba(184, 121, 34, 0.28);
     --el-button-active-border-color: rgba(184, 121, 34, 0.8);
   }
@@ -101,8 +121,10 @@ html.dark {
     --el-button-bg-color: rgba(178, 74, 74, 0.12);
     --el-button-border-color: rgba(209, 96, 96, 0.5);
     --el-button-text-color: #ffd6d6;
+    --el-button-hover-text-color: #ffd6d6;
     --el-button-hover-bg-color: rgba(209, 96, 96, 0.2);
     --el-button-hover-border-color: rgba(209, 96, 96, 0.7);
+    --el-button-active-text-color: #ffd6d6;
     --el-button-active-bg-color: rgba(178, 74, 74, 0.28);
     --el-button-active-border-color: rgba(178, 74, 74, 0.8);
   }
@@ -121,8 +143,10 @@ html.dark {
     --el-button-bg-color: rgba(75, 85, 99, 0.16);
     --el-button-border-color: rgba(102, 112, 133, 0.55);
     --el-button-text-color: #e5e7eb;
+    --el-button-hover-text-color: #e5e7eb;
     --el-button-hover-bg-color: rgba(102, 112, 133, 0.22);
     --el-button-hover-border-color: rgba(102, 112, 133, 0.75);
+    --el-button-active-text-color: #e5e7eb;
     --el-button-active-bg-color: rgba(75, 85, 99, 0.3);
     --el-button-active-border-color: rgba(75, 85, 99, 0.85);
   }

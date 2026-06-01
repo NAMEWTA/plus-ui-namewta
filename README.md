@@ -1,6 +1,7 @@
 ## 平台简介
 
 - 本仓库为前端技术栈 [Vue3](https://v3.cn.vuejs.org) + [TS](https://www.typescriptlang.org/) + [Element Plus](https://element-plus.org/zh-CN) + [Vite](https://cn.vitejs.dev) 版本。
+- 官方项目: 基于 React + Ant Design 版本前端项目 [plus-ui-react](https://gitee.com/JavaLionLi/plus-ui/tree/6.X-react/)
 - 成员项目: 基于 vben5(ant-design-vue) 的前端项目 [ruoyi-plus-vben5](https://gitee.com/dapppp/ruoyi-plus-vben5)
 - 成员项目: 基于soybean 的前端项目 [ruoyi-plus-soybean](https://gitee.com/xlsea/ruoyi-plus-soybean)
 
@@ -13,7 +14,7 @@
 
 ## 分支说明
 
-- ts分支(稳定发布主分支 生产可用)
+- 6.X分支(稳定发布主分支 生产可用)
 - dev分支(开发分支 开发过程中使用)
 
 ## 前端运行

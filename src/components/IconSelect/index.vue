@@ -40,6 +40,8 @@
             :content="iconName"
             placement="bottom"
             effect="light"
+            :teleported="false"
+            :enterable="false"
           >
             <li :class="['icon-item', { active: modelValue == iconName }]" @click="selectedIcon(iconName)">
               <svg-icon color="var(--el-text-color-regular)" :icon-class="iconName" />

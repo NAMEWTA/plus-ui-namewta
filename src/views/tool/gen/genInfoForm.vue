@@ -82,6 +82,22 @@
         </el-form-item>
       </el-col>
 
+      <el-col :span="12">
+        <el-form-item prop="frontendType">
+          <template #label>
+            前端模板
+            <el-tooltip content="对应后端 resources/vm 下的模板目录，例如 vue、react" placement="top">
+              <el-icon><question-filled /></el-icon>
+            </el-tooltip>
+          </template>
+          <el-radio-group v-model="infoForm.frontendType">
+            <el-radio v-for="item in frontendTypeOptions" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-col>
+
     </el-row>
 
     <h4 class="form-header">增强选项</h4>
@@ -311,6 +327,10 @@ interface MenuOptionsType {
 
 const menuOptions = ref<Array<MenuOptionsType>>([]);
 const formRef = ref<FormInstance>();
+const frontendTypeOptions = [
+  { label: 'Vue', value: 'vue' },
+  { label: 'React', value: 'react' }
+];
 
 const props = defineProps({
   info: propTypes.any.isRequired,
@@ -328,6 +348,10 @@ const sortableColumns = computed(() =>
 // 表单校验
 const rules = ref({
   tplCategory: [{ required: true, message: '请选择生成模板', trigger: 'blur' }],
+  frontendType: [
+    { required: true, message: '请选择前端模板', trigger: 'change' },
+    { pattern: /^[A-Za-z0-9_-]+$/, message: '仅支持字母、数字、下划线和中划线', trigger: 'change' }
+  ],
   packageName: [{ required: true, message: '请输入生成包路径', trigger: 'blur' }],
   moduleName: [{ required: true, message: '请输入生成模块名', trigger: 'blur' }],
   businessName: [{ required: true, message: '请输入生成业务名', trigger: 'blur' }],

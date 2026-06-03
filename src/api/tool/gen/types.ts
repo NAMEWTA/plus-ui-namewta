@@ -6,6 +6,7 @@ export interface TableVO extends BaseEntity {
   tableComment: string;
   className: string;
   tplCategory: string;
+  frontendType: string;
   packageName: string;
   moduleName: string;
   businessName: string;
@@ -80,6 +81,7 @@ export interface DbTableVO {
   tableComment: string;
   className?: any;
   tplCategory?: any;
+  frontendType?: string;
   packageName?: any;
   moduleName?: any;
   businessName?: any;
@@ -181,6 +183,7 @@ export interface DbTableForm extends BaseEntity {
   tableComment: string;
   className: string;
   tplCategory: string;
+  frontendType: string;
   packageName: string;
   moduleName: string;
   businessName: string;

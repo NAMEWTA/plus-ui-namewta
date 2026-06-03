@@ -220,11 +220,13 @@ onMounted(async () => {
     uniqueFields: detail.info.uniqueFields ?? [],
     enableSort: detail.info.enableSort ?? false,
     sortField: detail.info.sortField ?? '',
+    frontendType: detail.info.frontendType ?? 'vue',
     treeRootValue: detail.info.treeRootValue ?? '0',
     treeAncestorsField: detail.info.treeAncestorsField ?? '',
     treeOrderField: detail.info.treeOrderField ?? '',
     ...detail.info
   };
+  info.value.frontendType ||= 'vue';
   const response = await getDictOptionselect();
   dictOptions.value = response.data;
 });

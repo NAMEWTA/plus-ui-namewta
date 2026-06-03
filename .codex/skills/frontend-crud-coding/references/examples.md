@@ -7,14 +7,14 @@
 ```text
 使用 $frontend-crud-coding 为 system/client 补一套前端 CRUD 页面。
 后端接口已经有 /system/client/list、/system/client/{id}、POST /system/client、PUT /system/client、DELETE /system/client/{ids}。
-请参考 boot4 generator 模板、src/views/demo/demo/index.vue 和现有 system/client 风格实现。
+请参考项目内 gen 模板、src/views/demo/demo/index.vue 和现有 system/client 风格实现。
 ```
 
 ### 期望执行方式
 
 - 先看 `src/api/system/client/*` 和 `src/views/system/client/index.vue` 是否已存在。
 - 再看 `src/views/demo/demo/index.vue` 的标准 hooks 版 CRUD 骨架。
-- 对照 boot4 generator 的 `ts/api.ts.vm`、`ts/types.ts.vm`、`vue/index.vue.vm`。
+- 对照项目内 `gen/ts/api.ts.vm`、`gen/ts/types.ts.vm`、`gen/vue/index.vue.vm`。
 - 生成或修改 `api/index.ts`、`types.ts`、`views/.../index.vue`。
 - 使用 `AxiosPromise` from `@/utils/api-types`、`PageResult` from `@/api/types`、`useLoading`、`useFormDialog`、`useSearchReset`、`useTableSelection`。
 
@@ -88,7 +88,7 @@
 ### 用户提问示例
 
 ```text
-使用 $frontend-crud-coding 给 system/client 页面接入 PUT /system/client/changeStatus，状态字段 status，参考 generator 模板。
+使用 $frontend-crud-coding 给 system/client 页面接入 PUT /system/client/changeStatus，状态字段 status，参考 gen 模板。
 ```
 
 ### 期望执行方式
@@ -107,7 +107,7 @@
 2. 新增状态筛选和导出
 3. API 路径沿用后端接口
 4. 参考 system/config 的工具栏与导出交互
-5. 参考 boot4 generator 模板补齐缺失 types
+5. 参考 gen 模板补齐缺失 types
 ```
 
 ## 不推荐的任务描述

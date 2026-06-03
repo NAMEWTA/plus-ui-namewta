@@ -1,11 +1,11 @@
 ---
 name: frontend-crud-coding
-description: 在当前 plus-ui-new 前端项目中按真实 Vue 3 + TypeScript + Element Plus + oxlint/oxfmt 代码风格生成或修改页面、API、types、hooks 接入和样式壳。用于新增或修改标准 CRUD 列表页、树表页、系统管理页、监控页、workflow 页面、demo 页面，补齐与 RuoYi-Vue-Plus boot4 后端接口对应的 src/api、types 和 src/views 代码；触发后应先读取适用 references，再阅读目标模块真实代码和后端 generator 前端模板。
+description: 在当前 plus-ui-new 前端项目中按真实 Vue 3 + TypeScript + Element Plus + oxlint/oxfmt 代码风格生成或修改页面、API、types、hooks 接入和样式壳。用于新增或修改标准 CRUD 列表页、树表页、系统管理页、监控页、workflow 页面、demo 页面，补齐与后端接口对应的 src/api、types 和 src/views 代码；触发后应先读取适用 references，再阅读目标模块真实代码和项目内 gen 代码生成模板。
 ---
 
 # 前端编码规范
 
-先对齐当前前端项目里的真实实现，再参考关联后端工程的代码生成器模板。不要只套通用 Vue 模板，也不要把 generator 模板原样复制进来而忽略当前项目已经演进出的 hooks、页面壳、类型入口和下载方式。
+先对齐当前前端项目里的真实实现，再参考项目内 `gen` 目录下的代码生成模板。不要只套通用 Vue 模板，也不要把 generator 模板原样复制进来而忽略当前项目已经演进出的 hooks、页面壳、类型入口和下载方式。
 
 ## 执行流程
 
@@ -16,7 +16,11 @@ description: 在当前 plus-ui-new 前端项目中按真实 Vue 3 + TypeScript +
    - 树表优先看 `src/views/demo/tree/index.vue`、`src/views/workflow/category/index.vue`。
    - 系统复杂页优先看 `src/views/system/user/index.vue`、`system/role`、`system/post`、`system/config`。
    - workflow 业务页优先看 `src/views/workflow/*` 同类页面。
-4. 新增标准页面前，对照后端工程 `D:\git-sources\Plus相关\RuoYi-Vue-Plus-boot4\ruoyi-modules\ruoyi-gen\src\main\resources\vm\ts` 和 `vm\vue` 模板确认基础骨架。
+4. 新增标准页面前，对照项目内模板确认基础骨架：
+   - API 模板：`gen/ts/api.ts.vm`
+   - types 模板：`gen/ts/types.ts.vm`
+   - 标准单表页模板：`gen/vue/index.vue.vm`
+   - 树表页模板：`gen/vue/index-tree.vue.vm`
 5. 新增代码时通常同步维护 `src/api/<module>/<business>/index.ts`、`types.ts`、`src/views/<module>/<business>/index.vue`。
 6. 增强已有页面时只做增量修改，保留原页面的树筛选、导入导出、列显隐、权限、字典、弹窗和路由跳转能力。
 7. 修改完成后按影响范围运行验证：优先 `pnpm exec vue-tsc --noEmit`，改动页面或导入时再跑 `pnpm lint`，大范围变更再跑 `pnpm build`。
@@ -33,13 +37,13 @@ description: 在当前 plus-ui-new 前端项目中按真实 Vue 3 + TypeScript +
 
 1. 目标目录下最近似页面、API、types 的真实实现。
 2. 当前项目公共 hooks、组件、工具和样式约定。
-3. 关联后端工程中的 generator 前端模板。
+3. 项目内 `gen` 代码生成模板。
 4. 通用 Vue 3 / Element Plus 习惯。
 
 也就是说：
 
 - 同模块已有页面怎么写，优先怎么写。
-- 没有现成页面时，使用 generator 模板作为骨架，再改成当前项目风格。
+- 没有现成页面时，使用项目内 `gen` 模板作为骨架，再改成当前项目风格。
 - 复杂模块不能为了“标准 CRUD”退化成裸模板页。
 
 ## 仓库通用规则
@@ -81,7 +85,7 @@ description: 在当前 plus-ui-new 前端项目中按真实 Vue 3 + TypeScript +
 
 ### 1. 标准单表 CRUD
 
-以后端 generator 模板和 `src/views/demo/demo/index.vue` 为主要起点，补齐列表、搜索、分页、新增、编辑、删除、导出、权限、类型和验证。
+以 `gen/vue/index.vue.vm`、`gen/ts/*.vm` 和 `src/views/demo/demo/index.vue` 为主要起点，补齐列表、搜索、分页、新增、编辑、删除、导出、权限、类型和验证。
 
 ### 2. 树表 CRUD
 
@@ -107,7 +111,7 @@ workflow 目录优先参考 `src/views/workflow/*`。流程定义、流程实例
 - API 路径、函数名、权限标识与后端接口保持一致。
 - 标准页查询、重置、分页、弹窗、提交、删除、导出流程闭环完整。
 - 复杂页面保留原有交互能力和业务约束。
-- 代码体现当前项目 hooks、页面壳和下载方式，而不是 generator 裸输出。
+- 代码体现当前项目 hooks、页面壳和下载方式，而不是 `gen` 模板裸输出。
 - 交付前说明运行过的验证命令；如果无法验证，说明原因。
 
 ## 快速检查清单
@@ -135,5 +139,5 @@ workflow 目录优先参考 `src/views/workflow/*`。流程定义、流程实例
 
 例如：
 
-- 使用 `$frontend-crud-coding` 为 `/system/client` 补一套标准 CRUD 页面，参考 `demo/demo`、`system/client` 和 boot4 generator 模板。
+- 使用 `$frontend-crud-coding` 为 `/system/client` 补一套标准 CRUD 页面，参考 `gen` 模板、`demo/demo` 和 `system/client`。
 - 使用 `$frontend-crud-coding` 修改 `workflow/category` 列表页，增加导出按钮和状态筛选，保持当前 workflow 风格。

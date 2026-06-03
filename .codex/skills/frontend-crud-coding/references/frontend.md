@@ -9,7 +9,11 @@
 - workflow 页：`src/views/workflow/*`、`src/api/workflow/*`。
 - 监控页：`src/views/monitor/*`、`src/api/monitor/*`。
 - 公共 hooks：`src/hooks/async/useLoading.ts`、`src/hooks/dialog/*`、`src/hooks/form/*`、`src/hooks/table/*`、`src/hooks/tree/*`。
-- 后端 generator 模板：`D:\git-sources\Plus相关\RuoYi-Vue-Plus-boot4\ruoyi-modules\ruoyi-gen\src\main\resources\vm\ts\*.vm` 与 `vm\vue\*.vm`。
+- 项目内 generator 模板：
+  `gen/ts/api.ts.vm`
+  `gen/ts/types.ts.vm`
+  `gen/vue/index.vue.vm`
+  `gen/vue/index-tree.vue.vm`
 
 ## 基础栈与格式
 
@@ -40,7 +44,7 @@
   `changeXxxStatus` -> `PUT /<module>/<business>/changeStatus`
 - query string 用 `params`，请求体用 `data`。
 - 加密、防重复提交等 headers 直接写在请求配置里，例如用户重置密码中的 `isEncrypt`、`repeatSubmit`。
-- 当前仓库有些 API 使用 `export const`，有些使用 `export function`；新增标准 CRUD 优先跟随 generator 和相邻模块。
+- 当前仓库有些 API 使用 `export const`，有些使用 `export function`；新增标准 CRUD 优先跟随 `gen/ts/api.ts.vm` 和相邻模块。
 - 只有相邻模块已有 `export default { ... }` 聚合时才新增默认导出。
 
 ## 类型文件规则
@@ -121,12 +125,15 @@
 - 新增子节点时从当前行回填 `parentId`。
 - 删除确认文案优先使用业务名称，而不是批量 ID 文案。
 
-## 与生成器模板的关系
+## 与 gen 模板的关系
 
-- generator 模板是标准骨架，不是最终答案。
-- 当前前端项目已经把 generator 风格升级为 hooks 版：`useLoading`、`useFormDialog`、`useSearchReset`、`useTableSelection`、`useDateRangeQuery`。
-- 新增标准 CRUD 时，先从 generator 确认字段、权限、导出、状态切换、排序、日期范围等，再落成当前项目的实际页面壳。
-- 修改已有页面时，不要把现有强业务逻辑替换回 generator 的简化逻辑。
+- `gen` 是当前前端项目内的生成模板，优先于外部后端工程拷贝的模板。
+- 新增标准单表页面时读取 `gen/vue/index.vue.vm`、`gen/ts/api.ts.vm`、`gen/ts/types.ts.vm`。
+- 新增树表页面时读取 `gen/vue/index-tree.vue.vm`、`gen/ts/api.ts.vm`、`gen/ts/types.ts.vm`。
+- `gen` 模板是标准骨架，不是最终答案；落地时仍要对照目标模块真实页面和公共 hooks。
+- 当前前端项目已经把生成页升级为 hooks 版：`useLoading`、`useFormDialog`、`useSearchReset`、`useTableSelection`、`useDateRangeQuery`。
+- 新增标准 CRUD 时，先从 `gen` 确认字段、权限、导出、状态切换、排序、日期范围等，再落成当前项目的实际页面壳。
+- 修改已有页面时，不要把现有强业务逻辑替换回 `gen` 的简化逻辑。
 
 ## 验证规则
 

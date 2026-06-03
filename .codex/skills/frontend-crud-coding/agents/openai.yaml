@@ -1,7 +1,7 @@
 interface:
   display_name: "前端编码"
-  short_description: "按当前前端项目约定编写页面与 API"
-  default_prompt: "使用 $frontend-crud-coding 在当前前端项目里按现有约定实现页面和 API 修改。"
+  short_description: "按 plus-ui-new 真实代码和 boot4 模板编写前端 CRUD"
+  default_prompt: "使用 $frontend-crud-coding 先读取适用 reference，再按当前 plus-ui-new 真实页面、hooks、API/types 约定和 boot4 generator 模板实现前端修改。"
 
 policy:
   allow_implicit_invocation: true

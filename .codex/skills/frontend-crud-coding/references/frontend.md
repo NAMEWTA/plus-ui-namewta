@@ -2,240 +2,145 @@
 
 ## 优先参考的代码来源
 
-- 关联后端工程中的生成器模板：
-  `ruoyi-modules/ruoyi-gen/src/main/resources/vm/ts/*.vm`
-  `ruoyi-modules/ruoyi-gen/src/main/resources/vm/vue/*.vm`
-- `src/api/system/user/index.ts`
-- `src/api/system/user/types.ts`
-- `src/views/system/user/index.vue`
-- `src/views/demo/demo/index.vue`
-- `src/views/system/*`
-- `src/views/workflow/*`
-- `src/components/*`
-- `src/assets/styles/components/*`
+- 当前目标目录下最近似页面、API、types。
+- 标准单表：`src/views/demo/demo/index.vue`、`src/api/demo/demo/index.ts`、`src/api/demo/demo/types.ts`。
+- 树表：`src/views/demo/tree/index.vue`、`src/views/workflow/category/index.vue`。
+- 复杂系统页：`src/views/system/user/index.vue`、`src/views/system/role/index.vue`、`src/views/system/post/index.vue`、`src/views/system/config/index.vue`。
+- workflow 页：`src/views/workflow/*`、`src/api/workflow/*`。
+- 监控页：`src/views/monitor/*`、`src/api/monitor/*`。
+- 公共 hooks：`src/hooks/async/useLoading.ts`、`src/hooks/dialog/*`、`src/hooks/form/*`、`src/hooks/table/*`、`src/hooks/tree/*`。
+- 后端 generator 模板：`D:\git-sources\Plus相关\RuoYi-Vue-Plus-boot4\ruoyi-modules\ruoyi-gen\src\main\resources\vm\ts\*.vm` 与 `vm\vue\*.vm`。
 
 ## 基础栈与格式
 
-- 技术栈是 Vue 3 + TypeScript + Element Plus + Vite。
-- 请求统一通过 `@/utils/request`。
-- API 返回值类型常用 `AxiosPromise<T>`。
-- 项目默认 2 空格缩进。
-- 使用单引号和分号。
+- 技术栈是 Vue 3 + TypeScript + Element Plus + Vite + Pinia。
+- 包管理按仓库现状使用 pnpm。
+- `.editorconfig` 要求 UTF-8、LF、2 空格缩进。
+- 当前仓库没有 `.prettierrc`；格式化使用 `pnpm run fmt`，lint 使用 `pnpm lint`。
 - 不要在一个页面里混入与仓库不一致的格式和写法。
-
-## 决策顺序
-
-写代码时按下面顺序取样：
-
-1. 当前业务目录下最近似页面。
-2. 当前模块下最近似 API/types 文件。
-3. 当前项目的公共组件、公共工具、公共样式。
-4. 关联后端工程的 generator 模板。
-5. 通用 Vue 3 / Element Plus 默认写法。
-
-如果上述规则冲突，优先相信当前项目真实代码。
 
 ## API 文件规则
 
-- 标准 CRUD 的 API、types、列表页骨架可以先参考后端生成器模板，再根据当前前端项目风格落地。
-- API 文件通常放在 `src/api/<module>/<business>/index.ts`。
-- 同目录维护 `types.ts`。
-- 常见 import 形式：
+- 标准 API 文件放在 `src/api/<module>/<business>/index.ts`，同目录维护 `types.ts`。
+- import 顺序优先跟随附近文件，标准生成页常见形式：
+  `import type { XxxForm, XxxQuery, XxxVO } from '@/api/<module>/<business>/types';`
+  `import type { PageResult } from '@/api/types';`
+  `import type { AxiosPromise } from '@/utils/api-types';`
   `import request from '@/utils/request';`
-  `import { AxiosPromise } from 'axios';`
-  `import { XxxForm, XxxQuery, XxxVO } from './types';`
-  `import { PageResult } from '@/api/types';`
-- 列表接口通常返回 `AxiosPromise<PageResult<XxxVO>>`。
-- 详情接口返回 `AxiosPromise<XxxVO>` 或更复杂的 `InfoVO`。
-- 特殊请求参数沿用现有实现，例如：
-  `parseStrEmpty(userId)`
-  `headers: { isEncrypt: true, repeatSubmit: false }`
-  `params` 用于 query string，`data` 用于 body。
-- 当前仓库部分模块会在文件底部 `export default { ... }`，已有模块使用这种形式时继续保持一致。
-
-### API 文件建议结构
-
-标准 CRUD 一般按这个顺序组织：
-
-1. import 区
-2. 列表接口
-3. 详情接口
-4. 新增接口
-5. 修改接口
-6. 删除接口
-7. 特殊接口
-8. 可选的 `export default`
-
-### API 常见判断
-
-- 如果后端是列表分页接口，前端通常返回 `AxiosPromise<PageResult<XxxVO>>`。
-- 如果后端返回复合结构，例如 `user + roles + posts`，单独定义 `InfoVO`。
-- 如果接口需要加密或关闭重复提交，直接在 `headers` 里表达，不要另起封装。
+- 不要从 `axios` 引入 `AxiosPromise`。
+- 列表分页接口通常返回 `AxiosPromise<PageResult<XxxVO>>`。
+- 树表列表接口通常返回 `AxiosPromise<XxxVO[]>`。
+- 详情接口返回 `AxiosPromise<XxxVO>`；复杂详情返回单独的 `InfoVO`。
+- 标准函数命名：
+  `listXxx` -> `GET /<module>/<business>/list`
+  `getXxx` -> `GET /<module>/<business>/{id}`
+  `addXxx` -> `POST /<module>/<business>`
+  `updateXxx` -> `PUT /<module>/<business>`
+  `delXxx` -> `DELETE /<module>/<business>/{id or ids}`
+  `changeXxxStatus` -> `PUT /<module>/<business>/changeStatus`
+- query string 用 `params`，请求体用 `data`。
+- 加密、防重复提交等 headers 直接写在请求配置里，例如用户重置密码中的 `isEncrypt`、`repeatSubmit`。
+- 当前仓库有些 API 使用 `export const`，有些使用 `export function`；新增标准 CRUD 优先跟随 generator 和相邻模块。
+- 只有相邻模块已有 `export default { ... }` 聚合时才新增默认导出。
 
 ## 类型文件规则
 
-- 类型文件通常定义 `Query`、`VO`、`Form`，必要时补 `InfoVO`、`ResetPwdForm` 等扩展类型。
-- `Query` 一般继承 `PageQuery`。
-- `VO` 常继承 `BaseEntity`。
-- ID 字段通常使用 `string | number`。
-- 列表页多选 ID 常用 `Array<string | number>`。
-- 数组字段在表单里常直接用 `string[]`、`number[]` 或宽松类型，优先跟随现有模块。
-
-### 类型拆分建议
-
-- `VO` 面向列表和详情展示。
-- `Form` 面向新增和编辑。
-- `Query` 面向列表筛选。
-- `InfoVO` 面向详情页、编辑页、弹窗预加载等复合返回结构。
-
-### 类型字段策略
-
-- 能明确写出类型时，不要偷懒用 `any`。
-- 只有在当前模块已有宽松写法或后端返回非常不稳定时，才保留 `any`。
-- 如果列表和表单字段明显不同，不要强行复用一个接口类型。
+- 标准类型定义 `VO`、`Form`、`Query`，必要时补 `InfoVO`、`TreeVO`、`ResetPwdForm` 等扩展类型。
+- `Form` 通常继承 `BaseEntity`。
+- 非树表 `Query` 通常继承 `PageQuery`。
+- 树表 `Query` 通常不继承 `PageQuery`。
+- ID 字段通常使用 `string | number`，批量删除参数使用 `string | number | Array<string | number>`。
+- Java 数值类型映射为 `number`，Boolean 映射为 `boolean`，日期/文本默认 `string`。
+- 日期范围查询保留 `params?: any`，不要因为它看起来宽松就删掉。
+- 列表对象、表单对象、查询对象职责分开；字段不一致时不要强行复用一个接口。
+- 能明确写出类型时不要用 `any`；组件库、字典或历史接口确实无法收窄时再保留。
 
 ## Vue 页面结构规则
 
-- 标准 CRUD 页可先参考生成器的 `index.vue.vm` 骨架，再按本仓库现有页面补强。
 - 页面优先使用 `<script setup name="Xxx" lang="ts">`。
-- 常见列表页结构：
-  搜索区卡片、表格区卡片、工具栏、分页、编辑弹窗。
-- 常见页面状态包括：
-  `loading`、`showSearch`、`ids`、`single`、`multiple`、`total`。
-- 表单和查询对象通常通过 `reactive<PageData<Form, Query>>({...})` 管理。
-- 弹窗状态通常使用：
-  `const dialog = reactive<DialogOption>({ visible: false, title: '' });`
-- 表单 ref 通常命名为 `queryFormRef`、`xxxFormRef`。
-- 复杂页面可补充树面板、导入弹窗、子弹窗、路由跳转逻辑。
-
-### 标准页面骨架
-
-标准页面通常包含这些区域：
-
-1. 搜索区
-2. 表格区
-3. 工具栏
-4. 分页
-5. 编辑弹窗
-
-复杂页面可以额外增加：
-
-- 左侧树筛选
-- 导入弹窗
-- 二级对话框
-- 独立详情页
-- 路由跳转按钮
-- 列显隐控制
-
-### 页面命名建议
-
-- 页面组件名通常为业务名，例如 `name="User"`、`name="Demo"`。
-- 页面根类名尽量带模块语义，例如：
-  `system-user-page`
-  `demo-demo-page`
-  `workflow-category-page`
+- 标准根节点使用 `class="p-2 app-container <module>-<business>-page"`；已有页面是特殊布局时保持原样。
+- 标准列表页结构：
+  搜索卡片 `search-panel`
+  表格卡片 `table-panel`
+  工具栏 `toolbar-shell`
+  表格 `data-table`
+  `right-toolbar`
+  `pagination`
+  新增/编辑 `el-dialog`
+- 搜索区通过 `useSearchToggle` 控制 `showSearch`，头部点击切换。
+- 列表 loading 通过 `useLoading(true)` 和 `withLoading`。
+- 选择状态通过 `useTableSelection<XxxVO>(item => item.id)` 返回 `ids`、`single`、`multiple`、`handleSelectionChange`。
+- 表单弹窗优先使用 `useFormDialog({ form, formRef, initialFormData })`，返回 `dialog`、`resetForm`、`openDialog`、`showDialog`、`closeDialog`。
+- 仅需要简单弹窗状态或一个页面多个弹窗时使用 `useDialogState`。
+- 日期范围查询优先使用 `useDateRangeQuery()`；带后端参数名时使用 `useDateRangeQuery('CreateTime')` 等相邻页面模式。
+- 查询和表单状态通常放在 `reactive<PageData<Form, Query>>({ form, queryParams, rules })`，再 `toRefs(data)`。
 
 ## 页面行为规则
 
-- `getList` 负责发起列表请求、处理 loading、回填 `rows` 和 `total`。
-- `handleQuery` 先把 `pageNum` 置为 `1`，再重新查询。
-- `resetQuery` 负责清空查询表单、日期范围、树节点选择，然后重新加载。
-- `handleSelectionChange` 更新 `ids`、`single`、`multiple`。
-- `handleAdd` 重置表单并打开新增弹窗。
-- `handleUpdate` 查详情后回填表单并打开编辑弹窗。
-- `submitForm` 使用表单校验，通过后调用新增或修改接口，再提示成功并刷新列表。
-- `handleDelete` 通常使用 `proxy?.$modal.confirm(...)` 二次确认。
-- `handleExport` 使用 `proxy?.download(...)`。
-- 日期范围查询沿用 `proxy?.addDateRange(queryParams.value, dateRange.value)`。
-- 需要更稳妥地处理确认框或异步异常时，可沿用 `await-to-js` 的 `to(...)` 风格。
-
-### 页面逻辑建议
-
-- 新增和编辑优先共用一套弹窗和表单。
-- `reset()` 与 `cancel()` 分开写，避免关闭弹窗时状态残留。
-- `handleUpdate()` 先查详情再 `Object.assign(form.value, res.data)`。
-- 删除、状态切换、解锁、重置密码这类危险操作优先保留确认提示。
-- 列表页只做列表页职责，复杂复合逻辑优先拆到子组件或独立页面。
+- `getList` 负责设置 loading、调用列表接口、回填列表和 `total`。
+- `handleQuery` 先把 `queryParams.value.pageNum = 1`，再调用 `getList()`；树表无分页时只调用 `getList()`。
+- `resetQuery` 使用 `useSearchReset`，分页页传 `pageNumKey: 'pageNum'`，需要时传 `pageSizeKey` 和 `resetExtras`。
+- `handleAdd` 使用 `openDialog('添加xxx')`；如果有树/联动选项，打开前后按现有页面加载选项。
+- `handleUpdate` 先 `reset()`，再按行或 `ids.value[0]` 查详情，`Object.assign(form.value, res.data)`，最后 `showDialog('修改xxx')`。
+- `submitForm` 表单校验通过后设置 `buttonLoading`，根据主键判断新增或修改，成功后 `modal.msgSuccess('操作成功')`、关闭弹窗、刷新列表。
+- `handleDelete` 使用 `modal.confirm(...)` 二次确认，再调用删除接口，成功提示并刷新。
+- `handleExport` 使用 `requestDownload('<module>/<business>/export', { ...queryParams.value }, '<business>_<timestamp>.xlsx')`。
+- 状态切换失败时要把 switch 值回滚，参考 generator 模板和现有 `system/user`、`system/role`。
+- 导入上传使用 `globalHeaders()`、`import.meta.env.VITE_APP_BASE_API`、`ElUpload`，优先参考 `system/user` 或流程定义页面。
 
 ## 字典、权限与公共工具
 
-- 字典通常通过：
-  `const { xxx_dict } = toRefs<any>(proxy?.useDict('xxx_dict'));`
-- 权限指令以仓库现状为准，存在 `v-hasPermi` 和 `v-has-permi` 两种写法；新增代码优先跟随所在目录附近文件，不要在同一文件里混用新的变体。
-- 常用公共能力：
-  `proxy?.$modal`
-  `proxy?.download`
-  `proxy?.useDict`
-  `proxy?.getConfigKey`
-  `checkPermi`
-  `useUserStore`
-
-### 权限规则
-
-- 所有增删改导入导出按钮都先看附近页面是否有权限控制。
-- 新按钮默认补权限指令，除非它是纯展示行为。
-- 如果同目录页面使用 `v-hasPermi`，新代码优先继续用 `v-hasPermi`。
-- 如果同目录页面使用 `v-has-permi`，新代码优先继续用 `v-has-permi`。
+- 字典使用 `useDict`：
+  `const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));`
+- 新增代码默认使用当前项目主流 `v-hasPermi`。
+- 如果正在修改的文件已经混用或使用 `v-has-permi`，保持同文件现状，不为统一写法而重排无关代码。
+- `el-dropdown-item` 延迟加载导致权限指令不可靠时，使用 `v-if="checkPermi([...])"`，参考 `system/user`。
+- 常用工具：
+  `modal` from `@/plugins/modal`
+  `download as requestDownload` from `@/utils/request`
+  `useDict` from `@/utils/dict`
+  `checkPermi` from `@/utils/permission`
+  `handleTree`、`parseStrEmpty` from `@/utils/ruoyi`
 
 ## 组件与样式规则
 
-- 优先复用公共组件：
-  `right-toolbar`
-  `pagination`
-  `ImageUpload`
-  `ImagePreview`
-  `FileUpload`
-  `Editor`
-  `DictTag`
-- 页面样式不要堆大量内联样式，优先沿用仓库里的布局类和组件样式。
-- 已有页面使用 SCSS 模块片段时，继续沿用：
+- 优先复用公共组件：`right-toolbar`、`pagination`、`DictTag` / `dict-tag`、`ImageUpload` / `image-upload`、`ImagePreview` / `image-preview`、`FileUpload` / `file-upload`、`Editor` / `editor`、`TreePanel`。
+- 标准页面尽量使用已有页面壳类，不堆大量内联样式。
+- 复杂页面需要 scoped SCSS 时优先复用：
   `@use '@/assets/styles/components/page-shell' as pageShell;`
-  `@include pageShell.xxx;`
-- 类名命名保持模块化，例如：
-  `system-user-page`
-  `demo-demo-page`
-  `table-panel`
-  `search-panel`
-  `toolbar-shell`
+  再按现有 mixin 使用。
+- 不要为了单页需求修改全局组件样式。
+- 类名保持模块语义：`system-client-page`、`workflow-category-page`、`demo-demo-page`。
 
-### 样式落点建议
+## 树表规则
 
-- 页面只需要轻量调整时，优先复用已有通用类。
-- 页面结构明显复杂时，优先在 `<style lang="scss" scoped>` 中通过 `@use` 复用组件样式片段。
-- 不要为了单页需求破坏全局组件样式。
+- 树表列表接口通常返回数组，页面通过 `handleTree<T>(res.data, 'id', 'parentId')` 组树。
+- 使用 `row-key`、`:tree-props="{ children: 'children', hasChildren: 'hasChildren' }"`。
+- 展开/折叠使用 `useTreeTableExpand`。
+- 表单中上级节点使用 `el-tree-select`。
+- 新增子节点时从当前行回填 `parentId`。
+- 删除确认文案优先使用业务名称，而不是批量 ID 文案。
 
 ## 与生成器模板的关系
 
-- 关联后端工程生成器给出的前端结构可以作为起点，但真实页面通常更完整，包含：
-  树筛选、列显隐、导入导出、更多操作、SCSS 页面壳、复杂表单校验、独立子页面。
-- 因此新增页面时，不要只满足“能跑”，要先看所在模块已有页面的复杂度和 UI 组织方式。
+- generator 模板是标准骨架，不是最终答案。
+- 当前前端项目已经把 generator 风格升级为 hooks 版：`useLoading`、`useFormDialog`、`useSearchReset`、`useTableSelection`、`useDateRangeQuery`。
+- 新增标准 CRUD 时，先从 generator 确认字段、权限、导出、状态切换、排序、日期范围等，再落成当前项目的实际页面壳。
+- 修改已有页面时，不要把现有强业务逻辑替换回 generator 的简化逻辑。
 
-### 什么时候优先看 generator
+## 验证规则
 
-- 新增一个标准单表 CRUD 页面时。
-- 当前项目里还没有这个业务对应页面时。
-- 你只拿到了后端路由和字段信息时。
-
-### 什么时候优先看现有页面
-
-- 当前模块已经有同类页面时。
-- 页面包含树筛选、导入导出、联动弹窗、路由跳转时。
-- 任务是“修改已有页面”而不是“新建页面”时。
+- 只改文档或 skill：运行 skill 基础校验即可。
+- 改前端 TS/Vue/API/types：优先运行 `pnpm exec vue-tsc --noEmit`。
+- 改页面模板、import、权限或较多文件：再运行 `pnpm lint`。
+- 改公共 hooks、组件、构建相关或大范围页面：再运行 `pnpm build`。
+- 如果验证因为环境、依赖或权限失败，交付时说明失败命令和原因。
 
 ## 避免事项
 
-- 不要直接把后端仓库里的前端模板原样复制进来。
-- 不要跳过 `types.ts`，把类型全堆在页面里。
-- 不要绕开 `request` 自己再包一层请求工具。
-- 不要引入与仓库现状不一致的 CSS 组织方式。
-- 不要为了省事删掉权限控制、导出、导入、树筛选、日期范围等现有交互能力。
-
-## 交付前自检
-
-交付前至少检查这些点：
-
-- 页面能否完整走通查询、新增、编辑、删除、导出流程。
-- 类型是否与接口返回结构一致。
-- 是否保留了原页面已有的权限和交互能力。
-- 是否沿用了当前模块已有的组件和样式壳。
-- 是否只是“生成器裸页”，如果是，需要继续补齐到当前项目风格。
+- 不要从 `axios` 引入 `AxiosPromise`。
+- 不要绕开 `request` 或 `requestDownload` 自造请求/下载封装。
+- 不要跳过 `types.ts`，把类型全写在页面里。
+- 不要删除日期范围 `params`、权限指令、导出、导入、树筛选、列显隐等现有能力。
+- 不要为了“更整洁”重写复杂页面的大块业务逻辑。
+- 不要在新增标准页里使用与仓库不一致的 UI 壳或状态管理方式。

@@ -1,76 +1,66 @@
 ---
 name: frontend-crud-coding
-description: 在当前前端项目中按现有 Vue 3 + TypeScript + Element Plus 代码风格生成或修改页面、API、types、组件接入和样式。用于新增列表页、表单弹窗页、树表页、系统管理页、workflow 页面，以及补全与后端接口对应的 src/api 和 src/views 代码。
+description: 在当前 plus-ui-new 前端项目中按真实 Vue 3 + TypeScript + Element Plus + oxlint/oxfmt 代码风格生成或修改页面、API、types、hooks 接入和样式壳。用于新增或修改标准 CRUD 列表页、树表页、系统管理页、监控页、workflow 页面、demo 页面，补齐与 RuoYi-Vue-Plus boot4 后端接口对应的 src/api、types 和 src/views 代码；触发后应先读取适用 references，再阅读目标模块真实代码和后端 generator 前端模板。
 ---
 
 # 前端编码规范
 
-先对齐当前前端项目里的真实实现，再参考关联后端工程中代码生成器产出的前端模板。不要只套通用 Vue 模板，也不要把生成器模板原样照搬而忽略当前前端项目的实际演进。
-
-## 适用场景
-
-在下面这些任务里优先使用此 skill：
-
-- 新增标准 CRUD 列表页、弹窗表单页、树表页。
-- 补齐后端新增接口对应的 `src/api`、`src/views`、`types.ts`。
-- 按系统管理、监控、工作流、demo 模块现有方式扩展页面功能。
-- 调整已有列表页的搜索、导出、导入、树筛选、列显隐、权限按钮、样式壳。
-- 把关联后端工程中的 generator 模板转换为符合当前前端项目风格的实际代码。
-
-## 不适用场景
-
-下面这些任务不要机械套用本 skill 的 CRUD 规则：
-
-- 纯展示型落地页、营销页、可视化大屏。
-- 完全独立的低代码设计器或第三方嵌入页。
-- 全局框架升级、Vite 配置改造、构建链路迁移。
-- 与当前项目目录结构明显不同的实验性页面。
+先对齐当前前端项目里的真实实现，再参考关联后端工程的代码生成器模板。不要只套通用 Vue 模板，也不要把 generator 模板原样复制进来而忽略当前项目已经演进出的 hooks、页面壳、类型入口和下载方式。
 
 ## 执行流程
 
-1. 先定位目标模块，并阅读 `src/api/<module>/<business>` 与 `src/views/<module>/<business>` 下最近似页面。
-2. 再参考关联后端工程 `ruoyi-modules/ruoyi-gen/src/main/resources/vm/ts` 与 `vm/vue` 下的生成器模板，确认标准 CRUD 的基础骨架。
-3. 新增代码时同时维护 `api/index.ts`、`api/types.ts`、`views/.../index.vue`，必要时补相关子页面或弹窗页。
-4. 页面结构、样式组织、状态管理、权限指令、下载导出、字典使用都以仓库现有模式为准。
-5. 如果后端接口与生成器套路一致，可以用 generator 模板作为起点；如果当前前端项目已有更强约定，以当前项目约定覆盖模板默认行为。
+1. 判断任务类型：新增标准 CRUD、树表、已有页面增强、复杂业务页、只补 API/types。
+2. 按“文档读取规则”读取必要 reference，不一次性展开所有资料。
+3. 阅读目标目录下最近似的真实代码：
+   - 标准单表优先看 `src/views/demo/demo/index.vue`、`src/api/demo/demo/*`。
+   - 树表优先看 `src/views/demo/tree/index.vue`、`src/views/workflow/category/index.vue`。
+   - 系统复杂页优先看 `src/views/system/user/index.vue`、`system/role`、`system/post`、`system/config`。
+   - workflow 业务页优先看 `src/views/workflow/*` 同类页面。
+4. 新增标准页面前，对照后端工程 `D:\git-sources\Plus相关\RuoYi-Vue-Plus-boot4\ruoyi-modules\ruoyi-gen\src\main\resources\vm\ts` 和 `vm\vue` 模板确认基础骨架。
+5. 新增代码时通常同步维护 `src/api/<module>/<business>/index.ts`、`types.ts`、`src/views/<module>/<business>/index.vue`。
+6. 增强已有页面时只做增量修改，保留原页面的树筛选、导入导出、列显隐、权限、字典、弹窗和路由跳转能力。
+7. 修改完成后按影响范围运行验证：优先 `pnpm exec vue-tsc --noEmit`，改动页面或导入时再跑 `pnpm lint`，大范围变更再跑 `pnpm build`。
+
+## 文档读取规则
+
+- 前端 API、types、页面、hooks、样式和验证规则，先读 [references/frontend.md](references/frontend.md)。
+- 不确定任务边界、需要标准用例或提问方式时，再读 [references/examples.md](references/examples.md)。
+- reference 只约束实现方式和自检范围；发生冲突时，以当前模块真实代码和实际调用点为准。
 
 ## 优先级规则
 
 发生冲突时按下面顺序决策：
 
-1. 当前目录下最近似页面的真实实现。
-2. 当前项目公共组件、公共工具、公共样式约定。
-3. 关联后端工程中的 generator 模板。
-4. 通用 Vue / Element Plus 习惯。
+1. 目标目录下最近似页面、API、types 的真实实现。
+2. 当前项目公共 hooks、组件、工具和样式约定。
+3. 关联后端工程中的 generator 前端模板。
+4. 通用 Vue 3 / Element Plus 习惯。
 
 也就是说：
 
-- 同一模块已有页面怎么写，优先怎么写。
-- 没有现成页面时，再退回到 generator 模板骨架。
-- 没有现成模式时，才使用通用框架默认写法。
-
-## 主要规则
-
-详细规则见 [references/frontend.md](references/frontend.md)。
-使用案例见 [references/examples.md](references/examples.md)。
+- 同模块已有页面怎么写，优先怎么写。
+- 没有现成页面时，使用 generator 模板作为骨架，再改成当前项目风格。
+- 复杂模块不能为了“标准 CRUD”退化成裸模板页。
 
 ## 仓库通用规则
 
-- 遵循 [`.editorconfig`](../../../.editorconfig)：UTF-8、LF、默认 2 空格缩进。
-- 遵循 [`.prettierrc`](../../../.prettierrc)：单引号、分号、`printWidth: 150`、`trailingComma: none`。
+- 遵循 [`.editorconfig`](../../../.editorconfig)：UTF-8、LF、2 空格缩进；Markdown 例外。
+- 当前仓库没有 `.prettierrc`，格式脚本是 `pnpm run fmt` 调用 `oxfmt .`，lint 脚本是 `pnpm lint` 调用 `oxlint src`。
 - 页面优先使用 `<script setup name="Xxx" lang="ts">`。
-- 优先复用仓库已有基础设施，例如 `request`、`proxy?.$modal`、`proxy?.download`、`proxy?.useDict`、`pagination`、`right-toolbar`。
-- 对于标准 CRUD 页，允许先按后端生成器模板组织 `api/types/index.vue` 骨架，再补齐当前前端项目自己的页面壳、样式和交互。
-- 新页面不要无故引入另一套状态管理、另一套请求封装或另一套 UI 风格。
+- API 返回类型优先从 `@/utils/api-types` 引入 `AxiosPromise`，分页结果从 `@/api/types` 引入 `PageResult`。
+- 请求统一通过 `@/utils/request`，导出下载使用 `import { download as requestDownload } from '@/utils/request';`。
+- 标准列表页优先复用 `useLoading`、`useSearchToggle`、`useSearchReset`、`useTableSelection`、`useFormDialog`、`useDateRangeQuery`。
+- 页面壳优先使用 `p-2 app-container <module>-<business>-page`、`search-panel`、`toolbar-shell`、`data-table`、`right-toolbar`、`pagination`。
+- 新页面不要无故引入另一套状态管理、请求封装、样式体系或权限写法。
 
 ## 目录映射规则
 
-通常按下面的对应关系组织代码：
+通常按下面关系组织代码：
 
-- 后端路由 `/system/user/*` 对应 `src/api/system/user/*` 与 `src/views/system/user/*`
-- 后端路由 `/monitor/xxx/*` 对应 `src/api/monitor/xxx/*` 与 `src/views/monitor/xxx/*`
-- 后端路由 `/workflow/xxx/*` 对应 `src/api/workflow/xxx/*` 与 `src/views/workflow/xxx/*`
-- 后端路由 `/demo/xxx/*` 对应 `src/api/demo/xxx/*` 与 `src/views/demo/xxx/*`
+- 后端 `/system/user/*` 对应 `src/api/system/user/*` 与 `src/views/system/user/*`
+- 后端 `/monitor/xxx/*` 对应 `src/api/monitor/xxx/*` 与 `src/views/monitor/xxx/*`
+- 后端 `/workflow/xxx/*` 对应 `src/api/workflow/xxx/*` 与 `src/views/workflow/xxx/*`
+- 后端 `/demo/xxx/*` 对应 `src/api/demo/xxx/*` 与 `src/views/demo/xxx/*`
 
 标准新增通常至少包含：
 
@@ -81,56 +71,69 @@ description: 在当前前端项目中按现有 Vue 3 + TypeScript + Element Plus
 按业务复杂度，可能继续补：
 
 - 导入弹窗
-- 分配角色页
-- 详情页
-- 编辑页
-- 子组件
+- 详情抽屉或详情页
+- 树筛选面板
+- 列显隐配置
+- 分配/授权子页面
 - 自定义 SCSS 样式
 
 ## 任务分型
 
 ### 1. 标准单表 CRUD
 
-目标是快速补齐 `api + types + index.vue`，优先参考 generator 模板，再贴近 demo 或系统模块现有页。
+以后端 generator 模板和 `src/views/demo/demo/index.vue` 为主要起点，补齐列表、搜索、分页、新增、编辑、删除、导出、权限、类型和验证。
 
-### 2. 强业务页面
+### 2. 树表 CRUD
 
-如果页面包含树筛选、导入导出、更多操作、状态切换、角色分配、复杂校验、联动选择，则优先参考 `src/views/system/user/index.vue` 一类更完整页面。
+以 `src/views/demo/tree/index.vue`、`src/views/workflow/category/index.vue` 为主要起点。列表接口通常返回数组而不是 `PageResult`，页面使用 `handleTree`、`useTreeTableExpand`，`Query` 通常不继承 `PageQuery`。
 
-### 3. 工作流页面
+### 3. 强业务页面
 
-如果页面属于流程定义、分类、任务、实例等 workflow 目录，优先参考 `src/views/workflow/*`，不要硬套系统管理模块的页面骨架。
+如果页面包含树筛选、导入导出、更多菜单、状态切换、角色分配、详情抽屉、复杂校验、联动选择或独立路由，优先增量修改现有页面。不要重写成简单 CRUD。
+
+### 4. 工作流页面
+
+workflow 目录优先参考 `src/views/workflow/*`。流程定义、流程实例、任务列表、请假申请等页面通常有业务按钮、弹窗和路由跳转，不要硬套 system 模块。
+
+### 5. 只补 API 和 types
+
+只维护 `src/api/<module>/<business>/index.ts` 与 `types.ts`，但仍要与后端路由、返回结构、当前模块导入方式和类型入口一致。
 
 ## 输出要求
 
 使用本 skill 时，默认期望产出应满足：
 
-- 类型完整，不把大量 `any` 塞进页面逻辑里。
-- 查询、重置、分页、弹窗、删除、导出流程闭环完整。
-- 权限指令、字典、公共组件接入到位。
-- 样式尽量贴合现有页面壳，而不是只保证“功能能跑”。
-- 如果是从 generator 模板演化而来，要体现出当前前端项目已有增强，而不是模板裸输出。
+- 类型完整，不把页面逻辑大量写成 `any`。
+- API 路径、函数名、权限标识与后端接口保持一致。
+- 标准页查询、重置、分页、弹窗、提交、删除、导出流程闭环完整。
+- 复杂页面保留原有交互能力和业务约束。
+- 代码体现当前项目 hooks、页面壳和下载方式，而不是 generator 裸输出。
+- 交付前说明运行过的验证命令；如果无法验证，说明原因。
 
 ## 快速检查清单
 
-- API 路径与后端路由完全对应。
-- `src/api` 中同时维护 `index.ts` 和 `types.ts`。
-- 列表页查询、重置、导出、删除、弹窗提交流程与现有页一致。
-- 继续使用项目内权限指令与公共组件。
-- 表单、查询、弹窗、表格样式优先复用现有布局类和 SCSS 片段。
-- 缩进、引号、分号与仓库格式一致。
+- `AxiosPromise` 是否来自 `@/utils/api-types`。
+- `PageResult` 是否来自 `@/api/types`。
+- API `params` 和 `data` 是否与后端方法一致。
+- 日期范围是否通过 `useDateRangeQuery` 或附近页面现有方式处理。
+- 列表 loading 是否通过 `useLoading` 或原页面方式维护。
+- 弹窗是否通过 `useFormDialog` 或原页面方式维护。
+- 多选状态是否通过 `useTableSelection` 或原页面方式维护。
+- 权限指令是否保持同文件一致，默认使用当前项目主流 `v-hasPermi`。
+- 导出是否使用 `requestDownload('<module>/<business>/export', { ...queryParams.value }, '<name>_<time>.xlsx')`。
+- 页面壳是否保留 `search-panel`、`table-panel`、`toolbar-shell`、`data-table`、`right-toolbar`、`pagination`。
 
 ## 推荐提问方式
 
-推荐把请求描述到下面这个粒度：
+推荐把请求描述到下面粒度：
 
 - 目标模块和业务名
 - 后端接口前缀
-- 是新增页面还是修改页面
-- 是否需要导入、导出、树筛选、状态切换、字典、权限按钮
+- 是新增页面、修改页面，还是只补 API/types
+- 是否需要导入、导出、树筛选、树表、状态切换、字典、权限按钮
 - 希望参考哪个现有页面
 
 例如：
 
-- 使用 `$frontend-crud-coding` 为 `/system/client` 补一套标准 CRUD 页面，参考 `system/user` 和 generator 模板。
-- 使用 `$frontend-crud-coding` 修改 `workflow/category` 列表页，增加导出按钮和状态筛选，保持当前项目风格。
+- 使用 `$frontend-crud-coding` 为 `/system/client` 补一套标准 CRUD 页面，参考 `demo/demo`、`system/client` 和 boot4 generator 模板。
+- 使用 `$frontend-crud-coding` 修改 `workflow/category` 列表页，增加导出按钮和状态筛选，保持当前 workflow 风格。

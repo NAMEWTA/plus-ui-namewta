@@ -14,7 +14,7 @@
 
 - 先看 `src/api/system/client/*` 和 `src/views/system/client/index.vue` 是否已存在。
 - 再看 `src/views/demo/demo/index.vue` 的标准 hooks 版 CRUD 骨架。
-- 对照项目内 `gen/ts/api.ts.vm`、`gen/ts/types.ts.vm`、`gen/vue/index.vue.vm`。
+- 对照项目内 `gen/api.ts.vm`、`gen/types.ts.vm`、`gen/index.vue.vm`。
 - 生成或修改 `api/index.ts`、`types.ts`、`views/.../index.vue`。
 - 使用 `AxiosPromise` from `@/utils/api-types`、`PageResult` from `@/api/types`、`useLoading`、`useFormDialog`、`useSearchReset`、`useTableSelection`。
 

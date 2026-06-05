@@ -8,6 +8,12 @@ export interface OssVO extends BaseEntity {
   service: string;
 }
 
+export interface OssUploadVO {
+  url: string;
+  fileName: string;
+  ossId: string;
+}
+
 export interface OssQuery extends PageQuery {
   fileName: string;
   originalName: string;

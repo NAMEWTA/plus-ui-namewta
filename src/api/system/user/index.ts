@@ -4,7 +4,7 @@ import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
 import { parseStrEmpty } from '@/utils/ruoyi';
 import type { DeptTreeVO } from './../dept/types';
-import type { UserForm, UserInfoVO, UserQuery, UserVO } from './types';
+import type { UserForm, UserInfoVO, UserProfileForm, UserQuery, UserVO } from './types';
 
 /**
  * 查询用户列表
@@ -136,7 +136,7 @@ export const getUserProfile = (): AxiosPromise<UserInfoVO> => {
  * 修改用户个人信息
  * @param data 用户信息
  */
-export const updateUserProfile = (data: UserForm) => {
+export const updateUserProfile = (data: UserProfileForm) => {
   return request({
     url: '/system/user/profile',
     method: 'put',
@@ -161,18 +161,6 @@ export const updateUserPwd = (oldPassword: string, newPassword: string) => {
       isEncrypt: true,
       repeatSubmit: false
     },
-    data: data
-  });
-};
-
-/**
- * 用户头像上传
- * @param data 头像文件
- */
-export const uploadAvatar = (data: FormData) => {
-  return request({
-    url: '/system/user/profile/avatar',
-    method: 'post',
     data: data
   });
 };
@@ -234,7 +222,6 @@ export default {
   getUserProfile,
   updateUserProfile,
   updateUserPwd,
-  uploadAvatar,
   getAuthRole,
   updateAuthRole,
   deptTreeSelect,

@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { updateUserProfile } from '@/api/system/user';
+import type { UserProfileForm } from '@/api/system/user/types';
 import modal from '@/plugins/modal';
 import tab from '@/plugins/tab';
 import { useDict } from '@/utils/dict';
@@ -65,7 +66,13 @@ const rules = ref<ElFormRules>(rule);
 const submit = () => {
   userRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      await updateUserProfile(props.user);
+      const profile: UserProfileForm = {
+        nickName: props.user.nickName,
+        phoneNumber: props.user.phoneNumber,
+        email: props.user.email,
+        gender: props.user.gender
+      };
+      await updateUserProfile(profile);
       modal.msgSuccess('修改成功');
     }
   });

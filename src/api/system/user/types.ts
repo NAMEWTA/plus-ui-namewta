@@ -71,6 +71,17 @@ export interface UserForm {
   roleIds: string[];
 }
 
+/**
+ * 个人资料表单类型
+ */
+export interface UserProfileForm {
+  nickName?: string;
+  phoneNumber?: string;
+  email?: string;
+  gender?: string;
+  avatar?: string | number;
+}
+
 export interface UserInfoVO {
   user: UserVO;
   roles: RoleVO[];

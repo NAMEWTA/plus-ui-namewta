@@ -9,6 +9,7 @@
               <div class="table-heading">
                 <div
                   class="panel-heading search-panel-toggle dict-title-toggle"
+                  :class="{ 'is-collapsed': !showTypeSearch }"
                   @click.stop="showTypeSearch = !showTypeSearch"
                 >
                   <div>
@@ -165,6 +166,7 @@
               <div class="table-heading">
                 <div
                   class="panel-heading search-panel-toggle dict-title-toggle"
+                  :class="{ 'is-collapsed': !showDataSearch }"
                   @click.stop="showDataSearch = !showDataSearch"
                 >
                   <div>
@@ -744,6 +746,10 @@ onMounted(() => {
 
 .dict-title-toggle {
   padding: 0 !important;
+}
+
+.dict-title-toggle.is-collapsed::after {
+  transform: rotate(45deg);
 }
 
 .dict-card__subtitle {

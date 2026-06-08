@@ -156,7 +156,7 @@ const normalizeColumnDictType = (column: Partial<DbColumnVO>) => {
   }
 };
 
-const handleHtmlTypeChange = (column: DbColumnVO) => {
+const handleHtmlTypeChange = (column: Partial<DbColumnVO>) => {
   normalizeColumnDictType(column);
 };
 

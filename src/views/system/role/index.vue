@@ -87,7 +87,13 @@
         </div>
       </template>
 
-      <el-table border class="data-table" v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
+      <el-table
+        border
+        class="data-table"
+        v-loading="loading"
+        :data="roleList"
+        @selection-change="handleSelectionChange"
+      >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column v-if="false" label="角色编号" prop="roleId" width="120" />
         <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
@@ -236,7 +242,7 @@
                 node-key="id"
                 :check-strictly="!form.menuCheckStrictly"
                 empty-text="加载中，请稍候"
-                :props="{ label: 'label', children: 'children', disabled: 'disabled' } as any"
+                :props="{ label: 'label', children: 'children', disabled: 'disabled' }"
                 @check="handleMenuTreeCheck"
               >
                 <template #default="{ data, node }">
@@ -288,7 +294,9 @@
               </el-select>
             </el-form-item>
             <el-form-item v-show="form.dataScope === '2'" label="数据权限">
-              <el-checkbox v-model="deptExpand" @change="handleCheckedTreeExpand($event, 'dept')">展开/折叠</el-checkbox>
+              <el-checkbox v-model="deptExpand" @change="handleCheckedTreeExpand($event, 'dept')">
+                展开/折叠
+              </el-checkbox>
               <el-checkbox v-model="deptNodeAll" @change="handleCheckedTreeNodeAll($event, 'dept')">
                 全选/全不选
               </el-checkbox>
@@ -304,7 +312,7 @@
                 node-key="id"
                 :check-strictly="!form.deptCheckStrictly"
                 empty-text="加载中，请稍候"
-                :props="{ label: 'label', children: 'children' } as any"
+                :props="{ label: 'label', children: 'children' }"
               ></el-tree>
             </el-form-item>
           </el-tab-pane>
@@ -323,7 +331,6 @@
 <script setup name="Role" lang="ts">
 import { useRouter } from 'vue-router';
 import { roleMenuTreeselect } from '@/api/system/menu';
-import { MenuTypeEnum } from '@/enums/MenuTypeEnum';
 import { MenuTreeOption, RoleMenuButtonOption, RoleMenuTree } from '@/api/system/menu/types';
 import {
   addRole,
@@ -336,6 +343,7 @@ import {
   deptTreeSelect
 } from '@/api/system/role';
 import { RoleVO, RoleForm, RoleQuery, DeptTreeOption } from '@/api/system/role/types';
+import { MenuTypeEnum } from '@/enums/MenuTypeEnum';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
 import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
@@ -490,7 +498,13 @@ const buildRoleMenuPermissionOptions = (
           };
         }) ?? [];
     const children = menu.children?.length
-      ? buildRoleMenuPermissionOptions(menu.children, disabledButtonIds, buttonIds, buttonParentMap, nextDirectoryDisabled)
+      ? buildRoleMenuPermissionOptions(
+          menu.children,
+          disabledButtonIds,
+          buttonIds,
+          buttonParentMap,
+          nextDirectoryDisabled
+        )
       : [];
     options.push({
       ...menu,
@@ -822,7 +836,7 @@ const { resetQuery } = useSearchReset({
   }
 });
 /**删除按钮操作 */
-const handleDelete = async (row?: RoleVO) => {
+const handleDelete = async (row?: Partial<RoleVO>) => {
   const roleids = row?.roleId || ids.value;
   await modal.confirm('是否确认删除角色编号为' + roleids + '数据项目');
   await delRole(roleids);
@@ -841,7 +855,7 @@ const handleExport = () => {
   );
 };
 /** 角色状态修改 */
-const handleStatusChange = async (row: RoleVO) => {
+const handleStatusChange = async (row: Partial<RoleVO>) => {
   const text = row.status === '0' ? '启用' : '停用';
   try {
     await modal.confirm('确认要"' + text + '""' + row.roleName + '"角色吗?');
@@ -853,7 +867,7 @@ const handleStatusChange = async (row: RoleVO) => {
 };
 
 /** 分配用户 */
-const handleAuthUser = (row: RoleVO) => {
+const handleAuthUser = (row: Partial<RoleVO>) => {
   router.push('/system/role-auth/user/' + row.roleId);
 };
 
@@ -891,7 +905,7 @@ const handleAdd = () => {
   openDialog();
 };
 /** 修改角色 */
-const handleUpdate = async (row?: RoleVO) => {
+const handleUpdate = async (row?: Partial<RoleVO>) => {
   reset();
   const roleId = row?.roleId || ids.value[0];
   const { data } = await getRole(roleId);
@@ -962,13 +976,13 @@ const getMenuAllCheckedKeys = (): any => {
 /** 提交按钮 */
 const submitForm = () => {
   roleFormRef.value?.validate(async (valid: boolean) => {
-      if (valid) {
-        syncFormMenuPermissionIds();
-        form.value.roleId ? await updateRole(form.value) : await addRole(form.value);
-        modal.msgSuccess('操作成功');
-        closeDialog();
-        getList();
-      }
+    if (valid) {
+      syncFormMenuPermissionIds();
+      form.value.roleId ? await updateRole(form.value) : await addRole(form.value);
+      modal.msgSuccess('操作成功');
+      closeDialog();
+      getList();
+    }
   });
 };
 /** 取消按钮 */
@@ -983,7 +997,7 @@ const dataScopeSelectChange = (value: string) => {
   }
 };
 /** 分配数据权限操作 */
-const handleDataScope = async (row: RoleVO) => {
+const handleDataScope = async (row: Partial<RoleVO>) => {
   permissionTab.value = 'menu';
   const response = await getRole(row.roleId);
   Object.assign(form.value, response.data);

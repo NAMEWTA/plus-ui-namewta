@@ -214,17 +214,15 @@
               允许访问路径
             </span>
           </template>
-          <el-input
-            v-model="form.accessPath"
-            type="textarea"
-            :rows="4"
-            placeholder="示例：/app/**"
-          />
+          <el-input v-model="form.accessPath" type="textarea" :rows="4" placeholder="示例：/app/**" />
         </el-form-item>
         <el-form-item prop="ipWhitelist" label-width="auto">
           <template #label>
             <span>
-              <el-tooltip content="支持精确IP、通配符和CIDR；多个规则可按换行、逗号或分号分隔；为空表示允许所有IP" placement="top">
+              <el-tooltip
+                content="支持精确IP、通配符和CIDR；多个规则可按换行、逗号或分号分隔；为空表示允许所有IP"
+                placement="top"
+              >
                 <el-icon><question-filled /></el-icon>
               </el-tooltip>
               IP白名单
@@ -399,7 +397,7 @@ const handleAdd = () => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = async (row?: ClientVO) => {
+const handleUpdate = async (row?: Partial<ClientVO>) => {
   resetForm();
   const clientId = row?.id || ids.value[0];
   const res = await getClient(clientId);
@@ -426,7 +424,7 @@ const submitForm = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: ClientVO) => {
+const handleDelete = async (row?: Partial<ClientVO>) => {
   const clientIds = row?.id || ids.value;
   await modal.confirm('是否确认删除客户端管理编号为"' + clientIds + '"的数据项？');
   await delClient(clientIds);
@@ -446,7 +444,7 @@ const handleExport = () => {
 };
 
 /** 状态修改  */
-const handleStatusChange = async (row: ClientVO) => {
+const handleStatusChange = async (row: Partial<ClientVO>) => {
   const text = row.status === '0' ? '启用' : '停用';
   try {
     await modal.confirm('确认要"' + text + '"吗?');

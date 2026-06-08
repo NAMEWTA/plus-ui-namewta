@@ -168,7 +168,12 @@ const { wf_business_status } = toRefs<any>(useDict('wf_business_status'));
 const queryFormRef = ref<ElFormInstance>();
 
 const { loading, setLoading, withLoading } = useLoading(true);
-const { ids: instanceIds, single, multiple, handleSelectionChange } = useTableSelection<FlowInstanceVO>(item => item.id);
+const {
+  ids: instanceIds,
+  single,
+  multiple,
+  handleSelectionChange
+} = useTableSelection<FlowInstanceVO>(item => item.id);
 const { showSearch } = useSearchToggle();
 // 总条数
 const total = ref(0);
@@ -233,7 +238,7 @@ const getList = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row: FlowInstanceVO) => {
+const handleDelete = async (row: Partial<FlowInstanceVO>) => {
   const instanceIdList = row.id || instanceIds.value;
   await modal.confirm('是否确认删除？');
   setLoading(true);

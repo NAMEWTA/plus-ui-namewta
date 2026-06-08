@@ -243,7 +243,7 @@ const handleAdd = () => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = (row?: LeaveVO) => {
+const handleUpdate = (row?: Partial<LeaveVO>) => {
   tab.closePage(route);
   router.push({
     path: `/workflow/leaveEdit/index`,
@@ -255,7 +255,7 @@ const handleUpdate = (row?: LeaveVO) => {
 };
 
 /** 查看按钮操作 */
-const handleView = (row?: LeaveVO) => {
+const handleView = (row?: Partial<LeaveVO>) => {
   tab.closePage(route);
   router.push({
     path: `/workflow/leaveEdit/index`,
@@ -267,7 +267,7 @@ const handleView = (row?: LeaveVO) => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: LeaveVO) => {
+const handleDelete = async (row?: Partial<LeaveVO>) => {
   const leaveIds = row?.id || ids.value;
   await modal.confirm('是否确认删除请假编号为"' + leaveIds + '"的数据项？');
   await delLeave(leaveIds);

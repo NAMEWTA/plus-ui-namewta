@@ -652,7 +652,7 @@ const { resetQuery } = useSearchReset({
 });
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: UserVO) => {
+const handleDelete = async (row?: Partial<UserVO>) => {
   const userIds = row?.userId || ids.value;
   const [err] = await to(modal.confirm('是否确认删除用户编号为"' + userIds + '"的数据项？') as any);
   if (!err) {
@@ -673,7 +673,7 @@ const handleUnlock = async () => {
 };
 
 /** 用户状态修改  */
-const handleStatusChange = async (row: UserVO) => {
+const handleStatusChange = async (row: Partial<UserVO>) => {
   const text = row.status === '0' ? '启用' : '停用';
   try {
     await modal.confirm('确认要"' + text + '""' + row.userName + '"用户吗?');
@@ -684,13 +684,13 @@ const handleStatusChange = async (row: UserVO) => {
   }
 };
 /** 跳转角色分配 */
-const handleAuthRole = (row: UserVO) => {
+const handleAuthRole = (row: Partial<UserVO>) => {
   const userId = row.userId;
   router.push('/system/user-auth/role/' + userId);
 };
 
 /** 重置密码按钮操作 */
-const handleResetPwd = async (row: UserVO) => {
+const handleResetPwd = async (row: Partial<UserVO>) => {
   const [err, res] = await to(
     ElMessageBox.prompt('请输入"' + row.userName + '"的新密码', '提示', {
       confirmButtonText: '确定',
@@ -712,7 +712,7 @@ const handleResetPwd = async (row: UserVO) => {
 };
 
 /** 详情按钮操作 */
-const handleViewDetail = (row: UserVO) => {
+const handleViewDetail = (row: Partial<UserVO>) => {
   userViewRef.value?.openDrawer(row.userId);
 };
 
@@ -787,7 +787,7 @@ const handleAdd = async () => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = async (row?: UserForm) => {
+const handleUpdate = async (row?: Partial<UserForm>) => {
   reset();
   const userId = row?.userId || ids.value[0];
   const { data } = await api.getUser(userId);

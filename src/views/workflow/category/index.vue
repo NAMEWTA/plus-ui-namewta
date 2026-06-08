@@ -171,7 +171,13 @@ const data = reactive<PageData<CategoryForm, CategoryQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
-const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+const {
+  dialog,
+  resetForm: reset,
+  openDialog,
+  showDialog,
+  closeDialog
+} = useFormDialog({
   form,
   formRef: categoryFormRef,
   initialFormData: initFormData
@@ -219,7 +225,7 @@ const { resetQuery } = useSearchReset({
 });
 
 /** 新增按钮操作 */
-const handleAdd = (row?: CategoryVO) => {
+const handleAdd = (row?: Partial<CategoryVO>) => {
   openDialog('添加流程分类');
   getTreeselect();
   if (row?.categoryId) {
@@ -230,7 +236,7 @@ const handleAdd = (row?: CategoryVO) => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = async (row: CategoryVO) => {
+const handleUpdate = async (row: Partial<CategoryVO>) => {
   reset();
   await getTreeselect();
   if (row != null) {
@@ -259,7 +265,7 @@ const submitForm = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row: CategoryVO) => {
+const handleDelete = async (row: Partial<CategoryVO>) => {
   await modal.confirm('是否确认删除"' + row.categoryName + '"的分类？');
   setLoading(true);
   await delCategory(row.categoryId).finally(() => setLoading(false));

@@ -228,7 +228,7 @@ const getLoginData = () => {
   loginForm.value = {
     username: username === null ? String(loginForm.value.username) : username,
     password: '',
-    rememberMe: rememberMe === null ? false : Boolean(rememberMe)
+    rememberMe: rememberMe === 'true'
   } as LoginData;
 };
 

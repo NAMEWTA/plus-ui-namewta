@@ -298,7 +298,7 @@ const handleAdd = () => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = async (row?: SpelVO) => {
+const handleUpdate = async (row?: Partial<SpelVO>) => {
   resetForm();
   const spelId = row?.id || ids.value[0];
   const res = await getSpel(spelId);
@@ -325,7 +325,7 @@ const submitForm = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: SpelVO) => {
+const handleDelete = async (row?: Partial<SpelVO>) => {
   const spelIds = row?.id || ids.value;
   await modal.confirm('是否确认删除流程spel表达式定义编号为"' + spelIds + '"的数据项？');
   await delSpel(spelIds);

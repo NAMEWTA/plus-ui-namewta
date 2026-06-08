@@ -170,7 +170,13 @@ const data = reactive<PageData<TreeForm, TreeQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
-const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+const {
+  dialog,
+  resetForm: reset,
+  openDialog,
+  showDialog,
+  closeDialog
+} = useFormDialog({
   form,
   formRef: treeFormRef,
   initialFormData: initFormData
@@ -216,7 +222,7 @@ const { resetQuery } = useSearchReset({
 });
 
 /** 新增按钮操作 */
-const handleAdd = (row?: TreeVO) => {
+const handleAdd = (row?: Partial<TreeVO>) => {
   openDialog('添加测试树');
   getTreeselect();
   if (row && row.id) {
@@ -227,7 +233,7 @@ const handleAdd = (row?: TreeVO) => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = async (row: TreeVO) => {
+const handleUpdate = async (row: Partial<TreeVO>) => {
   reset();
   await getTreeselect();
   if (row) {
@@ -256,7 +262,7 @@ const submitForm = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row: TreeVO) => {
+const handleDelete = async (row: Partial<TreeVO>) => {
   await modal.confirm('是否确认删除测试树编号为"' + row.id + '"的数据项？');
   setLoading(true);
   await delTree(row.id).finally(() => setLoading(false));

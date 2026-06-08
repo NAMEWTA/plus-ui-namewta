@@ -407,16 +407,21 @@ const form = ref<FlowDefinitionForm>({
   formCustom: '',
   modelValue: ''
 });
-const {
-  ids,
-  selectedRows,
-  single,
-  multiple,
-  handleSelectionChange
-} = useTableSelection<FlowDefinitionVo, string>(item => String(item.id));
+const { ids, selectedRows, single, multiple, handleSelectionChange } = useTableSelection<FlowDefinitionVo, string>(
+  item => String(item.id)
+);
 const flowCodeList = computed(() => selectedRows.value.map(item => item.flowCode));
-const { dialog: uploadDialog, openDialog: openUploadDialog, closeDialog: closeUploadDialog } = useDialogState('部署流程文件');
-const { dialog: modelDialog, resetForm: reset, showDialog: showModelDialog, closeDialog: closeModelDialog } = useFormDialog({
+const {
+  dialog: uploadDialog,
+  openDialog: openUploadDialog,
+  closeDialog: closeUploadDialog
+} = useDialogState('部署流程文件');
+const {
+  dialog: modelDialog,
+  resetForm: reset,
+  showDialog: showModelDialog,
+  closeDialog: closeModelDialog
+} = useFormDialog({
   form,
   formRef: defFormRef,
   initialFormData: initFormData
@@ -498,7 +503,7 @@ const getUnPublishList = async () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: FlowDefinitionVo) => {
+const handleDelete = async (row?: Partial<FlowDefinitionVo>) => {
   const id = row?.id || ids.value;
   const defList = processDefinitionList.value.filter(x => id.indexOf(x.id) != -1).map(x => x.flowCode);
   await modal.confirm('是否确认删除流程定义编码为【' + defList + '】的数据项？');
@@ -509,7 +514,7 @@ const handleDelete = async (row?: FlowDefinitionVo) => {
 };
 
 /** 发布流程定义 */
-const handlePublish = async (row?: FlowDefinitionVo) => {
+const handlePublish = async (row?: Partial<FlowDefinitionVo>) => {
   await modal.confirm(
     '是否确认发布流程定义编码为【' +
       row.flowCode +
@@ -524,7 +529,7 @@ const handlePublish = async (row?: FlowDefinitionVo) => {
   modal.msgSuccess('发布成功');
 };
 /** 挂起/激活 */
-const handleProcessDefState = async (row: FlowDefinitionVo, status: number | string | boolean) => {
+const handleProcessDefState = async (row: Partial<FlowDefinitionVo>, status: number | string | boolean) => {
   let msg: string;
   if (status === 0) {
     msg = `暂停后，此流程下的所有任务都不允许往后流转，您确定挂起【${row.flowName || row.flowCode}】吗？`;
@@ -578,7 +583,7 @@ const handlerImportDefinition = (data: UploadRequestOptions): XMLHttpRequest => 
  * 设计流程
  * @param row
  */
-const design = async (row: FlowDefinitionVo) => {
+const design = async (row: Partial<FlowDefinitionVo>) => {
   router.push({
     path: `/workflow/design/index`,
     query: {
@@ -593,7 +598,7 @@ const design = async (row: FlowDefinitionVo) => {
  * 查看流程
  * @param row
  */
-const designView = async (row: FlowDefinitionVo) => {
+const designView = async (row: Partial<FlowDefinitionVo>) => {
   router.push({
     path: `/workflow/design/index`,
     query: {
@@ -616,7 +621,7 @@ const handleAdd = async () => {
   showModelDialog('新增流程');
 };
 /** 修改按钮操作 */
-const handleUpdate = async (row?: FlowDefinitionVo) => {
+const handleUpdate = async (row?: Partial<FlowDefinitionVo>) => {
   reset();
   const id = row?.id || ids.value[0];
   const res = await getInfo(id);
@@ -652,7 +657,7 @@ const handleSubmit = async () => {
   });
 };
 //复制
-const handleCopyDef = async (row: FlowDefinitionVo) => {
+const handleCopyDef = async (row: Partial<FlowDefinitionVo>) => {
   ElMessageBox.confirm(`是否确认复制【${row.flowCode}】版本为【${row.version}】的流程定义！`, '提示', {
     confirmButtonText: '确认',
     cancelButtonText: '取消',

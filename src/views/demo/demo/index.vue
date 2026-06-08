@@ -186,7 +186,13 @@ const data = reactive<PageData<DemoForm, DemoQuery>>({
 
 const { queryParams, form, rules } = toRefs(data);
 const { ids, single, multiple, handleSelectionChange } = useTableSelection<DemoVO>(item => item.id);
-const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+const {
+  dialog,
+  resetForm: reset,
+  openDialog,
+  showDialog,
+  closeDialog
+} = useFormDialog({
   form,
   formRef: demoFormRef,
   initialFormData: initFormData
@@ -228,7 +234,7 @@ const handleAdd = () => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = async (row?: DemoVO) => {
+const handleUpdate = async (row?: Partial<DemoVO>) => {
   reset();
   const demoId = row?.id || ids.value[0];
   const res = await getDemo(demoId);
@@ -254,7 +260,7 @@ const submitForm = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: DemoVO) => {
+const handleDelete = async (row?: Partial<DemoVO>) => {
   const demoIds = row?.id || ids.value;
   await modal.confirm('是否确认删除测试单编号为"' + demoIds + '"的数据项？');
   await delDemo(demoIds);

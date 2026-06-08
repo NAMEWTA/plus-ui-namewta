@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="p-2 app-container dict-page">
     <el-row :gutter="16" class="dict-grid">
       <!-- 字典类型 -->
@@ -108,7 +108,9 @@
               <el-table-column label="字典名称" align="center" prop="dictName" width="120" />
               <el-table-column label="字典类型" align="center" prop="dictType" width="160">
                 <template #default="scope">
-                  <span class="link-type" @click.stop="handleTypeRowClick(scope.row)">{{ scope.row.dictType }}</span>
+                  <span class="link-type" @click.stop="handleTypeRowClick(scope.row)">
+                    {{ scope.row.dictType }}
+                  </span>
                 </template>
               </el-table-column>
               <el-table-column label="备注" align="center" prop="remark" width="160" />
@@ -541,8 +543,8 @@ const setCurrentType = (row: DictTypeVO) => {
   nextTick(() => typeTableRef.value?.setCurrentRow(row));
 };
 
-const handleTypeRowClick = (row: DictTypeVO) => {
-  setCurrentType(row);
+const handleTypeRowClick = (row: Partial<DictTypeVO>) => {
+  setCurrentType(row as DictTypeVO);
 };
 
 const cancelType = () => {
@@ -577,7 +579,7 @@ const handleTypeSelectionChange = (selection: DictTypeVO[]) => {
   typeMultiple.value = !selection.length;
 };
 
-const handleTypeUpdate = async (row?: DictTypeVO) => {
+const handleTypeUpdate = async (row?: Partial<DictTypeVO>) => {
   resetTypeForm();
   const dictId = row?.dictId || typeIds.value[0];
   const res = await getType(dictId);
@@ -597,7 +599,7 @@ const submitTypeForm = () => {
   });
 };
 
-const handleTypeDelete = async (row?: DictTypeVO) => {
+const handleTypeDelete = async (row?: Partial<DictTypeVO>) => {
   const dictIds = row?.dictId || typeIds.value;
   await modal.confirm('是否确认删除字典编号为"' + dictIds + '"的数据项？');
   await delType(dictIds);
@@ -674,7 +676,7 @@ const handleDataSelectionChange = (selection: DictDataVO[]) => {
   dataMultiple.value = !selection.length;
 };
 
-const handleDataUpdate = async (row?: DictDataVO) => {
+const handleDataUpdate = async (row?: Partial<DictDataVO>) => {
   if (!currentDict.value) {
     modal.msgWarning('请先选择字典');
     return;
@@ -699,7 +701,7 @@ const submitDataForm = () => {
   });
 };
 
-const handleDataDelete = async (row?: DictDataVO) => {
+const handleDataDelete = async (row?: Partial<DictDataVO>) => {
   if (!currentDict.value) {
     modal.msgWarning('请先选择字典');
     return;

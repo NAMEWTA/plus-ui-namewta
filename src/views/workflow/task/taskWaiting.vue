@@ -179,7 +179,7 @@ const getWaitingList = () => {
   });
 };
 //办理
-const handleOpen = async (row: FlowTaskVO) => {
+const handleOpen = async (row: Partial<FlowTaskVO>) => {
   const routerJumpVo = reactive<RouterJumpVo>({
     businessId: row.businessId,
     taskId: row.id,

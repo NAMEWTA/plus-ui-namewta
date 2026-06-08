@@ -282,7 +282,11 @@ const data = reactive<PageData<OperLogForm, OperLogQuery>>({
 });
 
 const { queryParams, form } = toRefs(data);
-const { ids, multiple, handleSelectionChange: handleTableSelectionChange } = useTableSelection<OperLogVO>(item => item.operId);
+const {
+  ids,
+  multiple,
+  handleSelectionChange: handleTableSelectionChange
+} = useTableSelection<OperLogVO>(item => item.operId);
 
 /** 查询登录日志 */
 const getList = async () => {
@@ -324,12 +328,12 @@ const handleSelectionChange = (selection: OperLogVO[]) => {
 
 const operInfoDialogRef = ref<InstanceType<typeof OperInfoDialog>>();
 /** 详细按钮操作 */
-const handleView = (row: OperLogVO) => {
-  operInfoDialogRef.value.openDialog(row);
+const handleView = (row: Partial<OperLogVO>) => {
+  operInfoDialogRef.value.openDialog(row as OperLogForm);
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: OperLogVO) => {
+const handleDelete = async (row?: Partial<OperLogVO>) => {
   const operIds = row?.operId || ids.value;
   await modal.confirm('是否确认删除日志编号为"' + operIds + '"的数据项?');
   await delOperlog(operIds);

@@ -353,7 +353,7 @@ const handleAdd = () => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = async (row?: PostVO) => {
+const handleUpdate = async (row?: Partial<PostVO>) => {
   resetForm();
   const postId = row?.postId || ids.value[0];
   const res = await getPost(postId);
@@ -374,7 +374,7 @@ const submitForm = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: PostVO) => {
+const handleDelete = async (row?: Partial<PostVO>) => {
   const postIds = row?.postId || ids.value;
   await modal.confirm('是否确认删除岗位编号为"' + postIds + '"的数据项？');
   await delPost(postIds);

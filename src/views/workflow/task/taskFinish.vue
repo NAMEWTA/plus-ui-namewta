@@ -194,7 +194,7 @@ const getFinishList = () => {
   });
 };
 /** 查看按钮操作 */
-const handleView = (row: FlowTaskVO) => {
+const handleView = (row: Partial<FlowTaskVO>) => {
   const routerJumpVo = reactive<RouterJumpVo>({
     businessId: row.businessId,
     taskId: row.id,

@@ -178,7 +178,7 @@ const openSelectUser = () => {
   selectRef.value?.show();
 };
 /** 取消授权按钮操作 */
-const cancelAuthUser = async (row: UserVO) => {
+const cancelAuthUser = async (row: Partial<UserVO>) => {
   await modal.confirm('确认要取消该用户"' + row.userName + '"角色吗？');
   await authUserCancel({ userId: row.userId, roleId: queryParams.roleId });
   await getList();

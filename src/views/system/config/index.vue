@@ -276,7 +276,7 @@ const handleAdd = () => {
   openDialog('添加参数');
 };
 /** 修改按钮操作 */
-const handleUpdate = async (row?: ConfigVO) => {
+const handleUpdate = async (row?: Partial<ConfigVO>) => {
   resetForm();
   const configId = row?.configId || ids.value[0];
   const res = await getConfig(configId);
@@ -295,7 +295,7 @@ const submitForm = () => {
   });
 };
 /** 删除按钮操作 */
-const handleDelete = async (row?: ConfigVO) => {
+const handleDelete = async (row?: Partial<ConfigVO>) => {
   const configIds = row?.configId || ids.value;
   await modal.confirm('是否确认删除参数编号为"' + configIds + '"的数据项？');
   await delConfig(configIds);

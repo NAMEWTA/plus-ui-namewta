@@ -24,12 +24,7 @@
           </el-form-item>
           <el-form-item label="是否默认" prop="status">
             <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-              <el-option
-                v-for="dict in sys_yes_no"
-                :key="dict.value"
-                :label="dict.label"
-                :value="dict.value"
-              />
+              <el-option v-for="dict in sys_yes_no" :key="dict.value" :label="dict.label" :value="dict.value" />
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -313,7 +308,13 @@ const data = reactive<PageData<OssConfigForm, OssConfigQuery>>({
 const { queryParams, form, rules } = toRefs(data);
 const protocol = computed(() => (form.value.isHttps === 'Y' ? 'https://' : 'http://'));
 const { ids, single, multiple, handleSelectionChange } = useTableSelection<OssConfigVO>(item => item.ossConfigId);
-const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+const {
+  dialog,
+  resetForm: reset,
+  openDialog,
+  showDialog,
+  closeDialog
+} = useFormDialog({
   form,
   formRef: ossConfigFormRef,
   initialFormData: initFormData
@@ -350,7 +351,7 @@ const handleAdd = () => {
   openDialog('添加对象存储配置');
 };
 /** 修改按钮操作 */
-const handleUpdate = async (row?: OssConfigVO) => {
+const handleUpdate = async (row?: Partial<OssConfigVO>) => {
   reset();
   const ossConfigId = row?.ossConfigId || ids.value[0];
   const res = await getOssConfig(ossConfigId);
@@ -374,7 +375,7 @@ const submitForm = () => {
   });
 };
 /** 状态修改  */
-const handleStatusChange = async (row: OssConfigVO) => {
+const handleStatusChange = async (row: Partial<OssConfigVO>) => {
   const text = row.status === 'Y' ? '启用' : '停用';
   try {
     await modal.confirm('确认要"' + text + '""' + row.configKey + '"配置吗?');
@@ -386,7 +387,7 @@ const handleStatusChange = async (row: OssConfigVO) => {
   }
 };
 /** 删除按钮操作 */
-const handleDelete = async (row?: OssConfigVO) => {
+const handleDelete = async (row?: Partial<OssConfigVO>) => {
   const ossConfigIds = row?.ossConfigId || ids.value;
   await modal.confirm('是否确认删除OSS配置编号为"' + ossConfigIds + '"的数据项?');
   setLoading(true);

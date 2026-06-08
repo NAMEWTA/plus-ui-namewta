@@ -16,9 +16,7 @@
         clearable
         placeholder="菜单搜索，支持标题、URL模糊查询"
         @input="querySearch"
-        @keydown.up.prevent="navigateResult('up')"
-        @keydown.down.prevent="navigateResult('down')"
-        @keydown.enter.prevent="selectActiveResult"
+        @keydown="handleSearchKeydown"
       >
         <template #prefix>
           <svg-icon class-name="search-icon" icon-class="search" />
@@ -213,6 +211,23 @@ const navigateResult = (direction: 'up' | 'down') => {
   }
 
   state.activeIndex = state.activeIndex >= state.options.length - 1 ? 0 : state.activeIndex + 1;
+};
+
+const handleSearchKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    navigateResult('up');
+    return;
+  }
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    navigateResult('down');
+    return;
+  }
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    selectActiveResult();
+  }
 };
 
 const selectActiveResult = () => {

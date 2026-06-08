@@ -234,7 +234,12 @@ const preview = ref<{
   data: {},
   activeName: 'domain.java'
 });
-const { ids, single, multiple, handleSelectionChange: updateSelection } = useTableSelection<TableVO>(item => item.tableId);
+const {
+  ids,
+  single,
+  multiple,
+  handleSelectionChange: updateSelection
+} = useTableSelection<TableVO>(item => item.tableId);
 const { dialog, openDialog: openPreviewDialog } = useDialogState('代码预览');
 
 const handleTableSelectionChange = (selection: TableVO[]) => {
@@ -262,7 +267,7 @@ const handleQuery = () => {
   getList();
 };
 /** 生成代码操作 */
-const handleGenTable = async (row?: TableVO) => {
+const handleGenTable = async (row?: Partial<TableVO>) => {
   const currentRows = row ? [row] : selectedRows.value;
   if (!currentRows.length) {
     modal.msgError('请选择要生成的数据');
@@ -273,7 +278,7 @@ const handleGenTable = async (row?: TableVO) => {
   download.zip('/tool/gen/batchGenCode?tableIdStr=' + zipIds, 'ruoyi.zip');
 };
 /** 同步数据库操作 */
-const handleSynchDb = async (row: TableVO) => {
+const handleSynchDb = async (row: Partial<TableVO>) => {
   const tableId = row.tableId;
   await modal.confirm('确认要强制同步"' + row.tableName + '"表结构吗？');
   await synchDb(tableId);
@@ -295,7 +300,7 @@ const { resetQuery } = useSearchReset({
   }
 });
 /** 预览按钮 */
-const handlePreview = async (row: TableVO) => {
+const handlePreview = async (row: Partial<TableVO>) => {
   const res = await previewTable(row.tableId);
   preview.value.data = res.data;
   openPreviewDialog();
@@ -306,7 +311,7 @@ const copyTextSuccess = () => {
   modal.msgSuccess('复制成功');
 };
 /** 修改按钮操作 */
-const handleEditTable = (row?: TableVO) => {
+const handleEditTable = (row?: Partial<TableVO>) => {
   const tableId = row?.tableId || ids.value[0];
   router.push({
     path: '/tool/gen-edit/index/' + tableId,
@@ -314,7 +319,7 @@ const handleEditTable = (row?: TableVO) => {
   });
 };
 /** 删除按钮操作 */
-const handleDelete = async (row?: TableVO) => {
+const handleDelete = async (row?: Partial<TableVO>) => {
   const tableIds = row?.tableId || ids.value;
   await modal.confirm('是否确认删除表编号为"' + tableIds + '"的数据项？');
   await delTable(tableIds);

@@ -138,7 +138,7 @@ const resetQuery = () => {
   handleQuery();
 };
 /** 强退按钮操作 */
-const handleForceLogout = async (row: OnlineVO) => {
+const handleForceLogout = async (row: Partial<OnlineVO>) => {
   const [err] = await to(modal.confirm('是否确认强退名称为"' + row.userName + '"的用户?') as any);
   if (!err) {
     await forceLogout(row.tokenId);

@@ -313,7 +313,7 @@ const { resetQuery } = useSearchReset({
 });
 
 /** 新增按钮操作 */
-const handleAdd = async (row?: DeptVO) => {
+const handleAdd = async (row?: Partial<DeptVO>) => {
   reset();
   const res = await listDept();
   const data = handleTree<DeptOptionsType>(res.data, 'deptId');
@@ -328,7 +328,7 @@ const handleAdd = async (row?: DeptVO) => {
 };
 
 /** 修改按钮操作 */
-const handleUpdate = async (row: DeptVO) => {
+const handleUpdate = async (row: Partial<DeptVO>) => {
   reset();
   //查询当前部门所有用户
   getDeptAllUser(row.deptId);
@@ -353,16 +353,16 @@ const handleUpdate = async (row: DeptVO) => {
 /** 提交按钮 */
 const submitForm = () => {
   deptFormRef.value?.validate(async (valid: boolean) => {
-      if (valid) {
-        form.value.deptId ? await updateDept(form.value) : await addDept(form.value);
-        modal.msgSuccess('操作成功');
-        closeDialog();
-        await getList();
-      }
+    if (valid) {
+      form.value.deptId ? await updateDept(form.value) : await addDept(form.value);
+      modal.msgSuccess('操作成功');
+      closeDialog();
+      await getList();
+    }
   });
 };
 /** 删除按钮操作 */
-const handleDelete = async (row: DeptVO) => {
+const handleDelete = async (row: Partial<DeptVO>) => {
   await modal.confirm('是否确认删除名称为"' + row.deptName + '"的数据项?');
   await delDept(row.deptId);
   await getList();

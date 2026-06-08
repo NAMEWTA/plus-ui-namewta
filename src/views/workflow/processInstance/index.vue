@@ -347,7 +347,12 @@ const form = ref<Record<string, any>>({
 const ruleFormRef = ref<FormInstance>();
 const userSelectRef = ref<InstanceType<typeof UserSelect>>();
 const { loading, setLoading, withLoading } = useLoading(true);
-const { ids: instanceIds, single, multiple, handleSelectionChange } = useTableSelection<FlowInstanceVO>(item => item.id);
+const {
+  ids: instanceIds,
+  single,
+  multiple,
+  handleSelectionChange
+} = useTableSelection<FlowInstanceVO>(item => item.id);
 const { showSearch } = useSearchToggle();
 // 总条数
 const total = ref(0);
@@ -443,7 +448,7 @@ const getProcessInstanceFinishList = () => {
 };
 
 /** 删除按钮操作 */
-const handleDelete = async (row?: FlowInstanceVO) => {
+const handleDelete = async (row?: Partial<FlowInstanceVO>) => {
   const instanceIdList = row?.id ?? instanceIds.value;
   await modal.confirm('是否确认删除？');
   setLoading(true);
@@ -466,7 +471,7 @@ const changeTab = async (pane: TabsPaneContext) => {
   }
 };
 /** 作废按钮操作 */
-const handleInvalid = async (row: FlowInstanceVO) => {
+const handleInvalid = async (row: Partial<FlowInstanceVO>) => {
   await modal.confirm('是否确认作废？');
   setLoading(true);
   if ('running' === tab.value) {
@@ -495,7 +500,7 @@ const handleView = row => {
 };
 
 //查询流程变量
-const handleInstanceVariable = async (row: FlowInstanceVO) => {
+const handleInstanceVariable = async (row: Partial<FlowInstanceVO>) => {
   instanceId.value = row.id;
   variableLoading.value = true;
   variableVisible.value = true;

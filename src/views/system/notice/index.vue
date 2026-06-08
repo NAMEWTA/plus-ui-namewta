@@ -285,12 +285,22 @@ const data = reactive<PageData<NoticeForm, NoticeQuery>>({
 
 const { queryParams, form, rules } = toRefs(data);
 const { ids, single, multiple, handleSelectionChange } = useTableSelection<NoticeVO>(item => item.noticeId);
-const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFormDialog({
+const {
+  dialog,
+  resetForm: reset,
+  openDialog,
+  showDialog,
+  closeDialog
+} = useFormDialog({
   form,
   formRef: noticeFormRef,
   initialFormData: initFormData
 });
-const { dialog: detailDialog, openDialog: openDetailDialog, closeDialog: closeDetailDialog } = useDialogState('公告详情');
+const {
+  dialog: detailDialog,
+  openDialog: openDetailDialog,
+  closeDialog: closeDetailDialog
+} = useDialogState('公告详情');
 
 /** 查询公告列表 */
 const getList = async () => {
@@ -326,7 +336,7 @@ const handleAdd = () => {
   openDialog('添加公告');
 };
 /**修改按钮操作 */
-const handleUpdate = async (row?: NoticeVO) => {
+const handleUpdate = async (row?: Partial<NoticeVO>) => {
   reset();
   const noticeId = row?.noticeId || ids.value[0];
   const { data } = await getNotice(noticeId);
@@ -334,7 +344,7 @@ const handleUpdate = async (row?: NoticeVO) => {
   showDialog('修改公告');
 };
 /** 详情按钮操作 */
-const handleDetail = async (row: NoticeVO) => {
+const handleDetail = async (row: Partial<NoticeVO>) => {
   await openDetail(row.noticeId);
 };
 /** 打开详情 */
@@ -371,7 +381,7 @@ const submitForm = () => {
   });
 };
 /** 删除按钮操作 */
-const handleDelete = async (row?: NoticeVO) => {
+const handleDelete = async (row?: Partial<NoticeVO>) => {
   const noticeIds = row?.noticeId || ids.value;
   await modal.confirm('是否确认删除公告编号为"' + noticeIds + '"的数据项？');
   await delNotice(noticeIds);

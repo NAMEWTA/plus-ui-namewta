@@ -245,7 +245,12 @@ const data = reactive<PageData<OssForm, OssQuery>>({
 
 const { queryParams, form, rules } = toRefs(data);
 const { ids, single, multiple, handleSelectionChange } = useTableSelection<OssVO>(item => item.ossId);
-const { dialog, resetForm: reset, openDialog, closeDialog } = useFormDialog({
+const {
+  dialog,
+  resetForm: reset,
+  openDialog,
+  closeDialog
+} = useFormDialog({
   form,
   formRef: ossFormRef,
   initialFormData: initFormData
@@ -356,7 +361,7 @@ const submitForm = () => {
   getList();
 };
 /** 下载按钮操作 */
-const handleDownload = (row: OssVO) => {
+const handleDownload = (row: Partial<OssVO>) => {
   download.oss(row.ossId);
 };
 /** 预览开关按钮  */
@@ -370,7 +375,7 @@ const handlePreviewListResource = async (preview: boolean) => {
   }
 };
 /** 删除按钮操作 */
-const handleDelete = async (row?: OssVO) => {
+const handleDelete = async (row?: Partial<OssVO>) => {
   const ossIds = row?.ossId || ids.value;
   await modal.confirm('是否确认删除OSS对象存储编号为"' + ossIds + '"的数据项?');
   setLoading(true);

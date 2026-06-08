@@ -431,7 +431,7 @@ const { dialog, openDialog, closeDialog, setTitle } = useDialogState();
 
 type MenuTagType = 'warning' | 'primary' | 'success' | 'danger';
 
-const getMenuTypeMeta = (menu: MenuVO): { label: string; type: MenuTagType } => {
+const getMenuTypeMeta = (menu: Partial<MenuVO>): { label: string; type: MenuTagType } => {
   if (menu.menuType === MenuTypeEnum.F) {
     return { label: '按钮', type: 'warning' };
   }
@@ -543,7 +543,7 @@ const { resetQuery } = useSearchReset({
   }
 });
 /** 新增按钮操作 */
-const handleAdd = (row?: MenuVO) => {
+const handleAdd = (row?: Partial<MenuVO>) => {
   reset();
   getTreeselect();
   row && row.menuId ? (form.value.parentId = row.menuId) : (form.value.parentId = 0);
@@ -551,7 +551,7 @@ const handleAdd = (row?: MenuVO) => {
   openDialog();
 };
 /** 修改按钮操作 */
-const handleUpdate = async (row: MenuVO) => {
+const handleUpdate = async (row: Partial<MenuVO>) => {
   reset();
   await getTreeselect();
   if (row.menuId) {
@@ -564,16 +564,16 @@ const handleUpdate = async (row: MenuVO) => {
 /** 提交按钮 */
 const submitForm = () => {
   menuFormRef.value?.validate(async (valid: boolean) => {
-      if (valid) {
-        form.value.menuId ? await updateMenu(form.value) : await addMenu(form.value);
-        modal.msgSuccess('操作成功');
-        closeDialog();
-        await getList();
-      }
+    if (valid) {
+      form.value.menuId ? await updateMenu(form.value) : await addMenu(form.value);
+      modal.msgSuccess('操作成功');
+      closeDialog();
+      await getList();
+    }
   });
 };
 /** 删除按钮操作 */
-const handleDelete = async (row: MenuVO) => {
+const handleDelete = async (row: Partial<MenuVO>) => {
   await modal.confirm('是否确认删除名称为"' + row.menuName + '"的数据项?');
   await delMenu(row.menuId);
   await getList();
@@ -583,7 +583,11 @@ const handleDelete = async (row: MenuVO) => {
 const deleteLoading = ref<boolean>(false);
 const menuTreeRef = ref<ElTreeInstance>();
 
-const { dialog: deleteDialog, openDialog: openDeleteDialog, closeDialog: closeDeleteDialog } = useDialogState('级联删除菜单');
+const {
+  dialog: deleteDialog,
+  openDialog: openDeleteDialog,
+  closeDialog: closeDeleteDialog
+} = useDialogState('级联删除菜单');
 
 /** 级联删除按钮操作 */
 const handleCascadeDelete = () => {

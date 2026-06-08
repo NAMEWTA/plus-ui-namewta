@@ -187,13 +187,12 @@ const handleLogin = () => {
       loading.value = true;
       if (loginForm.value.rememberMe) {
         localStorage.setItem('username', String(loginForm.value.username));
-        localStorage.setItem('password', String(loginForm.value.password));
         localStorage.setItem('rememberMe', String(loginForm.value.rememberMe));
       } else {
         localStorage.removeItem('username');
-        localStorage.removeItem('password');
         localStorage.removeItem('rememberMe');
       }
+      localStorage.removeItem('password');
       const [err] = await to(userStore.login(loginForm.value));
       if (!err) {
         const redirectUrl = redirect.value || '/';
@@ -224,11 +223,11 @@ const getCode = async () => {
 
 const getLoginData = () => {
   const username = localStorage.getItem('username');
-  const password = localStorage.getItem('password');
   const rememberMe = localStorage.getItem('rememberMe');
+  localStorage.removeItem('password');
   loginForm.value = {
     username: username === null ? String(loginForm.value.username) : username,
-    password: password === null ? String(loginForm.value.password) : String(password),
+    password: '',
     rememberMe: rememberMe === null ? false : Boolean(rememberMe)
   } as LoginData;
 };

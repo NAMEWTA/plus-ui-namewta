@@ -221,7 +221,7 @@ const porUserRef = ref<InstanceType<typeof UserSelect>>();
 const props = defineProps({
   taskVariables: {
     type: Object as () => Record<string, any>,
-    default: () => {}
+    default: () => ({})
   }
 });
 //遮罩层
@@ -326,7 +326,6 @@ const openDialog = async (id?: string) => {
   selectCopyUserList.value = task.value.copyList;
   selectCopyUserIds.value = task.value.copyList.map(e => e.userId).join(',');
   varNodeList.value = task.value.varList;
-  console.log('varNodeList', varNodeList.value);
   buttonDisabled.value = false;
   try {
     const data = {
@@ -340,7 +339,6 @@ const openDialog = async (id?: string) => {
   }
 };
 
-onMounted(() => {});
 const emits = defineEmits(['submitCallback', 'cancelCallback']);
 
 /** 办理流程 */

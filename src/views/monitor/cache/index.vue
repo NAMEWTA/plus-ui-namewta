@@ -151,62 +151,82 @@ import modal from '@/plugins/modal';
 const cache = ref<Partial<CacheVO>>({});
 const commandstats = ref();
 const usedmemory = ref();
+let commandstatsInstance: echarts.ECharts | undefined;
+let usedmemoryInstance: echarts.ECharts | undefined;
+
+const handleResize = () => {
+  commandstatsInstance?.resize();
+  usedmemoryInstance?.resize();
+};
+
+const disposeCharts = () => {
+  commandstatsInstance?.dispose();
+  usedmemoryInstance?.dispose();
+  commandstatsInstance = undefined;
+  usedmemoryInstance = undefined;
+};
 
 const getList = async () => {
   modal.loading('正在加载缓存监控数据，请稍候！');
-  const res = await getCache();
-  modal.closeLoading();
-  cache.value = res.data;
-  const commandstatsIntance = echarts.init(commandstats.value, 'macarons');
-  commandstatsIntance.setOption({
-    tooltip: {
-      trigger: 'item',
-      formatter: '{a} <br/>{b} : {c} ({d}%)'
-    },
-    series: [
-      {
-        name: '命令',
-        type: 'pie',
-        roseType: 'radius',
-        radius: [15, 95],
-        center: ['50%', '38%'],
-        data: res.data.commandStats,
-        animationEasing: 'cubicInOut',
-        animationDuration: 1000
-      }
-    ]
-  });
-  const usedmemoryInstance = echarts.init(usedmemory.value, 'macarons');
-  usedmemoryInstance.setOption({
-    tooltip: {
-      formatter: '{b} <br/>{a} : ' + cache.value.info.used_memory_human
-    },
-    series: [
-      {
-        name: '峰值',
-        type: 'gauge',
-        min: 0,
-        max: 1000,
-        detail: {
-          formatter: cache.value.info.used_memory_human
-        },
-        data: [
-          {
-            value: parseFloat(cache.value.info.used_memory_human),
-            name: '内存消耗'
-          }
-        ]
-      }
-    ]
-  });
-  window.addEventListener('resize', () => {
-    commandstatsIntance.resize();
-    usedmemoryInstance.resize();
-  });
+  try {
+    const res = await getCache();
+    cache.value = res.data;
+    disposeCharts();
+    commandstatsInstance = echarts.init(commandstats.value, 'macarons');
+    commandstatsInstance.setOption({
+      tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b} : {c} ({d}%)'
+      },
+      series: [
+        {
+          name: '命令',
+          type: 'pie',
+          roseType: 'radius',
+          radius: [15, 95],
+          center: ['50%', '38%'],
+          data: res.data.commandStats,
+          animationEasing: 'cubicInOut',
+          animationDuration: 1000
+        }
+      ]
+    });
+    usedmemoryInstance = echarts.init(usedmemory.value, 'macarons');
+    usedmemoryInstance.setOption({
+      tooltip: {
+        formatter: '{b} <br/>{a} : ' + cache.value.info.used_memory_human
+      },
+      series: [
+        {
+          name: '峰值',
+          type: 'gauge',
+          min: 0,
+          max: 1000,
+          detail: {
+            formatter: cache.value.info.used_memory_human
+          },
+          data: [
+            {
+              value: parseFloat(cache.value.info.used_memory_human),
+              name: '内存消耗'
+            }
+          ]
+        }
+      ]
+    });
+  } finally {
+    modal.closeLoading();
+  }
 };
 
 onMounted(() => {
+  window.addEventListener('resize', handleResize);
   getList();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+  disposeCharts();
 });
 </script>
 

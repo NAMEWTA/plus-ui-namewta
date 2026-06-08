@@ -26,7 +26,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  getScrollWrapper()?.removeEventListener('scroll', emitScroll);
+  getScrollWrapper()?.removeEventListener('scroll', emitScroll, true);
 });
 
 const smoothScrollTo = (target: number) => {

@@ -8,6 +8,7 @@ import { isMessageRead } from '@/utils/message-read';
 import { parsePushMessage, resolveNoticeGroup, resolveNoticeTitle, shouldAppendNotice } from '@/utils/push-message';
 
 let closePushConnection: (() => void) | undefined;
+let stopPushWatchers: Array<() => void> = [];
 
 const formatNoticeTime = (timestamp?: number | string) => {
   const time = timestamp ? new Date(timestamp) : new Date();
@@ -77,22 +78,23 @@ const initSsePush = (url: string) => {
       retries: 5,
       delay: 5000,
       onFailed() {
-        console.log('Failed to connect after 5 retries');
+        console.warn('SSE connection failed after 5 retries');
       }
     }
   });
   closePushConnection = close;
 
-  watch(error, () => {
-    console.log('SSE connection error:', error.value);
+  const stopErrorWatch = watch(error, () => {
+    console.warn('SSE connection error:', error.value);
     error.value = null;
   });
 
-  watch(data, () => {
+  const stopDataWatch = watch(data, () => {
     if (!data.value) return;
     appendNotice(data.value);
     data.value = null;
   });
+  stopPushWatchers.push(stopErrorWatch, stopDataWatch);
 };
 
 const initWsPush = (url: string) => {
@@ -101,19 +103,13 @@ const initWsPush = (url: string) => {
       retries: 3,
       delay: 1000,
       onFailed() {
-        console.log('websocket重连失败');
+        console.warn('websocket重连失败');
       }
     },
     heartbeat: {
       message: 'ping',
       interval: 10000,
       pongTimeout: 2000
-    },
-    onConnected() {
-      console.log('websocket已经连接');
-    },
-    onDisconnected() {
-      console.log('websocket已经断开');
     },
     onMessage: (_, e) => {
       if (String(e.data) === 'pong') {
@@ -154,4 +150,6 @@ export const initMessageBox = async () => {
 export const closePush = () => {
   closePushConnection?.();
   closePushConnection = undefined;
+  stopPushWatchers.forEach(stop => stop());
+  stopPushWatchers = [];
 };

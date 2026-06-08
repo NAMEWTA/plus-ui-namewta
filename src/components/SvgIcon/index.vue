@@ -15,8 +15,8 @@ const props = defineProps({
   color: propTypes.string.def(''),
   size: propTypes.string.def('')
 });
-const normalizedIcon = computed(() => props.iconClass.replace(/^i-/, ''));
-const isIconify = computed(() => normalizedIcon.value.includes(':'));
+const normalizedIcon = computed(() => props.iconClass?.replace(/^i-/, ''));
+const isIconify = computed(() => normalizedIcon.value?.includes(':'));
 const iconName = computed(() => `#icon-${normalizedIcon.value}`);
 const svgClass = computed(() => {
   if (props.className) {

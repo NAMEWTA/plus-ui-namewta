@@ -227,7 +227,7 @@ const getLoginData = () => {
   localStorage.removeItem('password');
   loginForm.value = {
     username: username === null ? String(loginForm.value.username) : username,
-    password: '',
+    password: username === null ? String(loginForm.value.password) : '',
     rememberMe: rememberMe === 'true'
   } as LoginData;
 };

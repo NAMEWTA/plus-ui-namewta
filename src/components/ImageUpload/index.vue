@@ -7,6 +7,7 @@
       list-type="picture-card"
       :on-success="handleUploadSuccess"
       :before-upload="handleBeforeUpload"
+      :data="uploadData"
       :limit="limit"
       :accept="fileAccept"
       :on-error="handleUploadError"
@@ -45,7 +46,7 @@
 <script setup lang="ts">
 import { compressAccurately } from 'image-conversion';
 import { listByIds, delOss } from '@/api/system/oss';
-import { OssVO } from '@/api/system/oss/types';
+import type { OssVO, SysOssExt } from '@/api/system/oss/types';
 import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
 import { globalHeaders } from '@/utils/request';
@@ -72,7 +73,12 @@ const props = defineProps({
     default: false
   },
   // 压缩目标大小，单位KB。默认300KB以上文件才压缩，并压缩至300KB以内
-  compressTargetSize: propTypes.number.def(300)
+  compressTargetSize: propTypes.number.def(300),
+  // 上传扩展属性
+  ossExt: {
+    type: Object as PropType<SysOssExt>,
+    default: undefined
+  }
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -89,6 +95,14 @@ const fileList = ref<any[]>([]);
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize));
 
 const imageUploadRef = ref<ElUploadInstance>();
+
+// 上传附加数据（ossExt 扩展属性）
+const uploadData = computed(() => {
+  if (!props.ossExt) return {};
+  return {
+    ossExt: JSON.stringify(props.ossExt)
+  }
+});
 
 // 监听 fileType 变化，更新 fileAccept
 const fileAccept = computed(() => props.fileType.map(type => `.${type}`).join(','));

@@ -26,3 +26,17 @@ export interface OssQuery extends PageQuery {
 export interface OssForm {
   file: undefined | string;
 }
+
+export interface SysOssExt {
+  bizType?: string;
+  fileSize?: number;
+  contentType?: string;
+  source?: string;
+  uploadIp?: string;
+  remark?: string;
+  tags?: string[];
+  refId?: string;
+  refType?: string;
+  isTemp?: boolean;
+  md5?: string;
+}

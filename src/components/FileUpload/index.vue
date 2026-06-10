@@ -5,6 +5,7 @@
       multiple
       :action="uploadFileUrl"
       :before-upload="handleBeforeUpload"
+      :data="uploadData"
       :file-list="fileList"
       :limit="limit"
       :accept="fileAccept"
@@ -48,6 +49,7 @@
 
 <script setup lang="ts">
 import { delOss, listByIds } from '@/api/system/oss';
+import type { SysOssExt } from '@/api/system/oss/types';
 import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
 import { globalHeaders } from '@/utils/request';
@@ -66,7 +68,12 @@ const props = defineProps({
   // 是否显示提示
   isShowTip: propTypes.bool.def(true),
   // 禁用组件（仅查看文件）
-  disabled: propTypes.bool.def(false)
+  disabled: propTypes.bool.def(false),
+  // 上传扩展属性
+  ossExt: {
+    type: Object as PropType<SysOssExt>,
+    default: undefined
+  }
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -81,6 +88,14 @@ const fileList = ref<any[]>([]);
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize));
 
 const fileUploadRef = ref<ElUploadInstance>();
+
+// 上传附加数据（ossExt 扩展属性）
+const uploadData = computed(() => {
+  if (!props.ossExt) return {};
+  return {
+    ossExt: JSON.stringify(props.ossExt)
+  }
+});
 
 // 监听 fileType 变化，更新 fileAccept
 const fileAccept = computed(() => props.fileType.map(type => `.${type}`).join(','));

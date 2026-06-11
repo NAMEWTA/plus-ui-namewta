@@ -20,6 +20,16 @@ let downloadLoadingInstance: LoadingInstance | undefined;
 // 是否显示重新登录
 export const isRelogin = { show: false };
 
+function createHandledError(message: string) {
+  const error = new Error(message) as Error & { isHandled?: boolean };
+  error.isHandled = true;
+  return error;
+}
+
+export function isHandledRequestError(error: unknown) {
+  return Boolean((error as { isHandled?: boolean } | undefined)?.isHandled);
+}
+
 function normalizeErrorMessage(message?: string) {
   if (!message) {
     return undefined;
@@ -63,7 +73,7 @@ async function parseResponseErrorData(data: unknown): Promise<string | undefined
 
   if (typeof data === 'object') {
     const payload = data as Record<string, any>;
-    return errorCode[payload.code] || payload.msg || payload.message || errorCode['default'];
+    return payload.msg || payload.message || errorCode[payload.code] || errorCode['default'];
   }
 
   return undefined;
@@ -187,7 +197,7 @@ service.interceptors.response.use(
     // 未设置状态码则默认成功状态
     const code = res.data.code || HttpStatus.SUCCESS;
     // 获取错误信息
-    const msg = errorCode[code] || res.data.msg || errorCode['default'];
+    const msg = res.data.msg || errorCode[code] || errorCode['default'];
     // 二进制数据则直接返回
     if (res.request.responseType === 'blob' || res.request.responseType === 'arraybuffer') {
       return res.data;
@@ -227,13 +237,13 @@ service.interceptors.response.use(
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。');
     } else if (code === HttpStatus.SERVER_ERROR) {
       ElMessage({ message: msg, type: 'error' });
-      return Promise.reject(new Error(msg));
+      return Promise.reject(createHandledError(msg));
     } else if (code === HttpStatus.WARN) {
       ElMessage({ message: msg, type: 'warning' });
-      return Promise.reject(new Error(msg));
+      return Promise.reject(createHandledError(msg));
     } else if (code !== HttpStatus.SUCCESS) {
       ElNotification.error({ title: msg });
-      return Promise.reject('error');
+      return Promise.reject(createHandledError(msg));
     } else {
       return Promise.resolve(res.data);
     }
@@ -241,6 +251,7 @@ service.interceptors.response.use(
   async (error: any) => {
     const message = (await extractErrorMessage(error)) || errorCode['default'];
     ElMessage({ message: message, type: 'error', duration: 5 * 1000 });
+    error.isHandled = true;
     return Promise.reject(error);
   }
 );

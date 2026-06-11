@@ -6,7 +6,7 @@ import { usePermissionStore } from '@/store/modules/permission';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useUserStore } from '@/store/modules/user';
 import { getToken } from '@/utils/auth';
-import { isRelogin } from '@/utils/request';
+import { isHandledRequestError, isRelogin } from '@/utils/request';
 import { isHttp, isPathMatch } from '@/utils/validate';
 import router from './router';
 
@@ -36,7 +36,9 @@ router.beforeEach(async (to, from) => {
         const [err] = await tos(useUserStore().getInfo());
         if (err) {
           await useUserStore().logout();
-          ElMessage.error(err);
+          if (!isHandledRequestError(err)) {
+            ElMessage.error(err instanceof Error ? err.message : String(err));
+          }
           return { path: '/' };
         } else {
           isRelogin.show = false;

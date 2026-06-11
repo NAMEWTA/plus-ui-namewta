@@ -8,6 +8,7 @@
     .theme-dark .el-sub-menu__title {
       border-radius: var(--app-radius-md);
       margin: 3px 8px;
+      height: 40px;
 
       &:hover {
         background-color: var(--side-menu-hover-bg) !important;
@@ -19,6 +20,7 @@
     .el-sub-menu__title {
       border-radius: var(--app-radius-md);
       margin: 3px 8px;
+      height: 40px;
       color: var(--side-menu-text) !important;
 
       &:hover {

@@ -252,9 +252,12 @@ const handleUpdate = async (row?: Partial<ConfigVO>) => {
   showDialog('修改参数');
 };
 /** 内联保存参数值 */
-const handleInlineSave = async (row: ConfigVO) => {
+const handleInlineSave = async (row: Partial<ConfigVO>) => {
+  if (!row.configKey) {
+    return;
+  }
   await modal.confirm('确认要保存对参数"' + row.configKey + '"的修改吗？');
-  await updateConfigByKey(row.configKey, row.configValue);
+  await updateConfigByKey(row.configKey, row.configValue ?? '');
   modal.msgSuccess('修改成功');
 };
 /** 提交按钮 */

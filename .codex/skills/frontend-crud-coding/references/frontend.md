@@ -10,10 +10,10 @@
 - 监控页：`src/views/monitor/*`、`src/api/monitor/*`。
 - 公共 hooks：`src/hooks/async/useLoading.ts`、`src/hooks/dialog/*`、`src/hooks/form/*`、`src/hooks/table/*`、`src/hooks/tree/*`。
 - 项目内 generator 模板：
-  `gen/api.ts.vm`
-  `gen/types.ts.vm`
-  `gen/index.vue.vm`
-  `gen/index-tree.vue.vm`
+  `gen/api.ts.ftl`
+  `gen/types.ts.ftl`
+  `gen/index.vue.ftl`
+  `gen/index-tree.vue.ftl`
 
 ## 基础栈与格式
 
@@ -44,7 +44,7 @@
   `changeXxxStatus` -> `PUT /<module>/<business>/changeStatus`
 - query string 用 `params`，请求体用 `data`。
 - 加密、防重复提交等 headers 直接写在请求配置里，例如用户重置密码中的 `isEncrypt`、`repeatSubmit`。
-- 当前仓库有些 API 使用 `export const`，有些使用 `export function`；新增标准 CRUD 优先跟随 `gen/api.ts.vm` 和相邻模块。
+- 当前仓库有些 API 使用 `export const`，有些使用 `export function`；新增标准 CRUD 优先跟随 `gen/api.ts.ftl` 和相邻模块。
 - 只有相邻模块已有 `export default { ... }` 聚合时才新增默认导出。
 
 ## 类型文件规则
@@ -128,8 +128,8 @@
 ## 与 gen 模板的关系
 
 - `gen` 是当前前端项目内的生成模板，优先于外部后端工程拷贝的模板。
-- 新增标准单表页面时读取 `gen/index.vue.vm`、`gen/api.ts.vm`、`gen/types.ts.vm`。
-- 新增树表页面时读取 `gen/index-tree.vue.vm`、`gen/api.ts.vm`、`gen/types.ts.vm`。
+- 新增标准单表页面时读取 `gen/index.vue.ftl`、`gen/api.ts.ftl`、`gen/types.ts.ftl`。
+- 新增树表页面时读取 `gen/index-tree.vue.ftl`、`gen/api.ts.ftl`、`gen/types.ts.ftl`。
 - `gen` 模板是标准骨架，不是最终答案；落地时仍要对照目标模块真实页面和公共 hooks。
 - 当前前端项目已经把生成页升级为 hooks 版：`useLoading`、`useFormDialog`、`useSearchReset`、`useTableSelection`、`useDateRangeQuery`。
 - 新增标准 CRUD 时，先从 `gen` 确认字段、权限、导出、状态切换、排序、日期范围等，再落成当前项目的实际页面壳。

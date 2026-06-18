@@ -17,10 +17,10 @@ description: 在当前 plus-ui-new 前端项目中按真实 Vue 3 + TypeScript +
    - 系统复杂页优先看 `src/views/system/user/index.vue`、`system/role`、`system/post`、`system/config`。
    - workflow 业务页优先看 `src/views/workflow/*` 同类页面。
 4. 新增标准页面前，对照项目内模板确认基础骨架：
-   - API 模板：`gen/api.ts.vm`
-   - types 模板：`gen/types.ts.vm`
-   - 标准单表页模板：`gen/index.vue.vm`
-   - 树表页模板：`gen/index-tree.vue.vm`
+   - API 模板：`gen/api.ts.ftl`
+   - types 模板：`gen/types.ts.ftl`
+   - 标准单表页模板：`gen/index.vue.ftl`
+   - 树表页模板：`gen/index-tree.vue.ftl`
 5. 新增代码时通常同步维护 `src/api/<module>/<business>/index.ts`、`types.ts`、`src/views/<module>/<business>/index.vue`。
 6. 增强已有页面时只做增量修改，保留原页面的树筛选、导入导出、列显隐、权限、字典、弹窗和路由跳转能力。
 7. 修改完成后按影响范围运行验证：优先 `pnpm exec vue-tsc --noEmit`，改动页面或导入时再跑 `pnpm lint`，大范围变更再跑 `pnpm build`。
@@ -85,7 +85,7 @@ description: 在当前 plus-ui-new 前端项目中按真实 Vue 3 + TypeScript +
 
 ### 1. 标准单表 CRUD
 
-以 `gen/index.vue.vm`、`gen/api.ts.vm`、`gen/types.ts.vm` 和 `src/views/demo/demo/index.vue` 为主要起点，补齐列表、搜索、分页、新增、编辑、删除、导出、权限、类型和验证。
+以 `gen/index.vue.ftl`、`gen/api.ts.ftl`、`gen/types.ts.ftl` 和 `src/views/demo/demo/index.vue` 为主要起点，补齐列表、搜索、分页、新增、编辑、删除、导出、权限、类型和验证。
 
 ### 2. 树表 CRUD
 

@@ -78,7 +78,7 @@ const products = [
   },
   {
     name: 'RuoYi-Cloud-Plus',
-    version: 'v3.0.0',
+    version: 'v6.0.0',
     summary: '微服务通用权限管理系统，适合更复杂的服务治理场景，也可以沿用同样的前端升级思路。',
     tags: ['Spring Cloud', 'Gateway', 'Nacos', 'Dubbo'],
     primaryLabel: '访问 GitHub',

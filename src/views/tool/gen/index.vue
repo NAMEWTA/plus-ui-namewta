@@ -170,8 +170,8 @@
         <el-tab-pane
           v-for="(value, key) in preview.data"
           :key="value"
-          :label="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.vm'))"
-          :name="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.vm'))"
+          :label="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.ftl'))"
+          :name="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.ftl'))"
         >
           <el-link
             v-copyText="value"

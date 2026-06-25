@@ -19,33 +19,38 @@
       </template>
       <template v-if="!modelCollapsed">
         <el-input v-model="filterText" :placeholder="placeholder" prefix-icon="Search" clearable />
-        <el-tree
-          ref="treeRef"
-          class="mt-2 dept-tree"
-          :node-key="nodeKey"
-          :data="data"
-          :props="mergedTreeProps as any"
-          :expand-on-click-node="false"
-          :filter-node-method="internalFilterNode"
-          highlight-current
-          default-expand-all
-          @node-click="onNodeClick"
-        >
-          <template #default="{ data: nodeData }">
-            <span class="tree-node-label" :class="{ 'is-disabled': isNodeDisabled(nodeData) }">
-              <span>{{ getNodeLabel(nodeData) }}</span>
-              <el-tooltip v-if="isNodeDisabled(nodeData)" content="停用" placement="top">
-                <el-icon class="tree-node-disabled-icon"><CircleCloseFilled /></el-icon>
-              </el-tooltip>
-            </span>
-          </template>
-        </el-tree>
+        <div ref="treeWrapRef" class="dept-tree-wrap">
+          <el-tree-v2
+            ref="treeRef"
+            class="dept-tree"
+            :data="treeData"
+            :props="mergedTreeProps as any"
+            :height="treeHeight"
+            :item-size="28"
+            :expand-on-click-node="false"
+            :default-expanded-keys="defaultExpandedKeys"
+            :filter-method="internalFilterNode"
+            highlight-current
+            @node-click="onNodeClick"
+          >
+            <template #default="{ node }">
+              <span class="tree-node-label" :class="{ 'is-disabled': isNodeDisabled(node.data) }">
+                <span>{{ node.label }}</span>
+                <el-tooltip v-if="isNodeDisabled(node.data)" content="停用" placement="top">
+                  <el-icon class="tree-node-disabled-icon"><CircleCloseFilled /></el-icon>
+                </el-tooltip>
+              </span>
+            </template>
+          </el-tree-v2>
+        </div>
       </template>
     </el-card>
   </el-col>
 </template>
 
 <script setup lang="ts">
+import type { TreeKey, TreeV2Instance } from 'element-plus';
+
 const props = withDefaults(
   defineProps<{
     /** 面板标题 */
@@ -91,22 +96,33 @@ const modelCollapsed = computed({
 });
 
 const filterText = ref('');
-const treeRef = ref<ElTreeInstance>();
+const treeRef = ref<TreeV2Instance>();
+const treeWrapRef = ref<HTMLElement>();
+const treeData = shallowRef<any[]>([]);
+const defaultExpandedKeys = shallowRef<TreeKey[]>([]);
+const { height: treeWrapHeight } = useElementSize(treeWrapRef);
+const treeHeight = computed(() => Math.max(Math.floor(treeWrapHeight.value), 180));
 
 const mergedTreeProps = computed(() => {
+  const label = props.treeProps?.label ?? 'label';
+  const children = props.treeProps?.children ?? 'children';
+  const value = props.treeProps?.value ?? props.nodeKey;
   if (!props.disabledField) {
-    return props.treeProps;
+    return {
+      ...props.treeProps,
+      value,
+      label,
+      children
+    };
   }
   return {
     ...props.treeProps,
+    value,
+    label,
+    children,
     disabled: props.treeProps?.disabled ?? props.disabledField
   };
 });
-
-const getNodeLabel = (data: any) => {
-  const labelField = props.treeProps?.label ?? 'label';
-  return data?.[labelField] ?? '';
-};
 
 const isNodeDisabled = (data: any) => {
   if (!props.disabledField) {
@@ -119,6 +135,23 @@ const toggleCollapsed = () => {
   modelCollapsed.value = !modelCollapsed.value;
 };
 
+const getNodeKey = (data: any) => data?.[props.nodeKey] as TreeKey | undefined;
+
+const collectExpandedKeys = (nodes: any[], keys: TreeKey[] = []) => {
+  const childrenField = props.treeProps?.children ?? 'children';
+  for (const node of nodes) {
+    const children = node?.[childrenField];
+    if (Array.isArray(children) && children.length > 0) {
+      const key = getNodeKey(node);
+      if (key !== undefined) {
+        keys.push(key);
+      }
+      collectExpandedKeys(children, keys);
+    }
+  }
+  return keys;
+};
+
 const internalFilterNode = (value: string, data: any) => {
   if (props.filterNodeMethod) {
     return props.filterNodeMethod(value, data);
@@ -127,16 +160,32 @@ const internalFilterNode = (value: string, data: any) => {
   return data[props.filterField]?.indexOf(value) !== -1;
 };
 
-watchEffect(
-  () => {
-    treeRef.value?.filter(filterText.value);
+const filterTree = useDebounceFn(() => {
+  treeRef.value?.filter(filterText.value);
+}, 200);
+
+watch(filterText, () => filterTree());
+
+watch(
+  () => props.data,
+  (data) => {
+    const rawData = toRaw(data);
+    treeData.value = rawData;
+    defaultExpandedKeys.value = collectExpandedKeys(rawData);
+    nextTick(() => {
+      treeRef.value?.setData(rawData);
+      treeRef.value?.setExpandedKeys(defaultExpandedKeys.value);
+      if (filterText.value) {
+        filterTree();
+      }
+    });
   },
-  { flush: 'post' }
+  { immediate: true }
 );
 
 const onNodeClick = (data: any, node: any, component: any) => {
   if (isNodeDisabled(data)) {
-    treeRef.value?.setCurrentKey(undefined);
+    treeRef.value?.setCurrentKey(undefined as any);
     return;
   }
   emit('node-click', data, node, component);
@@ -224,14 +273,17 @@ $mobile-breakpoint: 900px;
   transform: rotate(-45deg);
 }
 
-.dept-tree {
-  padding-top: 6px;
+.dept-tree-wrap {
+  margin-top: 8px;
   flex: 1 1 auto;
   min-height: 180px;
   max-height: 100%;
+  min-width: 0;
+}
+
+.dept-tree {
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 4px;
   scrollbar-width: thin;
 }
 

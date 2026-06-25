@@ -28,8 +28,8 @@ const app = createApp(App);
 
 app.use(HighLight);
 app.use(ElementIcons);
-app.use(router);
 app.use(store);
+app.use(router);
 app.use(i18n);
 app.use(VXETable);
 app.use(plugins);

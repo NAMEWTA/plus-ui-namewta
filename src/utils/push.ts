@@ -9,6 +9,9 @@ import { parsePushMessage, resolveNoticeGroup, resolveNoticeTitle, shouldAppendN
 
 let closePushConnection: (() => void) | undefined;
 let stopPushWatchers: Array<() => void> = [];
+const KICKED_MESSAGE = 'kicked';
+let pushKicked = false;
+let resumePushTimer: ReturnType<typeof setTimeout> | undefined;
 
 const formatNoticeTime = (timestamp?: number | string) => {
   const time = timestamp ? new Date(timestamp) : new Date();
@@ -42,6 +45,15 @@ const appendNotice = (raw: string) => {
     type: 'success',
     duration: 3000
   });
+};
+
+const handlePushMessage = (raw: string) => {
+  if (raw === KICKED_MESSAGE) {
+    pushKicked = true;
+    closePush();
+    return;
+  }
+  appendNotice(raw);
 };
 
 const toNoticeItem = (item: MessageVO) => {
@@ -91,7 +103,7 @@ const initSsePush = (url: string) => {
 
   const stopDataWatch = watch(data, () => {
     if (!data.value) return;
-    appendNotice(data.value);
+    handlePushMessage(data.value);
     data.value = null;
   });
   stopPushWatchers.push(stopErrorWatch, stopDataWatch);
@@ -115,7 +127,7 @@ const initWsPush = (url: string) => {
       if (String(e.data) === 'pong') {
         return;
       }
-      appendNotice(String(e.data));
+      handlePushMessage(String(e.data));
     }
   });
   closePushConnection = close;
@@ -126,6 +138,7 @@ export const initPush = () => {
   if (import.meta.env.VITE_APP_MESSAGE_ENABLED === 'false') {
     return;
   }
+  pushKicked = false;
   const path = import.meta.env.VITE_APP_MESSAGE_PATH || '/resource/message';
   const transport = import.meta.env.VITE_APP_MESSAGE_TRANSPORT || 'sse';
   if (transport.toLowerCase() === 'websocket') {
@@ -153,3 +166,27 @@ export const closePush = () => {
   stopPushWatchers.forEach(stop => stop());
   stopPushWatchers = [];
 };
+
+const resumePushIfNeeded = () => {
+  if (!pushKicked || !getToken() || document.visibilityState !== 'visible') {
+    return;
+  }
+  if (resumePushTimer) {
+    clearTimeout(resumePushTimer);
+  }
+  resumePushTimer = setTimeout(async () => {
+    resumePushTimer = undefined;
+    if (!pushKicked || !getToken() || document.visibilityState !== 'visible') {
+      return;
+    }
+    try {
+      await initMessageBox();
+    } finally {
+      initPush();
+    }
+  }, 300);
+};
+
+window.addEventListener('focus', resumePushIfNeeded);
+document.addEventListener('visibilitychange', resumePushIfNeeded);
+window.addEventListener('online', resumePushIfNeeded);

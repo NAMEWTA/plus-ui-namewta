@@ -15,6 +15,15 @@ export default defineConfig(({ mode, command }) => {
     },
     // https://cn.vitejs.dev/config/#resolve-extensions
     plugins: createPlugins(env, command === 'build'),
+    build: {
+      chunkSizeWarningLimit: 1500,
+      rolldownOptions: {
+        checks: {
+          invalidAnnotation: false,
+          pluginTimings: false
+        }
+      }
+    },
     server: {
       host: '0.0.0.0',
       port: Number(env.VITE_APP_PORT),

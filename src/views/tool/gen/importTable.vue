@@ -1,5 +1,4 @@
 <template>
-  <!-- 导入表 -->
   <el-dialog v-model="visible" title="导入表" width="1100px" top="5vh" append-to-body>
     <el-form ref="queryFormRef" :model="queryParams" :inline="true">
       <el-form-item label="数据源" prop="dataName">

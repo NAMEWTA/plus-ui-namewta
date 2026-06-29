@@ -75,7 +75,7 @@
         <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="220">
           <template #default="scope">
             <div class="menu-name-cell">
-              <svg-icon v-if="scope.row.icon" :icon-class="scope.row.icon" />
+              <svg-icon v-if="isMenuIconVisible(scope.row.icon)" :icon-class="scope.row.icon" />
               <span class="menu-name-text">{{ scope.row.menuName }}</span>
             </div>
           </template>
@@ -430,6 +430,11 @@ const { queryParams, form, rules } = toRefs<PageData<MenuForm, MenuQuery>>(data)
 const { dialog, openDialog, closeDialog, setTitle } = useDialogState();
 
 type MenuTagType = 'warning' | 'primary' | 'success' | 'danger';
+
+const isMenuIconVisible = (icon?: string) => {
+  const normalizedIcon = icon?.trim();
+  return !!normalizedIcon && normalizedIcon !== '#';
+};
 
 const getMenuTypeMeta = (menu: Partial<MenuVO>): { label: string; type: MenuTagType } => {
   if (menu.menuType === MenuTypeEnum.F) {

@@ -1,7 +1,7 @@
 import HighLight from '@highlightjs/vue-plugin';
 import { ElDialog } from 'element-plus';
 import { createApp } from 'vue';
-import VXETable from 'vxe-table';
+import { install as VxeTablePlugin, VxeUI } from 'vxe-table';
 import 'virtual:uno.css';
 import 'element-plus/theme-chalk/dark/css-vars.css';
 import '@/assets/styles/index.scss';
@@ -18,7 +18,7 @@ import './permission';
 import router from './router';
 import store from './store';
 
-VXETable.setConfig({
+VxeUI.setConfig({
   zIndex: 999999
 });
 
@@ -31,7 +31,7 @@ app.use(ElementIcons);
 app.use(store);
 app.use(router);
 app.use(i18n);
-app.use(VXETable);
+app.use(VxeTablePlugin);
 app.use(plugins);
 directive(app);
 

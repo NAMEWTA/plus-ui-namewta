@@ -64,6 +64,14 @@ function addIframe() {
   }
 }
 
+.app-main:not(.with-fixed-header) {
+  min-height: calc(100vh - 64px);
+}
+
+.app-main.with-tags-view:not(.with-fixed-header) {
+  min-height: calc(100vh - 105px);
+}
+
 .app-main.with-fixed-header {
   padding-top: 76px;
   min-height: calc(100vh - 76px);

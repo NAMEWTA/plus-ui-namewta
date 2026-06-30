@@ -131,6 +131,11 @@ declare global {
      * 页面圆角大小
      */
     radiusBase: number;
+
+    /**
+     * 表格全高内部滚动
+     */
+    fullHeightTable: boolean;
   }
 
   interface DefaultSettings extends LayoutSetting {

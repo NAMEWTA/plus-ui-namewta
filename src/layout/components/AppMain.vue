@@ -13,12 +13,14 @@
 
 <script setup name="AppMain" lang="ts">
 import animateConfig from '@/animate';
+import { useFullHeightTable } from '@/hooks/table/useFullHeightTable';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useTagsViewStore } from '@/store/modules/tagsView';
 import IframeToggle from './IframeToggle/index.vue';
 
 const route = useRoute();
 const tagsViewStore = useTagsViewStore();
+useFullHeightTable();
 
 // 随机动画集合
 const animate = ref<string>('');

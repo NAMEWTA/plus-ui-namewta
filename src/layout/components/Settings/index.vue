@@ -154,6 +154,13 @@
       </span>
     </div>
 
+    <div class="drawer-item">
+      <span>全高表格</span>
+      <span class="comp-style">
+        <el-switch v-model="settingsStore.fullHeightTable" class="drawer-switch" />
+      </span>
+    </div>
+
     <el-divider />
 
     <el-button type="primary" plain icon="DocumentAdd" @click="saveSetting">保存配置</el-button>
@@ -260,6 +267,7 @@ const saveSetting = () => {
   settings.value.theme = storeSettings.value.theme;
   settings.value.navType = storeSettings.value.navType;
   settings.value.radiusBase = storeSettings.value.radiusBase;
+  settings.value.fullHeightTable = storeSettings.value.fullHeightTable;
   setTimeout(() => {
     modal.closeLoading();
   }, 1000);

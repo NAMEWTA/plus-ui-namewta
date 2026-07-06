@@ -2,6 +2,7 @@
 
 ## 优先参考的代码来源
 
+- 默认远端基线：`https://gitee.com/JavaLionLi/plus-ui`，分支 `6.X-Vue`。引用远端文件时必须同时写明 `branch=6.X-Vue` 和仓库内路径。
 - 当前目标目录下最近似页面、API、types。
 - 标准单表：`src/views/demo/demo/index.vue`、`src/api/demo/demo/index.ts`、`src/api/demo/demo/types.ts`。
 - 树表：`src/views/demo/tree/index.vue`、`src/views/workflow/category/index.vue`。
@@ -22,6 +23,7 @@
 - `.editorconfig` 要求 UTF-8、LF、2 空格缩进。
 - 当前仓库没有 `.prettierrc`；格式化使用 `pnpm run fmt`，lint 使用 `pnpm lint`。
 - 不要在一个页面里混入与仓库不一致的格式和写法。
+- 不要把本机绝对路径写进 skill 输出或参考文档；跨环境参考统一使用 Gitee 仓库 URL、分支和仓库内相对路径。
 
 ## API 文件规则
 
@@ -127,7 +129,8 @@
 
 ## 与 gen 模板的关系
 
-- `gen` 是当前前端项目内的生成模板，优先于外部后端工程拷贝的模板。
+- `gen` 是 plus-ui 前端项目内的生成模板；默认远端位置是 `https://gitee.com/JavaLionLi/plus-ui/tree/6.X-Vue/gen`，分支必须标记为 `6.X-Vue`。
+- 本地仓库存在对应文件时优先读本地 `gen`，但不要把本地绝对路径写入 skill 或交付内容。
 - 新增标准单表页面时读取 `gen/index.vue.ftl`、`gen/api.ts.ftl`、`gen/types.ts.ftl`。
 - 新增树表页面时读取 `gen/index-tree.vue.ftl`、`gen/api.ts.ftl`、`gen/types.ts.ftl`。
 - `gen` 模板是标准骨架，不是最终答案；落地时仍要对照目标模块真实页面和公共 hooks。

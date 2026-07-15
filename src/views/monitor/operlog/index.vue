@@ -356,7 +356,7 @@ const handleExport = () => {
     {
       ...queryParams.value
     },
-    `config_${new Date().getTime()}.xlsx`
+    `operlog_${new Date().getTime()}.xlsx`
   );
 };
 onMounted(() => {

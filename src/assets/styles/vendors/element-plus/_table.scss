@@ -54,6 +54,19 @@ html.dark {
   border-right: 0;
 }
 
+// 全高表格的外壳会延伸到分页区域，左边框改由实际表头/数据行首列绘制，避免少量数据时边框悬空。
+.el-table.is-full-height-table.el-table--border {
+  border-left: 0;
+
+  > .el-table__inner-wrapper > .el-table__header-wrapper,
+  > .el-table__inner-wrapper > .el-table__body-wrapper,
+  > .el-table__inner-wrapper > .el-table__footer-wrapper {
+    tr > .el-table__cell:first-child {
+      border-left: var(--el-table-border);
+    }
+  }
+}
+
 // --- 表格内操作列：固定宽按钮、下拉链接色 ---
 .el-table .fixed-width .el-button--small {
   padding-left: 0;

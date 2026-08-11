@@ -80,5 +80,5 @@
 }
 
 .table-panel .toolbar-actions .el-button:not(.is-circle):not(.is-link) {
-  border-radius: 10px !important;
+  border-radius: var(--app-radius-md) !important;
 }

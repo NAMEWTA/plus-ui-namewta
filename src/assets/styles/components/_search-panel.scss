@@ -6,7 +6,7 @@
   height: 28px !important;
   min-width: 28px !important;
   padding: 0 !important;
-  border-radius: 10px !important;
+  border-radius: var(--app-radius-md) !important;
   background: var(--app-accent-soft) !important;
 }
 

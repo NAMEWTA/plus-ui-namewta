@@ -61,7 +61,7 @@
 
 .el-radio-button__inner,
 .el-checkbox-button__inner {
-  border-radius: 10px !important;
+  border-radius: var(--app-radius-md) !important;
   box-shadow: none !important;
 }
 
@@ -69,5 +69,5 @@
 .el-checkbox-button:first-child .el-checkbox-button__inner,
 .el-radio-button:last-child .el-radio-button__inner,
 .el-checkbox-button:last-child .el-checkbox-button__inner {
-  border-radius: 10px !important;
+  border-radius: var(--app-radius-md) !important;
 }

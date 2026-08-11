@@ -77,11 +77,11 @@
 .query-form .el-input-number,
 .query-form .el-input-number__decrease,
 .query-form .el-input-number__increase {
-  border-radius: 12px !important;
+  border-radius: var(--app-radius-md) !important;
 }
 
 .query-form .el-button {
-  border-radius: 10px !important;
+  border-radius: var(--app-radius-md) !important;
 }
 
 html.dark .query-form .el-button--primary {

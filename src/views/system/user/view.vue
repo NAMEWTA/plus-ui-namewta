@@ -15,6 +15,13 @@
       <el-descriptions-item label="手机号码">{{ info.phoneNumber || '-' }}</el-descriptions-item>
       <el-descriptions-item label="邮箱">{{ info.email || '-' }}</el-descriptions-item>
       <el-descriptions-item label="登录账号">{{ info.userName }}</el-descriptions-item>
+      <el-descriptions-item label="登录域" :span="2">
+        {{
+          (info.userTypeNames && info.userTypeNames.join('、')) ||
+          (info.userTypeCodes && info.userTypeCodes.join('、')) ||
+          '-'
+        }}
+      </el-descriptions-item>
       <el-descriptions-item label="用户状态">
         <el-tag :type="info.status === '0' ? 'success' : 'danger'">
           {{ selectDictLabel(sys_normal_disable, info.status) }}

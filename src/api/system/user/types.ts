@@ -32,7 +32,6 @@ export interface UserVO extends BaseEntity {
   deptId: number;
   userName: string;
   nickName: string;
-  userType: string;
   email: string;
   phoneNumber: string;
   gender: string;
@@ -51,6 +50,18 @@ export interface UserVO extends BaseEntity {
   postIds: any;
   roleId: any;
   admin: boolean;
+  /**
+   * 拥有的登录域 ID
+   */
+  userTypeIds?: Array<string | number>;
+  /**
+   * 拥有的登录域编码
+   */
+  userTypeCodes?: string[];
+  /**
+   * 拥有的登录域名称
+   */
+  userTypeNames?: string[];
 }
 
 /**
@@ -71,6 +82,10 @@ export interface UserForm {
   avatar?: string | number;
   postIds: string[];
   roleIds: string[];
+  /**
+   * 登录域 ID 列表
+   */
+  userTypeIds?: Array<string | number>;
 }
 
 /**
@@ -92,6 +107,16 @@ export interface UserInfoVO {
   postIds: string[];
   roleGroup: string;
   postGroup: string;
+  userTypeIds?: Array<string | number>;
+  /**
+   * 显式分配的角色（不含 Client 默认角色）
+   */
+  explicitRoleIds?: string[];
+  /**
+   * 各 Client 默认角色（只读展示，不写入 sys_user_role）
+   */
+  defaultRoleIds?: string[];
+  defaultRoles?: RoleVO[];
 }
 
 export interface ResetPwdForm {

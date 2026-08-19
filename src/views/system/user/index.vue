@@ -215,6 +215,17 @@
                 <span>{{ scope.row.createTime }}</span>
               </template>
             </el-table-column>
+            <el-table-column
+              v-if="columns[7].visible"
+              key="userTypeNames"
+              label="登录域"
+              align="center"
+              :show-overflow-tooltip="true"
+            >
+              <template #default="scope">
+                <span>{{ formatUserTypeNames(scope.row) }}</span>
+              </template>
+            </el-table-column>
 
             <el-table-column label="操作" fixed="right" width="180" class-name="small-padding fixed-width">
               <template #default="scope">
@@ -276,7 +287,7 @@
       ref="formDialogRef"
       v-model="dialog.visible"
       :title="dialog.title"
-      width="600px"
+      width="720px"
       append-to-body
       @close="closeDialog"
     >
@@ -368,17 +379,74 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="form.userId == null || form.userId != useUserStore().userId">
-            <el-form-item label="角色" prop="roleIds">
-              <el-select v-model="form.roleIds" filterable multiple placeholder="请选择">
+        </el-row>
+        <el-row v-if="form.userId == null || form.userId != useUserStore().userId">
+          <el-col :span="24">
+            <el-form-item label="登录域" prop="userTypeIds">
+              <el-select v-model="form.userTypeIds" multiple filterable placeholder="请选择登录域">
                 <el-option
-                  v-for="item in roleOptions"
+                  v-for="item in userTypeOptions"
+                  :key="item.userTypeId"
+                  :label="item.userTypeName"
+                  :value="item.userTypeId"
+                  :disabled="item.status === '1'"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="客户端">
+              <el-select
+                v-model="roleClientId"
+                placeholder="请先选择客户端再分配角色"
+                filterable
+                clearable
+                @change="handleRoleClientChange"
+              >
+                <el-option
+                  v-for="item in clientOptions"
+                  :key="item.clientId"
+                  :label="getClientLabel(item)"
+                  :value="item.clientId"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="角色" prop="roleIds">
+              <el-select
+                v-model="currentClientRoleIds"
+                filterable
+                multiple
+                placeholder="请选择角色"
+                :disabled="!roleClientId"
+              >
+                <el-option
+                  v-for="item in assignableClientRoles"
                   :key="item.roleId"
-                  :label="item.roleName"
-                  :value="item.roleId"
-                  :disabled="item.status == '1'"
+                  :label="getRoleOptionLabel(item)"
+                  :value="String(item.roleId)"
+                  :disabled="item.status == '1' || item.defaultRole"
                 ></el-option>
               </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col v-if="selectedRoleSummary.length || defaultRoleSummary.length" :span="24">
+            <el-form-item label="已分配">
+              <div class="role-assign-summary">
+                <div v-if="selectedRoleSummary.length" class="role-assign-block">
+                  <span class="role-assign-label">显式角色</span>
+                  <el-tag v-for="item in selectedRoleSummary" :key="item.roleId" size="small">
+                    {{ item.label }}
+                  </el-tag>
+                </div>
+                <div v-if="defaultRoleSummary.length" class="role-assign-block">
+                  <span class="role-assign-label">默认角色</span>
+                  <el-tag v-for="item in defaultRoleSummary" :key="item.roleId" type="info" size="small">
+                    {{ item.label }}
+                  </el-tag>
+                </div>
+              </div>
             </el-form-item>
           </el-col>
         </el-row>
@@ -453,13 +521,18 @@
 <script setup name="User" lang="ts">
 import { to } from 'await-to-js';
 import { useRouter } from 'vue-router';
+import { listClientOptions } from '@/api/system/client';
+import { ClientVO } from '@/api/system/client/types';
 import { getConfigKey } from '@/api/system/config';
 import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
 import { optionselect } from '@/api/system/post';
 import { PostVO } from '@/api/system/post/types';
-import { RoleVO } from '@/api/system/role/types';
+import { listRole } from '@/api/system/role';
+import { RoleQuery, RoleVO } from '@/api/system/role/types';
 import api from '@/api/system/user';
 import { UserForm, UserQuery, UserVO } from '@/api/system/user/types';
+import { optionselect as listUserTypeOptions } from '@/api/system/userType';
+import { UserTypeVO } from '@/api/system/userType/types';
 import TreePanel from '@/components/TreePanel/index.vue';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
@@ -489,6 +562,12 @@ const enabledDeptOptions = ref<DeptTreeVO[]>([]);
 const initPassword = ref<string>('');
 const postOptions = ref<PostVO[]>([]);
 const roleOptions = ref<RoleVO[]>([]);
+const userTypeOptions = ref<UserTypeVO[]>([]);
+const clientOptions = ref<ClientVO[]>([]);
+const roleClientId = ref<string>();
+const clientRoleOptions = ref<RoleVO[]>([]);
+const roleMetaMap = ref<Map<string, RoleVO>>(new Map());
+const defaultRoleList = ref<RoleVO[]>([]);
 /*** 用户导入参数 */
 const upload = reactive<ImportOption>({
   // 是否显示弹出层（用户导入）
@@ -512,7 +591,8 @@ const columns = ref<FieldOption[]>([
   { key: 3, label: `部门`, visible: true, children: [] },
   { key: 4, label: `手机号码`, visible: true, children: [] },
   { key: 5, label: `状态`, visible: true, children: [] },
-  { key: 6, label: `创建时间`, visible: true, children: [] }
+  { key: 6, label: `创建时间`, visible: true, children: [] },
+  { key: 7, label: `登录域`, visible: true, children: [] }
 ]);
 
 const treePanelRef = ref<InstanceType<typeof TreePanel>>();
@@ -534,7 +614,8 @@ const initFormData: UserForm = {
   status: '0',
   remark: '',
   postIds: [],
-  roleIds: []
+  roleIds: [],
+  userTypeIds: []
 };
 
 const initData: PageData<UserForm, UserQuery> = {
@@ -587,7 +668,7 @@ const initData: PageData<UserForm, UserQuery> = {
         trigger: 'blur'
       }
     ],
-    roleIds: [{ required: true, message: '用户角色不能为空', trigger: 'blur' }]
+    userTypeIds: [{ required: true, message: '登录域不能为空', trigger: 'change' }]
   }
 };
 const data = reactive<PageData<UserForm, UserQuery>>(initData);
@@ -595,6 +676,92 @@ const data = reactive<PageData<UserForm, UserQuery>>(initData);
 const { queryParams, form, rules } = toRefs<PageData<UserForm, UserQuery>>(data);
 const { ids, single, multiple, handleSelectionChange } = useTableSelection<UserVO>(item => item.userId);
 const { dialog, openDialog: openUserDialog, closeDialog: closeUserDialog, setTitle: setDialogTitle } = useDialogState();
+
+const getClientLabel = (client: ClientVO) => {
+  return client.clientKey ? `${client.clientKey}（${client.clientId}）` : String(client.clientId);
+};
+
+const formatUserTypeNames = (row: Partial<UserVO>) => {
+  if (row.userTypeNames?.length) {
+    return row.userTypeNames.join('、');
+  }
+  if (row.userTypeCodes?.length) {
+    return row.userTypeCodes.join('、');
+  }
+  return '-';
+};
+
+const rememberRoles = (roles: RoleVO[] = []) => {
+  const next = new Map(roleMetaMap.value);
+  roles.forEach(role => {
+    next.set(String(role.roleId), role);
+  });
+  roleMetaMap.value = next;
+};
+
+const getRoleOptionLabel = (role: RoleVO) => {
+  return role.defaultRole ? `${role.roleName}（默认角色）` : role.roleName;
+};
+
+const assignableClientRoles = computed(() => clientRoleOptions.value.filter(role => !role.defaultRole));
+
+const currentClientRoleIds = computed({
+  get: () => {
+    const currentIds = new Set(assignableClientRoles.value.map(role => String(role.roleId)));
+    return (form.value.roleIds || []).filter(id => currentIds.has(String(id)));
+  },
+  set: (value: Array<string | number>) => {
+    const currentIds = new Set(assignableClientRoles.value.map(role => String(role.roleId)));
+    const kept = (form.value.roleIds || []).filter(id => !currentIds.has(String(id)));
+    form.value.roleIds = [...kept, ...value.map(String)];
+  }
+});
+
+const selectedRoleSummary = computed(() => {
+  return (form.value.roleIds || []).map(roleId => {
+    const role = roleMetaMap.value.get(String(roleId));
+    const client = clientOptions.value.find(item => item.clientId === role?.clientId);
+    const clientLabel = client ? client.clientKey || String(client.clientId) : role?.clientId || '';
+    return {
+      roleId,
+      label: clientLabel ? `${clientLabel} / ${role?.roleName || roleId}` : role?.roleName || String(roleId)
+    };
+  });
+});
+
+const defaultRoleSummary = computed(() => {
+  return defaultRoleList.value.map(role => {
+    const client = clientOptions.value.find(item => item.clientId === role.clientId);
+    const clientLabel = client ? client.clientKey || String(client.clientId) : role.clientId || '';
+    return {
+      roleId: role.roleId,
+      label: clientLabel ? `${clientLabel} / ${role.roleName}` : role.roleName
+    };
+  });
+});
+
+const loadUserTypeOptions = async () => {
+  const res = await listUserTypeOptions();
+  userTypeOptions.value = res.data ?? [];
+};
+
+const loadClients = async () => {
+  clientOptions.value = await listClientOptions();
+};
+
+const handleRoleClientChange = async (clientId?: string) => {
+  if (!clientId) {
+    clientRoleOptions.value = [];
+    return;
+  }
+  const res = await listRole({
+    pageNum: 1,
+    pageSize: 1000,
+    clientId
+  } as RoleQuery);
+  clientRoleOptions.value = res.data?.rows ?? [];
+  rememberRoles(clientRoleOptions.value);
+};
 
 /** 查询用户列表 */
 const getList = async () => {
@@ -767,6 +934,9 @@ function submitFileForm() {
 /** 重置操作表单 */
 const reset = () => {
   form.value = { ...initFormData };
+  roleClientId.value = undefined;
+  clientRoleOptions.value = [];
+  defaultRoleList.value = [];
   userFormRef.value?.resetFields();
 };
 /** 取消按钮 */
@@ -783,6 +953,7 @@ const handleAdd = async () => {
   openUserDialog();
   postOptions.value = data.posts;
   roleOptions.value = data.roles;
+  rememberRoles(data.roles);
   form.value.password = initPassword.value.toString();
 };
 
@@ -796,10 +967,14 @@ const handleUpdate = async (row?: Partial<UserForm>) => {
   Object.assign(form.value, data.user);
   postOptions.value = data.posts;
   roleOptions.value = Array.from(
-    new Map([...data.roles, ...data.user.roles].map(role => [role.roleId, role])).values()
+    new Map([...data.roles, ...(data.user.roles || [])].map(role => [role.roleId, role])).values()
   );
+  rememberRoles(roleOptions.value);
+  rememberRoles(data.defaultRoles || []);
   form.value.postIds = data.postIds;
-  form.value.roleIds = data.roleIds;
+  form.value.roleIds = (data.explicitRoleIds || data.roleIds || []).map(String);
+  form.value.userTypeIds = data.userTypeIds || data.user.userTypeIds || [];
+  defaultRoleList.value = data.defaultRoles || roleOptions.value.filter(role => role.defaultRole);
   form.value.password = '';
 };
 
@@ -846,6 +1021,8 @@ const resetForm = () => {
 onMounted(() => {
   getDeptTree(); // 初始化部门数据
   getList(); // 初始化列表数据
+  loadUserTypeOptions();
+  loadClients();
   getConfigKey('sys.user.initPassword').then(response => {
     initPassword.value = response.data;
   });
@@ -862,6 +1039,26 @@ async function handleDeptChange(value: number | string) {
 @use '@/assets/styles/components/page-shell' as pageShell;
 
 @include pageShell.tree-table-crud-page;
+
+.role-assign-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.role-assign-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.role-assign-label {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  margin-right: 4px;
+}
 
 :global(.import-result-box .el-message-box__message) {
   max-height: 70vh;

@@ -13,6 +13,22 @@
         <el-form-item label="登录账号" prop="userName">
           <el-input v-model="form.userName" disabled />
         </el-form-item>
+        <el-form-item label="客户端" prop="clientId">
+          <el-select
+            v-model="clientId"
+            placeholder="请选择客户端后再分配角色"
+            filterable
+            style="width: 260px"
+            @change="handleClientChange"
+          >
+            <el-option
+              v-for="item in clientOptions"
+              :key="item.clientId"
+              :label="item.clientKey ? `${item.clientKey}（${item.clientId}）` : item.clientId"
+              :value="item.clientId"
+            />
+          </el-select>
+        </el-form-item>
       </el-form>
     </el-card>
 
@@ -50,7 +66,12 @@
           width="55"
         ></el-table-column>
         <el-table-column label="角色编号" align="center" prop="roleId" />
-        <el-table-column label="角色名称" align="center" prop="roleName" />
+        <el-table-column label="角色名称" align="center" prop="roleName">
+          <template #default="scope">
+            <span>{{ scope.row.roleName }}</span>
+            <el-tag v-if="scope.row.defaultRole" class="ml-1" size="small" type="info">默认角色</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="权限字符" align="center" prop="roleKey" />
         <el-table-column label="创建时间" align="center" prop="createTime" width="180">
           <template #default="scope">
@@ -65,7 +86,10 @@
 
 <script setup name="AuthRole" lang="ts">
 import { RouteLocationNormalized } from 'vue-router';
-import { RoleVO } from '@/api/system/role/types';
+import { listClientOptions } from '@/api/system/client';
+import { ClientVO } from '@/api/system/client/types';
+import { listRole } from '@/api/system/role';
+import { RoleQuery, RoleVO } from '@/api/system/role/types';
 import { getAuthRole, updateAuthRole } from '@/api/system/user';
 import { UserForm } from '@/api/system/user/types';
 import modal from '@/plugins/modal';
@@ -78,6 +102,9 @@ const loading = ref(true);
 const total = ref(0);
 const pageNum = ref(1);
 const pageSize = ref(10);
+const clientId = ref<string>();
+const clientOptions = ref<ClientVO[]>([]);
+const assignedRoleIds = ref<Set<string>>(new Set());
 const roleIds = ref<Array<string | number>>([]);
 const roles = ref<RoleVO[]>([]);
 const form = ref<Partial<UserForm>>({
@@ -87,6 +114,9 @@ const form = ref<Partial<UserForm>>({
 });
 
 const tableRef = ref<ElTableInstance>();
+const syncingSelection = ref(false);
+
+const currentClientRoleIdSet = computed(() => new Set(roles.value.map(role => String(role.roleId))));
 
 /** 单击选中行数据 */
 const clickRow = (row: RoleVO) => {
@@ -97,7 +127,13 @@ const clickRow = (row: RoleVO) => {
 };
 /** 多选框选中数据 */
 const handleSelectionChange = (selection: RoleVO[]) => {
-  roleIds.value = selection.map(item => item.roleId);
+  if (syncingSelection.value) {
+    return;
+  }
+  const selectedIds = new Set(selection.map(item => String(item.roleId)));
+  currentClientRoleIdSet.value.forEach(id => assignedRoleIds.value.delete(id));
+  selectedIds.forEach(id => assignedRoleIds.value.add(id));
+  roleIds.value = [...assignedRoleIds.value];
 };
 /** 保存选中的数据编号 */
 const getRowKey = (row: RoleVO): string => {
@@ -105,7 +141,7 @@ const getRowKey = (row: RoleVO): string => {
 };
 /** 检查角色状态 */
 const checkSelectable = (row: RoleVO): boolean => {
-  return row.status === '0';
+  return row.status === '0' && !row.defaultRole;
 };
 /** 关闭按钮 */
 const close = () => {
@@ -124,28 +160,60 @@ const close = () => {
 };
 /** 提交按钮 */
 const submitForm = async () => {
+  if (!clientId.value) {
+    modal.msgWarning('请先选择客户端');
+    return;
+  }
   const userId = form.value.userId;
-  const rIds = roleIds.value.join(',');
+  const rIds = [...assignedRoleIds.value].join(',');
   await updateAuthRole({ userId: userId as string, roleIds: rIds });
   modal.msgSuccess('授权成功');
   close();
+};
+
+const applyRowSelection = async () => {
+  syncingSelection.value = true;
+  await nextTick();
+  tableRef.value?.clearSelection();
+  roles.value.forEach(row => {
+    row.flag = assignedRoleIds.value.has(String(row.roleId));
+    if (row.flag) {
+      tableRef.value?.toggleRowSelection(row, true);
+    }
+  });
+  await nextTick();
+  syncingSelection.value = false;
+};
+
+const handleClientChange = async () => {
+  pageNum.value = 1;
+  if (!clientId.value) {
+    roles.value = [];
+    total.value = 0;
+    return;
+  }
+  loading.value = true;
+  const res = await listRole({
+    pageNum: 1,
+    pageSize: 1000,
+    clientId: clientId.value
+  } as RoleQuery);
+  roles.value = res.data?.rows ?? [];
+  total.value = roles.value.length;
+  loading.value = false;
+  await applyRowSelection();
 };
 
 const getList = async () => {
   const userId = route.params && route.params.userId;
   if (userId) {
     loading.value = true;
+    clientOptions.value = await listClientOptions();
     const res = await getAuthRole(userId as string);
     Object.assign(form.value, res.data.user);
-    Object.assign(roles.value, res.data.roles);
-    total.value = roles.value.length;
-    await nextTick(() => {
-      roles.value.forEach(row => {
-        if (row?.flag) {
-          tableRef.value?.toggleRowSelection(row, true);
-        }
-      });
-    });
+    const flaggedRoles = (res.data.roles || []).filter(row => row?.flag && !row.defaultRole);
+    assignedRoleIds.value = new Set(flaggedRoles.map(row => String(row.roleId)));
+    roleIds.value = [...assignedRoleIds.value];
     loading.value = false;
   }
 };

@@ -39,6 +39,10 @@ export interface MenuQuery {
   keywords?: string;
   menuName?: string;
   status?: string;
+  /**
+   * 归属客户端ID，列表/新增/查询必填
+   */
+  clientId?: string;
 }
 
 /**
@@ -63,6 +67,10 @@ export interface MenuVO extends BaseEntity {
   activeMenu: string;
   ext: string;
   remark: string;
+  /**
+   * 归属客户端ID（OAuth clientId）
+   */
+  clientId?: string;
 }
 
 export interface MenuForm {
@@ -86,4 +94,8 @@ export interface MenuForm {
   remark?: string;
   query?: string;
   perms?: string;
+  /**
+   * 归属客户端ID，创建后只读
+   */
+  clientId?: string;
 }

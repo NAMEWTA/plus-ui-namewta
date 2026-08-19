@@ -39,6 +39,20 @@
             <span class="panel-kicker">Menu Dataset</span>
             <h3>菜单列表</h3>
             <p>支持树形加载、图标选择、级联删除和目录/菜单/按钮三级维护。</p>
+            <el-select
+              v-model="queryParams.clientId"
+              class="client-filter"
+              placeholder="请选择客户端"
+              filterable
+              @change="handleClientChange"
+            >
+              <el-option
+                v-for="item in clientOptions"
+                :key="item.clientId"
+                :label="getClientLabel(item)"
+                :value="item.clientId"
+              />
+            </el-select>
           </div>
           <div class="toolbar-actions">
             <el-button v-hasPermi="['system:menu:add']" type="primary" plain icon="Plus" @click="handleAdd()">
@@ -132,6 +146,18 @@
     <el-dialog v-model="dialog.visible" :title="dialog.title" destroy-on-close append-to-bod width="750px">
       <el-form ref="menuFormRef" :model="form" :rules="rules" label-width="100px">
         <el-row>
+          <el-col :span="24">
+            <el-form-item label="归属客户端" prop="clientId">
+              <el-select v-model="form.clientId" placeholder="请选择客户端" filterable disabled>
+                <el-option
+                  v-for="item in clientOptions"
+                  :key="item.clientId"
+                  :label="getClientLabel(item)"
+                  :value="item.clientId"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
           <el-col :span="24">
             <el-form-item label="上级菜单">
               <el-tree-select
@@ -366,6 +392,8 @@
 </template>
 
 <script setup name="Menu" lang="ts">
+import { listClientOptions } from '@/api/system/client';
+import { ClientVO } from '@/api/system/client/types';
 import { addMenu, cascadeDelMenu, delMenu, getMenu, listMenu, updateMenu } from '@/api/system/menu';
 import { MenuForm, MenuQuery, MenuVO } from '@/api/system/menu/types';
 import { MenuTypeEnum } from '@/enums/MenuTypeEnum';
@@ -388,6 +416,7 @@ const { sys_show_hide, sys_normal_disable, sys_yes_no } = toRefs<any>(
 );
 
 const menuList = ref<MenuVO[]>([]);
+const clientOptions = ref<ClientVO[]>([]);
 const menuChildrenListMap = ref({});
 const menuExpandMap = ref({});
 const { loading, withLoading } = useLoading(true);
@@ -409,18 +438,21 @@ const initFormData = {
   visible: '0',
   status: '0',
   activeMenu: '',
-  remark: ''
+  remark: '',
+  clientId: undefined
 };
 const data = reactive<PageData<MenuForm, MenuQuery>>({
   form: { ...initFormData },
   queryParams: {
     menuName: undefined,
-    status: undefined
+    status: undefined,
+    clientId: undefined
   },
   rules: {
     menuName: [{ required: true, message: '菜单名称不能为空', trigger: 'blur' }],
     orderNum: [{ required: true, message: '菜单顺序不能为空', trigger: 'blur' }],
-    path: [{ required: true, message: '路由地址不能为空', trigger: 'blur' }]
+    path: [{ required: true, message: '路由地址不能为空', trigger: 'blur' }],
+    clientId: [{ required: true, message: '归属客户端不能为空', trigger: 'change' }]
   }
 });
 
@@ -489,8 +521,29 @@ const refreshAllExpandMenuData = () => {
   }
 };
 
+const getClientLabel = (client: ClientVO) => {
+  return client.clientKey ? `${client.clientKey}（${client.clientId}）` : String(client.clientId);
+};
+
+const loadClientOptions = async () => {
+  clientOptions.value = await listClientOptions();
+};
+
+const currentClientId = () => form.value.clientId || queryParams.value.clientId;
+
+const handleClientChange = () => {
+  menuChildrenListMap.value = {};
+  menuExpandMap.value = {};
+  getList();
+};
+
 /** 查询菜单列表 */
 const getList = async () => {
+  if (!queryParams.value.clientId) {
+    menuList.value = [];
+    menuChildrenListMap.value = {};
+    return;
+  }
   await withLoading(async () => {
     const res = await listMenu(queryParams.value);
 
@@ -520,7 +573,11 @@ const getList = async () => {
 /** 查询菜单下拉树结构 */
 const getTreeselect = async () => {
   menuOptions.value = [];
-  const response = await listMenu();
+  const clientId = currentClientId();
+  if (!clientId) {
+    return;
+  }
+  const response = await listMenu({ clientId });
   const menu: MenuOptionsType = { menuId: 0, menuName: '主类目', children: [] };
   menu.children = handleTree<MenuOptionsType>(response.data, 'menuId');
   menuOptions.value.push(menu);
@@ -549,8 +606,13 @@ const { resetQuery } = useSearchReset({
 });
 /** 新增按钮操作 */
 const handleAdd = (row?: Partial<MenuVO>) => {
+  if (!queryParams.value.clientId) {
+    modal.msgWarning('请先选择客户端');
+    return;
+  }
   reset();
   getTreeselect();
+  form.value.clientId = row?.clientId || queryParams.value.clientId;
   row && row.menuId ? (form.value.parentId = row.menuId) : (form.value.parentId = 0);
   setTitle('添加菜单');
   openDialog();
@@ -558,6 +620,7 @@ const handleAdd = (row?: Partial<MenuVO>) => {
 /** 修改按钮操作 */
 const handleUpdate = async (row: Partial<MenuVO>) => {
   reset();
+  form.value.clientId = row.clientId || queryParams.value.clientId;
   await getTreeselect();
   if (row.menuId) {
     const { data } = await getMenu(row.menuId);
@@ -596,6 +659,10 @@ const {
 
 /** 级联删除按钮操作 */
 const handleCascadeDelete = () => {
+  if (!queryParams.value.clientId) {
+    modal.msgWarning('请先选择客户端');
+    return;
+  }
   menuTreeRef.value?.setCheckedKeys([]);
   getTreeselect();
   openDeleteDialog();
@@ -623,7 +690,7 @@ const submitDeleteForm = async () => {
 };
 
 onMounted(() => {
-  getList();
+  loadClientOptions();
 });
 </script>
 
@@ -631,6 +698,11 @@ onMounted(() => {
 @use '@/assets/styles/components/page-shell' as pageShell;
 
 @include pageShell.table-crud-page;
+
+.client-filter {
+  width: 280px;
+  margin-top: 8px;
+}
 
 .data-table {
   .menu-name-cell {

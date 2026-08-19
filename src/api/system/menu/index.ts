@@ -20,10 +20,11 @@ export const getMenu = (menuId: string | number): AxiosPromise<MenuVO> => {
 };
 
 // 查询菜单下拉树结构
-export const treeselect = (): AxiosPromise<MenuTreeOption[]> => {
+export const treeselect = (clientId?: string): AxiosPromise<MenuTreeOption[]> => {
   return request({
     url: '/system/menu/treeselect',
-    method: 'get'
+    method: 'get',
+    params: { clientId }
   });
 };
 

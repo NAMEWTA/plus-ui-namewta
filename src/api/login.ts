@@ -2,10 +2,26 @@ import type { UserInfo } from '@/api/system/user/types';
 import type { AxiosPromise } from '@/utils/api-types';
 import { closePush } from '@/utils/push';
 import request from '@/utils/request';
-import type { LoginData, LoginResult, VerifyCodeResult } from './types';
+import type { ClientAuthContext, LoginData, LoginResult, RegisterForm, VerifyCodeResult } from './types';
 
 // pc端固定客户端授权id
 const clientId = import.meta.env.VITE_APP_CLIENT_ID;
+
+const isEnabledFlag = (value: unknown, defaultValue = false): boolean => {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (value === '0' || value === 0) {
+    return true;
+  }
+  if (value === '1' || value === 1) {
+    return false;
+  }
+  if (value === undefined || value === null || value === '') {
+    return defaultValue;
+  }
+  return Boolean(value);
+};
 
 /**
  * @param data {LoginData}
@@ -30,9 +46,12 @@ export function login(data: LoginData): AxiosPromise<LoginResult> {
 }
 
 // 注册方法
-export function register(data: any) {
+export function register(data: RegisterForm) {
   const params = {
-    ...data,
+    username: data.username,
+    password: data.password,
+    code: data.code,
+    uuid: data.uuid,
     clientId: clientId,
     grantType: 'password'
   };
@@ -45,6 +64,26 @@ export function register(data: any) {
     },
     method: 'post',
     data: params
+  });
+}
+
+/**
+ * 查询当前 Client 的公开认证上下文（登录/注册页初始化）
+ */
+export function getClientAuthContext(): AxiosPromise<ClientAuthContext> {
+  return request({
+    url: '/auth/client/context',
+    headers: {
+      isToken: false
+    },
+    method: 'get'
+  }).then((res: any) => {
+    const data = res?.data ?? {};
+    res.data = {
+      clientEnabled: isEnabledFlag(data.clientEnabled, true),
+      registerEnabled: isEnabledFlag(data.registerEnabled, false)
+    } satisfies ClientAuthContext;
+    return res;
   });
 }
 

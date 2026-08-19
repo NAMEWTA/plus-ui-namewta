@@ -7,8 +7,21 @@ export type RegisterForm = {
   confirmPassword?: string;
   code?: string;
   uuid?: string;
-  userType?: string;
 };
+
+/**
+ * 公开客户端认证上下文
+ */
+export interface ClientAuthContext {
+  /**
+   * 当前 Client 是否可用
+   */
+  clientEnabled: boolean;
+  /**
+   * 当前 Client 是否开放注册
+   */
+  registerEnabled: boolean;
+}
 
 /**
  * 登录请求

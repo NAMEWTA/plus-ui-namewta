@@ -116,7 +116,7 @@
 <script setup lang="ts">
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
-import { getCodeImg } from '@/api/login';
+import { getClientAuthContext, getCodeImg } from '@/api/login';
 import { authRouterUrl } from '@/api/system/social/auth';
 import { LoginData } from '@/api/types';
 import { HttpStatus } from '@/enums/RespEnum';
@@ -242,7 +242,20 @@ const doSocialLogin = (type: string) => {
   });
 };
 
+const loadClientAuthContext = async () => {
+  try {
+    const res = await getClientAuthContext();
+    if (res.data?.clientEnabled === false) {
+      ElMessage.error('当前客户端已停用，无法登录');
+    }
+    register.value = Boolean(res.data?.registerEnabled);
+  } catch {
+    register.value = false;
+  }
+};
+
 onMounted(() => {
+  loadClientAuthContext();
   getCode();
   getLoginData();
 });

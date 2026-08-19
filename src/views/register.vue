@@ -109,7 +109,7 @@
 <script setup lang="ts">
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
-import { getCodeImg, register } from '@/api/login';
+import { getClientAuthContext, getCodeImg, register } from '@/api/login';
 import { RegisterForm } from '@/api/types';
 
 const title = import.meta.env.VITE_APP_TITLE;
@@ -129,8 +129,7 @@ const registerForm = ref<RegisterForm>({
   password: '',
   confirmPassword: '',
   code: '',
-  uuid: '',
-  userType: 'sys_user'
+  uuid: ''
 });
 
 const equalToPassword = (rule: any, value: string, callback: any) => {
@@ -227,7 +226,21 @@ const getCode = async () => {
   }
 };
 
+const loadClientAuthContext = async () => {
+  try {
+    const res = await getClientAuthContext();
+    if (res.data?.clientEnabled === false || !res.data?.registerEnabled) {
+      ElMessage.warning('当前客户端未开放注册');
+      await router.push('/login');
+    }
+  } catch {
+    ElMessage.warning('当前客户端未开放注册');
+    await router.push('/login');
+  }
+};
+
 onMounted(() => {
+  loadClientAuthContext();
   getCode();
 });
 </script>

@@ -132,6 +132,23 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column label="登录域" align="center" prop="userTypeName" :show-overflow-tooltip="true">
+          <template #default="scope">
+            <span>{{ scope.row.userTypeName || scope.row.userTypeCode || '-' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="公开注册" align="center" width="110">
+          <template #default="scope">
+            <el-tag :type="scope.row.registerEnabled === '0' ? 'success' : 'info'" size="small">
+              {{ scope.row.registerEnabled === '0' ? '开放' : '关闭' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="默认角色" align="center" prop="defaultRoleName" :show-overflow-tooltip="true">
+          <template #default="scope">
+            <span>{{ scope.row.defaultRoleName || '-' }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="Token活跃超时时间" align="center" prop="activeTimeout" />
         <el-table-column label="Token固定超时时间" align="center" prop="timeout" />
         <el-table-column key="status" label="状态" align="center">
@@ -204,6 +221,41 @@
               :value="dict.value"
             ></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="登录域" prop="userTypeId">
+          <el-select v-model="form.userTypeId" placeholder="请选择登录域" filterable>
+            <el-option
+              v-for="item in userTypeOptions"
+              :key="item.userTypeId"
+              :label="item.userTypeName"
+              :value="item.userTypeId"
+              :disabled="item.status === '1'"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="公开注册" prop="registerEnabled">
+          <el-radio-group v-model="form.registerEnabled">
+            <el-radio value="0">开放</el-radio>
+            <el-radio value="1">关闭</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="默认角色" prop="defaultRoleId">
+          <el-select
+            v-model="form.defaultRoleId"
+            placeholder="请选择默认角色"
+            clearable
+            filterable
+            :disabled="!form.clientId"
+          >
+            <el-option
+              v-for="item in defaultRoleOptions"
+              :key="item.roleId"
+              :label="item.roleName"
+              :value="item.roleId"
+              :disabled="item.status === '1'"
+            />
+          </el-select>
+          <div v-if="!form.clientId" class="form-item-tip">新增客户端保存后，才能按本 Client 选择默认角色</div>
         </el-form-item>
         <el-form-item prop="accessPath" label-width="auto">
           <template #label>
@@ -278,6 +330,10 @@
 <script setup name="Client" lang="ts">
 import { listClient, getClient, delClient, addClient, updateClient, changeStatus } from '@/api/system/client';
 import { ClientVO, ClientQuery, ClientForm } from '@/api/system/client/types';
+import { listRole } from '@/api/system/role';
+import { RoleQuery, RoleVO } from '@/api/system/role/types';
+import { optionselect as listUserTypeOptions } from '@/api/system/userType';
+import { UserTypeVO } from '@/api/system/userType/types';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useFormDialog } from '@/hooks/dialog/useFormDialog';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
@@ -292,6 +348,8 @@ const { sys_grant_type } = toRefs<any>(useDict('sys_grant_type'));
 const { sys_device_type } = toRefs<any>(useDict('sys_device_type'));
 
 const clientList = ref<ClientVO[]>([]);
+const userTypeOptions = ref<UserTypeVO[]>([]);
+const defaultRoleOptions = ref<RoleVO[]>([]);
 const { loading, withLoading } = useLoading(true);
 const { loading: buttonLoading, withLoading: withButtonLoading } = useLoading();
 const { showSearch } = useSearchToggle();
@@ -314,7 +372,10 @@ const initFormData: ClientForm = {
   ipWhitelistList: undefined,
   activeTimeout: undefined,
   timeout: undefined,
-  status: '0'
+  status: '0',
+  userTypeId: undefined,
+  registerEnabled: '1',
+  defaultRoleId: undefined
 };
 const data = reactive<PageData<ClientForm, ClientQuery>>({
   form: { ...initFormData },
@@ -338,7 +399,8 @@ const data = reactive<PageData<ClientForm, ClientQuery>>({
     clientKey: [{ required: true, message: '客户端key不能为空', trigger: 'blur' }],
     clientSecret: [{ required: true, message: '客户端秘钥不能为空', trigger: 'blur' }],
     grantTypeList: [{ required: true, message: '授权类型不能为空', trigger: 'change' }],
-    deviceType: [{ required: true, message: '设备类型不能为空', trigger: 'change' }]
+    deviceType: [{ required: true, message: '设备类型不能为空', trigger: 'change' }],
+    userTypeId: [{ required: true, message: '登录域不能为空', trigger: 'change' }]
   }
 });
 
@@ -370,6 +432,26 @@ const getRuleList = (ruleList?: string[], ruleValue?: string) => {
     .filter(Boolean);
 };
 
+/** 加载登录域下拉 */
+const getUserTypeOptions = async () => {
+  const res = await listUserTypeOptions();
+  userTypeOptions.value = res.data ?? [];
+};
+
+/** 按当前 Client 加载默认角色 */
+const getDefaultRoleOptions = async (clientId?: string | number) => {
+  if (!clientId) {
+    defaultRoleOptions.value = [];
+    return;
+  }
+  const res = await listRole({
+    pageNum: 1,
+    pageSize: 1000,
+    clientId: String(clientId)
+  } as RoleQuery);
+  defaultRoleOptions.value = res.data?.rows ?? [];
+};
+
 /** 查询客户端管理列表 */
 const getList = async () => {
   await withLoading(async () => {
@@ -393,6 +475,7 @@ const handleQuery = () => {
 
 /** 新增按钮操作 */
 const handleAdd = () => {
+  defaultRoleOptions.value = [];
   openDialog('添加客户端管理');
 };
 
@@ -402,6 +485,7 @@ const handleUpdate = async (row?: Partial<ClientVO>) => {
   const clientId = row?.id || ids.value[0];
   const res = await getClient(clientId);
   Object.assign(form.value, res.data);
+  await getDefaultRoleOptions(form.value.clientId);
   showDialog('修改客户端管理');
 };
 
@@ -456,6 +540,7 @@ const handleStatusChange = async (row: Partial<ClientVO>) => {
 };
 
 onMounted(() => {
+  getUserTypeOptions();
   getList();
 });
 </script>
@@ -484,6 +569,13 @@ onMounted(() => {
 
   .rule-empty {
     color: var(--el-text-color-secondary);
+  }
+
+  .form-item-tip {
+    margin-top: 4px;
+    color: var(--el-text-color-secondary);
+    font-size: 12px;
+    line-height: 1.4;
   }
 }
 </style>

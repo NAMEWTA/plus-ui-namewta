@@ -63,6 +63,36 @@ export interface ClientVO {
    * 状态（0正常 1停用）
    */
   status: string;
+
+  /**
+   * 登录域ID
+   */
+  userTypeId: string | number;
+
+  /**
+   * 登录域编码
+   */
+  userTypeCode?: string;
+
+  /**
+   * 登录域名称
+   */
+  userTypeName?: string;
+
+  /**
+   * 公开注册开关（0开放 1关闭）
+   */
+  registerEnabled: string;
+
+  /**
+   * 默认角色ID
+   */
+  defaultRoleId?: string | number;
+
+  /**
+   * 默认角色名称
+   */
+  defaultRoleName?: string;
 }
 
 export interface ClientForm extends BaseEntity {
@@ -130,6 +160,21 @@ export interface ClientForm extends BaseEntity {
    * 状态（0正常 1停用）
    */
   status?: string;
+
+  /**
+   * 登录域ID
+   */
+  userTypeId?: string | number;
+
+  /**
+   * 公开注册开关（0开放 1关闭）
+   */
+  registerEnabled?: string;
+
+  /**
+   * 默认角色ID
+   */
+  defaultRoleId?: string | number;
 }
 
 export interface ClientQuery extends PageQuery {
@@ -182,4 +227,9 @@ export interface ClientQuery extends PageQuery {
    * 状态（0正常 1停用）
    */
   status?: string;
+
+  /**
+   * 登录域ID
+   */
+  userTypeId?: string | number;
 }

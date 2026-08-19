@@ -64,6 +64,14 @@ export const delClient = (id: string | number | Array<string | number>) => {
 };
 
 /**
+ * 查询客户端下拉列表（管理页筛选，非新后端接口）
+ */
+export const listClientOptions = async (): Promise<ClientVO[]> => {
+  const res = await listClient({ pageNum: 1, pageSize: 1000 });
+  return res.data?.rows ?? [];
+};
+
+/**
  * 状态修改
  * @param clientId 客户端id
  * @param status 状态

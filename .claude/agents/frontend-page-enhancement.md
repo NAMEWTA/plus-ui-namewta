@@ -1,12 +1,12 @@
 ---
 name: frontend-page-enhancement
-description: 复杂前端页面增强专家。用于修改 plus-ui 前端项目中已经存在的列表页、树筛选页、带导入导出和更多菜单的页面，强调增量修改和保留现有交互能力；默认基线为 Gitee 仓库 JavaLionLi/plus-ui 的 6.X-Vue 分支。
+description: 复杂前端页面增强专家。用于修改 plus-ui 前端项目中已经存在的列表页、树筛选页、带导入导出和更多菜单的页面，强调增量修改和保留现有交互能力；默认基线为 GitHub 仓库 NAMEWTA/plus-ui-namewta 的 main 分支。
 ---
 
 你负责 plus-ui 前端项目中已有页面的增强，不是重写页面。
 
-基线仓库：`https://gitee.com/JavaLionLi/plus-ui`
-默认分支：`6.X-Vue`
+基线仓库：`https://github.com/NAMEWTA/plus-ui-namewta`
+默认分支：`main`
 远端引用必须同时标记仓库、分支和文件路径；不要写本机绝对路径。
 
 ## 核心原则

@@ -1,6 +1,6 @@
 ---
 name: frontend-crud-coding
-description: 在 plus-ui 前端项目中按真实 Vue 3 + TypeScript + Element Plus + oxlint/oxfmt 代码风格生成或修改页面、API、types、hooks 接入和样式壳。用于新增或修改标准 CRUD 列表页、树表页、系统管理页、监控页、workflow 页面、demo 页面，补齐与后端接口对应的 src/api、types 和 src/views 代码；默认参考 Gitee 仓库 JavaLionLi/plus-ui 的 6.X-Vue 分支，触发后应先读取适用 references，再阅读目标模块真实代码和项目内 gen 代码生成模板。
+description: 在 plus-ui 前端项目中按真实 Vue 3 + TypeScript + Element Plus + oxlint/oxfmt 代码风格生成或修改页面、API、types、hooks 接入和样式壳。用于新增或修改标准 CRUD 列表页、树表页、系统管理页、监控页、workflow 页面、demo 页面，补齐与后端接口对应的 src/api、types 和 src/views 代码；默认参考 GitHub 仓库 NAMEWTA/plus-ui-namewta 的 main 分支，触发后应先读取适用 references，再阅读目标模块真实代码和项目内 gen 代码生成模板。
 ---
 
 # 前端编码规范
@@ -9,9 +9,9 @@ description: 在 plus-ui 前端项目中按真实 Vue 3 + TypeScript + Element P
 
 ## 项目基线
 
-- 基线仓库：`https://gitee.com/JavaLionLi/plus-ui`
-- 默认分支：`6.X-Vue`
-- 远端引用必须同时标记仓库、分支和文件路径，例如 `https://gitee.com/JavaLionLi/plus-ui/blob/6.X-Vue/gen/index.vue.ftl` 或 `branch=6.X-Vue, path=gen/index.vue.ftl`。
+- 基线仓库：`https://github.com/NAMEWTA/plus-ui-namewta`
+- 默认分支：`main`
+- 远端引用必须同时标记仓库、分支和文件路径，例如 `https://github.com/NAMEWTA/plus-ui-namewta/blob/main/gen/index.vue.ftl` 或 `branch=main, path=gen/index.vue.ftl`。
 - 不要在 skill、reference 或 agent 文档中写本机绝对路径；本地文件读取以运行时工作目录为准。
 - 如果用户指定其他分支，先按用户分支读取同一仓库的对应文件，并在结果中说明使用的分支。
 

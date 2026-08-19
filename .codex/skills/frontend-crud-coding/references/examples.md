@@ -7,7 +7,7 @@
 ```text
 使用 $frontend-crud-coding 为 system/client 补一套前端 CRUD 页面。
 后端接口已经有 /system/client/list、/system/client/{id}、POST /system/client、PUT /system/client、DELETE /system/client/{ids}。
-请参考 plus-ui Gitee 仓库 6.X-Vue 分支的项目内 gen 模板、src/views/demo/demo/index.vue 和现有 system/client 风格实现。
+请参考当前 GitHub 仓库 plus-ui-namewta 的 main 分支中项目内 gen 模板、src/views/demo/demo/index.vue 和现有 system/client 风格实现。
 ```
 
 ### 期望执行方式
@@ -107,7 +107,7 @@
 2. 新增状态筛选和导出
 3. API 路径沿用后端接口
 4. 参考 system/config 的工具栏与导出交互
-5. 参考 plus-ui Gitee 仓库 6.X-Vue 分支的 gen 模板补齐缺失 types
+5. 参考当前 GitHub 仓库 plus-ui-namewta 的 main 分支 gen 模板补齐缺失 types
 ```
 
 ## 不推荐的任务描述

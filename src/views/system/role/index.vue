@@ -54,6 +54,20 @@
             <span class="panel-kicker">Role Dataset</span>
             <h3>角色列表</h3>
             <p>共 {{ total }} 条记录，支持菜单权限、数据权限和分配用户等完整配置流程。</p>
+            <el-select
+              v-model="queryParams.clientId"
+              class="client-filter"
+              placeholder="请选择客户端"
+              filterable
+              @change="handleClientChange"
+            >
+              <el-option
+                v-for="item in clientOptions"
+                :key="item.clientId"
+                :label="getClientLabel(item)"
+                :value="item.clientId"
+              />
+            </el-select>
           </div>
           <div class="toolbar-actions">
             <el-button v-hasPermi="['system:role:add']" type="primary" plain icon="Plus" @click="handleAdd()">
@@ -169,6 +183,18 @@
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="720px" append-to-body>
       <el-form ref="roleFormRef" :model="form" :rules="rules" label-width="100px" class="dialog-grid-form">
         <el-row :gutter="16">
+          <el-col :span="12">
+            <el-form-item label="归属客户端" prop="clientId">
+              <el-select v-model="form.clientId" placeholder="请选择客户端" filterable :disabled="!!form.roleId">
+                <el-option
+                  v-for="item in clientOptions"
+                  :key="item.clientId"
+                  :label="getClientLabel(item)"
+                  :value="item.clientId"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="角色名称" prop="roleName">
               <el-input v-model="form.roleName" placeholder="请输入角色名称" />
@@ -330,6 +356,8 @@
 
 <script setup name="Role" lang="ts">
 import { useRouter } from 'vue-router';
+import { listClientOptions } from '@/api/system/client';
+import { ClientVO } from '@/api/system/client/types';
 import { roleMenuTreeselect } from '@/api/system/menu';
 import { MenuTreeOption, RoleMenuButtonOption, RoleMenuTree } from '@/api/system/menu/types';
 import {
@@ -374,6 +402,7 @@ interface RoleMenuPermissionMeta {
 }
 
 const roleList = ref<RoleVO[]>();
+const clientOptions = ref<ClientVO[]>([]);
 const { loading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 const total = ref(0);
@@ -783,7 +812,8 @@ const initForm: RoleForm = {
   remark: '',
   dataScope: '1',
   menuIds: [],
-  deptIds: []
+  deptIds: [],
+  clientId: undefined
 };
 
 const data = reactive<PageData<RoleForm, RoleQuery>>({
@@ -793,9 +823,11 @@ const data = reactive<PageData<RoleForm, RoleQuery>>({
     pageSize: 10,
     roleName: '',
     roleKey: '',
-    status: ''
+    status: '',
+    clientId: undefined
   },
   rules: {
+    clientId: [{ required: true, message: '归属客户端不能为空', trigger: 'change' }],
     roleName: [{ required: true, message: '角色名称不能为空', trigger: 'blur' }],
     roleKey: [{ required: true, message: '权限字符不能为空', trigger: 'blur' }],
     roleSort: [{ required: true, message: '角色顺序不能为空', trigger: 'blur' }]
@@ -805,15 +837,33 @@ const { form, queryParams, rules } = toRefs(data);
 const { ids, single, handleSelectionChange } = useTableSelection<RoleVO>(item => item.roleId);
 const { dialog, openDialog, closeDialog, setTitle } = useDialogState();
 
+const getClientLabel = (client: ClientVO) => {
+  return client.clientKey ? `${client.clientKey}（${client.clientId}）` : String(client.clientId);
+};
+
+const loadClientOptions = async () => {
+  clientOptions.value = await listClientOptions();
+};
+
 /**
  * 查询角色列表
  */
 const getList = () => {
+  if (!queryParams.value.clientId) {
+    roleList.value = [];
+    total.value = 0;
+    return;
+  }
   withLoading(async () => {
     const res = await listRole(applyDateRange(queryParams.value));
     roleList.value = res.data?.rows;
     total.value = res.data?.total;
   });
+};
+
+const handleClientChange = () => {
+  queryParams.value.pageNum = 1;
+  getList();
 };
 
 /**
@@ -846,6 +896,10 @@ const handleDelete = async (row?: Partial<RoleVO>) => {
 
 /** 导出按钮操作 */
 const handleExport = () => {
+  if (!queryParams.value.clientId) {
+    modal.msgWarning('请先选择客户端');
+    return;
+  }
   requestDownload(
     'system/role/export',
     {
@@ -900,7 +954,12 @@ const reset = () => {
 
 /** 添加角色 */
 const handleAdd = () => {
+  if (!queryParams.value.clientId) {
+    modal.msgWarning('请先选择客户端');
+    return;
+  }
   reset();
+  form.value.clientId = queryParams.value.clientId;
   setTitle('添加角色');
   openDialog();
 };
@@ -1045,7 +1104,7 @@ const cancelDataScope = () => {
 };
 
 onMounted(() => {
-  getList();
+  loadClientOptions();
 });
 </script>
 
@@ -1053,6 +1112,11 @@ onMounted(() => {
 @use '@/assets/styles/components/page-shell' as pageShell;
 
 @include pageShell.table-crud-page;
+
+.client-filter {
+  width: 280px;
+  margin-top: 8px;
+}
 
 .dialog-grid-form {
   :deep(.el-form-item) {

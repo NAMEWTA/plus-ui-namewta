@@ -1,12 +1,6 @@
 <template>
   <div>
-    <el-dialog
-      v-model="dialog.visible"
-      :title="dialog.title"
-      width="80%"
-      append-to-body
-      class="role-select-dialog"
-    >
+    <el-dialog v-model="dialog.visible" :title="dialog.title" width="80%" append-to-body class="role-select-dialog">
       <div class="p-2 role-select-shell">
         <transition
           :enter-active-class="animateConfig.searchAnimate.enter"
@@ -117,6 +111,7 @@ interface PropType {
   modelValue?: RoleVO[] | RoleVO | undefined;
   multiple?: boolean;
   data?: string | number | (string | number)[];
+  clientId?: string;
 }
 const prop = withDefaults(defineProps<PropType>(), {
   multiple: true,
@@ -144,7 +139,8 @@ const queryParams = ref<RoleQuery>({
   pageSize: 10,
   roleName: '',
   roleKey: '',
-  status: ''
+  status: '',
+  clientId: prop.clientId
 });
 
 const defaultSelectRoleIds = computed(() => computedIds(prop.data));
@@ -172,6 +168,12 @@ const computedIds = data => {
  * 查询角色列表
  */
 const getList = () => {
+  if (!queryParams.value.clientId) {
+    roleList.value = [];
+    total.value = 0;
+    loading.value = false;
+    return;
+  }
   loading.value = true;
   api.listRole(applyDateRange(queryParams.value)).then(res => {
     roleList.value = res.data?.rows;
@@ -256,6 +258,13 @@ const initSelectRole = async () => {
 const close = () => {
   closeDialog();
 };
+watch(
+  () => prop.clientId,
+  clientId => {
+    queryParams.value.clientId = clientId;
+    handleQuery();
+  }
+);
 watch(
   () => dialog.visible,
   (newValue: boolean) => {

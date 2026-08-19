@@ -29,12 +29,28 @@ export interface RoleVO extends BaseEntity {
   menuIds?: Array<string | number>;
   deptIds?: Array<string | number>;
   admin: boolean;
+  /**
+   * 归属客户端ID（OAuth clientId）
+   */
+  clientId?: string;
+  /**
+   * 客户端名称/Key，列表展示用
+   */
+  clientKey?: string;
+  /**
+   * 是否为 Client 默认角色（不写入 sys_user_role）
+   */
+  defaultRole?: boolean;
 }
 
 export interface RoleQuery extends PageQuery {
-  roleName: string;
-  roleKey: string;
-  status: string;
+  roleName?: string;
+  roleKey?: string;
+  status?: string;
+  /**
+   * 归属客户端ID，列表/新增/查询必填
+   */
+  clientId?: string;
 }
 
 export interface RoleForm {
@@ -49,4 +65,8 @@ export interface RoleForm {
   roleId: string | undefined;
   menuIds: Array<string | number>;
   deptIds: Array<string | number>;
+  /**
+   * 归属客户端ID，创建后只读
+   */
+  clientId?: string;
 }

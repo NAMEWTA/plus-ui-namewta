@@ -111,7 +111,7 @@ interface PropType {
   modelValue?: RoleVO[] | RoleVO | undefined;
   multiple?: boolean;
   data?: string | number | (string | number)[];
-  clientId?: string;
+  clientId?: string | number;
 }
 const prop = withDefaults(defineProps<PropType>(), {
   multiple: true,

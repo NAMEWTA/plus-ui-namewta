@@ -33,10 +33,11 @@ export const optionSelect = (userIds: (number | string)[]): AxiosPromise<UserVO[
  * 获取用户详情
  * @param userId
  */
-export const getUser = (userId?: string | number): AxiosPromise<UserInfoVO> => {
+export const getUser = (userId?: string | number, clientId?: string | number): AxiosPromise<UserInfoVO> => {
   return request({
     url: '/system/user/' + parseStrEmpty(userId),
-    method: 'get'
+    method: 'get',
+    params: clientId != null ? { clientId } : undefined
   });
 };
 
@@ -169,10 +170,14 @@ export const updateUserPwd = (oldPassword: string, newPassword: string) => {
  * 查询授权角色
  * @param userId 用户ID
  */
-export const getAuthRole = (userId: string | number): AxiosPromise<{ user: UserVO; roles: RoleVO[] }> => {
+export const getAuthRole = (
+  userId: string | number,
+  clientId?: string | number
+): AxiosPromise<{ user: UserVO; roles: RoleVO[] }> => {
   return request({
     url: '/system/user/authRole/' + userId,
-    method: 'get'
+    method: 'get',
+    params: clientId != null ? { clientId } : undefined
   });
 };
 

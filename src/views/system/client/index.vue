@@ -139,8 +139,8 @@
         </el-table-column>
         <el-table-column label="公开注册" align="center" width="110">
           <template #default="scope">
-            <el-tag :type="scope.row.registerEnabled === '0' ? 'success' : 'info'" size="small">
-              {{ scope.row.registerEnabled === '0' ? '开放' : '关闭' }}
+            <el-tag :type="scope.row.registerEnabled ? 'success' : 'info'" size="small">
+              {{ scope.row.registerEnabled ? '开放' : '关闭' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -235,8 +235,8 @@
         </el-form-item>
         <el-form-item label="公开注册" prop="registerEnabled">
           <el-radio-group v-model="form.registerEnabled">
-            <el-radio value="0">开放</el-radio>
-            <el-radio value="1">关闭</el-radio>
+            <el-radio :value="true">开放</el-radio>
+            <el-radio :value="false">关闭</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="默认角色" prop="defaultRoleId">
@@ -245,7 +245,7 @@
             placeholder="请选择默认角色"
             clearable
             filterable
-            :disabled="!form.clientId"
+            :disabled="!form.id"
           >
             <el-option
               v-for="item in defaultRoleOptions"
@@ -255,7 +255,7 @@
               :disabled="item.status === '1'"
             />
           </el-select>
-          <div v-if="!form.clientId" class="form-item-tip">新增客户端保存后，才能按本 Client 选择默认角色</div>
+          <div v-if="!form.id" class="form-item-tip">新增客户端保存后，才能按本 Client 选择默认角色</div>
         </el-form-item>
         <el-form-item prop="accessPath" label-width="auto">
           <template #label>
@@ -374,7 +374,7 @@ const initFormData: ClientForm = {
   timeout: undefined,
   status: '0',
   userTypeId: undefined,
-  registerEnabled: '1',
+  registerEnabled: false,
   defaultRoleId: undefined
 };
 const data = reactive<PageData<ClientForm, ClientQuery>>({
@@ -447,7 +447,7 @@ const getDefaultRoleOptions = async (clientId?: string | number) => {
   const res = await listRole({
     pageNum: 1,
     pageSize: 1000,
-    clientId: String(clientId)
+    clientId
   } as RoleQuery);
   defaultRoleOptions.value = res.data?.rows ?? [];
 };
@@ -485,7 +485,7 @@ const handleUpdate = async (row?: Partial<ClientVO>) => {
   const clientId = row?.id || ids.value[0];
   const res = await getClient(clientId);
   Object.assign(form.value, res.data);
-  await getDefaultRoleOptions(form.value.clientId);
+  await getDefaultRoleOptions(form.value.id);
   showDialog('修改客户端管理');
 };
 

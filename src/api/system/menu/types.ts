@@ -40,9 +40,9 @@ export interface MenuQuery {
   menuName?: string;
   status?: string;
   /**
-   * 归属客户端ID，列表/新增/查询必填
+   * 归属客户端主键，列表/新增/查询必填
    */
-  clientId?: string;
+  clientId?: string | number;
 }
 
 /**
@@ -68,9 +68,9 @@ export interface MenuVO extends BaseEntity {
   ext: string;
   remark: string;
   /**
-   * 归属客户端ID（OAuth clientId）
+   * 归属客户端主键（sys_client.id）
    */
-  clientId?: string;
+  clientId?: string | number;
 }
 
 export interface MenuForm {
@@ -95,7 +95,7 @@ export interface MenuForm {
   query?: string;
   perms?: string;
   /**
-   * 归属客户端ID，创建后只读
+   * 归属客户端主键，创建后只读
    */
-  clientId?: string;
+  clientId?: string | number;
 }

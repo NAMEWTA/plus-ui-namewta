@@ -61,12 +61,7 @@
               filterable
               @change="handleClientChange"
             >
-              <el-option
-                v-for="item in clientOptions"
-                :key="item.clientId"
-                :label="getClientLabel(item)"
-                :value="item.clientId"
-              />
+              <el-option v-for="item in clientOptions" :key="item.id" :label="getClientLabel(item)" :value="item.id" />
             </el-select>
           </div>
           <div class="toolbar-actions">
@@ -188,9 +183,9 @@
               <el-select v-model="form.clientId" placeholder="请选择客户端" filterable :disabled="!!form.roleId">
                 <el-option
                   v-for="item in clientOptions"
-                  :key="item.clientId"
+                  :key="item.id"
                   :label="getClientLabel(item)"
-                  :value="item.clientId"
+                  :value="item.id"
                 />
               </el-select>
             </el-form-item>

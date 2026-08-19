@@ -80,9 +80,9 @@ export interface ClientVO {
   userTypeName?: string;
 
   /**
-   * 公开注册开关（0开放 1关闭）
+   * 公开注册开关。true 开放，false 关闭（与 SysClientVo.registerEnabled 布尔值一致）
    */
-  registerEnabled: string;
+  registerEnabled: boolean;
 
   /**
    * 默认角色ID
@@ -167,9 +167,9 @@ export interface ClientForm extends BaseEntity {
   userTypeId?: string | number;
 
   /**
-   * 公开注册开关（0开放 1关闭）
+   * 公开注册开关。true 开放，false 关闭
    */
-  registerEnabled?: string;
+  registerEnabled?: boolean;
 
   /**
    * 默认角色ID

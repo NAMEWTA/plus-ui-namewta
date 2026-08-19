@@ -405,9 +405,9 @@
               >
                 <el-option
                   v-for="item in clientOptions"
-                  :key="item.clientId"
+                  :key="item.id"
                   :label="getClientLabel(item)"
-                  :value="item.clientId"
+                  :value="item.id"
                 />
               </el-select>
             </el-form-item>
@@ -426,7 +426,7 @@
                   :key="item.roleId"
                   :label="getRoleOptionLabel(item)"
                   :value="String(item.roleId)"
-                  :disabled="item.status == '1' || item.defaultRole"
+                  :disabled="item.status == '1' || item.clientDefault"
                 ></el-option>
               </el-select>
             </el-form-item>
@@ -564,7 +564,7 @@ const postOptions = ref<PostVO[]>([]);
 const roleOptions = ref<RoleVO[]>([]);
 const userTypeOptions = ref<UserTypeVO[]>([]);
 const clientOptions = ref<ClientVO[]>([]);
-const roleClientId = ref<string>();
+const roleClientId = ref<string | number>();
 const clientRoleOptions = ref<RoleVO[]>([]);
 const roleMetaMap = ref<Map<string, RoleVO>>(new Map());
 const defaultRoleList = ref<RoleVO[]>([]);
@@ -681,6 +681,12 @@ const getClientLabel = (client: ClientVO) => {
   return client.clientKey ? `${client.clientKey}（${client.clientId}）` : String(client.clientId);
 };
 
+const findClient = (clientPk?: string | number) => {
+  return clientOptions.value.find(item => String(item.id) === String(clientPk));
+};
+
+const isDefaultRole = (role?: RoleVO) => Boolean(role?.clientDefault);
+
 const formatUserTypeNames = (row: Partial<UserVO>) => {
   if (row.userTypeNames?.length) {
     return row.userTypeNames.join('、');
@@ -700,10 +706,10 @@ const rememberRoles = (roles: RoleVO[] = []) => {
 };
 
 const getRoleOptionLabel = (role: RoleVO) => {
-  return role.defaultRole ? `${role.roleName}（默认角色）` : role.roleName;
+  return isDefaultRole(role) ? `${role.roleName}（默认角色）` : role.roleName;
 };
 
-const assignableClientRoles = computed(() => clientRoleOptions.value.filter(role => !role.defaultRole));
+const assignableClientRoles = computed(() => clientRoleOptions.value.filter(role => !isDefaultRole(role)));
 
 const currentClientRoleIds = computed({
   get: () => {
@@ -720,7 +726,7 @@ const currentClientRoleIds = computed({
 const selectedRoleSummary = computed(() => {
   return (form.value.roleIds || []).map(roleId => {
     const role = roleMetaMap.value.get(String(roleId));
-    const client = clientOptions.value.find(item => item.clientId === role?.clientId);
+    const client = findClient(role?.clientId);
     const clientLabel = client ? client.clientKey || String(client.clientId) : role?.clientId || '';
     return {
       roleId,
@@ -731,7 +737,7 @@ const selectedRoleSummary = computed(() => {
 
 const defaultRoleSummary = computed(() => {
   return defaultRoleList.value.map(role => {
-    const client = clientOptions.value.find(item => item.clientId === role.clientId);
+    const client = findClient(role.clientId);
     const clientLabel = client ? client.clientKey || String(client.clientId) : role.clientId || '';
     return {
       roleId: role.roleId,
@@ -749,7 +755,7 @@ const loadClients = async () => {
   clientOptions.value = await listClientOptions();
 };
 
-const handleRoleClientChange = async (clientId?: string) => {
+const handleRoleClientChange = async (clientId?: string | number) => {
   if (!clientId) {
     clientRoleOptions.value = [];
     return;
@@ -761,6 +767,7 @@ const handleRoleClientChange = async (clientId?: string) => {
   } as RoleQuery);
   clientRoleOptions.value = res.data?.rows ?? [];
   rememberRoles(clientRoleOptions.value);
+  defaultRoleList.value = clientRoleOptions.value.filter(isDefaultRole);
 };
 
 /** 查询用户列表 */
@@ -972,9 +979,10 @@ const handleUpdate = async (row?: Partial<UserForm>) => {
   rememberRoles(roleOptions.value);
   rememberRoles(data.defaultRoles || []);
   form.value.postIds = data.postIds;
-  form.value.roleIds = (data.explicitRoleIds || data.roleIds || []).map(String);
+  const explicitRoleIds = data.explicitRoleIds || data.roleIds || [];
+  form.value.roleIds = explicitRoleIds.map(String);
   form.value.userTypeIds = data.userTypeIds || data.user.userTypeIds || [];
-  defaultRoleList.value = data.defaultRoles || roleOptions.value.filter(role => role.defaultRole);
+  defaultRoleList.value = data.defaultRoles || roleOptions.value.filter(isDefaultRole);
   form.value.password = '';
 };
 

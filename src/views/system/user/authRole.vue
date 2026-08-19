@@ -23,9 +23,9 @@
           >
             <el-option
               v-for="item in clientOptions"
-              :key="item.clientId"
+              :key="item.id"
               :label="item.clientKey ? `${item.clientKey}（${item.clientId}）` : item.clientId"
-              :value="item.clientId"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -69,7 +69,7 @@
         <el-table-column label="角色名称" align="center" prop="roleName">
           <template #default="scope">
             <span>{{ scope.row.roleName }}</span>
-            <el-tag v-if="scope.row.defaultRole" class="ml-1" size="small" type="info">默认角色</el-tag>
+            <el-tag v-if="scope.row.clientDefault" class="ml-1" size="small" type="info">默认角色</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="权限字符" align="center" prop="roleKey" />
@@ -88,8 +88,7 @@
 import { RouteLocationNormalized } from 'vue-router';
 import { listClientOptions } from '@/api/system/client';
 import { ClientVO } from '@/api/system/client/types';
-import { listRole } from '@/api/system/role';
-import { RoleQuery, RoleVO } from '@/api/system/role/types';
+import { RoleVO } from '@/api/system/role/types';
 import { getAuthRole, updateAuthRole } from '@/api/system/user';
 import { UserForm } from '@/api/system/user/types';
 import modal from '@/plugins/modal';
@@ -102,7 +101,7 @@ const loading = ref(true);
 const total = ref(0);
 const pageNum = ref(1);
 const pageSize = ref(10);
-const clientId = ref<string>();
+const clientId = ref<string | number>();
 const clientOptions = ref<ClientVO[]>([]);
 const assignedRoleIds = ref<Set<string>>(new Set());
 const roleIds = ref<Array<string | number>>([]);
@@ -141,7 +140,7 @@ const getRowKey = (row: RoleVO): string => {
 };
 /** 检查角色状态 */
 const checkSelectable = (row: RoleVO): boolean => {
-  return row.status === '0' && !row.defaultRole;
+  return row.status === '0' && !row.clientDefault;
 };
 /** 关闭按钮 */
 const close = () => {
@@ -193,12 +192,16 @@ const handleClientChange = async () => {
     return;
   }
   loading.value = true;
-  const res = await listRole({
-    pageNum: 1,
-    pageSize: 1000,
-    clientId: clientId.value
-  } as RoleQuery);
-  roles.value = res.data?.rows ?? [];
+  const userId = form.value.userId;
+  if (!userId) {
+    loading.value = false;
+    return;
+  }
+  const res = await getAuthRole(userId, clientId.value);
+  roles.value = res.data?.roles ?? [];
+  const flaggedRoles = roles.value.filter(row => row?.flag && !row.clientDefault);
+  flaggedRoles.forEach(row => assignedRoleIds.value.add(String(row.roleId)));
+  roleIds.value = [...assignedRoleIds.value];
   total.value = roles.value.length;
   loading.value = false;
   await applyRowSelection();
@@ -211,9 +214,6 @@ const getList = async () => {
     clientOptions.value = await listClientOptions();
     const res = await getAuthRole(userId as string);
     Object.assign(form.value, res.data.user);
-    const flaggedRoles = (res.data.roles || []).filter(row => row?.flag && !row.defaultRole);
-    assignedRoleIds.value = new Set(flaggedRoles.map(row => String(row.roleId)));
-    roleIds.value = [...assignedRoleIds.value];
     loading.value = false;
   }
 };

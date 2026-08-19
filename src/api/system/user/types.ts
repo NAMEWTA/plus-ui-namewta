@@ -109,13 +109,13 @@ export interface UserInfoVO {
   postGroup: string;
   userTypeIds?: Array<string | number>;
   /**
-   * 显式分配的角色（不含 Client 默认角色）
+   * 显式分配的角色 ID（不含 Client 默认角色）。后端字段名为 roleIds。
    */
-  explicitRoleIds?: string[];
+  explicitRoleIds?: Array<string | number>;
   /**
    * 各 Client 默认角色（只读展示，不写入 sys_user_role）
    */
-  defaultRoleIds?: string[];
+  defaultRoleIds?: Array<string | number>;
   defaultRoles?: RoleVO[];
 }
 

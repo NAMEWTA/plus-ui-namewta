@@ -404,7 +404,7 @@
                 @change="handleRoleClientChange"
               >
                 <el-option
-                  v-for="item in clientOptions"
+                  v-for="item in eligibleClientOptions"
                   :key="item.id"
                   :label="getClientLabel(item)"
                   :value="item.id"
@@ -561,13 +561,15 @@ const deptOptions = ref<DeptTreeVO[]>([]);
 const enabledDeptOptions = ref<DeptTreeVO[]>([]);
 const initPassword = ref<string>('');
 const postOptions = ref<PostVO[]>([]);
-const roleOptions = ref<RoleVO[]>([]);
 const userTypeOptions = ref<UserTypeVO[]>([]);
 const clientOptions = ref<ClientVO[]>([]);
 const roleClientId = ref<string | number>();
 const clientRoleOptions = ref<RoleVO[]>([]);
 const roleMetaMap = ref<Map<string, RoleVO>>(new Map());
+const clientRoleCache = ref<Map<string, RoleVO[]>>(new Map());
 const defaultRoleList = ref<RoleVO[]>([]);
+let roleContextRequestId = 0;
+let roleClientRequestId = 0;
 /*** 用户导入参数 */
 const upload = reactive<ImportOption>({
   // 是否显示弹出层（用户导入）
@@ -685,6 +687,13 @@ const findClient = (clientPk?: string | number) => {
   return clientOptions.value.find(item => String(item.id) === String(clientPk));
 };
 
+const eligibleClientOptions = computed(() => {
+  const selectedUserTypeIds = new Set((form.value.userTypeIds ?? []).map(String));
+  return clientOptions.value.filter(
+    client => client.status === '0' && client.userTypeId != null && selectedUserTypeIds.has(String(client.userTypeId))
+  );
+});
+
 const isDefaultRole = (role?: RoleVO) => Boolean(role?.clientDefault);
 
 const formatUserTypeNames = (row: Partial<UserVO>) => {
@@ -755,19 +764,62 @@ const loadClients = async () => {
   clientOptions.value = await listClientOptions();
 };
 
+const refreshDefaultRoles = () => {
+  const eligibleClientIds = new Set(eligibleClientOptions.value.map(client => String(client.id)));
+  const defaults = new Map<string, RoleVO>();
+  clientRoleCache.value.forEach((roles, clientId) => {
+    if (!eligibleClientIds.has(clientId)) {
+      return;
+    }
+    roles.filter(isDefaultRole).forEach(role => defaults.set(String(role.roleId), role));
+  });
+  defaultRoleList.value = [...defaults.values()];
+};
+
+const pruneIneligibleRoles = () => {
+  const eligibleClientIds = new Set(eligibleClientOptions.value.map(client => String(client.id)));
+  form.value.roleIds = (form.value.roleIds ?? []).filter(roleId => {
+    const role = roleMetaMap.value.get(String(roleId));
+    return role?.clientId != null && eligibleClientIds.has(String(role.clientId));
+  });
+  if (roleClientId.value != null && !eligibleClientIds.has(String(roleClientId.value))) {
+    roleClientRequestId += 1;
+    roleClientId.value = undefined;
+    clientRoleOptions.value = [];
+  }
+  refreshDefaultRoles();
+};
+
+watch(() => (form.value.userTypeIds ?? []).map(String).toSorted().join(','), pruneIneligibleRoles);
+
 const handleRoleClientChange = async (clientId?: string | number) => {
-  if (!clientId) {
+  const requestId = ++roleClientRequestId;
+  if (clientId == null || !eligibleClientOptions.value.some(client => String(client.id) === String(clientId))) {
     clientRoleOptions.value = [];
     return;
   }
-  const res = await listRole({
-    pageNum: 1,
-    pageSize: 1000,
-    clientId
-  } as RoleQuery);
+  const cachedRoles = clientRoleCache.value.get(String(clientId));
+  if (cachedRoles) {
+    clientRoleOptions.value = cachedRoles;
+    return;
+  }
+  const [err, res] = await to(
+    listRole({
+      pageNum: 1,
+      pageSize: 1000,
+      clientId
+    } as RoleQuery)
+  );
+  if (err || requestId !== roleClientRequestId || !res) {
+    clientRoleOptions.value = [];
+    return;
+  }
   clientRoleOptions.value = res.data?.rows ?? [];
   rememberRoles(clientRoleOptions.value);
-  defaultRoleList.value = clientRoleOptions.value.filter(isDefaultRole);
+  const nextCache = new Map(clientRoleCache.value);
+  nextCache.set(String(clientId), clientRoleOptions.value);
+  clientRoleCache.value = nextCache;
+  refreshDefaultRoles();
 };
 
 /** 查询用户列表 */
@@ -940,9 +992,13 @@ function submitFileForm() {
 
 /** 重置操作表单 */
 const reset = () => {
+  roleContextRequestId += 1;
+  roleClientRequestId += 1;
   form.value = { ...initFormData };
   roleClientId.value = undefined;
   clientRoleOptions.value = [];
+  roleMetaMap.value = new Map();
+  clientRoleCache.value = new Map();
   defaultRoleList.value = [];
   userFormRef.value?.resetFields();
 };
@@ -955,12 +1011,14 @@ const cancel = () => {
 /** 新增按钮操作 */
 const handleAdd = async () => {
   reset();
+  const requestId = ++roleContextRequestId;
   const { data } = await api.getUser();
+  if (requestId !== roleContextRequestId) {
+    return;
+  }
   setDialogTitle('新增用户');
   openUserDialog();
-  postOptions.value = data.posts;
-  roleOptions.value = data.roles;
-  rememberRoles(data.roles);
+  postOptions.value = data.posts ?? [];
   form.value.password = initPassword.value.toString();
 };
 
@@ -968,22 +1026,59 @@ const handleAdd = async () => {
 const handleUpdate = async (row?: Partial<UserForm>) => {
   reset();
   const userId = row?.userId || ids.value[0];
-  const { data } = await api.getUser(userId);
-  setDialogTitle('修改用户');
-  openUserDialog();
-  Object.assign(form.value, data.user);
-  postOptions.value = data.posts;
-  roleOptions.value = Array.from(
-    new Map([...data.roles, ...(data.user.roles || [])].map(role => [role.roleId, role])).values()
-  );
-  rememberRoles(roleOptions.value);
-  rememberRoles(data.defaultRoles || []);
-  form.value.postIds = data.postIds;
-  const explicitRoleIds = data.explicitRoleIds || data.roleIds || [];
-  form.value.roleIds = explicitRoleIds.map(String);
-  form.value.userTypeIds = data.userTypeIds || data.user.userTypeIds || [];
-  defaultRoleList.value = data.defaultRoles || roleOptions.value.filter(isDefaultRole);
-  form.value.password = '';
+  const requestId = ++roleContextRequestId;
+  try {
+    await withLoading(async () => {
+      const clients = clientOptions.value.length ? clientOptions.value : await listClientOptions();
+      const base = await api.getUser(userId);
+      if (requestId !== roleContextRequestId) {
+        return;
+      }
+      if (!base.data.user) {
+        ElMessage.error('用户详情数据不完整');
+        return;
+      }
+
+      const userTypeIds = base.data.user.userTypeIds ?? [];
+      const selectedUserTypeIds = new Set(userTypeIds.map(String));
+      const scopedClients = clients.filter(
+        client =>
+          client.status === '0' && client.userTypeId != null && selectedUserTypeIds.has(String(client.userTypeId))
+      );
+      const roleIds = new Set<string>();
+      const roleMetadata = new Map<string, RoleVO>();
+      const roleContexts = new Map<string, RoleVO[]>();
+
+      for (const client of scopedClients) {
+        const scoped = await api.getUser(userId, client.id);
+        if (requestId !== roleContextRequestId) {
+          return;
+        }
+        const roles = scoped.data.roles ?? [];
+        roleContexts.set(String(client.id), roles);
+        roles.forEach(role => roleMetadata.set(String(role.roleId), role));
+        (scoped.data.roleIds ?? []).forEach(roleId => roleIds.add(String(roleId)));
+      }
+      if (requestId !== roleContextRequestId) {
+        return;
+      }
+
+      clientOptions.value = clients;
+      Object.assign(form.value, base.data.user);
+      form.value.postIds = base.data.postIds ?? [];
+      form.value.roleIds = [...roleIds];
+      form.value.userTypeIds = userTypeIds;
+      form.value.password = '';
+      postOptions.value = base.data.posts ?? [];
+      roleMetaMap.value = roleMetadata;
+      clientRoleCache.value = roleContexts;
+      refreshDefaultRoles();
+      setDialogTitle('修改用户');
+      openUserDialog();
+    });
+  } catch {
+    // 请求层已展示具体错误，保持弹窗关闭，避免提交部分角色快照。
+  }
 };
 
 /** 提交按钮 */
@@ -1013,19 +1108,9 @@ const submitForm = () => {
  */
 const closeDialog = () => {
   closeUserDialog();
-  resetForm();
+  reset();
 };
 
-/**
- * 重置表单
- */
-const resetForm = () => {
-  userFormRef.value?.resetFields();
-  userFormRef.value?.clearValidate();
-
-  form.value.id = undefined;
-  form.value.status = '1';
-};
 onMounted(() => {
   getDeptTree(); // 初始化部门数据
   getList(); // 初始化列表数据

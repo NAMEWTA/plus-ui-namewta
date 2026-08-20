@@ -4,7 +4,7 @@ import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
 import { parseStrEmpty } from '@/utils/ruoyi';
 import type { DeptTreeVO } from './../dept/types';
-import type { UserForm, UserInfoVO, UserProfileForm, UserQuery, UserVO } from './types';
+import type { UserForm, UserInfoVO, UserProfileForm, UserProfileInfoVO, UserQuery, UserVO } from './types';
 
 /**
  * 查询用户列表
@@ -126,7 +126,7 @@ export const unlockUser = (userId: number | string) => {
 /**
  * 查询用户个人信息
  */
-export const getUserProfile = (): AxiosPromise<UserInfoVO> => {
+export const getUserProfile = (): AxiosPromise<UserProfileInfoVO> => {
   return request({
     url: '/system/user/profile',
     method: 'get'
@@ -172,12 +172,12 @@ export const updateUserPwd = (oldPassword: string, newPassword: string) => {
  */
 export const getAuthRole = (
   userId: string | number,
-  clientId?: string | number
+  clientId: string | number
 ): AxiosPromise<{ user: UserVO; roles: RoleVO[] }> => {
   return request({
     url: '/system/user/authRole/' + userId,
     method: 'get',
-    params: clientId != null ? { clientId } : undefined
+    params: { clientId }
   });
 };
 

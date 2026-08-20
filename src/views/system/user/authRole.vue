@@ -89,7 +89,7 @@ import { RouteLocationNormalized } from 'vue-router';
 import { listClientOptions } from '@/api/system/client';
 import { ClientVO } from '@/api/system/client/types';
 import { RoleVO } from '@/api/system/role/types';
-import { getAuthRole, updateAuthRole } from '@/api/system/user';
+import { getAuthRole, getUser, updateAuthRole } from '@/api/system/user';
 import { UserForm } from '@/api/system/user/types';
 import modal from '@/plugins/modal';
 import tab from '@/plugins/tab';
@@ -114,6 +114,7 @@ const form = ref<Partial<UserForm>>({
 
 const tableRef = ref<ElTableInstance>();
 const syncingSelection = ref(false);
+let clientRequestId = 0;
 
 const currentClientRoleIdSet = computed(() => new Set(roles.value.map(role => String(role.roleId))));
 
@@ -188,6 +189,7 @@ const applyRowSelection = async () => {
 };
 
 const handleClientChange = async () => {
+  const requestId = ++clientRequestId;
   pageNum.value = 1;
   if (!clientId.value) {
     roles.value = [];
@@ -195,29 +197,46 @@ const handleClientChange = async () => {
     return;
   }
   loading.value = true;
+  roles.value = [];
+  total.value = 0;
   const userId = form.value.userId;
   if (!userId) {
     loading.value = false;
     return;
   }
-  const res = await getAuthRole(userId, clientId.value);
-  roles.value = res.data?.roles ?? [];
-  const flaggedRoles = roles.value.filter(row => row?.flag && !row.clientDefault);
-  flaggedRoles.forEach(row => assignedRoleIds.value.add(String(row.roleId)));
-  roleIds.value = [...assignedRoleIds.value];
-  total.value = roles.value.length;
-  loading.value = false;
-  await applyRowSelection();
+  try {
+    const res = await getAuthRole(userId, clientId.value);
+    if (requestId !== clientRequestId) {
+      return;
+    }
+    roles.value = res.data?.roles ?? [];
+    const flaggedRoles = roles.value.filter(row => row?.flag && !row.clientDefault);
+    flaggedRoles.forEach(row => assignedRoleIds.value.add(String(row.roleId)));
+    roleIds.value = [...assignedRoleIds.value];
+    total.value = roles.value.length;
+    await applyRowSelection();
+  } finally {
+    if (requestId === clientRequestId) {
+      loading.value = false;
+    }
+  }
 };
 
 const getList = async () => {
   const userId = route.params && route.params.userId;
   if (userId) {
     loading.value = true;
-    clientOptions.value = await listClientOptions();
-    const res = await getAuthRole(userId as string);
-    Object.assign(form.value, res.data.user);
-    loading.value = false;
+    try {
+      const clients = await listClientOptions();
+      const res = await getUser(userId as string);
+      Object.assign(form.value, res.data.user);
+      const userTypeIds = new Set((res.data.user?.userTypeIds ?? []).map(String));
+      clientOptions.value = clients.filter(
+        client => client.status === '0' && client.userTypeId != null && userTypeIds.has(String(client.userTypeId))
+      );
+    } finally {
+      loading.value = false;
+    }
   }
 };
 onMounted(() => {

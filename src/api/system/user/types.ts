@@ -46,9 +46,9 @@ export interface UserVO extends BaseEntity {
   /** 详情接口可能返回嵌套部门 */
   dept?: { deptName?: string };
   roles: RoleVO[];
-  roleIds: any;
-  postIds: any;
-  roleId: any;
+  roleIds?: Array<string | number>;
+  postIds?: Array<string | number>;
+  roleId?: string | number;
   admin: boolean;
   /**
    * 拥有的登录域 ID
@@ -69,8 +69,8 @@ export interface UserVO extends BaseEntity {
  */
 export interface UserForm {
   id?: string;
-  userId?: string;
-  deptId?: number;
+  userId?: string | number;
+  deptId?: string | number | null;
   userName: string;
   nickName?: string;
   password: string;
@@ -80,8 +80,8 @@ export interface UserForm {
   status: string;
   remark?: string;
   avatar?: string | number;
-  postIds: string[];
-  roleIds: string[];
+  postIds: Array<string | number> | null;
+  roleIds: Array<string | number> | null;
   /**
    * 登录域 ID 列表
    */
@@ -100,23 +100,17 @@ export interface UserProfileForm {
 }
 
 export interface UserInfoVO {
-  user: UserVO;
+  user?: UserVO;
   roles: RoleVO[];
-  roleIds: string[];
+  roleIds: Array<string | number>;
   posts: PostVO[];
-  postIds: string[];
+  postIds: Array<string | number>;
+}
+
+export interface UserProfileInfoVO {
+  user: UserVO;
   roleGroup: string;
   postGroup: string;
-  userTypeIds?: Array<string | number>;
-  /**
-   * 显式分配的角色 ID（不含 Client 默认角色）。后端字段名为 roleIds。
-   */
-  explicitRoleIds?: Array<string | number>;
-  /**
-   * 各 Client 默认角色（只读展示，不写入 sys_user_role）
-   */
-  defaultRoleIds?: Array<string | number>;
-  defaultRoles?: RoleVO[];
 }
 
 export interface ResetPwdForm {

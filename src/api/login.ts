@@ -52,8 +52,7 @@ export function register(data: RegisterForm) {
     password: data.password,
     code: data.code,
     uuid: data.uuid,
-    clientId: clientId,
-    grantType: 'password'
+    clientId: clientId
   };
   return request({
     url: '/auth/register',

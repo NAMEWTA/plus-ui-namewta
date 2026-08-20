@@ -185,7 +185,7 @@ export const getAuthRole = (
  * 保存授权角色
  * @param data 用户ID
  */
-export const updateAuthRole = (data: { userId: string; roleIds: string }) => {
+export const updateAuthRole = (data: { userId: string; roleIds: string; clientId: string | number }) => {
   return request({
     url: '/system/user/authRole',
     method: 'put',

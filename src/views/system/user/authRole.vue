@@ -164,8 +164,11 @@ const submitForm = async () => {
     return;
   }
   const userId = form.value.userId;
-  const rIds = [...assignedRoleIds.value].join(',');
-  await updateAuthRole({ userId: userId as string, roleIds: rIds });
+  const rIds = roles.value
+    .filter(row => assignedRoleIds.value.has(String(row.roleId)) && !row.clientDefault)
+    .map(row => row.roleId)
+    .join(',');
+  await updateAuthRole({ userId: userId as string, roleIds: rIds, clientId: clientId.value });
   modal.msgSuccess('授权成功');
   close();
 };

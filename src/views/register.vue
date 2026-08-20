@@ -88,6 +88,7 @@
         <el-form-item class="submit-row">
           <el-button
             :loading="loading"
+            :disabled="!registerEnabled"
             size="large"
             type="primary"
             class="submit-button"
@@ -193,9 +194,14 @@ const registerRules: ElFormRules = {
 const codeUrl = ref('');
 const loading = ref(false);
 const captchaEnabled = ref(true);
+const authContextState = ref<'loading' | 'available' | 'unavailable'>('loading');
+const registerEnabled = computed(() => authContextState.value === 'available');
 const registerRef = ref<ElFormInstance>();
 
 const handleRegister = () => {
+  if (!registerEnabled.value) {
+    return;
+  }
   registerRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       loading.value = true;
@@ -227,21 +233,28 @@ const getCode = async () => {
 };
 
 const loadClientAuthContext = async () => {
+  authContextState.value = 'loading';
   try {
     const res = await getClientAuthContext();
-    if (res.data?.clientEnabled === false || !res.data?.registerEnabled) {
+    if (res.data?.clientEnabled !== true || res.data.registerEnabled !== true) {
+      authContextState.value = 'unavailable';
       ElMessage.warning('当前客户端未开放注册');
       await router.push('/login');
+      return;
     }
+    authContextState.value = 'available';
   } catch {
+    authContextState.value = 'unavailable';
     ElMessage.warning('当前客户端未开放注册');
     await router.push('/login');
   }
 };
 
-onMounted(() => {
-  loadClientAuthContext();
-  getCode();
+onMounted(async () => {
+  await loadClientAuthContext();
+  if (registerEnabled.value) {
+    await getCode();
+  }
 });
 </script>
 

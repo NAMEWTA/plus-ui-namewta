@@ -80,26 +80,58 @@
         <div class="social-panel">
           <span class="social-label">第三方登录</span>
           <div class="social-actions">
-            <el-button circle :title="$t('login.social.wechat')" @click="doSocialLogin('wechat')">
+            <el-button
+              circle
+              :disabled="!loginEnabled"
+              :title="$t('login.social.wechat')"
+              @click="doSocialLogin('wechat')"
+            >
               <svg-icon icon-class="wechat" />
             </el-button>
-            <el-button circle :title="$t('login.social.maxkey')" @click="doSocialLogin('maxkey')">
+            <el-button
+              circle
+              :disabled="!loginEnabled"
+              :title="$t('login.social.maxkey')"
+              @click="doSocialLogin('maxkey')"
+            >
               <svg-icon icon-class="maxkey" />
             </el-button>
-            <el-button circle :title="$t('login.social.topiam')" @click="doSocialLogin('topiam')">
+            <el-button
+              circle
+              :disabled="!loginEnabled"
+              :title="$t('login.social.topiam')"
+              @click="doSocialLogin('topiam')"
+            >
               <svg-icon icon-class="topiam" />
             </el-button>
-            <el-button circle :title="$t('login.social.gitee')" @click="doSocialLogin('gitee')">
+            <el-button
+              circle
+              :disabled="!loginEnabled"
+              :title="$t('login.social.gitee')"
+              @click="doSocialLogin('gitee')"
+            >
               <svg-icon icon-class="gitee" />
             </el-button>
-            <el-button circle :title="$t('login.social.github')" @click="doSocialLogin('github')">
+            <el-button
+              circle
+              :disabled="!loginEnabled"
+              :title="$t('login.social.github')"
+              @click="doSocialLogin('github')"
+            >
               <svg-icon icon-class="github" />
             </el-button>
           </div>
         </div>
 
         <el-form-item class="submit-row">
-          <el-button :loading="loading" size="large" type="primary" class="submit-button" @click.prevent="handleLogin">
+          <el-button
+            :loading="loading || authContextState === 'loading'"
+            :disabled="!loginEnabled"
+            size="large"
+            type="primary"
+            class="submit-button"
+            @click.prevent="handleLogin"
+          >
             <span v-if="!loading">{{ $t('login.login') }}</span>
             <span v-else>{{ $t('login.logging') }}</span>
           </el-button>
@@ -170,6 +202,8 @@ const codeUrl = ref('');
 const loading = ref(false);
 const captchaEnabled = ref(true);
 const register = ref(false);
+const authContextState = ref<'loading' | 'available' | 'unavailable'>('loading');
+const loginEnabled = computed(() => authContextState.value === 'available');
 const redirect = ref('/');
 const loginRef = ref<ElFormInstance>();
 
@@ -182,6 +216,9 @@ watch(
 );
 
 const handleLogin = () => {
+  if (!loginEnabled.value) {
+    return;
+  }
   loginRef.value?.validate(async (valid: boolean, fields: any) => {
     if (valid) {
       loading.value = true;
@@ -233,6 +270,9 @@ const getLoginData = () => {
 };
 
 const doSocialLogin = (type: string) => {
+  if (!loginEnabled.value) {
+    return;
+  }
   authRouterUrl(type).then((res: any) => {
     if (res.code === HttpStatus.SUCCESS) {
       window.location.href = res.data;
@@ -243,21 +283,30 @@ const doSocialLogin = (type: string) => {
 };
 
 const loadClientAuthContext = async () => {
+  authContextState.value = 'loading';
+  register.value = false;
   try {
     const res = await getClientAuthContext();
-    if (res.data?.clientEnabled === false) {
+    if (res.data?.clientEnabled !== true) {
+      authContextState.value = 'unavailable';
       ElMessage.error('当前客户端已停用，无法登录');
+      return;
     }
-    register.value = Boolean(res.data?.registerEnabled);
+    authContextState.value = 'available';
+    register.value = res.data.registerEnabled === true;
   } catch {
+    authContextState.value = 'unavailable';
     register.value = false;
+    ElMessage.error('客户端认证配置不可用，无法登录');
   }
 };
 
-onMounted(() => {
-  loadClientAuthContext();
-  getCode();
+onMounted(async () => {
   getLoginData();
+  await loadClientAuthContext();
+  if (loginEnabled.value) {
+    await getCode();
+  }
 });
 </script>
 

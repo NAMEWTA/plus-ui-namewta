@@ -1,5 +1,5 @@
 import type { UserInfo } from '@/api/system/user/types';
-import type { AxiosPromise } from '@/utils/api-types';
+import type { AxiosPromise, RuoYiAjaxResult } from '@/utils/api-types';
 import { closePush } from '@/utils/push';
 import request from '@/utils/request';
 import type { ClientAuthContext, LoginData, LoginResult, RegisterForm, VerifyCodeResult } from './types';
@@ -7,20 +7,18 @@ import type { ClientAuthContext, LoginData, LoginResult, RegisterForm, VerifyCod
 // pc端固定客户端授权id
 const clientId = import.meta.env.VITE_APP_CLIENT_ID;
 
-const isEnabledFlag = (value: unknown, defaultValue = false): boolean => {
-  if (typeof value === 'boolean') {
-    return value;
+const parseClientAuthContext = (value: unknown): ClientAuthContext => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new Error('客户端认证上下文格式无效');
   }
-  if (value === '0' || value === 0) {
-    return true;
+  const context = value as Record<string, unknown>;
+  if (typeof context.clientEnabled !== 'boolean' || typeof context.registerEnabled !== 'boolean') {
+    throw new Error('客户端认证上下文缺少布尔开关');
   }
-  if (value === '1' || value === 1) {
-    return false;
-  }
-  if (value === undefined || value === null || value === '') {
-    return defaultValue;
-  }
-  return Boolean(value);
+  return {
+    clientEnabled: context.clientEnabled,
+    registerEnabled: context.registerEnabled
+  };
 };
 
 /**
@@ -76,13 +74,11 @@ export function getClientAuthContext(): AxiosPromise<ClientAuthContext> {
       isToken: false
     },
     method: 'get'
-  }).then((res: any) => {
-    const data = res?.data ?? {};
-    res.data = {
-      clientEnabled: isEnabledFlag(data.clientEnabled, true),
-      registerEnabled: isEnabledFlag(data.registerEnabled, false)
-    } satisfies ClientAuthContext;
-    return res;
+  }).then((res: RuoYiAjaxResult<unknown>) => {
+    return {
+      ...res,
+      data: parseClientAuthContext(res.data)
+    };
   });
 }
 

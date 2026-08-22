@@ -18,9 +18,9 @@ import '@wangeditor-next/editor/dist/css/style.css';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor-next/editor';
 import { Editor as WangEditor, Toolbar as EditorToolbar } from '@wangeditor-next/editor-for-vue';
 import { listByIds } from '@/api/system/oss';
+import { uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
 import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
-import { globalHeaders } from '@/utils/request';
 
 const OSS_MARKER_RE = /oss:\/\/([\w-]+)/g;
 const props = defineProps({
@@ -45,11 +45,9 @@ const emit = defineEmits(['update:modelValue']);
 const editorRef = shallowRef<IDomEditor>();
 const content = ref('');
 
-const baseUrl = import.meta.env.VITE_APP_BASE_API;
-const uploadOssUrl = baseUrl + '/resource/oss/upload';
-
 // URL → ossId 映射，在上传和解析阶段填充
 const ossUrlToId = new Map<string, string>();
+const activeUploads = new Set<AbortController>();
 // 防止 modelValue ↔ content 双向 watch 循环
 const isResolvingContent = ref(false);
 // 记录最后一次 encode 后 emit 的值，用于跳过自身触发的 modelValue 变更
@@ -83,21 +81,15 @@ const toolbarConfig = computed<Partial<IToolbarConfig>>(() => {
 /* ==================== OSS 上传 & 内容转换 ==================== */
 
 const uploadToOss = async (file: File): Promise<{ url: string; fileName: string; ossId: string }> => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const res = await fetch(uploadOssUrl, {
-    method: 'POST',
-    headers: globalHeaders(),
-    body: formData
-  });
-  const data = await res.json();
-
-  if (data.code === 200) {
-    ossUrlToId.set(data.data.url, String(data.data.ossId));
-    return data.data;
+  const controller = new AbortController();
+  activeUploads.add(controller);
+  try {
+    const result = await uploadDirectToOss(file, { signal: controller.signal });
+    ossUrlToId.set(result.url, result.ossId);
+    return result;
+  } finally {
+    activeUploads.delete(controller);
   }
-  throw new Error(data.msg || '上传失败');
 };
 
 /**
@@ -304,6 +296,7 @@ const handleCreated = (editor: IDomEditor) => {
 };
 
 onBeforeUnmount(() => {
+  activeUploads.forEach(controller => controller.abort());
   editorRef.value?.destroy();
 });
 </script>

@@ -57,10 +57,10 @@
 
 <script setup lang="ts">
 import 'vue-cropper/dist/index.css';
-import { UploadRawFile } from 'element-plus';
+import type { UploadRawFile } from 'element-plus';
 import { VueCropper } from 'vue-cropper';
-import { uploadOss } from '@/api/system/oss';
 import { updateUserProfile } from '@/api/system/user';
+import { uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
 import modal from '@/plugins/modal';
 import { useUserStore } from '@/store/modules/user';
 
@@ -134,16 +134,22 @@ const beforeUpload = (file: UploadRawFile): any => {
 };
 /** 上传图片 */
 const uploadImg = async () => {
-  cropper.value.getCropBlob(async (data: any) => {
-    const formData = new FormData();
-    formData.append('file', data, options.fileName || 'avatar.png');
-    const res = await uploadOss(formData);
-    await updateUserProfile({ avatar: res.data.ossId });
-    open.value = false;
-    options.img = res.data.url;
-    userStore.setAvatar(options.img);
-    modal.msgSuccess('修改成功');
-    visible.value = false;
+  cropper.value.getCropBlob(async (data: Blob) => {
+    try {
+      const file = new File([data], options.fileName || 'avatar.png', {
+        type: data.type || 'image/png',
+        lastModified: Date.now()
+      });
+      const result = await uploadDirectToOss(file, { signal: new AbortController().signal });
+      await updateUserProfile({ avatar: result.ossId });
+      open.value = false;
+      options.img = result.url;
+      userStore.setAvatar(options.img);
+      modal.msgSuccess('修改成功');
+      visible.value = false;
+    } catch {
+      modal.msgError('头像上传失败');
+    }
   });
 };
 /** 实时预览 */

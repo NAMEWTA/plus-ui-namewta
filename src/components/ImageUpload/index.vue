@@ -3,18 +3,17 @@
     <el-upload
       ref="imageUploadRef"
       multiple
-      :action="uploadImgUrl"
+      action="#"
       list-type="picture-card"
+      :http-request="directOssUploadRequest"
       :on-success="handleUploadSuccess"
       :before-upload="handleBeforeUpload"
-      :data="uploadData"
       :limit="limit"
       :accept="fileAccept"
       :on-error="handleUploadError"
       :on-exceed="handleExceed"
       :before-remove="handleDelete"
       :show-file-list="true"
-      :headers="headers"
       :file-list="fileList"
       :on-preview="handlePictureCardPreview"
       :class="{ hide: fileList.length >= limit }"
@@ -45,11 +44,11 @@
 
 <script setup lang="ts">
 import { compressAccurately } from 'image-conversion';
+import type { OssUploadVO, OssVO, SysOssExt } from '@/api/system/oss/types';
 import { listByIds, delOss } from '@/api/system/oss';
-import type { OssVO, SysOssExt } from '@/api/system/oss/types';
+import { directOssUploadRequest } from '@/hooks/oss/useDirectOssUpload';
 import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
-import { globalHeaders } from '@/utils/request';
 
 const props = defineProps({
   modelValue: {
@@ -87,22 +86,10 @@ const uploadList = ref<any[]>([]);
 const dialogImageUrl = ref('');
 const dialogVisible = ref(false);
 
-const baseUrl = import.meta.env.VITE_APP_BASE_API;
-const uploadImgUrl = ref(baseUrl + '/resource/oss/upload'); // 上传的图片服务器地址
-const headers = computed(() => globalHeaders());
-
 const fileList = ref<any[]>([]);
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize));
 
 const imageUploadRef = ref<ElUploadInstance>();
-
-// 上传附加数据（ossExt 扩展属性）
-const uploadData = computed(() => {
-  if (!props.ossExt) return {};
-  return {
-    ossExt: JSON.stringify(props.ossExt)
-  }
-});
 
 // 监听 fileType 变化，更新 fileAccept
 const fileAccept = computed(() => props.fileType.map(type => `.${type}`).join(','));
@@ -188,21 +175,13 @@ const handleExceed = () => {
 };
 
 // 上传成功回调
-const handleUploadSuccess = (res: any, file: UploadFile) => {
-  if (res.code === 200) {
-    uploadList.value.push({
-      name: res.data.fileName,
-      url: res.data.url,
-      ossId: res.data.ossId
-    });
-    uploadedSuccessfully();
-  } else {
-    number.value--;
-    modal.closeLoading();
-    modal.msgError(res.msg);
-    imageUploadRef.value?.handleRemove(file);
-    uploadedSuccessfully();
-  }
+const handleUploadSuccess = (result: OssUploadVO) => {
+  uploadList.value.push({
+    name: result.fileName,
+    url: result.url,
+    ossId: result.ossId
+  });
+  uploadedSuccessfully();
 };
 
 // 删除图片
@@ -231,6 +210,7 @@ const uploadedSuccessfully = () => {
 
 // 上传失败
 const handleUploadError = () => {
+  number.value = Math.max(0, number.value - 1);
   modal.msgError('上传图片失败');
   modal.closeLoading();
 };

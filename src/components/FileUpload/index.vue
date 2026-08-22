@@ -3,17 +3,16 @@
     <el-upload
       ref="fileUploadRef"
       multiple
-      :action="uploadFileUrl"
+      action="#"
       :before-upload="handleBeforeUpload"
-      :data="uploadData"
       :file-list="fileList"
+      :http-request="directOssUploadRequest"
       :limit="limit"
       :accept="fileAccept"
       :on-error="handleUploadError"
       :on-exceed="handleExceed"
       :on-success="handleUploadSuccess"
       :show-file-list="false"
-      :headers="headers"
       class="upload-file-uploader"
       v-if="!disabled"
     >
@@ -48,11 +47,11 @@
 </template>
 
 <script setup lang="ts">
+import type { OssUploadVO, SysOssExt } from '@/api/system/oss/types';
 import { delOss, listByIds } from '@/api/system/oss';
-import type { SysOssExt } from '@/api/system/oss/types';
+import { directOssUploadRequest } from '@/hooks/oss/useDirectOssUpload';
 import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
-import { globalHeaders } from '@/utils/request';
 
 const props = defineProps({
   modelValue: {
@@ -80,22 +79,10 @@ const emit = defineEmits(['update:modelValue']);
 const number = ref(0);
 const uploadList = ref<any[]>([]);
 
-const baseUrl = import.meta.env.VITE_APP_BASE_API;
-const uploadFileUrl = ref(baseUrl + '/resource/oss/upload'); // 上传文件服务器地址
-const headers = computed(() => globalHeaders());
-
 const fileList = ref<any[]>([]);
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize));
 
 const fileUploadRef = ref<ElUploadInstance>();
-
-// 上传附加数据（ossExt 扩展属性）
-const uploadData = computed(() => {
-  if (!props.ossExt) return {};
-  return {
-    ossExt: JSON.stringify(props.ossExt)
-  }
-});
 
 // 监听 fileType 变化，更新 fileAccept
 const fileAccept = computed(() => props.fileType.map(type => `.${type}`).join(','));
@@ -172,26 +159,19 @@ const handleExceed = () => {
 
 // 上传失败
 const handleUploadError = () => {
+  number.value = Math.max(0, number.value - 1);
   modal.msgError('上传文件失败');
   modal.closeLoading();
 };
 
 // 上传成功回调
-const handleUploadSuccess = (res: any, file: UploadFile) => {
-  if (res.code === 200) {
-    uploadList.value.push({
-      name: res.data.fileName,
-      url: res.data.url,
-      ossId: res.data.ossId
-    });
-    uploadedSuccessfully();
-  } else {
-    number.value--;
-    modal.closeLoading();
-    modal.msgError(res.msg);
-    fileUploadRef.value?.handleRemove(file);
-    uploadedSuccessfully();
-  }
+const handleUploadSuccess = (result: OssUploadVO) => {
+  uploadList.value.push({
+    name: result.fileName,
+    url: result.url,
+    ossId: result.ossId
+  });
+  uploadedSuccessfully();
 };
 
 // 删除文件

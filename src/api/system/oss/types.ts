@@ -14,6 +14,65 @@ export interface OssUploadVO {
   ossId: string;
 }
 
+export type OssUploadMode = 'SINGLE' | 'MULTIPART';
+
+export interface OssPresignedRequest {
+  method: string;
+  url: string;
+  requiredHeaders: Record<string, string>;
+  expiresAt: string;
+}
+
+export interface OssUploadInitRequest {
+  policy: string;
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+  fingerprint: string;
+}
+
+export interface OssUploadInitResponse {
+  uploadToken: string;
+  mode: OssUploadMode;
+  expiresAt: string;
+  presignedRequest?: OssPresignedRequest;
+  partSize?: number;
+  partCount?: number;
+}
+
+export interface OssSignedPart extends OssPresignedRequest {
+  partNumber: number;
+}
+
+export interface OssUploadedPart {
+  partNumber: number;
+  eTag: string;
+  size: number;
+}
+
+export interface OssUploadResumeResponse {
+  uploadToken: string;
+  mode: OssUploadMode;
+  fileName: string;
+  fileSize: number;
+  contentType: string;
+  partSize: number;
+  partCount: number;
+  expiresAt: string;
+  uploadedParts: OssUploadedPart[];
+}
+
+export interface OssCompletedPart {
+  partNumber: number;
+  eTag: string;
+}
+
+export interface OssDownloadUrl {
+  url: string;
+  expiresAt: string;
+  fileName: string;
+}
+
 export interface OssQuery extends PageQuery {
   fileName: string;
   originalName: string;

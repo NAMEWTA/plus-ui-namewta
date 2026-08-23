@@ -14,17 +14,25 @@ import {
   resumeOssUpload,
   signOssUploadParts
 } from '@/api/system/oss';
+import { getToken } from '@/utils/auth';
 import { createOssFileFingerprint } from '@/utils/oss/fingerprint';
 import { getOssResumeRecord, putOssResumeRecord, removeOssResumeRecord } from '@/utils/oss/resumeStore';
 import { transferToOss } from '@/utils/oss/transport';
 
-const POLICY = 'general';
+const DEFAULT_POLICY = 'general';
 const SIGN_WINDOW = 8;
 const MAX_PART_ATTEMPTS = 3;
 
-interface DirectUploadOptions {
+export interface DirectUploadOptions {
   signal: AbortSignal;
   onProgress?: (percent: number) => void;
+  policy?: string;
+}
+
+async function resumeKey(fingerprint: string, policy: string) {
+  const identity = `${import.meta.env.VITE_APP_CLIENT_ID}:${getToken() || 'anonymous'}:${policy}:${fingerprint}`;
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(identity));
+  return Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
 }
 
 function requireData<T>(value: T | undefined, message: string): T {
@@ -42,38 +50,45 @@ async function safeRemoveResume(fingerprint: string) {
   }
 }
 
-async function findResume(file: File, fingerprint: string) {
+async function findResume(file: File, fingerprint: string, storageKey: string) {
   let record;
   try {
-    record = await getOssResumeRecord(fingerprint);
+    record = await getOssResumeRecord(storageKey);
   } catch {
     return undefined;
   }
   if (!record || Date.parse(record.expiresAt) <= Date.now()) {
-    await safeRemoveResume(fingerprint);
+    await safeRemoveResume(storageKey);
     return undefined;
   }
   try {
     const response = await resumeOssUpload(record.uploadToken, fingerprint);
     const session = response.data;
     if (!session || session.fileName !== file.name || session.fileSize !== file.size) {
-      await safeRemoveResume(fingerprint);
+      await safeRemoveResume(storageKey);
       return undefined;
     }
     return session;
   } catch (error) {
     const message = error instanceof Error ? error.message : '';
-    if (['上传会话不存在', '上传会话已过期', '上传会话不可再使用', '文件指纹不匹配'].includes(message)) {
-      await safeRemoveResume(fingerprint);
+    if (
+      ['SESSION_NOT_FOUND', 'SESSION_EXPIRED', 'INVALID_STATE', 'FINGERPRINT_MISMATCH', 'SESSION_OWNER_MISMATCH'].some(
+        code => message.includes(code)
+      ) ||
+      ['上传会话不存在', '上传会话已过期', '上传会话不可再使用', '文件指纹不匹配', '上传会话不属于'].some(text =>
+        message.includes(text)
+      )
+    ) {
+      await safeRemoveResume(storageKey);
       return undefined;
     }
     throw error;
   }
 }
 
-async function initialize(file: File, fingerprint: string) {
+async function initialize(file: File, fingerprint: string, storageKey: string, policy: string) {
   const response = await initOssUpload({
-    policy: POLICY,
+    policy,
     fileName: file.name,
     fileSize: file.size,
     contentType: file.type || 'application/octet-stream',
@@ -82,7 +97,7 @@ async function initialize(file: File, fingerprint: string) {
   const session = requireData(response.data, '初始化 OSS 上传失败');
   try {
     await putOssResumeRecord({
-      fingerprint,
+      fingerprint: storageKey,
       uploadToken: session.uploadToken,
       expiresAt: session.expiresAt,
       fileName: file.name,
@@ -183,9 +198,12 @@ async function uploadMultipart(
 
 export async function uploadDirectToOss(file: File, options: DirectUploadOptions): Promise<OssUploadVO> {
   const fingerprint = await createOssFileFingerprint(file);
+  const policy = options.policy || DEFAULT_POLICY;
+  const storageKey = await resumeKey(fingerprint, policy);
   let uploadToken: string | undefined;
   try {
-    const session = (await findResume(file, fingerprint)) || (await initialize(file, fingerprint));
+    const session =
+      (await findResume(file, fingerprint, storageKey)) || (await initialize(file, fingerprint, storageKey, policy));
     uploadToken = session.uploadToken;
     const parts =
       session.mode === 'SINGLE'
@@ -193,17 +211,17 @@ export async function uploadDirectToOss(file: File, options: DirectUploadOptions
         : await uploadMultipart(file, session, options);
     const complete = await completeOssUpload(session.uploadToken, parts);
     const ossId = requireData(complete.data, '完成 OSS 上传失败');
-    await safeRemoveResume(fingerprint);
-    const download = await getOssDownloadUrl(ossId);
+    await safeRemoveResume(storageKey);
+    const download = await getOssDownloadUrl(ossId).catch(() => undefined);
     return {
       ossId,
       fileName: file.name,
-      url: requireData(download.data?.url, '获取 OSS 预览地址失败')
+      url: download?.data?.url || URL.createObjectURL(file)
     };
   } catch (error) {
     if (options.signal.aborted && uploadToken) {
       await abortOssUpload(uploadToken).catch(() => undefined);
-      await safeRemoveResume(fingerprint);
+      await safeRemoveResume(storageKey);
     }
     throw error;
   }
@@ -219,13 +237,17 @@ function progressEvent(percent: number) {
   return event;
 }
 
-export function directOssUploadRequest(options: UploadRequestOptions): XMLHttpRequest {
+export function directOssUploadRequest(options: UploadRequestOptions, policy = DEFAULT_POLICY): XMLHttpRequest {
   const controller = new AbortController();
   const handle = new XMLHttpRequest();
   handle.abort = () => controller.abort();
   void uploadDirectToOss(options.file, {
     signal: controller.signal,
+    policy,
     onProgress: percent => options.onProgress(progressEvent(percent))
   }).then(options.onSuccess, error => options.onError(error));
   return handle;
 }
+
+export const createDirectOssUploadRequest = (policy: string) => (options: UploadRequestOptions) =>
+  directOssUploadRequest(options, policy);

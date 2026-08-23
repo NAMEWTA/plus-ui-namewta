@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import '@wangeditor-next/editor/dist/css/style.css';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor-next/editor';
+import type { PropType } from 'vue';
 import { Editor as WangEditor, Toolbar as EditorToolbar } from '@wangeditor-next/editor-for-vue';
 import { listByIds } from '@/api/system/oss';
 import { uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
@@ -36,6 +37,8 @@ const props = defineProps({
   fileSize: propTypes.number.def(5),
   /* 视频上传文件大小限制(MB) */
   videoSize: propTypes.number.def(100),
+  /* 业务页面可注入自身鉴权后的 ossId -> URL 解析器 */
+  ossUrlResolver: Function as PropType<(ossIds: string[]) => Promise<Record<string, string>>>,
   /* 类型（base64格式、url格式） url模式下存储 oss://ossId 标记，展示时通过后端动态解析为可用URL */
   type: propTypes.string.def('url')
 });
@@ -80,11 +83,14 @@ const toolbarConfig = computed<Partial<IToolbarConfig>>(() => {
 
 /* ==================== OSS 上传 & 内容转换 ==================== */
 
-const uploadToOss = async (file: File): Promise<{ url: string; fileName: string; ossId: string }> => {
+const uploadToOss = async (
+  file: File,
+  policy: 'editor-image' | 'editor-video'
+): Promise<{ url: string; fileName: string; ossId: string }> => {
   const controller = new AbortController();
   activeUploads.add(controller);
   try {
-    const result = await uploadDirectToOss(file, { signal: controller.signal });
+    const result = await uploadDirectToOss(file, { signal: controller.signal, policy });
     ossUrlToId.set(result.url, result.ossId);
     return result;
   } finally {
@@ -116,6 +122,15 @@ const decodeOssContent = async (html: string): Promise<string> => {
   const ossIds = [...new Set(matches.map(m => m[1]))];
 
   try {
+    if (props.ossUrlResolver) {
+      const urls = await props.ossUrlResolver(ossIds);
+      let result = html;
+      for (const [id, url] of Object.entries(urls)) {
+        ossUrlToId.set(url, id);
+        result = result.replaceAll(`oss://${id}`, url);
+      }
+      return result;
+    }
     const res = await listByIds(ossIds.join(','));
     let result = html;
     for (const oss of res.data) {
@@ -201,7 +216,7 @@ const getUploadImageMenuConfig = () => {
 
       modal.loading('正在上传图片，请稍候...');
       try {
-        const result = await uploadToOss(file);
+        const result = await uploadToOss(file, 'editor-image');
         insertFn(result.url, file.name, result.url);
       } catch {
         modal.msgError('图片上传失败');
@@ -219,7 +234,7 @@ const getUploadVideoMenuConfig = () => ({
 
     modal.loading('正在上传视频，请稍候...');
     try {
-      const result = await uploadToOss(file);
+      const result = await uploadToOss(file, 'editor-video');
       insertFn(result.url);
     } catch {
       modal.msgError('视频上传失败');
@@ -253,9 +268,12 @@ const syncReadOnly = () => {
   }
 };
 
+let resolveGeneration = 0;
+
 watch(
   () => props.modelValue,
   async value => {
+    const generation = ++resolveGeneration;
     const nextValue = value || '';
 
     // 跳过由自身 emit 引起的回传
@@ -263,6 +281,7 @@ watch(
 
     isResolvingContent.value = true;
     const resolved = await decodeOssContent(nextValue);
+    if (generation !== resolveGeneration) return;
     if (resolved !== content.value) {
       content.value = resolved;
     }

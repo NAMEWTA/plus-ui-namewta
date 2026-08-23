@@ -29,3 +29,11 @@ export async function resolveOssContent(html: string): Promise<string> {
     return html;
   }
 }
+
+export function replaceOssContentUrls(html: string, urls: Record<string, string>): string {
+  let result = html;
+  for (const [ossId, url] of Object.entries(urls)) {
+    result = result.replaceAll(`oss://${ossId}`, url);
+  }
+  return result;
+}

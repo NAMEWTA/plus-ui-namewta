@@ -177,7 +177,7 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="内容">
-              <editor v-model="form.noticeContent" :min-height="192" />
+              <editor v-model="form.noticeContent" :min-height="192" :oss-url-resolver="resolveNoticeUrls" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -228,7 +228,14 @@
 
 <script setup name="Notice" lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { listNotice, getNotice, delNotice, addNotice, updateNotice } from '@/api/system/notice';
+import {
+  addNotice,
+  delNotice,
+  getNotice,
+  getNoticeAttachmentDownloadUrls,
+  listNotice,
+  updateNotice
+} from '@/api/system/notice';
 import { NoticeForm, NoticeQuery, NoticeVO } from '@/api/system/notice/types';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
@@ -238,7 +245,7 @@ import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
-import { resolveOssContent } from '@/utils/ossContent';
+import { replaceOssContentUrls } from '@/utils/ossContent';
 import { parseTime } from '@/utils/ruoyi';
 import { sanitizeHtml } from '@/utils/sanitize';
 
@@ -284,6 +291,11 @@ const data = reactive<PageData<NoticeForm, NoticeQuery>>({
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const resolveNoticeUrls = async (ossIds: string[]) => {
+  if (!form.value.noticeId || ossIds.length === 0) return {};
+  const response = await getNoticeAttachmentDownloadUrls(form.value.noticeId);
+  return Object.fromEntries(Object.entries(response.data).map(([id, download]) => [id, download.url]));
+};
 const { ids, single, multiple, handleSelectionChange } = useTableSelection<NoticeVO>(item => item.noticeId);
 const {
   dialog,
@@ -350,7 +362,9 @@ const handleDetail = async (row: Partial<NoticeVO>) => {
 /** 打开详情 */
 const openDetail = async (noticeId: string | number) => {
   const { data } = await getNotice(noticeId);
-  data.noticeContent = await resolveOssContent(data.noticeContent);
+  const response = await getNoticeAttachmentDownloadUrls(noticeId);
+  const urls = Object.fromEntries(Object.entries(response.data).map(([id, download]) => [id, download.url]));
+  data.noticeContent = replaceOssContentUrls(data.noticeContent, urls);
   detailForm.value = data;
   openDetailDialog();
 };

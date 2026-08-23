@@ -1,3 +1,4 @@
+import type { OssDownloadUrl } from '@/api/system/oss/types';
 import type { PageResult } from '@/api/types';
 import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
@@ -15,6 +16,15 @@ export function listNotice(query: NoticeQuery): AxiosPromise<PageResult<NoticeVO
 export function getNotice(noticeId: string | number): AxiosPromise<NoticeVO> {
   return request({
     url: '/system/notice/' + noticeId,
+    method: 'get'
+  });
+}
+
+export function getNoticeAttachmentDownloadUrls(
+  noticeId: string | number
+): AxiosPromise<Record<string, OssDownloadUrl>> {
+  return request({
+    url: `/system/notice/${noticeId}/attachments/download-urls`,
     method: 'get'
   });
 }

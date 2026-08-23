@@ -119,9 +119,8 @@
 
 <script setup lang="ts">
 import type { NotifyDetailVO } from '@/api/monitor/notify/types';
-import { getNotifyDetail } from '@/api/monitor/notify';
+import { getNotifyAttachmentDownloadUrl, getNotifyDetail } from '@/api/monitor/notify';
 import { useLoading } from '@/hooks/async/useLoading';
-import download from '@/plugins/download';
 import { parseTime } from '@/utils/ruoyi';
 
 const open = ref(false);
@@ -166,7 +165,19 @@ const statusType = (status?: string) => {
   return 'info';
 };
 
-const downloadAttachment = (ossId: string | number) => download.oss(ossId);
+const downloadAttachment = async (ossId: string | number) => {
+  if (!detail.value) return;
+  const response = await getNotifyAttachmentDownloadUrl(detail.value.notification.notifyLogId, ossId);
+  const authorization = response.data;
+  if (!authorization?.url) {
+    ElMessage.error('未取得附件下载授权');
+    return;
+  }
+  const link = document.createElement('a');
+  link.href = authorization.url;
+  link.download = authorization.fileName;
+  link.click();
+};
 
 defineExpose({ openDrawer });
 </script>

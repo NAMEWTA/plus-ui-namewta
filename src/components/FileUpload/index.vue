@@ -6,7 +6,7 @@
       action="#"
       :before-upload="handleBeforeUpload"
       :file-list="fileList"
-      :http-request="directOssUploadRequest"
+      :http-request="uploadRequest"
       :limit="limit"
       :accept="fileAccept"
       :on-error="handleUploadError"
@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import type { OssUploadVO, SysOssExt } from '@/api/system/oss/types';
 import { delOss, listByIds } from '@/api/system/oss';
-import { directOssUploadRequest } from '@/hooks/oss/useDirectOssUpload';
+import { createDirectOssUploadRequest } from '@/hooks/oss/useDirectOssUpload';
 import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
 
@@ -83,6 +83,7 @@ const fileList = ref<any[]>([]);
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize));
 
 const fileUploadRef = ref<ElUploadInstance>();
+const uploadRequest = createDirectOssUploadRequest('document');
 
 // 监听 fileType 变化，更新 fileAccept
 const fileAccept = computed(() => props.fileType.map(type => `.${type}`).join(','));
@@ -160,6 +161,7 @@ const handleExceed = () => {
 // 上传失败
 const handleUploadError = () => {
   number.value = Math.max(0, number.value - 1);
+  uploadedSuccessfully();
   modal.msgError('上传文件失败');
   modal.closeLoading();
 };

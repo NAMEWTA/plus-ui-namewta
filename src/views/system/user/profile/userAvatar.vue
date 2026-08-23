@@ -140,7 +140,7 @@ const uploadImg = async () => {
         type: data.type || 'image/png',
         lastModified: Date.now()
       });
-      const result = await uploadDirectToOss(file, { signal: new AbortController().signal });
+      const result = await uploadDirectToOss(file, { signal: new AbortController().signal, policy: 'avatar' });
       await updateUserProfile({ avatar: result.ossId });
       open.value = false;
       options.img = result.url;

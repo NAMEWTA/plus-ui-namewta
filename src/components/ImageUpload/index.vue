@@ -5,7 +5,7 @@
       multiple
       action="#"
       list-type="picture-card"
-      :http-request="directOssUploadRequest"
+      :http-request="uploadRequest"
       :on-success="handleUploadSuccess"
       :before-upload="handleBeforeUpload"
       :limit="limit"
@@ -46,7 +46,7 @@
 import { compressAccurately } from 'image-conversion';
 import type { OssUploadVO, OssVO, SysOssExt } from '@/api/system/oss/types';
 import { listByIds, delOss } from '@/api/system/oss';
-import { directOssUploadRequest } from '@/hooks/oss/useDirectOssUpload';
+import { createDirectOssUploadRequest } from '@/hooks/oss/useDirectOssUpload';
 import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
 
@@ -90,6 +90,7 @@ const fileList = ref<any[]>([]);
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize));
 
 const imageUploadRef = ref<ElUploadInstance>();
+const uploadRequest = createDirectOssUploadRequest('image');
 
 // 监听 fileType 变化，更新 fileAccept
 const fileAccept = computed(() => props.fileType.map(type => `.${type}`).join(','));
@@ -211,6 +212,7 @@ const uploadedSuccessfully = () => {
 // 上传失败
 const handleUploadError = () => {
   number.value = Math.max(0, number.value - 1);
+  uploadedSuccessfully();
   modal.msgError('上传图片失败');
   modal.closeLoading();
 };

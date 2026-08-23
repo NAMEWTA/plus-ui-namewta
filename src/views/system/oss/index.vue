@@ -133,6 +133,25 @@
         </el-table-column>
         <el-table-column label="上传人" align="center" prop="createByName" />
         <el-table-column label="服务商" align="center" prop="service" sortable="custom" />
+        <el-table-column label="生命周期" align="center" width="116">
+          <template #default="scope">
+            <el-tag v-if="scope.row.deleteState === 'PENDING'" type="danger" effect="light">待删除</el-tag>
+            <el-tag v-else-if="scope.row.isTemp === 'Y'" type="warning" effect="light">临时</el-tag>
+            <el-tag v-else type="success" effect="light">已绑定</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="过期时间" align="center" width="180">
+          <template #default="scope">
+            <span>{{ scope.row.expireTime ? parseTime(scope.row.expireTime) : '-' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="引用数" align="center" prop="referenceCount" width="90">
+          <template #default="scope">
+            <el-tooltip :disabled="!scope.row.references?.length" :content="referenceSummary(scope.row)">
+              <span>{{ scope.row.referenceCount ?? 0 }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
             <el-tooltip content="下载" placement="top">
@@ -200,6 +219,9 @@ import modal from '@/plugins/modal';
 import { parseTime } from '@/utils/ruoyi';
 
 const router = useRouter();
+
+const referenceSummary = (oss: any) =>
+  oss.references?.map(reference => `${reference.refType}:${reference.refId}`).join(', ') || '无业务引用';
 
 const ossList = ref<OssVO[]>([]);
 const showTable = ref(true);

@@ -30,8 +30,8 @@ export async function listByIds(ossId: string | number): AxiosPromise<OssVO[]> {
   if (response.data) {
     response.data = await Promise.all(
       response.data.map(async oss => {
-        const download = await getOssDownloadUrl(oss.ossId);
-        return { ...oss, url: download.data?.url || '' };
+        const download = await getOssDownloadUrl(oss.ossId).catch(() => undefined);
+        return { ...oss, url: download?.data?.url || oss.url || '' };
       })
     );
   }

@@ -6,6 +6,11 @@ export interface OssVO extends BaseEntity {
   url: string;
   createByName: string;
   service: string;
+  isTemp: 'Y' | 'N';
+  expireTime?: string;
+  deleteState: 'ACTIVE' | 'PENDING';
+  referenceCount: number;
+  references: Array<{ refType: string; refId: string }>;
 }
 
 export interface OssUploadVO {
@@ -59,6 +64,7 @@ export interface OssUploadResumeResponse {
   partSize: number;
   partCount: number;
   expiresAt: string;
+  presignedRequest?: OssPresignedRequest;
   uploadedParts: OssUploadedPart[];
 }
 

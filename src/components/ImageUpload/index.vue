@@ -46,7 +46,7 @@
 import { compressAccurately } from 'image-conversion';
 import type { OssUploadVO, OssVO, SysOssExt } from '@/api/system/oss/types';
 import { listByIds, delOss } from '@/api/system/oss';
-import { createDirectOssUploadRequest } from '@/hooks/oss/useDirectOssUpload';
+import { createDirectOssUploadRequest, getDirectOssUploadErrorMessage } from '@/hooks/oss/useDirectOssUpload';
 import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
 
@@ -210,10 +210,11 @@ const uploadedSuccessfully = () => {
 };
 
 // 上传失败
-const handleUploadError = () => {
+const handleUploadError = (error: unknown) => {
   number.value = Math.max(0, number.value - 1);
   uploadedSuccessfully();
-  modal.msgError('上传图片失败');
+  const message = getDirectOssUploadErrorMessage(error, '上传图片失败');
+  if (message) modal.msgError(message);
   modal.closeLoading();
 };
 

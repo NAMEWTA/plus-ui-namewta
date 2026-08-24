@@ -60,7 +60,7 @@ import 'vue-cropper/dist/index.css';
 import type { UploadRawFile } from 'element-plus';
 import { VueCropper } from 'vue-cropper';
 import { updateUserProfile } from '@/api/system/user';
-import { uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
+import { getDirectOssUploadErrorMessage, uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
 import modal from '@/plugins/modal';
 import { useUserStore } from '@/store/modules/user';
 
@@ -147,8 +147,9 @@ const uploadImg = async () => {
       userStore.setAvatar(options.img);
       modal.msgSuccess('修改成功');
       visible.value = false;
-    } catch {
-      modal.msgError('头像上传失败');
+    } catch (error) {
+      const message = getDirectOssUploadErrorMessage(error, '头像上传失败');
+      if (message) modal.msgError(message);
     }
   });
 };

@@ -9,7 +9,7 @@ import {
 import { createOssFileFingerprint } from '@/utils/oss/fingerprint';
 import { getOssResumeRecord, putOssResumeRecord, removeOssResumeRecord } from '@/utils/oss/resumeStore';
 import { transferToOss } from '@/utils/oss/transport';
-import { uploadDirectToOss } from './useDirectOssUpload';
+import { getDirectOssUploadErrorMessage, uploadDirectToOss } from './useDirectOssUpload';
 
 vi.mock('@/api/system/oss', () => ({
   abortOssUpload: vi.fn(),
@@ -116,5 +116,47 @@ describe('direct OSS upload state machine', () => {
       { partNumber: 1, eTag: 'etag-1' },
       { partNumber: 2, eTag: 'etag-2' }
     ]);
+  });
+
+  it('reconciles a completed session without uploading the file again', async () => {
+    vi.mocked(getOssResumeRecord).mockResolvedValue({
+      fingerprint: 'fingerprint',
+      uploadToken: 'token-completed',
+      expiresAt: '2099-01-01T00:00:00Z',
+      fileName: 'archive.bin',
+      fileSize: 6,
+      contentType: 'application/octet-stream'
+    });
+    vi.mocked(resumeOssUpload).mockResolvedValue({
+      data: {
+        uploadToken: 'token-completed',
+        mode: 'SINGLE',
+        state: 'COMPLETED',
+        completedOssId: '9001',
+        fileName: 'archive.bin',
+        fileSize: 6,
+        contentType: 'application/octet-stream',
+        partSize: 0,
+        partCount: 0,
+        expiresAt: '2099-01-01T00:00:00Z',
+        uploadedParts: []
+      }
+    } as never);
+
+    const result = await uploadDirectToOss(file(), { signal: new AbortController().signal });
+
+    expect(initOssUpload).not.toHaveBeenCalled();
+    expect(transferToOss).not.toHaveBeenCalled();
+    expect(completeOssUpload).not.toHaveBeenCalled();
+    expect(removeOssResumeRecord).toHaveBeenCalledOnce();
+    expect(result).toEqual({ ossId: '9001', fileName: 'archive.bin', url: 'https://oss.test/download' });
+  });
+
+  it('surfaces local errors without duplicating handled request errors', () => {
+    expect(getDirectOssUploadErrorMessage(new Error('完成 OSS 上传失败'), '上传文件失败')).toBe('完成 OSS 上传失败');
+    expect(
+      getDirectOssUploadErrorMessage(Object.assign(new Error('服务端已提示'), { isHandled: true }), '上传文件失败')
+    ).toBeUndefined();
+    expect(getDirectOssUploadErrorMessage('unknown failure', '上传文件失败')).toBe('上传文件失败');
   });
 });

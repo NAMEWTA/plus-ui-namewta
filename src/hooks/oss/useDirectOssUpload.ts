@@ -42,12 +42,33 @@ function requireData<T>(value: T | undefined, message: string): T {
   return value;
 }
 
+export function getDirectOssUploadErrorMessage(error: unknown, fallback: string): string | undefined {
+  if ((error as { isHandled?: boolean } | undefined)?.isHandled) return undefined;
+  if (error instanceof Error && error.message.trim()) return error.message;
+  return fallback;
+}
+
+function getCompletedOssId(session: OssUploadInitResponse | OssUploadResumeResponse): string | undefined {
+  const resumed = session as Partial<OssUploadResumeResponse>;
+  if (resumed.state !== 'COMPLETED') return undefined;
+  return requireData(resumed.completedOssId, '已完成的 OSS 上传缺少 ossId');
+}
+
 async function safeRemoveResume(fingerprint: string) {
   try {
     await removeOssResumeRecord(fingerprint);
   } catch {
     // IndexedDB 不可用时不阻断上传。
   }
+}
+
+async function resolveUploadResult(file: File, ossId: string): Promise<OssUploadVO> {
+  const download = await getOssDownloadUrl(ossId).catch(() => undefined);
+  return {
+    ossId,
+    fileName: file.name,
+    url: download?.data?.url || URL.createObjectURL(file)
+  };
 }
 
 async function findResume(file: File, fingerprint: string, storageKey: string) {
@@ -205,6 +226,11 @@ export async function uploadDirectToOss(file: File, options: DirectUploadOptions
     const session =
       (await findResume(file, fingerprint, storageKey)) || (await initialize(file, fingerprint, storageKey, policy));
     uploadToken = session.uploadToken;
+    const completedOssId = getCompletedOssId(session);
+    if (completedOssId) {
+      await safeRemoveResume(storageKey);
+      return resolveUploadResult(file, completedOssId);
+    }
     const parts =
       session.mode === 'SINGLE'
         ? await uploadSingle(file, session as OssUploadInitResponse, options)
@@ -212,12 +238,7 @@ export async function uploadDirectToOss(file: File, options: DirectUploadOptions
     const complete = await completeOssUpload(session.uploadToken, parts);
     const ossId = requireData(complete.data, '完成 OSS 上传失败');
     await safeRemoveResume(storageKey);
-    const download = await getOssDownloadUrl(ossId).catch(() => undefined);
-    return {
-      ossId,
-      fileName: file.name,
-      url: download?.data?.url || URL.createObjectURL(file)
-    };
+    return resolveUploadResult(file, ossId);
   } catch (error) {
     if (options.signal.aborted && uploadToken) {
       await abortOssUpload(uploadToken).catch(() => undefined);

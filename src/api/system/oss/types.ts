@@ -20,6 +20,7 @@ export interface OssUploadVO {
 }
 
 export type OssUploadMode = 'SINGLE' | 'MULTIPART';
+export type OssUploadState = 'INITIALIZED' | 'UPLOADING' | 'COMPLETING' | 'COMPLETED' | 'ABORTED' | 'EXPIRED';
 
 export interface OssPresignedRequest {
   method: string;
@@ -58,6 +59,8 @@ export interface OssUploadedPart {
 export interface OssUploadResumeResponse {
   uploadToken: string;
   mode: OssUploadMode;
+  state: OssUploadState;
+  completedOssId: string | null;
   fileName: string;
   fileSize: number;
   contentType: string;

@@ -23,7 +23,3 @@ selenium-debug.log
 
 package-lock.json
 yarn.lock
-
-# 编译生成的文件
-auto-imports.d.ts
-components.d.ts

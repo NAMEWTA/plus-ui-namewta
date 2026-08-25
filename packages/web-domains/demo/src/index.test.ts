@@ -24,10 +24,24 @@ describe('demo web domain public manifest', () => {
     const manifest = createDemoWebDomain(runtime());
 
     expect(manifest).toMatchObject({ id: 'web-domain-demo', domainId: 'demo' });
-    expect(manifest.components).toMatchObject({
-      'demo/demo/index': { componentName: 'Demo' },
-      'demo/tree/index': { componentName: 'Tree' }
-    });
+    expect(manifest.messages).toEqual([
+      { namespace: 'demo', messages: { tableTitle: '测试单列表', treeTitle: '测试树列表' } }
+    ]);
+    expect(manifest.permissions).toEqual([
+      {
+        id: 'demo-table',
+        permissions: ['demo:demo:list', 'demo:demo:add', 'demo:demo:edit', 'demo:demo:remove', 'demo:demo:export']
+      },
+      { id: 'demo-tree', permissions: ['demo:tree:list', 'demo:tree:add', 'demo:tree:edit', 'demo:tree:remove'] }
+    ]);
+    expect(manifest.registrations).toMatchObject([
+      { id: 'demo-table', componentKey: 'demo/demo/index', componentName: 'Demo' },
+      { id: 'demo-tree', componentKey: 'demo/tree/index', componentName: 'Tree' }
+    ]);
+    expect(Object.isFrozen(manifest.registrations)).toBe(true);
+    expect(manifest.registrations.every(Object.isFrozen)).toBe(true);
+    expect(Object.isFrozen(manifest.messages[0].messages)).toBe(true);
+    expect(Object.isFrozen(manifest.permissions[0].permissions)).toBe(true);
   });
 
   it('fails closed when composition omits the injected runtime', () => {

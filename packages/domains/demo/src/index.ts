@@ -94,17 +94,22 @@ export const demoDomainModule: DomainModule = Object.freeze({
   capabilities: ['demo-table', 'demo-tree']
 });
 
+const encodeId = (id: string | number): string => encodeURIComponent(String(id));
+
+const encodeIds = (id: string | number | Array<string | number>): string =>
+  Array.isArray(id) ? id.map(encodeId).join(',') : encodeId(id);
+
 export function createDemoService(http: HttpClient): DemoService {
   return Object.freeze({
     listDemo: query => http.request({ url: '/demo/demo/list', method: 'get', params: query }),
-    getDemo: id => http.request({ url: `/demo/demo/${id}`, method: 'get' }),
+    getDemo: id => http.request({ url: `/demo/demo/${encodeId(id)}`, method: 'get' }),
     addDemo: data => http.request({ url: '/demo/demo', method: 'post', data }),
     updateDemo: data => http.request({ url: '/demo/demo', method: 'put', data }),
-    deleteDemo: id => http.request({ url: `/demo/demo/${id}`, method: 'delete' }),
+    deleteDemo: id => http.request({ url: `/demo/demo/${encodeIds(id)}`, method: 'delete' }),
     listTree: query => http.request({ url: '/demo/tree/list', method: 'get', params: query }),
-    getTree: id => http.request({ url: `/demo/tree/${id}`, method: 'get' }),
+    getTree: id => http.request({ url: `/demo/tree/${encodeId(id)}`, method: 'get' }),
     addTree: data => http.request({ url: '/demo/tree', method: 'post', data }),
     updateTree: data => http.request({ url: '/demo/tree', method: 'put', data }),
-    deleteTree: id => http.request({ url: `/demo/tree/${id}`, method: 'delete' })
+    deleteTree: id => http.request({ url: `/demo/tree/${encodeIds(id)}`, method: 'delete' })
   });
 }

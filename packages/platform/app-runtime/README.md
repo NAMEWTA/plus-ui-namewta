@@ -6,7 +6,8 @@
 
 ## Responsibilities
 
-- Compose DomainModule and WebDomainManifest contributions, validate selected-domain relationships, and diagnose duplicate/missing component keys.
+- Filter DomainModule and WebDomainManifest inputs to the App selection before validating duplicates, then compose message namespaces, permission contributions, and stable web registrations.
+- Clone and freeze public contributions, resolve component keys, and report structured duplicate or missing diagnostics without later registrations overwriting earlier ones.
 
 ## Non-responsibilities
 
@@ -22,7 +23,7 @@
 
 ## Public entrypoints
 
-- `@namewta/platform-app-runtime` root exports for DomainModule/WebDomainManifest contracts, selected-only composition, resolution, and structured diagnostics.
+- `@namewta/platform-app-runtime` root exports for DomainModule/WebDomainManifest message, permission, and web-registration contracts, selected-only composition, immutable resolution, and structured diagnostics.
 
 ## Backend modules
 
@@ -34,4 +35,4 @@
 
 ## Validation
 
-- Require registry unit fixtures, route integration, selected-only bundle checks, architecture/type gates, and dynamic-route Playwright coverage.
+- Require registry unit fixtures for selected/unselected duplicates, namespace/contribution/key conflicts and mutation attempts; route integration; architecture/type gates; and dynamic-route Playwright coverage.

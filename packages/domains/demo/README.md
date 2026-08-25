@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Own the sample list and tree CRUD transport contracts, models, application services, validation, and domain metadata used by the first pilot.
+- Own the sample list and tree CRUD transport contracts, models, application services, path-segment ID encoding, validation, and domain metadata used by the first pilot.
 
 ## Non-responsibilities
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Require CRUD/tree unit/integration tests, headless import checks, public-entry-only consumption, lint, typecheck, manifest routes, and App build.
+- Require CRUD/tree unit tests including single and comma-preserving batch ID encoding, headless import checks, public-entry-only consumption, lint, typecheck, manifest routes, and App build.

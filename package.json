@@ -38,6 +38,7 @@
     "@namewta/adapter-crypto-browser": "workspace:*",
     "@namewta/adapter-storage-browser": "workspace:*",
     "@namewta/domain-demo": "workspace:*",
+    "@namewta/platform-app-runtime": "workspace:*",
     "@namewta/platform-auth": "workspace:*",
     "@namewta/web-domain-demo": "workspace:*",
     "@vueuse/core": "14.3.0",

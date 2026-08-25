@@ -28,15 +28,41 @@ export function createDemoWebDomain(runtimeInput: DemoWebRuntime | undefined): W
   return Object.freeze({
     id: 'web-domain-demo',
     domainId: 'demo',
-    components: Object.freeze({
-      'demo/demo/index': {
+    messages: Object.freeze([
+      Object.freeze({
+        namespace: 'demo',
+        messages: Object.freeze({ tableTitle: '测试单列表', treeTitle: '测试树列表' })
+      })
+    ]),
+    permissions: Object.freeze([
+      Object.freeze({
+        id: 'demo-table',
+        permissions: Object.freeze([
+          'demo:demo:list',
+          'demo:demo:add',
+          'demo:demo:edit',
+          'demo:demo:remove',
+          'demo:demo:export'
+        ])
+      }),
+      Object.freeze({
+        id: 'demo-tree',
+        permissions: Object.freeze(['demo:tree:list', 'demo:tree:add', 'demo:tree:edit', 'demo:tree:remove'])
+      })
+    ]),
+    registrations: Object.freeze([
+      Object.freeze({
+        id: 'demo-table',
+        componentKey: 'demo/demo/index',
         componentName: 'Demo',
         load: () => loadDemoPage(runtime)
-      },
-      'demo/tree/index': {
+      }),
+      Object.freeze({
+        id: 'demo-tree',
+        componentKey: 'demo/tree/index',
         componentName: 'Tree',
         load: () => loadTreePage(runtime)
-      }
-    })
+      })
+    ])
   });
 }

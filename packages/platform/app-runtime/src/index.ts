@@ -11,16 +11,36 @@ export interface WebComponentRegistration<View = unknown> {
   load: WebViewLoader<View>;
 }
 
+export interface WebRegistration<View = unknown> extends WebComponentRegistration<View> {
+  componentKey: string;
+  id: string;
+}
+
+export interface WebMessageContribution {
+  messages: Readonly<Record<string, string>>;
+  namespace: string;
+}
+
+export interface WebPermissionContribution {
+  id: string;
+  permissions: readonly string[];
+}
+
 export interface WebDomainManifest<View = unknown> {
-  components: Readonly<Record<string, WebComponentRegistration<View>>>;
   domainId: string;
   id: string;
+  messages: readonly WebMessageContribution[];
+  permissions: readonly WebPermissionContribution[];
+  registrations: readonly WebRegistration<View>[];
 }
 
 export type AppRuntimeErrorCode =
   | 'duplicate-component-key'
   | 'duplicate-domain-module'
+  | 'duplicate-message-namespace'
+  | 'duplicate-permission-contribution-id'
   | 'duplicate-web-domain-manifest'
+  | 'duplicate-web-registration-id'
   | 'missing-component-key'
   | 'missing-domain-module'
   | 'missing-web-domain-manifest'
@@ -34,6 +54,9 @@ export interface AppRuntimeErrorOptions {
   conflictingManifestId?: string;
   domainId: string;
   manifestId?: string;
+  messageNamespace?: string;
+  permissionContributionId?: string;
+  registrationId?: string;
 }
 
 export class AppRuntimeError extends Error {
@@ -44,6 +67,9 @@ export class AppRuntimeError extends Error {
   readonly conflictingManifestId?: string;
   readonly domainId: string;
   readonly manifestId?: string;
+  readonly messageNamespace?: string;
+  readonly permissionContributionId?: string;
+  readonly registrationId?: string;
 
   constructor(options: AppRuntimeErrorOptions) {
     const details = [
@@ -51,6 +77,9 @@ export class AppRuntimeError extends Error {
       `domain=${options.domainId}`,
       `key=${options.componentKey}`,
       options.manifestId && `manifest=${options.manifestId}`,
+      options.messageNamespace && `namespace=${options.messageNamespace}`,
+      options.permissionContributionId && `permissionContribution=${options.permissionContributionId}`,
+      options.registrationId && `registration=${options.registrationId}`,
       options.conflictingDomainId && `conflictingDomain=${options.conflictingDomainId}`,
       options.conflictingManifestId && `conflictingManifest=${options.conflictingManifestId}`
     ].filter(Boolean);
@@ -63,13 +92,19 @@ export class AppRuntimeError extends Error {
     this.conflictingManifestId = options.conflictingManifestId;
     this.domainId = options.domainId;
     this.manifestId = options.manifestId;
+    this.messageNamespace = options.messageNamespace;
+    this.permissionContributionId = options.permissionContributionId;
+    this.registrationId = options.registrationId;
   }
 }
 
 export interface AppRuntime<View = unknown> {
   readonly appId: string;
   componentKeys(): string[];
+  messages(): readonly WebMessageContribution[];
+  permissionContributions(): readonly WebPermissionContribution[];
   resolve(input: { componentKey: string; domainId: string }): WebComponentRegistration<View>;
+  webRegistrations(): readonly WebRegistration<View>[];
 }
 
 export interface ComposeAppRuntimeOptions<View = unknown> {
@@ -79,6 +114,11 @@ export interface ComposeAppRuntimeOptions<View = unknown> {
   selectedDomainIds: readonly string[];
   selectedManifestIds: readonly string[];
 }
+
+type ContributionOwner = {
+  domainId: string;
+  manifestId: string;
+};
 
 function uniqueById<T extends { id: string }>(
   items: readonly T[],
@@ -92,6 +132,30 @@ function uniqueById<T extends { id: string }>(
   return result;
 }
 
+const freezeMessage = (contribution: WebMessageContribution): WebMessageContribution =>
+  Object.freeze({ namespace: contribution.namespace, messages: Object.freeze({ ...contribution.messages }) });
+
+const freezePermission = (contribution: WebPermissionContribution): WebPermissionContribution =>
+  Object.freeze({ id: contribution.id, permissions: Object.freeze([...contribution.permissions]) });
+
+const freezeRegistration = <View>(registration: WebRegistration<View>): WebRegistration<View> =>
+  Object.freeze({
+    id: registration.id,
+    componentKey: registration.componentKey,
+    componentName: registration.componentName,
+    load: registration.load
+  });
+
+function orderedStrings(values: Iterable<string>): string[] {
+  const result: string[] = [];
+  for (const value of values) {
+    const index = result.findIndex(existing => existing > value);
+    if (index === -1) result.push(value);
+    else result.splice(index, 0, value);
+  }
+  return result;
+}
+
 export function composeAppRuntime<View = unknown>({
   appId,
   domainModules,
@@ -99,8 +163,10 @@ export function composeAppRuntime<View = unknown>({
   selectedDomainIds,
   selectedManifestIds
 }: ComposeAppRuntimeOptions<View>): AppRuntime<View> {
+  const selectedDomainIdSet = new Set(selectedDomainIds);
+  const selectedManifestIdSet = new Set(selectedManifestIds);
   const domainsById = uniqueById(
-    domainModules,
+    domainModules.filter(item => selectedDomainIdSet.has(item.id)),
     item =>
       new AppRuntimeError({
         appId,
@@ -110,7 +176,7 @@ export function composeAppRuntime<View = unknown>({
       })
   );
   const manifestsById = uniqueById(
-    manifests,
+    manifests.filter(item => selectedManifestIdSet.has(item.id)),
     item =>
       new AppRuntimeError({
         appId,
@@ -120,9 +186,8 @@ export function composeAppRuntime<View = unknown>({
         manifestId: item.id
       })
   );
-  const selectedDomains = new Set(selectedDomainIds);
 
-  for (const domainId of selectedDomains) {
+  for (const domainId of selectedDomainIdSet) {
     if (!domainsById.has(domainId))
       throw new AppRuntimeError({
         appId,
@@ -132,8 +197,8 @@ export function composeAppRuntime<View = unknown>({
       });
   }
 
-  const components = new Map<string, WebComponentRegistration<View> & { domainId: string; manifestId: string }>();
-  for (const manifestId of new Set(selectedManifestIds)) {
+  const selectedManifests: WebDomainManifest<View>[] = [];
+  for (const manifestId of selectedManifestIdSet) {
     const manifest = manifestsById.get(manifestId);
     if (!manifest)
       throw new AppRuntimeError({
@@ -143,7 +208,7 @@ export function composeAppRuntime<View = unknown>({
         domainId: 'unknown',
         manifestId
       });
-    if (!selectedDomains.has(manifest.domainId))
+    if (!selectedDomainIdSet.has(manifest.domainId))
       throw new AppRuntimeError({
         appId,
         code: 'unselected-domain',
@@ -151,35 +216,105 @@ export function composeAppRuntime<View = unknown>({
         domainId: manifest.domainId,
         manifestId
       });
-    for (const [componentKey, registration] of Object.entries(manifest.components)) {
-      const existing = components.get(componentKey);
+    selectedManifests.push(manifest);
+  }
+
+  const components = new Map<string, { owner: ContributionOwner; registration: WebComponentRegistration<View> }>();
+  const messages: WebMessageContribution[] = [];
+  const messageOwners = new Map<string, ContributionOwner>();
+  const permissionContributions: WebPermissionContribution[] = [];
+  const permissionOwners = new Map<string, ContributionOwner>();
+  const registrations: WebRegistration<View>[] = [];
+  const registrationOwners = new Map<string, ContributionOwner>();
+
+  for (const manifest of selectedManifests) {
+    const owner = { domainId: manifest.domainId, manifestId: manifest.id };
+    for (const contribution of manifest.messages) {
+      const existing = messageOwners.get(contribution.namespace);
       if (existing)
         throw new AppRuntimeError({
           appId,
-          code: 'duplicate-component-key',
-          componentKey,
+          code: 'duplicate-message-namespace',
+          componentKey: '*',
           domainId: manifest.domainId,
-          manifestId,
+          manifestId: manifest.id,
+          messageNamespace: contribution.namespace,
           conflictingDomainId: existing.domainId,
           conflictingManifestId: existing.manifestId
         });
-      components.set(componentKey, { ...registration, domainId: manifest.domainId, manifestId });
+      messageOwners.set(contribution.namespace, owner);
+      messages.push(freezeMessage(contribution));
+    }
+
+    for (const contribution of manifest.permissions) {
+      const existing = permissionOwners.get(contribution.id);
+      if (existing)
+        throw new AppRuntimeError({
+          appId,
+          code: 'duplicate-permission-contribution-id',
+          componentKey: '*',
+          domainId: manifest.domainId,
+          manifestId: manifest.id,
+          permissionContributionId: contribution.id,
+          conflictingDomainId: existing.domainId,
+          conflictingManifestId: existing.manifestId
+        });
+      permissionOwners.set(contribution.id, owner);
+      permissionContributions.push(freezePermission(contribution));
+    }
+
+    for (const sourceRegistration of manifest.registrations) {
+      const existingRegistration = registrationOwners.get(sourceRegistration.id);
+      if (existingRegistration)
+        throw new AppRuntimeError({
+          appId,
+          code: 'duplicate-web-registration-id',
+          componentKey: sourceRegistration.componentKey,
+          domainId: manifest.domainId,
+          manifestId: manifest.id,
+          registrationId: sourceRegistration.id,
+          conflictingDomainId: existingRegistration.domainId,
+          conflictingManifestId: existingRegistration.manifestId
+        });
+      const existingComponent = components.get(sourceRegistration.componentKey);
+      if (existingComponent)
+        throw new AppRuntimeError({
+          appId,
+          code: 'duplicate-component-key',
+          componentKey: sourceRegistration.componentKey,
+          domainId: manifest.domainId,
+          manifestId: manifest.id,
+          registrationId: sourceRegistration.id,
+          conflictingDomainId: existingComponent.owner.domainId,
+          conflictingManifestId: existingComponent.owner.manifestId
+        });
+      const registration = freezeRegistration(sourceRegistration);
+      registrationOwners.set(registration.id, owner);
+      registrations.push(registration);
+      components.set(registration.componentKey, { owner, registration });
     }
   }
 
+  const frozenMessages = Object.freeze(messages);
+  const frozenPermissions = Object.freeze(permissionContributions);
+  const frozenRegistrations = Object.freeze(registrations);
+
   return Object.freeze({
     appId,
-    componentKeys: () => [...components.keys()].toSorted(),
+    componentKeys: () => orderedStrings(components.keys()),
+    messages: () => frozenMessages,
+    permissionContributions: () => frozenPermissions,
     resolve: ({ componentKey, domainId }) => {
-      const registration = components.get(componentKey);
-      if (!registration)
+      const component = components.get(componentKey);
+      if (!component)
         throw new AppRuntimeError({
           appId,
           code: 'missing-component-key',
           componentKey,
           domainId
         });
-      return registration;
-    }
+      return component.registration;
+    },
+    webRegistrations: () => frozenRegistrations
   });
 }

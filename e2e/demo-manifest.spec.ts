@@ -1,13 +1,42 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
 type ApiState = {
+  demoListRequests: number;
+  treeListRequests: number;
   unknownRequests: string[];
 };
+
+type MenuMode = 'missing' | 'valid';
 
 const json = (route: Route, body: unknown) =>
   route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
 
-async function installApi(page: Page, state: ApiState) {
+const demoChildren = (mode: MenuMode) =>
+  mode === 'missing'
+    ? [
+        {
+          path: 'missing',
+          name: 'DemoManifestMissing',
+          component: 'demo/missing/index',
+          meta: { title: '缺失组件诊断', icon: 'warning', noCache: true }
+        }
+      ]
+    : [
+        {
+          path: 'demo',
+          name: 'Demo',
+          component: 'demo/demo/index',
+          meta: { title: '测试单', icon: 'dashboard', noCache: false }
+        },
+        {
+          path: 'tree',
+          name: 'Tree',
+          component: 'demo/tree/index',
+          meta: { title: '测试树', icon: 'tree-table', noCache: false }
+        }
+      ];
+
+async function installApi(page: Page, state: ApiState, mode: MenuMode) {
   await page.route('**/prod-api/**', route => {
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/prod-api', '');
@@ -35,24 +64,12 @@ async function installApi(page: Page, state: ApiState) {
             redirect: 'noRedirect',
             alwaysShow: true,
             meta: { title: '演示管理', icon: 'dashboard', noCache: false },
-            children: [
-              {
-                path: 'demo',
-                name: 'Demo',
-                component: 'demo/demo/index',
-                meta: { title: '测试单', icon: 'dashboard', noCache: false }
-              },
-              {
-                path: 'tree',
-                name: 'Tree',
-                component: 'demo/tree/index',
-                meta: { title: '测试树', icon: 'tree-table', noCache: false }
-              }
-            ]
+            children: demoChildren(mode)
           }
         ]
       });
-    if (path === '/demo/demo/list')
+    if (path === '/demo/demo/list') {
+      state.demoListRequests += 1;
       return json(route, {
         code: 200,
         data: {
@@ -60,11 +77,14 @@ async function installApi(page: Page, state: ApiState) {
           total: 1
         }
       });
-    if (path === '/demo/tree/list')
+    }
+    if (path === '/demo/tree/list') {
+      state.treeListRequests += 1;
       return json(route, {
         code: 200,
         data: [{ id: 1, parentId: 0, deptId: 10, userId: 20, treeName: 'manifest-root', children: [] }]
       });
+    }
     if (path === '/resource/message/box')
       return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
     if (path === '/resource/message/close') return json(route, { code: 200, data: null });
@@ -74,9 +94,11 @@ async function installApi(page: Page, state: ApiState) {
   });
 }
 
-test('stable demo manifest keys render both migrated web-domain pages', async ({ page }) => {
-  const state: ApiState = { unknownRequests: [] };
-  await installApi(page, state);
+const createState = (): ApiState => ({ demoListRequests: 0, treeListRequests: 0, unknownRequests: [] });
+
+test('selected demo registry routes survive a keep-alive menu round trip', async ({ page }) => {
+  const state = createState();
+  await installApi(page, state, 'valid');
 
   await page.goto('/login?redirect=%2Fdemo%2Fdemo');
   await expect(page.locator('.submit-button')).toBeEnabled();
@@ -85,10 +107,36 @@ test('stable demo manifest keys render both migrated web-domain pages', async ({
   await expect(page).toHaveURL(/\/demo\/demo$/);
   await expect(page.getByRole('heading', { name: '测试单列表' })).toBeVisible();
   await expect(page.getByText('manifest-key', { exact: true })).toBeVisible();
+  await expect.poll(() => state.demoListRequests).toBe(1);
 
-  await page.goto('/demo/tree');
+  await page.locator('.sidebar-container').getByText('测试树', { exact: true }).click();
   await expect(page).toHaveURL(/\/demo\/tree$/);
   await expect(page.getByRole('heading', { name: '测试树列表' })).toBeVisible();
   await expect(page.getByText('manifest-root', { exact: true })).toBeVisible();
+  await expect.poll(() => state.treeListRequests).toBe(1);
+
+  await page.locator('.sidebar-container').getByText('测试单', { exact: true }).click();
+  await expect(page).toHaveURL(/\/demo\/demo$/);
+  await expect(page.getByText('manifest-key', { exact: true })).toBeVisible();
+  expect(state.demoListRequests).toBe(1);
+  expect(state.treeListRequests).toBe(1);
+  expect(state.unknownRequests).toEqual([]);
+});
+
+test('missing demo registry keys render a stable diagnostic instead of a blank route', async ({ page }) => {
+  const state = createState();
+  await installApi(page, state, 'missing');
+
+  await page.goto('/login?redirect=%2Fdemo%2Fmissing');
+  await expect(page.locator('.submit-button')).toBeEnabled();
+  await page.locator('.submit-button').click();
+
+  await expect(page).toHaveURL(/\/demo\/missing$/);
+  await expect(page.getByRole('heading', { name: '页面加载失败' })).toBeVisible();
+  await expect(page.getByTestId('demo-manifest-error')).toContainText(
+    '页面组件不可用 [missing-component-key] app=admin-web domain=demo key=demo/missing/index'
+  );
+  expect(state.demoListRequests).toBe(0);
+  expect(state.treeListRequests).toBe(0);
   expect(state.unknownRequests).toEqual([]);
 });

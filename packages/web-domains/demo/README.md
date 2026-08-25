@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Provide Vue list/tree CRUD pages and components plus the first explicit WebDomainManifest component registry pilot.
+- Provide Vue list/tree CRUD pages plus an explicit WebDomainManifest containing a message namespace, permission contributions, and stable web registrations.
 
 ## Non-responsibilities
 
@@ -22,7 +22,7 @@
 
 ## Public entrypoints
 
-- `@namewta/web-domain-demo` root exports lazy page factories, the injected `DemoWebRuntime` contract, and `createDemoWebDomain`.
+- `@namewta/web-domain-demo` root exports lazy page factories, the injected `DemoWebRuntime` contract, and `createDemoWebDomain`; manifest contributions are frozen at creation.
 
 ## Backend modules
 
@@ -30,8 +30,8 @@
 
 ## Activation conditions
 
-- Activated in T-05 with stable `demo/demo/index` and `demo/tree/index` keys; root view files remain thin compatibility facades until T-15.
+- Activated in T-05 with stable `demo/demo/index` and `demo/tree/index` keys; root view facades load through the composed registry, while a root missing-key harness provides visible diagnostics until T-07 owns global route integration.
 
 ## Validation
 
-- Require CRUD/tree UI tests, duplicate/missing component-key tests, keep-alive and dynamic-route E2E, lint, typecheck, and App build.
+- Require manifest contribution/deep-freeze tests, duplicate/missing registry tests, keep-alive request-count and visible missing-key E2E, lint, typecheck, and App build.

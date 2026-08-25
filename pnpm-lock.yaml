@@ -71,6 +71,9 @@ importers:
       '@namewta/domain-demo':
         specifier: workspace:*
         version: link:packages/domains/demo
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:packages/platform/app-runtime
       '@namewta/platform-auth':
         specifier: workspace:*
         version: link:packages/platform/auth

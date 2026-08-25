@@ -3,9 +3,8 @@
 </template>
 
 <script setup name="Tree" lang="ts">
-import { loadTreePage } from '@namewta/web-domain-demo';
 import { defineAsyncComponent } from 'vue';
-import { demoWebRuntime } from '@/views/demo/runtime';
+import { loadDemoRouteView } from '@/views/demo/runtime';
 
-const TreePage = defineAsyncComponent(() => loadTreePage(demoWebRuntime));
+const TreePage = defineAsyncComponent(() => loadDemoRouteView('demo/tree/index'));
 </script>

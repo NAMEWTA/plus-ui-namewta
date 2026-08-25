@@ -148,7 +148,11 @@ test('selected workflow manifest completes category, definition, designer and Sp
   await expect(page.getByText('请假审批', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: '流程设计' }).click();
   await expect(page).toHaveURL(/\/workflow\/design\/index.*definitionId=d1.*disabled=false/);
-  await expect(page.locator('iframe[title="流程设计"]')).toHaveAttribute('src', /id=d1&onlyDesignShow=false/);
+  const iframe = page.locator('iframe[title="流程设计"]');
+  await expect(iframe).toHaveAttribute('src', /id=d1&onlyDesignShow=false/);
+  const iframeUrl = new URL((await iframe.getAttribute('src'))!, page.url());
+  expect(iframeUrl.searchParams.get('Authorization')).toBe('Bearer workflow-token');
+  expect(iframeUrl.searchParams.get('clientid')).toBe('e5cd7e4891bf95d1d19206ce24a7b32e');
   await page.evaluate(() => window.dispatchEvent(new MessageEvent('message', { data: { method: 'close' } })));
   await expect(page).toHaveURL(/\/workflow\/processDefinition(?:\?.*)?$/);
   await page.getByRole('button', { name: '发布流程' }).click();

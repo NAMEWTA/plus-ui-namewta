@@ -9,7 +9,7 @@
         placeholder="请输入流程分类名"
         :data="categoryOptions"
         :expanded-span="4"
-        filter-field="categoryName"
+        filter-field="label"
         @node-click="handleNodeClick"
       />
       <el-col

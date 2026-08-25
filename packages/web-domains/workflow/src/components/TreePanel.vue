@@ -21,7 +21,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { resolveTreePanelGrid } from '../tree';
+import { matchesTreePanelFilter, resolveTreePanelGrid } from '../tree';
 const props = withDefaults(
   defineProps<{
     title: string;
@@ -54,7 +54,7 @@ const grid = computed(() => resolveTreePanelGrid(props.collapsed, props.expanded
 watch(filter, value => tree.value?.filter(value));
 const filterNode = (value: string, data: Record<string, unknown>) => {
   if (props.filterNodeMethod) return props.filterNodeMethod(value, data);
-  return !value || String(data[props.filterField] ?? '').includes(value);
+  return matchesTreePanelFilter(value, data, props.filterField);
 };
 const onNodeClick = (data: any, node: any, component: any) => {
   if (props.disabledField && data?.[props.disabledField]) return;

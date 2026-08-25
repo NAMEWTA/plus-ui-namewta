@@ -4,7 +4,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 import TreePanel from './components/TreePanel.vue';
 import { createDesignerController } from './designer';
-import { createLiveWorkflowDictRefs, createWorkflowWebDomain, resolveTreePanelGrid } from './index';
+import {
+  createLiveWorkflowDictRefs,
+  createWorkflowWebDomain,
+  matchesTreePanelFilter,
+  resolveTreePanelGrid
+} from './index';
 
 const runtime = {
   service: {},
@@ -127,5 +132,11 @@ describe('workflow host adapters', () => {
         'collapsed'
       ])
     );
+  });
+
+  it('filters backend category tree nodes by label', () => {
+    const category = { id: 'category-1', label: '财务审批' };
+    expect(matchesTreePanelFilter('财务', category, 'label')).toBe(true);
+    expect(matchesTreePanelFilter('人事', category, 'label')).toBe(false);
   });
 });

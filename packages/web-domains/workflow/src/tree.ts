@@ -18,3 +18,7 @@ export function resolveTreePanelGrid(collapsed: boolean, expandedSpan = 5, colla
   const panelSpan = collapsed ? collapsedSpan : expandedSpan;
   return Object.freeze({ panelSpan, contentSpan: 24 - panelSpan });
 }
+
+export function matchesTreePanelFilter(value: string, data: Record<string, unknown>, filterField = 'label'): boolean {
+  return !value || String(data[filterField] ?? '').includes(value);
+}

@@ -68,9 +68,15 @@ importers:
       '@namewta/adapter-storage-browser':
         specifier: workspace:*
         version: link:packages/adapters/storage-browser
+      '@namewta/domain-demo':
+        specifier: workspace:*
+        version: link:packages/domains/demo
       '@namewta/platform-auth':
         specifier: workspace:*
         version: link:packages/platform/auth
+      '@namewta/web-domain-demo':
+        specifier: workspace:*
+        version: link:packages/web-domains/demo
       '@vueuse/core':
         specifier: 14.3.0
         version: 14.3.0(vue@3.5.40(typescript@6.0.3))
@@ -268,6 +274,40 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
 
+  packages/domains/demo:
+    dependencies:
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../platform/app-runtime
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/platform/app-runtime:
+    devDependencies:
+      '@namewta/architecture':
+        specifier: workspace:*
+        version: link:../../../tooling/architecture
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
   packages/platform/auth:
     dependencies:
       '@namewta/platform-contracts':
@@ -311,6 +351,37 @@ importers:
       vitest:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/web-domains/demo:
+    dependencies:
+      '@namewta/domain-demo':
+        specifier: workspace:*
+        version: link:../../domains/demo
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../platform/app-runtime
+      element-plus:
+        specifier: 'catalog:'
+        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.40(typescript@6.0.3)
+    devDependencies:
+      '@vue/compiler-sfc':
+        specifier: 'catalog:'
+        version: 3.5.40
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+      vue-tsc:
+        specifier: 3.3.8
+        version: 3.3.8(typescript@6.0.3)
 
   tooling/architecture:
     dependencies:

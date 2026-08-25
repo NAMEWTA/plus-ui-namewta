@@ -1,0 +1,110 @@
+import type { DomainModule } from '@namewta/platform-app-runtime';
+import type { HttpClient } from '@namewta/platform-contracts';
+
+export interface AuditFields {
+  createBy?: unknown;
+  createDept?: unknown;
+  createTime?: string;
+  updateBy?: unknown;
+  updateTime?: unknown;
+}
+
+export interface PageQuery {
+  pageNum: number;
+  pageSize: number;
+}
+
+export interface PageResult<T> {
+  rows: T[];
+  total: number;
+}
+
+export interface ApiResponse<T = unknown> {
+  code?: number;
+  data?: T;
+  msg?: string;
+}
+
+export interface DemoVO {
+  deptId: string | number;
+  id: string | number;
+  orderNum: number;
+  testKey: string;
+  userId: string | number;
+  value: string;
+}
+
+export interface DemoForm extends AuditFields {
+  deptId?: string | number;
+  id?: string | number;
+  orderNum?: number;
+  testKey?: string;
+  userId?: string | number;
+  value?: string;
+}
+
+export interface DemoQuery extends PageQuery {
+  deptId?: string | number;
+  orderNum?: number;
+  testKey?: string;
+  userId?: string | number;
+  value?: string;
+}
+
+export interface TreeVO {
+  children: TreeVO[];
+  deptId: string | number;
+  id: string | number;
+  parentId: string | number;
+  treeName: string;
+  userId: string | number;
+}
+
+export interface TreeForm extends AuditFields {
+  deptId?: string | number;
+  id?: string | number;
+  parentId?: string | number;
+  treeName?: string;
+  userId?: string | number;
+}
+
+export interface TreeQuery {
+  deptId?: string | number;
+  parentId?: string | number;
+  treeName?: string;
+  userId?: string | number;
+}
+
+export interface DemoService {
+  addDemo(data: DemoForm): Promise<ApiResponse>;
+  addTree(data: TreeForm): Promise<ApiResponse>;
+  deleteDemo(id: string | number | Array<string | number>): Promise<ApiResponse>;
+  deleteTree(id: string | number | Array<string | number>): Promise<ApiResponse>;
+  getDemo(id: string | number): Promise<ApiResponse<DemoVO>>;
+  getTree(id: string | number): Promise<ApiResponse<TreeVO>>;
+  listDemo(query?: DemoQuery): Promise<ApiResponse<PageResult<DemoVO>>>;
+  listTree(query?: TreeQuery): Promise<ApiResponse<TreeVO[]>>;
+  updateDemo(data: DemoForm): Promise<ApiResponse>;
+  updateTree(data: TreeForm): Promise<ApiResponse>;
+}
+
+export const demoDomainModule: DomainModule = Object.freeze({
+  id: 'demo',
+  backendModules: ['ruoyi-demo'],
+  capabilities: ['demo-table', 'demo-tree']
+});
+
+export function createDemoService(http: HttpClient): DemoService {
+  return Object.freeze({
+    listDemo: query => http.request({ url: '/demo/demo/list', method: 'get', params: query }),
+    getDemo: id => http.request({ url: `/demo/demo/${id}`, method: 'get' }),
+    addDemo: data => http.request({ url: '/demo/demo', method: 'post', data }),
+    updateDemo: data => http.request({ url: '/demo/demo', method: 'put', data }),
+    deleteDemo: id => http.request({ url: `/demo/demo/${id}`, method: 'delete' }),
+    listTree: query => http.request({ url: '/demo/tree/list', method: 'get', params: query }),
+    getTree: id => http.request({ url: `/demo/tree/${id}`, method: 'get' }),
+    addTree: data => http.request({ url: '/demo/tree', method: 'post', data }),
+    updateTree: data => http.request({ url: '/demo/tree', method: 'put', data }),
+    deleteTree: id => http.request({ url: `/demo/tree/${id}`, method: 'delete' })
+  });
+}

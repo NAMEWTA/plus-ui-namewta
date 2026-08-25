@@ -47,13 +47,8 @@ export const useUserStore = defineStore('user', () => {
       const user = data.user;
       const profile = user.avatarUrl == '' || user.avatarUrl == null ? defAva : user.avatarUrl;
 
-      if (data.roles && data.roles.length > 0) {
-        // 验证返回的roles是否是一个非空数组
-        roles.value = data.roles;
-        permissions.value = data.permissions;
-      } else {
-        roles.value = ['ROLE_DEFAULT'];
-      }
+      roles.value = data.roles?.length ? [...data.roles] : ['ROLE_DEFAULT'];
+      permissions.value = Array.isArray(data.permissions) ? [...data.permissions] : [];
       name.value = user.userName;
       nickname.value = user.nickName;
       avatar.value = profile;

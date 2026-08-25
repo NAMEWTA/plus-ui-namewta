@@ -79,7 +79,11 @@ vi.mock('@/router', () => ({
 }));
 vi.mock('@/store/modules/user', () => ({ useUserStore: vi.fn(() => ({ logout: runtime.logout })) }));
 vi.mock('@/utils/push', () => ({ closePush: vi.fn() }));
-vi.mock('@/utils/auth', () => ({ getToken: vi.fn(() => 'baseline-token') }));
+vi.mock('@/utils/auth', () => ({
+  getToken: vi.fn(() => 'baseline-token'),
+  removeToken: vi.fn(),
+  setToken: vi.fn()
+}));
 vi.mock('@/utils/crypto', () => ({
   decryptBase64: vi.fn(),
   decryptWithAes: vi.fn(),
@@ -214,16 +218,26 @@ describe('request adapter compatibility', () => {
 });
 
 describe('login request configuration baseline', () => {
-  it('passes the production client id to the encrypted request seam', async () => {
+  it('validates ClientContext before passing the production client id to the encrypted login seam', async () => {
     vi.stubEnv('VITE_APP_CLIENT_ID', 'e5cd7e4891bf95d1d19206ce24a7b32e');
     axiosHarness.service.mockClear();
-    axiosHarness.service.mockResolvedValue({ code: 200, data: { access_token: 'baseline-token' } });
+    axiosHarness.service
+      .mockResolvedValueOnce({ code: 200, data: { clientEnabled: true, registerEnabled: true } })
+      .mockResolvedValueOnce({ code: 200, data: { captchaEnabled: false } })
+      .mockResolvedValueOnce({ code: 200, data: { access_token: 'baseline-token' } });
 
     try {
-      const { login } = await import('@/api/login');
+      const { getClientAuthContext, getCodeImg, login } = await import('@/api/login');
+      await getClientAuthContext();
+      await getCodeImg();
       await login({ username: 'baseline-user', password: 'baseline-password', clientId: '', grantType: '' });
 
-      expect(axiosHarness.service).toHaveBeenCalledWith({
+      expect(axiosHarness.service.mock.calls.map(([request]) => request.url)).toEqual([
+        '/auth/client/context',
+        '/auth/code',
+        '/auth/login'
+      ]);
+      expect(axiosHarness.service).toHaveBeenNthCalledWith(3, {
         url: '/auth/login',
         headers: {
           isToken: false,

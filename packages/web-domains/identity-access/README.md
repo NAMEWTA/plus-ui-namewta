@@ -2,7 +2,7 @@
 
 ## Status
 
-- `active-minimal`: T-06 activates an injectable Vue password-login page and identity WebDomainManifest; broader auth surfaces remain T-07 work.
+- `active`: the injectable identity presentation manifest is selected by client-web; admin keeps its compatibility markup while consuming domain-owned messages and use cases until T-15.
 
 ## Responsibilities
 
@@ -10,7 +10,7 @@
 
 ## Non-responsibilities
 
-- It does not own session truth, Client selection, HTTP/storage/crypto adapters, App layout/navigation, registration/social flows, or backend authorization.
+- It does not own session truth, Client selection, HTTP/storage/crypto adapters, App layout/navigation, or backend authorization. Admin registration/social markup remains a compatibility facade during expand-migrate.
 
 ## Allowed dependencies
 
@@ -22,7 +22,7 @@
 
 ## Public entrypoints
 
-- `@namewta/web-domain-identity-access` exports `createIdentityAccessWebDomain` and `IdentityAccessWebRuntime`; component key `identity-access/login/index` resolves to keep-alive name `IdentityLogin`.
+- `@namewta/web-domain-identity-access` exports `createIdentityAccessWebDomain`, `IdentityAccessWebRuntime`, and immutable shared auth messages; component key `identity-access/login/index` resolves to keep-alive name `IdentityLogin`.
 
 ## Backend modules
 

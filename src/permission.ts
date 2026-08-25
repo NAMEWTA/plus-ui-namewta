@@ -1,4 +1,4 @@
-import { to as tos } from 'await-to-js';
+import { restoreProtectedNavigation } from '@namewta/platform-app-runtime';
 import { ElMessage } from 'element-plus/es';
 import * as NProgressModule from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -32,32 +32,30 @@ router.beforeEach(async (to, from) => {
     } else {
       if (useUserStore().roles.length === 0) {
         isRelogin.show = true;
-        // 判断当前用户是否已拉取完user_info信息
-        const [err] = await tos(useUserStore().getInfo());
-        if (err) {
+        try {
+          return await restoreProtectedNavigation({
+            loadIdentity: () => useUserStore().getInfo(),
+            loadRoutes: () => usePermissionStore().generateRoutes(),
+            isExternal: route => isHttp(route.path),
+            addRoute: route => router.addRoute(route),
+            createReplacement: () => {
+              isRelogin.show = false;
+              return {
+                path: to.path,
+                replace: true,
+                params: to.params,
+                query: to.query,
+                hash: to.hash,
+                name: to.name as string
+              };
+            }
+          });
+        } catch (err) {
           await useUserStore().logout();
           if (!isHandledRequestError(err)) {
             ElMessage.error(err instanceof Error ? err.message : String(err));
           }
           return { path: '/' };
-        } else {
-          isRelogin.show = false;
-          const accessRoutes = await usePermissionStore().generateRoutes();
-          // 根据roles权限生成可访问的路由表
-          accessRoutes.forEach(route => {
-            if (!isHttp(route.path)) {
-              router.addRoute(route); // 动态添加可访问路由表
-            }
-          });
-          // hack方法 确保addRoutes已完成
-          return {
-            path: to.path,
-            replace: true,
-            params: to.params,
-            query: to.query,
-            hash: to.hash,
-            name: to.name as string
-          };
         }
       } else {
         return true;

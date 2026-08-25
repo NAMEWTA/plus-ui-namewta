@@ -5,6 +5,11 @@ import { requireIdentityAccessWebRuntime } from './runtime';
 
 export type { IdentityAccessWebRuntime } from './runtime';
 
+export const identityAccessWebMessages = Object.freeze({
+  title: '客户服务入口',
+  unavailable: '客户端认证配置不可用，无法登录'
+});
+
 async function runtimeView(runtime: IdentityAccessWebRuntime): Promise<Component> {
   const page = (await import('./views/LoginPage.vue')).default;
   return defineComponent({
@@ -23,10 +28,7 @@ export function createIdentityAccessWebDomain(
     messages: Object.freeze([
       Object.freeze({
         namespace: 'identity-access',
-        messages: Object.freeze({
-          title: '客户服务入口',
-          unavailable: '客户端认证配置不可用，无法登录'
-        })
+        messages: identityAccessWebMessages
       })
     ]),
     permissions: Object.freeze([Object.freeze({ id: 'identity-login', permissions: Object.freeze([] as string[]) })]),

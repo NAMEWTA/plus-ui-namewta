@@ -1,141 +1,74 @@
+import {
+  createIdentityAccessService,
+  type RegistrationInput,
+  type SocialCallbackInput
+} from '@namewta/domain-identity-access';
 import type { UserInfo } from '@/api/system/user/types';
 import type { AxiosPromise, RuoYiAjaxResult } from '@/utils/api-types';
+import { getToken, removeToken, setToken } from '@/utils/auth';
 import { closePush } from '@/utils/push';
 import request from '@/utils/request';
 import type { ClientAuthContext, LoginData, LoginResult, RegisterForm, VerifyCodeResult } from './types';
 
-// pc端固定客户端授权id
-const clientId = import.meta.env.VITE_APP_CLIENT_ID;
-
-const parseClientAuthContext = (value: unknown): ClientAuthContext => {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    throw new Error('客户端认证上下文格式无效');
-  }
-  const context = value as Record<string, unknown>;
-  if (typeof context.clientEnabled !== 'boolean' || typeof context.registerEnabled !== 'boolean') {
-    throw new Error('客户端认证上下文缺少布尔开关');
-  }
-  return {
-    clientEnabled: context.clientEnabled,
-    registerEnabled: context.registerEnabled
-  };
+const http = {
+  request: <T>(config: Parameters<typeof request>[0]) => request(config) as Promise<T>
 };
+const session = { clear: removeToken, getToken, setToken };
 
-/**
- * @param data {LoginData}
- * @returns
- */
-export function login(data: LoginData): AxiosPromise<LoginResult> {
-  const params = {
-    ...data,
-    clientId: data.clientId || clientId,
-    grantType: data.grantType || 'password'
-  };
-  return request({
-    url: '/auth/login',
-    headers: {
-      isToken: false,
-      isEncrypt: true,
-      repeatSubmit: false
-    },
-    method: 'post',
-    data: params
-  });
+export const identityAccessService = createIdentityAccessService({
+  client: { clientId: import.meta.env.VITE_APP_CLIENT_ID },
+  http,
+  session
+});
+
+const result = <T>(data: T, msg = '操作成功'): RuoYiAjaxResult<T> => ({ code: 200, data, msg });
+
+export async function login(data: LoginData): AxiosPromise<LoginResult> {
+  const identitySession =
+    data.grantType === 'social'
+      ? await identityAccessService.socialLogin(data as SocialCallbackInput)
+      : await identityAccessService.login({
+          username: data.username ?? '',
+          password: data.password ?? '',
+          code: data.code,
+          uuid: data.uuid
+        });
+  return result({ access_token: identitySession.accessToken }) as never;
 }
 
-// 注册方法
-export function register(data: RegisterForm) {
-  const params = {
-    username: data.username,
-    password: data.password,
-    code: data.code,
-    uuid: data.uuid,
-    clientId: clientId
-  };
-  return request({
-    url: '/auth/register',
-    headers: {
-      isToken: false,
-      isEncrypt: true,
-      repeatSubmit: false
-    },
-    method: 'post',
-    data: params
-  });
+export async function register(data: RegisterForm): Promise<RuoYiAjaxResult<null>> {
+  await identityAccessService.register(data as RegistrationInput);
+  return result(null);
 }
 
-/**
- * 查询当前 Client 的公开认证上下文（登录/注册页初始化）
- */
-export function getClientAuthContext(): AxiosPromise<ClientAuthContext> {
-  return request({
-    url: '/auth/client/context',
-    headers: {
-      isToken: false
-    },
-    method: 'get'
-  }).then((res: RuoYiAjaxResult<unknown>) => {
-    return {
-      ...res,
-      data: parseClientAuthContext(res.data)
-    };
-  });
+export async function getClientAuthContext(): AxiosPromise<ClientAuthContext> {
+  return result(await identityAccessService.getClientContext()) as never;
 }
 
-/**
- * 注销
- */
-export function logout() {
+export async function logout(): Promise<RuoYiAjaxResult<null>> {
   closePush();
   if (
     import.meta.env.VITE_APP_MESSAGE_ENABLED === 'true' &&
     import.meta.env.VITE_APP_MESSAGE_TRANSPORT.toLowerCase() === 'sse'
   ) {
-    request({
-      url: import.meta.env.VITE_APP_MESSAGE_PATH + '/close',
-      method: 'get'
-    });
+    await request({ url: import.meta.env.VITE_APP_MESSAGE_PATH + '/close', method: 'get' });
   }
-  return request({
-    url: '/auth/logout',
-    method: 'post'
-  });
+  await identityAccessService.logout();
+  return result(null);
 }
 
-/**
- * 获取验证码
- */
-export function getCodeImg(): AxiosPromise<VerifyCodeResult> {
-  return request({
-    url: '/auth/code',
-    headers: {
-      isToken: false
-    },
-    method: 'get',
-    timeout: 20000
-  });
+export async function getCodeImg(): AxiosPromise<VerifyCodeResult> {
+  return result(await identityAccessService.getVerification()) as never;
 }
 
-/**
- * 第三方登录
- */
-export function callback(data: LoginData): AxiosPromise<any> {
-  const LoginData = {
-    ...data,
-    clientId: clientId,
-    grantType: 'social'
-  };
-  return request({
-    url: '/auth/social/callback',
-    method: 'post',
-    data: LoginData
-  });
+export async function callback(data: LoginData): AxiosPromise<null> {
+  const callbackResult = await identityAccessService.socialCallback(data as SocialCallbackInput);
+  return result(
+    callbackResult.accessToken ? { access_token: callbackResult.accessToken } : null,
+    callbackResult.message
+  ) as never;
 }
 
-// 获取用户详细信息
-export function getInfo(): AxiosPromise<UserInfo> {
-  return request({
-    url: '/system/user/getInfo',
-    method: 'get'
-  });
+export async function getInfo(): AxiosPromise<UserInfo> {
+  return result((await identityAccessService.getInfo()) as UserInfo) as never;
 }

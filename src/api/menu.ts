@@ -1,11 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router';
 import type { AxiosPromise } from '@/utils/api-types';
-import request from '@/utils/request';
+import { identityAccessService } from '@/api/login';
 
-// 获取路由
-export function getRouters(): AxiosPromise<RouteRecordRaw[]> {
-  return request({
-    url: '/system/menu/getRouters',
-    method: 'get'
-  });
+export async function getRouters(): AxiosPromise<RouteRecordRaw[]> {
+  return {
+    code: 200,
+    data: (await identityAccessService.getMenus()) as unknown as RouteRecordRaw[],
+    msg: '操作成功'
+  } as never;
 }

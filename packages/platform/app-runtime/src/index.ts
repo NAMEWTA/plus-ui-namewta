@@ -4,6 +4,9 @@ export interface DomainModule {
   id: string;
 }
 
+export * from './routeAssembler';
+export * from './navigationRecovery';
+
 export type WebViewLoader<View = unknown> = () => Promise<View>;
 
 export interface WebComponentRegistration<View = unknown> {

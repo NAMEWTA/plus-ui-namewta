@@ -7,11 +7,12 @@
 ## Responsibilities
 
 - Filter DomainModule and WebDomainManifest inputs to the App selection before validating duplicates, then compose message namespaces, permission contributions, and stable web registrations.
+- Assemble server-authorized menus without a second Client filter and coordinate protected navigation in the fixed identity/menu/add/replace order through injected ports.
 - Clone and freeze public contributions, resolve component keys, and report structured duplicate or missing diagnostics without later registrations overwriting earlier ones.
 
 ## Non-responsibilities
 
-- It does not own domain pages, App layout, backend menu filtering, or runtime remote-plugin discovery.
+- It does not own domain pages, App layout, backend menu filtering, Vue Router, or runtime remote-plugin discovery.
 
 ## Allowed dependencies
 
@@ -23,7 +24,7 @@
 
 ## Public entrypoints
 
-- `@namewta/platform-app-runtime` root exports for DomainModule/WebDomainManifest message, permission, and web-registration contracts, selected-only composition, immutable resolution, and structured diagnostics.
+- `@namewta/platform-app-runtime` root exports manifest contracts, selected-only composition, immutable resolution, server route assembly, missing-key diagnostics, and protected navigation recovery ports.
 
 ## Backend modules
 
@@ -35,4 +36,4 @@
 
 ## Validation
 
-- Require registry unit fixtures for selected/unselected duplicates, namespace/contribution/key conflicts and mutation attempts; route integration; architecture/type gates; and dynamic-route Playwright coverage.
+- Registry and route fixtures cover selected/unselected duplicates, contribution conflicts, mutation, server metadata passthrough, missing keys, and exact `getInfo -> getRouters -> addRoute -> replace`; architecture/type gates and Lead dynamic-route E2E complete validation.

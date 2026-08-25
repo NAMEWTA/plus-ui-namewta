@@ -146,6 +146,7 @@
 </template>
 
 <script setup lang="ts">
+import { identityAccessWebMessages } from '@namewta/web-domain-identity-access';
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
 import { getClientAuthContext, getCodeImg } from '@/api/login';
@@ -297,7 +298,7 @@ const loadClientAuthContext = async () => {
   } catch {
     authContextState.value = 'unavailable';
     register.value = false;
-    ElMessage.error('客户端认证配置不可用，无法登录');
+    ElMessage.error(identityAccessWebMessages.unavailable);
   }
 };
 

@@ -2,15 +2,15 @@
 
 ## Status
 
-- `active-minimal`: T-06 activates strict Client context, password login, and isolated session contracts; T-07 owns full auth/permission migration.
+- `active`: T-07 extends the strict Client/password slice with registration, OAuth, identity/session, and server-menu use cases.
 
 ## Responsibilities
 
-- Validate the App-injected OAuth Client before authentication traffic, preserve context-to-code-to-login order, require a complete image/UUID challenge when captcha is enabled, build the password payload, validate the token response, and write through an injected SessionStore.
+- Validate the App-injected OAuth Client before authentication traffic; own context/code/password, registration, OAuth callback/login, logout, user-info, and server-menu transports; validate responses and write through an injected SessionStore.
 
 ## Non-responsibilities
 
-- It does not render Vue, access DOM/storage, create Axios, select an App, implement registration/social/permission recovery, or administer users, roles, and Clients.
+- It does not render Vue, access DOM/storage, create Axios, select an App, map Vue routes, evaluate presentation permissions, or administer users, roles, and Clients.
 
 ## Allowed dependencies
 
@@ -26,12 +26,12 @@
 
 ## Backend modules
 
-- `backendModules: [ruoyi-admin, ruoyi-system]` for `/auth/client/context`, `/auth/code`, and `/auth/login`.
+- `backendModules: [ruoyi-admin, ruoyi-system]` for `/auth/client/context`, `/auth/code`, `/auth/login`, `/auth/register`, `/auth/social/callback`, `/auth/logout`, `/system/user/getInfo`, and `/system/menu/getRouters`.
 
 ## Activation conditions
 
-- A caller must inject a valid ClientContext, HttpClient, and SessionStore. Login stays unavailable until the exact-Boolean public Client context and verification response succeed.
+- A caller must inject a valid ClientContext, HttpClient, and SessionStore. Password login/registration stay unavailable until exact-Boolean Client context and verification succeed; OAuth validates Client context before its auth request.
 
 ## Validation
 
-- Unit tests cover zero-request invalid Client/context failures, strict request order, enabled and malformed captcha responses, body Client identity, session writes, response validation, and namespace isolation; architecture/type/lint/workspace gates prove the package remains headless.
+- Unit tests cover zero-request invalid Client/context failures, registration gating, OAuth Client identity, strict request order, captcha responses, identity/menu parsing, session lifecycle, and namespace isolation; architecture/type/lint/workspace gates prove the package remains headless.

@@ -28,7 +28,15 @@ describe('identity access domain', () => {
     expect(identityAccessDomainModule).toEqual({
       id: 'identity-access',
       backendModules: ['ruoyi-admin', 'ruoyi-system'],
-      capabilities: ['client-context', 'password-login', 'isolated-session']
+      capabilities: [
+        'client-context',
+        'password-login',
+        'registration',
+        'oauth-callback',
+        'identity-info',
+        'server-menu',
+        'isolated-session'
+      ]
     });
     expect(Object.isFrozen(identityAccessDomainModule)).toBe(true);
     expect(Object.isFrozen(identityAccessDomainModule.backendModules)).toBe(true);
@@ -156,5 +164,146 @@ describe('identity access domain', () => {
     );
     expect(() => createClientSessionKey('', 'client-proof')).toThrow('App id is required');
     expect(createClientSessionKey('client-web', 'client-proof')).not.toBe('Admin-Token');
+  });
+
+  it('owns registration, identity, menu, logout, and OAuth use cases behind ClientContext', async () => {
+    const harness = createHarness({
+      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: true } },
+      '/auth/code': { code: 200, data: { captchaEnabled: false } },
+      '/auth/register': { code: 200, data: {} },
+      '/system/user/getInfo': {
+        code: 200,
+        data: { user: { userId: 1 }, roles: ['operator'], permissions: ['system:user:list'] }
+      },
+      '/system/menu/getRouters': { code: 200, data: [{ path: '/system', component: 'Layout' }] },
+      '/auth/logout': { code: 200, data: {} },
+      '/auth/social/callback': { code: 200, data: {} }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      session: harness.session
+    });
+
+    await service.prepareLogin();
+    await service.register({ username: 'new-user', password: 'secret', confirmPassword: 'secret' });
+    await expect(service.getInfo()).resolves.toMatchObject({ roles: ['operator'], permissions: ['system:user:list'] });
+    await expect(service.getMenus()).resolves.toEqual([{ path: '/system', component: 'Layout' }]);
+    await service.socialCallback({ code: 'oauth-code', state: 'oauth-state' });
+    await service.logout();
+
+    expect(harness.requests.map(request => request.url)).toEqual([
+      '/auth/client/context',
+      '/auth/code',
+      '/auth/register',
+      '/system/user/getInfo',
+      '/system/menu/getRouters',
+      '/auth/social/callback',
+      '/auth/logout'
+    ]);
+    expect(harness.session.clear).toHaveBeenCalledOnce();
+  });
+
+  it('fails registration closed when the validated Client disables it', async () => {
+    const harness = createHarness({
+      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: false } },
+      '/auth/code': { code: 200, data: { captchaEnabled: false } }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      session: harness.session
+    });
+
+    await service.prepareLogin();
+    await expect(
+      service.register({ username: 'new-user', password: 'secret', confirmPassword: 'secret' })
+    ).rejects.toMatchObject({ code: 'registration-disabled' });
+    expect(harness.requests.map(request => request.url)).toEqual(['/auth/client/context', '/auth/code']);
+  });
+
+  it('validates ClientContext before social login and uses the same injected clientId', async () => {
+    const harness = createHarness({
+      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: false } },
+      '/auth/login': { code: 200, data: { access_token: 'social-token' } }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: ' social-client ' },
+      http: harness.http,
+      session: harness.session
+    });
+
+    await service.socialLogin({ socialCode: 'code', socialState: 'state', source: 'gitee' });
+
+    expect(harness.requests).toEqual([
+      { url: '/auth/client/context', method: 'get', headers: { isToken: false } },
+      {
+        url: '/auth/login',
+        method: 'post',
+        headers: { isToken: false, isEncrypt: true, repeatSubmit: false },
+        data: {
+          socialCode: 'code',
+          socialState: 'state',
+          source: 'gitee',
+          clientId: 'social-client',
+          grantType: 'social'
+        }
+      }
+    ]);
+  });
+
+  it('revokes a previous prepared state before revalidating ClientContext', async () => {
+    const requests: HttpRequest[] = [];
+    let contextCalls = 0;
+    const http: HttpClient = {
+      async request<T>(request: HttpRequest): Promise<T> {
+        requests.push(request);
+        if (request.url === '/auth/client/context') {
+          contextCalls += 1;
+          return {
+            code: 200,
+            data:
+              contextCalls === 1
+                ? { clientEnabled: true, registerEnabled: true }
+                : { clientEnabled: false, registerEnabled: true }
+          } as T;
+        }
+        return { code: 200, data: { captchaEnabled: false } } as T;
+      }
+    };
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http,
+      session: createHarness({}).session
+    });
+
+    await service.prepareLogin();
+    await expect(service.getClientContext()).rejects.toMatchObject({ code: 'client-context-unavailable' });
+    await expect(service.login({ username: 'user', password: 'secret' })).rejects.toMatchObject({
+      code: 'client-context-unavailable'
+    });
+    expect(requests.map(request => request.url)).toEqual([
+      '/auth/client/context',
+      '/auth/code',
+      '/auth/client/context'
+    ]);
+  });
+
+  it('preserves an OAuth callback token through the injected session boundary', async () => {
+    const harness = createHarness({
+      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: false } },
+      '/auth/social/callback': { code: 200, data: { access_token: 'rotated-token' }, msg: 'linked' }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      session: harness.session
+    });
+
+    await expect(service.socialCallback({ code: 'code', state: 'state' })).resolves.toEqual({
+      accessToken: 'rotated-token',
+      message: 'linked'
+    });
+    expect(harness.session.setToken).toHaveBeenCalledWith('rotated-token');
   });
 });

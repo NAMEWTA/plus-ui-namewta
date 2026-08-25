@@ -1,4 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
+import { assembleServerRoutes } from '@namewta/platform-app-runtime';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { getRouters } from '@/api/menu';
@@ -7,6 +8,8 @@ import InnerLink from '@/layout/components/InnerLink/index.vue';
 import Layout from '@/layout/index.vue';
 import auth from '@/plugins/auth';
 import router, { constantRoutes, dynamicRoutes } from '@/router';
+import { resolveAdminWebRegistration } from '@/router/adminManifestRegistry';
+import { createManifestRouteDiagnostic } from '@/router/manifestDiagnostic';
 import store from '@/store';
 import { createCustomNameComponent } from '@/utils/createCustomNameComponent';
 
@@ -85,28 +88,32 @@ export const usePermissionStore = defineStore('permission', () => {
     lastRouter?: RouteRecordRaw,
     type = false
   ): RouteRecordRaw[] => {
-    return asyncRouterMap.filter(route => {
-      if (type && route.children) {
-        route.children = filterChildren(route.children, undefined);
-      }
-      // Layout ParentView 组件特殊处理
-      if (route.component?.toString() === 'Layout') {
-        route.component = Layout;
-      } else if (route.component?.toString() === 'ParentView') {
-        route.component = ParentView;
-      } else if (route.component?.toString() === 'InnerLink') {
-        route.component = InnerLink;
-      } else {
-        route.component = loadView(route.component, route.name as string);
-      }
-      if (route.children != null && route.children && route.children.length) {
-        route.children = filterAsyncRouter(route.children, route, type);
-      } else {
-        delete route.children;
-        delete route.redirect;
-      }
-      return true;
+    const sourceRoutes = asyncRouterMap.map(route => {
+      if (type && route.children) return { ...route, children: filterChildren(route.children, undefined) };
+      return route;
     });
+    const assembled = assembleServerRoutes<any>({
+      appId: 'admin-web',
+      routes: sourceRoutes as unknown as any[],
+      specialComponents: { Layout, ParentView, InnerLink },
+      resolveRegistration: ({ componentKey, domainId, routeName }) => {
+        const registration = resolveAdminWebRegistration(componentKey, domainId);
+        if (registration) return registration;
+        const component = loadView(componentKey, routeName ?? componentKey);
+        return component ? { componentName: routeName ?? componentKey, load: component } : undefined;
+      },
+      createDiagnostic: createManifestRouteDiagnostic
+    }) as unknown as RouteRecordRaw[];
+    const pruneEmptyChildren = (routes: RouteRecordRaw[]): RouteRecordRaw[] =>
+      routes.map(route => {
+        if (route.children?.length) route.children = pruneEmptyChildren(route.children);
+        else {
+          delete route.children;
+          delete route.redirect;
+        }
+        return route;
+      });
+    return pruneEmptyChildren(assembled);
   };
   const filterChildren = (childrenMap: RouteRecordRaw[], lastRouter?: RouteRecordRaw): RouteRecordRaw[] => {
     let children: RouteRecordRaw[] = [];

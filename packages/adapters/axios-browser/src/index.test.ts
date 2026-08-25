@@ -269,13 +269,13 @@ describe('axios browser response boundary', () => {
     expect(onUnauthorized).toHaveBeenCalledOnce();
   });
 
-  it('uses response headers and explicit request intent to decide response decryption', async () => {
+  it('uses response headers and enabled request intent to decide response decryption', async () => {
     const crypto: CryptoPort = {
       decryptResponse: vi.fn(() => ({ code: 200, value: 'clear' })),
       encryptRequest: vi.fn()
     };
     createAxiosBrowserAdapter(adapterOptions({ crypto, encryptionEnabled: false }).options);
-    const intercept = getResponseInterceptor();
+    let intercept = getResponseInterceptor();
     expect(intercept(response('ciphertext', { 'encrypt-key': 'wrapped-key' }))).toEqual({
       code: 200,
       value: 'clear'
@@ -285,6 +285,8 @@ describe('axios browser response boundary', () => {
     expect(intercept(response('plain text', {}, {}, 'text'))).toBe('plain text');
     expect(crypto.decryptResponse).toHaveBeenCalledTimes(1);
 
+    createAxiosBrowserAdapter(adapterOptions({ crypto, encryptionEnabled: true }).options);
+    intercept = getResponseInterceptor();
     await expect(
       Promise.resolve().then(() => intercept(response('ciphertext', {}, { isEncrypt: true })))
     ).rejects.toMatchObject({

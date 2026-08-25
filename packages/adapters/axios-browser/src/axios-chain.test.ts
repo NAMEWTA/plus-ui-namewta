@@ -92,6 +92,24 @@ describe('axios production interceptor chain', () => {
     expect(JSON.stringify(cause)).not.toContain('Authorization');
   });
 
+  it('allows a legacy encryption header when response encryption is globally disabled', async () => {
+    await expect(
+      requestThrough(chainOptions({ encryptionEnabled: false }), {
+        adapter: (config: Record<string, unknown>) =>
+          Promise.resolve({
+            config,
+            data: { code: 200, value: 'plain' },
+            headers: {},
+            status: 200,
+            statusText: 'OK'
+          }),
+        headers: { isEncrypt: true },
+        method: 'get',
+        url: '/legacy'
+      })
+    ).resolves.toEqual({ code: 200, value: 'plain' });
+  });
+
   it('reports an asynchronously rejected unauthorized recovery as unhandled', async () => {
     const onUnauthorized = vi.fn(() => Promise.reject(new Error('logout failed')));
     const error = await requestThrough(chainOptions({ onUnauthorized }), {

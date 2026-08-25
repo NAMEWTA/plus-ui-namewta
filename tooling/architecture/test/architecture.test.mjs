@@ -22,6 +22,12 @@ const catalog = {
   'vue-router': '5.2.0',
   yaml: '2.9.0'
 };
+const gateScripts = {
+  build: 'node --check ./src/index.js',
+  lint: 'node --check ./src/index.js',
+  test: 'node --test',
+  typecheck: 'node --check ./src/index.js'
+};
 
 afterEach(async () => {
   await Promise.all(temporaryRoots.splice(0).map(root => rm(root, { recursive: true, force: true })));
@@ -44,6 +50,7 @@ async function createFixture() {
   const manifest = {
     name: 'fixture-root',
     private: true,
+    scripts: { ...gateScripts },
     type: 'module'
   };
   await writeJson(join(root, 'package.json'), manifest);
@@ -61,6 +68,7 @@ async function addPackage(root, relativePath, name, dependencies = {}, imports =
     name,
     version: '0.0.0',
     private: true,
+    scripts: { ...gateScripts },
     type: 'module',
     exports: { '.': './src/index.js' },
     dependencies
@@ -584,5 +592,96 @@ test('rejects stale inactive placeholder importers', async () => {
     'apps/mobile-web',
     'active workspace importer',
     'pnpm-lock.yaml#importers'
+  );
+});
+
+for (const [layer, path, source, globalName] of [
+  ['domain', 'packages/domains/window-check', '@namewta/domain-window-check', 'window'],
+  ['domain', 'packages/domains/document-check', '@namewta/domain-document-check', 'document'],
+  ['domain', 'packages/domains/storage-check', '@namewta/domain-storage-check', 'localStorage'],
+  ['platform', 'packages/platform/session-check', '@namewta/platform-session-check', 'sessionStorage'],
+  ['platform', 'packages/platform/navigator-check', '@namewta/platform-navigator-check', 'navigator'],
+  ['platform', 'packages/platform/location-check', '@namewta/platform-location-check', 'location']
+]) {
+  test(`rejects unshadowed ${globalName} browser access from ${layer}`, async () => {
+    const root = await createFixture();
+    await addPackage(root, path, source);
+    await writeFixtureFile(root, `${path}/src/index.js`, `export const browserValue = ${globalName};\n`);
+
+    assertFailure(await check(root), 'terminal-purity', source, globalName, `${path}/src/index.js`);
+  });
+}
+
+test('accepts browser-global names shadowed by lexical declarations', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.js',
+    'export function inspect(window, document, globalThis) {\n  const localStorage = new Map();\n  const sessionStorage = new Map();\n  const navigator = {};\n  const location = {};\n  return [window, document, localStorage, sessionStorage, navigator, location, globalThis.window];\n}\n'
+  );
+
+  const result = await check(root);
+  assert.equal(result.exitCode, 0, result.output);
+});
+
+test('rejects browser access through unshadowed globalThis properties', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.js',
+    "export const browserValues = [globalThis.window, globalThis['document']];\n"
+  );
+
+  const result = await check(root);
+  assertFailure(result, 'terminal-purity', '@namewta/domain-demo', 'window', 'packages/domains/demo/src/index.js');
+  assert.match(result.output, /target=document/);
+});
+
+test('does not treat JSX attribute names as browser-global references', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.tsx',
+    'const Widget = (_props) => null;\nexport const view = <Widget location="preview" />;\n'
+  );
+
+  const result = await check(root);
+  assert.equal(result.exitCode, 0, result.output);
+});
+
+test('applies browser-global purity to Vue script blocks', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/View.vue',
+    '<template><main>Safe template text: window</main></template>\n<script setup lang="ts">\nconst width = window.innerWidth;\n</script>\n'
+  );
+
+  assertFailure(
+    await check(root),
+    'terminal-purity',
+    '@namewta/domain-demo',
+    'window',
+    'packages/domains/demo/src/View.vue'
+  );
+});
+
+test('rejects an activated workspace without every aggregate gate script', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  const manifest = fixtureManifests.get(root).get('packages/domains/demo');
+  delete manifest.scripts.build;
+  await writeJson(join(root, 'packages/domains/demo/package.json'), manifest);
+
+  assertFailure(
+    await check(root),
+    'workspace-gate-script',
+    '@namewta/domain-demo',
+    'build',
+    'packages/domains/demo/package.json#scripts'
   );
 });

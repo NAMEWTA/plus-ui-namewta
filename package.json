@@ -17,18 +17,18 @@
     "build": "vite build --mode production && pnpm build:workspace",
     "build:dev": "vite build --mode development && pnpm build:workspace",
     "build:prod": "vite build --mode production && pnpm build:workspace",
-    "build:workspace": "pnpm --filter '!ruoyi-vue-plus' --if-present build",
+    "build:workspace": "pnpm architecture:check && pnpm --filter '!ruoyi-vue-plus' --if-present build",
     "dev": "vite serve --mode development",
     "fmt": "oxfmt .",
     "lint": "oxlint src e2e playwright.config.ts && pnpm lint:workspace",
     "lint:fix": "oxlint --fix src",
-    "lint:workspace": "pnpm --filter '!ruoyi-vue-plus' --if-present lint",
+    "lint:workspace": "pnpm architecture:check && pnpm --filter '!ruoyi-vue-plus' --if-present lint",
     "preview": "vite preview",
     "test": "vitest run src && pnpm test:workspace",
     "test:e2e": "playwright test",
-    "test:workspace": "pnpm --filter '!ruoyi-vue-plus' --if-present test",
+    "test:workspace": "pnpm architecture:check && pnpm --filter '!ruoyi-vue-plus' --if-present test",
     "typecheck": "vue-tsc --noEmit && pnpm typecheck:workspace",
-    "typecheck:workspace": "pnpm --filter '!ruoyi-vue-plus' --if-present typecheck"
+    "typecheck:workspace": "pnpm architecture:check && pnpm --filter '!ruoyi-vue-plus' --if-present typecheck"
   },
   "dependencies": {
     "@element-plus/icons-vue": "2.3.2",

@@ -9,13 +9,19 @@ characterization baseline, not a description of the target package architecture.
 
 - The login page calls `/auth/client/context` before enabling login, registration, or social login actions.
 - `clientEnabled` and `registerEnabled` must be exact JSON Booleans. Missing or malformed values fail closed and do not
-  trigger the captcha request.
+  trigger captcha, login, or registration requests. The browser baseline covers both request failure and a response
+  missing `registerEnabled`.
+- The production login request carries `e5cd7e4891bf95d1d19206ce24a7b32e` as both the encrypted body `clientId` and
+  the `clientid` header. The fixture decrypts the production wire payload using the existing test-visible environment
+  configuration; it does not print key material or payload credentials.
 - The existing `e2e/client-auth-context.spec.ts` covers malformed and valid Client context responses. The new
   `e2e/multi-app-baseline.spec.ts` adds a backend-free login and session restoration path.
 
 ### Dynamic routes
 
-- Session restoration follows `getInfo -> getRouters -> addRoute -> replace` in the browser guard.
+- Session restoration follows `getInfo -> getRouters -> addRoute -> replace` in the browser guard. The browser baseline
+  starts with `/login?redirect=%2Fbaseline%2Froute`, records the strict `login -> getInfo -> getRouters` request order,
+  and requires the redirected page content to render after dynamic route registration and replacement.
 - `/system/menu/getRouters` is already filtered by the server for the authenticated Client. The permission store maps
   every returned menu and does not apply a second Client or permission filter to those server routes.
 - `Layout`, `ParentView`, and `InnerLink` use their fixed Web components. Other component keys resolve through the
@@ -31,6 +37,11 @@ characterization baseline, not a description of the target package architecture.
   contains `encodeURIComponent(router.currentRoute.value.fullPath || '/')` as `redirect`.
 - Cancelling the prompt resets the singleton flag without logout or navigation.
 
+### Mock API completeness
+
+- Browser tests collect every unrecognized `/prod-api/**` request and require the collection to remain empty. The
+  fallback response keeps diagnostics deterministic but cannot silently turn a newly introduced dependency green.
+
 ## Source-worktree results
 
 Working directory: the T-01 `plus-ui-namewta` source worktree at base
@@ -43,7 +54,8 @@ Working directory: the T-01 `plus-ui-namewta` source worktree at base
 | `pnpm test` | 0 | 4 files and 10 tests passed. |
 | `pnpm lint` | 0 | Oxlint completed without diagnostics. |
 | `pnpm typecheck` | 0 | Final `vue-tsc --noEmit` run completed without diagnostics. |
-| `pnpm build:prod` | 0 | Vite transformed 3364 modules and reported `built in 3.19s`; gzip output generation completed. |
+| `pnpm exec tsc --ignoreConfig --noEmit --module ESNext --moduleResolution Bundler --target ESNext --types node,@playwright/test --skipLibCheck e2e/multi-app-baseline.spec.ts` | 0 | Supplemental E2E source typecheck completed without diagnostics; no browser or web server was started. |
+| `pnpm build:prod` | 0 | Latest run transformed 3364 modules and reported `built in 2.60s`; gzip output generation completed. |
 | `pnpm test:e2e` | not run | Required in the Lead-owned parent-candidate; source worktrees must not run Playwright. |
 
 The first targeted Vitest run failed because the test cleared the interceptor registration record. The fixture was
@@ -53,7 +65,11 @@ typecheck run exited 2 because four test route fixtures did not satisfy Vue Rout
 dummy components repaired the fixtures. Both checks were rerun successfully. No production source, manifest, lockfile,
 or generated declaration was changed.
 
-The production build reported `dist/index.html` at 115.31 kB (50.80 kB gzip), its largest emitted JavaScript chunk at
+The first supplemental E2E source typecheck omitted TypeScript 6's required `--ignoreConfig` option and exited 1 with
+`TS5112` before checking the file. The corrected command shown above exited 0. This static check is additional evidence,
+not a replacement for the Lead-owned Playwright run.
+
+The latest production build reported `dist/index.html` at 115.31 kB (50.80 kB gzip), its largest JavaScript chunk at
 1382.40 kB (435.47 kB gzip), and the main CSS chunk at 992.19 kB (155.77 kB gzip). Hashed file names and elapsed time
 are diagnostic observations, not fixed pass thresholds.
 
@@ -61,7 +77,8 @@ are diagnostic observations, not fixed pass thresholds.
 
 For Gate A, the Lead must apply the T-01 commit to a candidate based on the current parent, rerun `pnpm test`,
 `pnpm lint`, `pnpm typecheck`, and `pnpm build:prod`, then run `pnpm test:e2e`. The Playwright suite must include both
-`client-auth-context.spec.ts` and `multi-app-baseline.spec.ts`.
+`client-auth-context.spec.ts` and `multi-app-baseline.spec.ts`. The latter contains four scenarios: Client context
+request failure, required-field failure, login plus redirected dynamic route restoration, and authenticated 401 logout.
 
 Later migration Gates should rerun the permission and request tests whenever route assembly, Client/session handling,
 the request adapter, Router, or user/permission Stores change. The browser baseline should be rerun whenever an App

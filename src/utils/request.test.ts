@@ -108,6 +108,8 @@ describe('request 401 baseline', () => {
 
     rejectPrompt(new Error('cancelled'));
     await vi.waitFor(() => expect(isRelogin.show).toBe(false));
+    expect(runtime.logout).not.toHaveBeenCalled();
+    expect(runtime.replace).not.toHaveBeenCalled();
   });
 
   it('logs out and redirects to login with the encoded current location after confirmation', async () => {

@@ -7,7 +7,7 @@
 ## Responsibilities
 
 - Discover only workspace directories that contain a real `package.json`.
-- Enforce private package/public export contracts, `workspace:*` internal references, dependency direction, public-entry-only imports, cycle freedom, and inactive terminal boundaries.
+- Enforce recognized package layouts, private package/public export contracts, declared `workspace:*` internal references, dependency direction, public-entry-only imports, cycle freedom, and inactive terminal boundaries.
 - Compare exact current findings with `baseline.json`; new findings, stale entries, and baseline growth fail closed.
 - Emit diagnostics containing rule, source, target, and repository-relative path.
 
@@ -48,5 +48,5 @@
 ## Validation
 
 - `pnpm architecture:check` validates the live workspace graph without writing files.
-- `pnpm architecture:test` uses OS temporary directories to prove positive behavior and isolated failures for deep imports, reverse edges, cycles, baseline growth, and placeholder activation.
+- `pnpm architecture:test` uses OS temporary directories to prove positive behavior and isolated failures for deep imports, undeclared internal imports, reverse edges, invalid layouts, cycles, baseline growth, and placeholder activation.
 - `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build:prod` preserve the root App quality gates. Playwright runs only in the Lead parent candidate.

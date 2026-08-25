@@ -256,6 +256,17 @@ export async function inspectWorkspace({ root }) {
   for (const item of packages) {
     const name = item.manifest.name ?? item.relativeDirectory;
     graph.set(name, new Set());
+    if (item.relativeDirectory !== '.' && item.layer === 'unknown') {
+      detected.push(
+        violation(
+          'package-layout',
+          name,
+          'recognized workspace layer',
+          `${item.relativeDirectory}/package.json`,
+          'Activated package is outside the supported App/platform/domain/web/adapters/api-contracts/tooling layout'
+        )
+      );
+    }
     if (item.relativeDirectory !== '.' && item.manifest.private !== true) {
       detected.push(
         violation(
@@ -335,16 +346,31 @@ export async function inspectWorkspace({ root }) {
       for (const specifier of importedSpecifiers(source)) {
         const targetName = internalPackageName(specifier);
         const target = packagesByName.get(targetName);
-        if (!target || exportedSubpath(target.manifest, specifier)) continue;
-        detected.push(
-          violation(
-            'public-entry',
-            sourceName,
-            targetName,
-            toPosix(relative(absoluteRoot, file)),
-            `Internal import ${specifier} is not exposed by ${targetName}`
-          )
-        );
+        if (!target) continue;
+        const sourcePath = toPosix(relative(absoluteRoot, file));
+        const declared = dependencyFields.some((field) => Object.hasOwn(item.manifest[field] ?? {}, targetName));
+        if (targetName !== sourceName && !declared) {
+          detected.push(
+            violation(
+              'internal-dependency-declaration',
+              sourceName,
+              targetName,
+              sourcePath,
+              `Internal import ${specifier} must be declared with workspace:* in a dependency field`
+            )
+          );
+        }
+        if (!exportedSubpath(target.manifest, specifier)) {
+          detected.push(
+            violation(
+              'public-entry',
+              sourceName,
+              targetName,
+              sourcePath,
+              `Internal import ${specifier} is not exposed by ${targetName}`
+            )
+          );
+        }
       }
     }
   }

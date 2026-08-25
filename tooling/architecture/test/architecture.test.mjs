@@ -123,6 +123,19 @@ test('rejects an internal deep import with a localized public-entry diagnostic',
   assert.doesNotMatch(result.output, /source=fixture-root/);
 });
 
+test('rejects a self deep import that bypasses the package public entry', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo', {}, ['@namewta/domain-demo/internal.js']);
+
+  assertFailure(
+    await check(root),
+    'public-entry',
+    '@namewta/domain-demo',
+    '@namewta/domain-demo',
+    'packages/domains/demo/src/index.js'
+  );
+});
+
 test('rejects a platform to domain reverse edge', async () => {
   const root = await createFixture();
   await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
@@ -140,6 +153,20 @@ test('rejects a platform to domain reverse edge', async () => {
     '@namewta/platform-http',
     '@namewta/domain-demo',
     'packages/platform/http/package.json#dependencies'
+  );
+});
+
+test('rejects an undeclared public internal import', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await addPackage(root, 'packages/platform/http', '@namewta/platform-http', {}, ['@namewta/domain-demo']);
+
+  assertFailure(
+    await check(root),
+    'internal-dependency-declaration',
+    '@namewta/platform-http',
+    '@namewta/domain-demo',
+    'packages/platform/http/src/index.js'
   );
 });
 
@@ -211,5 +238,18 @@ test('rejects activation of an explicitly inactive placeholder', async () => {
     '@namewta/mobile-web',
     'inactive placeholder',
     'apps/mobile-web/package.json'
+  );
+});
+
+test('rejects an activated manifest outside the supported package layout', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/misc', '@namewta/misc');
+
+  assertFailure(
+    await check(root),
+    'package-layout',
+    '@namewta/misc',
+    'recognized workspace layer',
+    'packages/misc/package.json'
   );
 });

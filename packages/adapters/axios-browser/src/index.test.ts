@@ -269,7 +269,7 @@ describe('axios browser response boundary', () => {
     expect(onUnauthorized).toHaveBeenCalledOnce();
   });
 
-  it('uses response headers and enabled request intent to decide response decryption', async () => {
+  it('uses only response headers to decide response decryption', async () => {
     const crypto: CryptoPort = {
       decryptResponse: vi.fn(() => ({ code: 200, value: 'clear' })),
       encryptRequest: vi.fn()
@@ -287,11 +287,9 @@ describe('axios browser response boundary', () => {
 
     createAxiosBrowserAdapter(adapterOptions({ crypto, encryptionEnabled: true }).options);
     intercept = getResponseInterceptor();
-    await expect(
-      Promise.resolve().then(() => intercept(response('ciphertext', {}, { isEncrypt: true })))
-    ).rejects.toMatchObject({
-      kind: 'encryption',
-      isHandled: false
+    expect(intercept(response({ code: 200, value: 'plain' }, {}, { isEncrypt: true }))).toEqual({
+      code: 200,
+      value: 'plain'
     });
     await expect(
       Promise.resolve().then(() => intercept(response('ciphertext', { 'encrypt-key': 123 })))
@@ -306,6 +304,16 @@ describe('axios browser response boundary', () => {
     ).rejects.toMatchObject({
       kind: 'encryption',
       cause: { message: 'bad rsa key', name: 'Error' }
+    });
+
+    createAxiosBrowserAdapter(adapterOptions({ encryptionEnabled: false }).options);
+    intercept = getResponseInterceptor();
+    await expect(
+      Promise.resolve().then(() => intercept(response('ciphertext', { 'encrypt-key': 'wrapped-key' })))
+    ).rejects.toMatchObject({
+      kind: 'encryption',
+      message: 'CryptoPort is required for encrypted responses',
+      isHandled: false
     });
   });
 

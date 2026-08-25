@@ -194,10 +194,8 @@ export function createAxiosBrowserAdapter(options: AxiosBrowserOptions): AxiosBr
       const responseType =
         (response.request as { responseType?: string } | undefined)?.responseType ?? response.config?.responseType;
       const encryptedKey = headers[encryptHeader];
-      const expectsEncryptedResponse =
-        options.encryptionEnabled && String(response.config?.headers?.isEncrypt) === 'true';
       const hasEncryptedKey = encryptedKey !== undefined;
-      if (responseType !== 'blob' && responseType !== 'arraybuffer' && (hasEncryptedKey || expectsEncryptedResponse)) {
+      if (responseType !== 'blob' && responseType !== 'arraybuffer' && hasEncryptedKey) {
         if (typeof encryptedKey !== 'string' || !encryptedKey.trim()) {
           throw encryptionError('Encrypted response key is required');
         }

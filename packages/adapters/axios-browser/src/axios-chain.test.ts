@@ -110,6 +110,40 @@ describe('axios production interceptor chain', () => {
     ).resolves.toEqual({ code: 200, value: 'plain' });
   });
 
+  it('accepts a plaintext JSON response to an encrypted request', async () => {
+    const requestAdapter = vi.fn((config: Record<string, unknown>) =>
+      Promise.resolve({
+        config,
+        data: { code: 200, value: 'plain' },
+        headers: {},
+        status: 200,
+        statusText: 'OK'
+      })
+    );
+    const crypto: CryptoPort = {
+      decryptResponse: vi.fn(),
+      encryptRequest: vi.fn(() => ({ data: 'ciphertext', encryptedKey: 'wrapped-key' }))
+    };
+
+    await expect(
+      requestThrough(chainOptions({ crypto, encryptionEnabled: true }), {
+        adapter: requestAdapter,
+        data: { password: 'secret' },
+        headers: { isEncrypt: true, repeatSubmit: false },
+        method: 'post',
+        url: '/auth/login'
+      })
+    ).resolves.toEqual({ code: 200, value: 'plain' });
+    const sentRequest = requestAdapter.mock.calls[0]?.[0] as {
+      data?: unknown;
+      headers?: Record<string, unknown>;
+    };
+    expect(sentRequest.headers).toEqual(expect.objectContaining({ 'encrypt-key': 'wrapped-key' }));
+    expect(String(sentRequest.data)).toContain('ciphertext');
+    expect(String(sentRequest.data)).not.toContain('secret');
+    expect(crypto.decryptResponse).not.toHaveBeenCalled();
+  });
+
   it('reports an asynchronously rejected unauthorized recovery as unhandled', async () => {
     const onUnauthorized = vi.fn(() => Promise.reject(new Error('logout failed')));
     const error = await requestThrough(chainOptions({ onUnauthorized }), {

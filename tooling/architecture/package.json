@@ -1,0 +1,22 @@
+{
+  "name": "@namewta/architecture",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "namewta-architecture": "./src/cli.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "scripts": {
+    "check": "node ./src/cli.mjs check --root ../..",
+    "lint": "oxlint src test",
+    "test": "node --test ./test/*.test.mjs",
+    "typecheck": "node --check ./src/index.mjs && node --check ./src/cli.mjs && node --check ./test/architecture.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxlint": "catalog:"
+  }
+}

@@ -1,20 +1,39 @@
 # Workflow Web Domain
 
 ## Status
-- `placeholder`: workflow pages and Process-related components remain in the root compatibility source.
+
+- Active in T-08 for definition administration.
+
 ## Responsibilities
-- Provide Vue definition/task/instance/leave pages, Process and assignee UI, workflow composables/messages, and manifest component-key mappings.
+
+- Own the category, process-definition, design, and SpEL Vue pages and exact server component-key registrations.
+
 ## Non-responsibilities
-- It does not own workflow services/models, system user administration, App shell, or backend process execution.
+
+- Does not own task, instance, leave, Process components, App routing, or transport implementation.
+
 ## Allowed dependencies
-- Public workflow domain, approved system-admin public user UI contracts where necessary, platform runtime, and selected web-kit entries.
+
+- Workflow domain, app-runtime, Vue, Vue Router, and Element Plus public exports.
+
 ## Forbidden dependencies
-- Apps, system-admin implementation pages, other web-domain deep imports, concrete adapters, and direct backend transport internals.
+
+- Root src, Apps, concrete adapters, other web-domain internals, and package deep imports.
+
 ## Public entrypoints
-- Future `@namewta/web-domain-workflow` root export for workflow views/components/messages and `WebDomainManifest`.
+
+- The package root exports createWorkflowWebDomain and WorkflowWebRuntime.
+
 ## Backend modules
-- `backendModules: [ruoyi-workflow, ruoyi-system]`, matching process behavior and explicit user-query integration.
+
+- backendModules: [ruoyi-workflow].
+
 ## Activation conditions
-- Activate through T-08/T-09 after the domain and user public seam exist; component ownership must be proven by real consumers.
+
+- Only Apps selecting workflowDomainModule and web-domain-workflow receive these registrations.
+
 ## Validation
-- Require definition/runtime/assignee E2E, manifest key and keep-alive tests, no-cycle/deep-import checks, lint, typecheck, and App builds.
+
+- Manifest tests cover selected/unselected, duplicate keys, exact component names, permissions, typecheck, and App builds.
+
+Root view facades remain until T-15. The definition-admin slice does not claim ownership of T-09 runtime pages.

@@ -1,20 +1,43 @@
 # Workflow Domain
 
 ## Status
-- `placeholder`: workflow transport and models remain under root `src/api/workflow`.
+
+- Active in T-08 as the headless workflow definition-administration domain.
+
 ## Responsibilities
-- Own process category/definition/SpEL administration and task, instance, assignee, leave, and workflow-runtime application services.
+
+- Own category, process-definition, design transport, and SpEL models/services plus domain metadata.
+
 ## Non-responsibilities
-- It does not render Process/UserSelect Vue components, administer system users, implement the workflow backend, or depend on a Router/UI runtime.
+
+- Does not own task/instance/leave runtime, Vue pages, browser state, routing, or concrete HTTP adapters.
+
 ## Allowed dependencies
-- Public platform contracts/http and the minimal `system-admin/public/user` query contract; later, matching api-contracts.
+
+- Platform contracts and app-runtime public exports through an injected HttpClient.
+
 ## Forbidden dependencies
-- Apps, web-domains, web-kit, Vue/DOM, concrete adapters, system-admin implementation/deep imports, and reverse system-to-workflow edges.
+
+- Vue, DOM/browser globals, concrete adapters, Apps, root src, and package deep imports.
+
 ## Public entrypoints
-- Future `@namewta/domain-workflow` root exports for definition/runtime services, models, permissions, and `DomainModule` metadata.
+
+- The package root exports models, WorkflowDefinitionService, its factory, and workflowDomainModule.
+
 ## Backend modules
-- `backendModules: [ruoyi-workflow, ruoyi-system]` for process capabilities and the explicitly consumed user-query source.
+
+- backendModules: [ruoyi-workflow].
+
 ## Activation conditions
-- Activate in T-08/T-09 after identity gates, first exposing definition then runtime slices through stable public exports.
+
+- An App selects the workflow domain and injects its own HttpClient.
+
 ## Validation
-- Require definition/runtime unit and E2E paths, system-user port contract tests, no-cycle/headless import checks, lint, typecheck, and App builds.
+
+- Exhaustive transport tests lock 24 category/definition/SpEL calls, architecture checks, lint, typecheck, and builds.
+
+## Compatibility
+
+Mutation methods intentionally retain existing PUT/DELETE contracts under DEV-T08-002. legacyDefinitionXml retains the
+old frontend path although the current backend has no matching controller and no production caller. Both compatibility
+contracts expire only after a coordinated backend migration and legacy-facade removal at or after T-15.

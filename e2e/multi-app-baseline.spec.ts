@@ -7,6 +7,7 @@ type ClientContextMode = 'valid' | 'request-failure' | 'missing-fields';
 type BaselineApiState = {
   authCodeRequests: number;
   clientContextMode: ClientContextMode;
+  clientContextRequests: number;
   getInfoRequests: number;
   getRoutersRequests: number;
   loginClientHeader: string;
@@ -23,6 +24,7 @@ type BaselineApiState = {
 const createApiState = (overrides: Partial<BaselineApiState> = {}): BaselineApiState => ({
   authCodeRequests: 0,
   clientContextMode: 'valid',
+  clientContextRequests: 0,
   getInfoRequests: 0,
   getRoutersRequests: 0,
   loginClientHeader: '',
@@ -47,6 +49,7 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/prod-api', '');
     if (path === '/auth/client/context') {
+      state.clientContextRequests += 1;
       if (state.clientContextMode === 'request-failure') {
         return route.abort('failed');
       }
@@ -131,7 +134,9 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
 };
 
 const expectAuthenticationRequestsBlocked = async (page: Page, state: BaselineApiState) => {
+  await expect(page.getByText('客户端认证配置不可用，无法登录', { exact: true })).toBeVisible();
   await expect(page.locator('.submit-button')).toBeDisabled();
+  expect(state.clientContextRequests).toBe(1);
   expect(state.authCodeRequests).toBe(0);
   expect(state.loginRequests).toBe(0);
   expect(state.registerRequests).toBe(0);

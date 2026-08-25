@@ -10,7 +10,9 @@ characterization baseline, not a description of the target package architecture.
 - The login page calls `/auth/client/context` before enabling login, registration, or social login actions.
 - `clientEnabled` and `registerEnabled` must be exact JSON Booleans. Missing or malformed values fail closed and do not
   trigger captcha, login, or registration requests. The browser baseline covers both request failure and a response
-  missing `registerEnabled`.
+  missing `registerEnabled`; each scenario waits for the terminal `客户端认证配置不可用，无法登录` message, verifies
+  exactly one Client context request, and only then checks that authentication controls remain disabled and no later
+  authentication endpoint was called.
 - Before transport encryption, the login adapter supplies `e5cd7e4891bf95d1d19206ce24a7b32e` as body `clientId`
   and marks the request `isEncrypt: true`. The browser baseline independently requires the same `clientid` header plus
   a nonempty `encrypt-key` and a nonempty request body that does not expose `clientId` or its value in plaintext.
@@ -55,7 +57,7 @@ Working directory: the T-01 `plus-ui-namewta` source worktree at base
 | `pnpm lint` | 0 | Oxlint completed without diagnostics. |
 | `pnpm typecheck` | 0 | Final `vue-tsc --noEmit` run completed without diagnostics. |
 | `pnpm exec tsc --ignoreConfig --noEmit --module ESNext --moduleResolution Bundler --target ESNext --types node,@playwright/test --skipLibCheck e2e/multi-app-baseline.spec.ts` | 0 | Supplemental E2E source typecheck completed without diagnostics; no browser or web server was started. |
-| `pnpm build:prod` | 0 | Latest run transformed 3364 modules and reported `built in 2.65s`; gzip output generation completed. |
+| `pnpm build:prod` | 0 | Latest run transformed 3364 modules and reported `built in 2.59s`; gzip output generation completed. |
 | `pnpm test:e2e` | not run | Required in the Lead-owned parent-candidate; source worktrees must not run Playwright. |
 
 The first targeted Vitest run failed because the test cleared the interceptor registration record. The fixture was

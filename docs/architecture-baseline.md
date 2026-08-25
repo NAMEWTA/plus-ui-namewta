@@ -11,9 +11,9 @@ characterization baseline, not a description of the target package architecture.
 - `clientEnabled` and `registerEnabled` must be exact JSON Booleans. Missing or malformed values fail closed and do not
   trigger captcha, login, or registration requests. The browser baseline covers both request failure and a response
   missing `registerEnabled`.
-- The production login request carries `e5cd7e4891bf95d1d19206ce24a7b32e` as both the encrypted body `clientId` and
-  the `clientid` header. The fixture decrypts the production wire payload using the existing test-visible environment
-  configuration; it does not print key material or payload credentials.
+- Before transport encryption, the login adapter supplies `e5cd7e4891bf95d1d19206ce24a7b32e` as body `clientId`
+  and marks the request `isEncrypt: true`. The browser baseline independently requires the same `clientid` header plus
+  a nonempty `encrypt-key` and a nonempty request body that does not expose `clientId` or its value in plaintext.
 - The existing `e2e/client-auth-context.spec.ts` covers malformed and valid Client context responses. The new
   `e2e/multi-app-baseline.spec.ts` adds a backend-free login and session restoration path.
 
@@ -50,12 +50,12 @@ Working directory: the T-01 `plus-ui-namewta` source worktree at base
 | Command | Exit | Result |
 | --- | ---: | --- |
 | `pnpm install --frozen-lockfile` | 0 | Lockfile was up to date; 362 packages were installed from the existing lockfile. |
-| `pnpm exec vitest run src/store/modules/permission.test.ts src/utils/request.test.ts` | 0 | 2 files and 4 tests passed after fixture repairs. |
-| `pnpm test` | 0 | 4 files and 10 tests passed. |
+| `pnpm exec vitest run src/store/modules/permission.test.ts src/utils/request.test.ts` | 0 | 2 files and 5 tests passed, including the pre-encryption login configuration seam. |
+| `pnpm test` | 0 | 4 files and 11 tests passed. |
 | `pnpm lint` | 0 | Oxlint completed without diagnostics. |
 | `pnpm typecheck` | 0 | Final `vue-tsc --noEmit` run completed without diagnostics. |
 | `pnpm exec tsc --ignoreConfig --noEmit --module ESNext --moduleResolution Bundler --target ESNext --types node,@playwright/test --skipLibCheck e2e/multi-app-baseline.spec.ts` | 0 | Supplemental E2E source typecheck completed without diagnostics; no browser or web server was started. |
-| `pnpm build:prod` | 0 | Latest run transformed 3364 modules and reported `built in 2.60s`; gzip output generation completed. |
+| `pnpm build:prod` | 0 | Latest run transformed 3364 modules and reported `built in 2.65s`; gzip output generation completed. |
 | `pnpm test:e2e` | not run | Required in the Lead-owned parent-candidate; source worktrees must not run Playwright. |
 
 The first targeted Vitest run failed because the test cleared the interceptor registration record. The fixture was

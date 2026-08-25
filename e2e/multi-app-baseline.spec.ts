@@ -1,9 +1,6 @@
-import { constants, createDecipheriv, createPrivateKey, privateDecrypt } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { expect, test, type Page, type Request, type Route } from '@playwright/test';
+import { expect, test, type Page, type Route } from '@playwright/test';
 
 const productionClientId = 'e5cd7e4891bf95d1d19206ce24a7b32e';
-const productionEnv = readFileSync(new URL('../.env.production', import.meta.url), 'utf8');
 
 type ClientContextMode = 'valid' | 'request-failure' | 'missing-fields';
 
@@ -12,6 +9,9 @@ type BaselineApiState = {
   clientContextMode: ClientContextMode;
   getInfoRequests: number;
   getRoutersRequests: number;
+  loginClientHeader: string;
+  loginEncryptKey: string;
+  loginPostData: string;
   loginRequests: number;
   logoutRequests: number;
   messageBoxCode?: number;
@@ -25,6 +25,9 @@ const createApiState = (overrides: Partial<BaselineApiState> = {}): BaselineApiS
   clientContextMode: 'valid',
   getInfoRequests: 0,
   getRoutersRequests: 0,
+  loginClientHeader: '',
+  loginEncryptKey: '',
+  loginPostData: '',
   loginRequests: 0,
   logoutRequests: 0,
   networkOrder: [],
@@ -32,37 +35,6 @@ const createApiState = (overrides: Partial<BaselineApiState> = {}): BaselineApiS
   unknownRequests: [],
   ...overrides
 });
-
-const readProductionEnv = (name: string) => {
-  const match = productionEnv.match(new RegExp(`^${name}\\s*=\\s*['"]?([^'"\\r\\n]+)['"]?\\s*$`, 'm'));
-  if (!match?.[1]) {
-    throw new Error(`Missing ${name} in .env.production`);
-  }
-  return match[1];
-};
-
-const productionPrivateKey = createPrivateKey({
-  key: Buffer.from(readProductionEnv('VITE_APP_RSA_PRIVATE_KEY'), 'base64'),
-  format: 'der',
-  type: 'pkcs8'
-});
-
-const decryptLoginBody = (request: Request) => {
-  const encryptedKey = request.headers()['encrypt-key'];
-  const postData = request.postData();
-  if (!encryptedKey || !postData) {
-    throw new Error('Expected encrypted production login payload');
-  }
-  const encodedAesKey = privateDecrypt(
-    { key: productionPrivateKey, padding: constants.RSA_PKCS1_PADDING },
-    Buffer.from(encryptedKey, 'base64')
-  ).toString();
-  const aesKey = Buffer.from(encodedAesKey, 'base64');
-  const decipher = createDecipheriv('aes-256-ecb', aesKey, null);
-  const encryptedBody = postData.startsWith('"') ? (JSON.parse(postData) as string) : postData;
-  const body = Buffer.concat([decipher.update(Buffer.from(encryptedBody, 'base64')), decipher.final()]).toString();
-  return JSON.parse(body) as Record<string, unknown>;
-};
 
 const fulfillJson = (route: Route, body: unknown) =>
   route.fulfill({
@@ -91,8 +63,9 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
     if (path === '/auth/login') {
       state.loginRequests += 1;
       state.networkOrder.push('login');
-      expect(decryptLoginBody(request).clientId).toBe(productionClientId);
-      expect(request.headers()['clientid']).toBe(productionClientId);
+      state.loginClientHeader = request.headers()['clientid'] ?? '';
+      state.loginEncryptKey = request.headers()['encrypt-key'] ?? '';
+      state.loginPostData = request.postData() ?? '';
       return fulfillJson(route, { code: 200, data: { access_token: 'baseline-token' } });
     }
     if (path === '/auth/register') {
@@ -199,6 +172,11 @@ test('login restores the redirected server-filtered dynamic route without a back
   expect(state.loginRequests).toBe(1);
   expect(state.getInfoRequests).toBe(1);
   expect(state.getRoutersRequests).toBe(1);
+  expect(state.loginClientHeader).toBe(productionClientId);
+  expect(state.loginEncryptKey).not.toBe('');
+  expect(state.loginPostData).not.toBe('');
+  expect(state.loginPostData).not.toContain(productionClientId);
+  expect(state.loginPostData).not.toContain('clientId');
   expect(state.unknownRequests).toEqual([]);
 });
 

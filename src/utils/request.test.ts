@@ -53,6 +53,7 @@ vi.mock('@/router', () => ({
   }
 }));
 vi.mock('@/store/modules/user', () => ({ useUserStore: vi.fn(() => ({ logout: runtime.logout })) }));
+vi.mock('@/utils/push', () => ({ closePush: vi.fn() }));
 vi.mock('@/utils/auth', () => ({ getToken: vi.fn(() => 'baseline-token') }));
 vi.mock('@/utils/crypto', () => ({
   decryptBase64: vi.fn(),
@@ -125,5 +126,36 @@ describe('request 401 baseline', () => {
       })
     );
     expect(isRelogin.show).toBe(false);
+  });
+});
+
+describe('login request configuration baseline', () => {
+  it('passes the production client id to the encrypted request seam', async () => {
+    vi.stubEnv('VITE_APP_CLIENT_ID', 'e5cd7e4891bf95d1d19206ce24a7b32e');
+    axiosHarness.service.mockClear();
+    axiosHarness.service.mockResolvedValue({ code: 200, data: { access_token: 'baseline-token' } });
+
+    try {
+      const { login } = await import('@/api/login');
+      await login({ username: 'baseline-user', password: 'baseline-password', clientId: '', grantType: '' });
+
+      expect(axiosHarness.service).toHaveBeenCalledWith({
+        url: '/auth/login',
+        headers: {
+          isToken: false,
+          isEncrypt: true,
+          repeatSubmit: false
+        },
+        method: 'post',
+        data: {
+          username: 'baseline-user',
+          password: 'baseline-password',
+          clientId: 'e5cd7e4891bf95d1d19206ce24a7b32e',
+          grantType: 'password'
+        }
+      });
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

@@ -262,7 +262,17 @@ test('admin-web and client-web complete isolated Client logins in one browser co
   await adminPage.locator('.submit-button').click();
 
   await expect(clientPage).toHaveURL(`${clientWebUrl}/demo`);
+  await expect(clientPage.getByRole('heading', { name: '测试单列表' })).toBeVisible();
+  await expect.poll(() => clientState.demoRequests).toBe(1);
+  await expect(adminPage).toHaveURL(`${adminWebUrl}/index`);
+  await expect(adminPage.locator('.app-wrapper')).toBeVisible();
+  await expect.poll(() => adminState.getInfoRequests).toBe(1);
   await expect.poll(() => adminState.getRoutersRequests).toBe(1);
+  await expect
+    .poll(() => clientState.networkOrder.join(' -> '))
+    .toBe('client-context -> auth-code -> login -> demo-list');
+  await expect.poll(() => adminState.networkOrder.join(' -> ')).toBe('login -> getInfo -> getRouters');
+
   expect(clientState.networkOrder).toEqual(['client-context', 'auth-code', 'login', 'demo-list']);
   expect(adminState.networkOrder).toEqual(['login', 'getInfo', 'getRouters']);
   expect(clientState.loginRequests).toBe(1);

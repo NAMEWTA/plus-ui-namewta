@@ -3,13 +3,13 @@
 ## Status
 - `placeholder`: existing root session behavior remains authoritative.
 ## Responsibilities
-- Define terminal-neutral session orchestration for ClientContext, login/logout, token expiry, recovery, and adapter-injected navigation/error presentation.
+- Define terminal-neutral session orchestration and its own injected input contracts for ClientContext values, login/logout, token expiry, recovery, navigation, and error presentation.
 ## Non-responsibilities
-- It does not render login pages, own OAuth endpoint DTOs, select an App clientId, or perform service authorization.
+- It does not render login pages, own OAuth endpoint DTOs, select an App clientId, perform service authorization, or import identity-access/domain code; domain and App callers provide validated values through platform-owned contracts.
 ## Allowed dependencies
-- Public platform contracts/http/permission entries and identity-access public session inputs.
+- Public platform contracts/http/permission entries only; all session input and callback types used here are defined by platform.
 ## Forbidden dependencies
-- Apps, Vue/Router singletons, Element Plus, DOM/storage globals, concrete adapters, and unrelated domains.
+- Every domain package, Apps, Vue/Router singletons, Element Plus, DOM/storage globals, and concrete adapters; platform must not reverse the `domains -> platform` direction.
 ## Public entrypoints
 - Future `@namewta/platform-auth` root exports for SessionService and session lifecycle contracts.
 ## Backend modules

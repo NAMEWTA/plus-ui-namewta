@@ -13,7 +13,7 @@
         @node-click="handleNodeClick"
       />
       <el-col
-        :lg="treeCollapsed ? 23 : 20"
+        :lg="definitionGrid.contentSpan"
         :xs="24"
         class="tree-content-col content-main"
         :class="{ 'is-tree-collapsed': treeCollapsed }"
@@ -350,6 +350,7 @@ import {
   useTableSelection,
   useTreeCollapsed
 } from '../composables';
+import { resolveTreePanelGrid } from '../tree';
 
 const { runtime } = defineProps<{ runtime: WorkflowWebRuntime }>();
 
@@ -365,6 +366,7 @@ const uploadDialogLoading = ref(false);
 const processDefinitionList = ref<FlowDefinitionVo[]>([]);
 const categoryOptions = ref<CategoryTreeVO[]>([]);
 const { treeCollapsed } = useTreeCollapsed();
+const definitionGrid = computed(() => resolveTreePanelGrid(treeCollapsed.value, 4, 1));
 const { showSearch } = useSearchToggle();
 const autoPass = ref(false);
 /** 部署文件分类选择 */

@@ -9,7 +9,7 @@ export interface DesignerQuery {
 export function createDesignerController(runtime: WorkflowWebRuntime, query: DesignerQuery) {
   const activeName = typeof query.activeName === 'string' ? query.activeName : undefined;
   return Object.freeze({
-    url: () => runtime.designUrl(String(query.definitionId ?? ''), String(query.disabled) === 'true'),
+    url: async () => runtime.designUrl(String(query.definitionId ?? ''), String(query.disabled) === 'true'),
     onMessage: (data: unknown) => {
       if (data && typeof data === 'object' && (data as { method?: unknown }).method === 'close') {
         return runtime.closeDesigner(activeName);

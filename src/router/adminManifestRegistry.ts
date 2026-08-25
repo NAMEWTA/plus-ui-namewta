@@ -1,12 +1,11 @@
+import type { Component } from 'vue';
 import { demoDomainModule } from '@namewta/domain-demo';
 import { identityAccessDomainModule, type IdentityAccessService } from '@namewta/domain-identity-access';
 import { createWorkflowDefinitionService, workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } from '@namewta/platform-app-runtime';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
 import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
-import { createWorkflowWebDomain } from '@namewta/web-domain-workflow';
-import { ref, type Component } from 'vue';
-import { getToken } from '@/utils/auth';
+import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
 
 const identityService: IdentityAccessService = {
   client: Object.freeze({ clientId: import.meta.env.VITE_APP_CLIENT_ID }),
@@ -57,14 +56,8 @@ const workflowManifest = createWorkflowWebDomain({
   error: message => {
     void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
   },
-  dicts: (...types) => {
-    const result = Object.fromEntries(types.map(type => [type, ref([])]));
-    void import('@/utils/dict').then(({ useDict }) => {
-      const loaded = useDict(...types);
-      for (const type of types) result[type].value = loaded[type] ?? [];
-    });
-    return result;
-  },
+  dicts: (...types) =>
+    createLiveWorkflowDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
   download: (url, params, fileName) =>
     import('@/utils/request').then(({ download }) => download(url, params, fileName)),
   closeDesigner: async activeName => {
@@ -74,16 +67,20 @@ const workflowManifest = createWorkflowWebDomain({
       query: { activeName }
     });
   },
-  designUrl: (definitionId, disabled) =>
-    import.meta.env.VITE_APP_BASE_API +
-    '/warm-flow-ui/index.html?id=' +
-    encodeURIComponent(definitionId) +
-    '&onlyDesignShow=' +
-    String(disabled) +
-    '&Authorization=Bearer ' +
-    encodeURIComponent(getToken() ?? '') +
-    '&clientid=' +
-    encodeURIComponent(import.meta.env.VITE_APP_CLIENT_ID)
+  designUrl: async (definitionId, disabled) => {
+    const { getToken } = await import('@/utils/auth');
+    return (
+      import.meta.env.VITE_APP_BASE_API +
+      '/warm-flow-ui/index.html?id=' +
+      encodeURIComponent(definitionId) +
+      '&onlyDesignShow=' +
+      String(disabled) +
+      '&Authorization=Bearer ' +
+      encodeURIComponent(getToken() ?? '') +
+      '&clientid=' +
+      encodeURIComponent(import.meta.env.VITE_APP_CLIENT_ID)
+    );
+  }
 });
 
 const runtime = composeAppRuntime<Component>({

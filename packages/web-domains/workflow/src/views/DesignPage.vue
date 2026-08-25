@@ -17,13 +17,13 @@ const controller = createDesignerController(runtime, route.query);
 const onDesignerMessage = (event: MessageEvent) => {
   void controller.onMessage(event.data);
 };
-const open = (definitionId: unknown, disabled: unknown) => {
-  iframeUrl.value = runtime.designUrl(String(definitionId ?? ''), String(disabled) === 'true');
+const open = async (definitionId: unknown, disabled: unknown) => {
+  iframeUrl.value = await runtime.designUrl(String(definitionId ?? ''), String(disabled) === 'true');
 };
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('message', onDesignerMessage);
-  iframeUrl.value = controller.url();
+  iframeUrl.value = await controller.url();
 });
 onBeforeUnmount(() => window.removeEventListener('message', onDesignerMessage));
 defineExpose({ open });

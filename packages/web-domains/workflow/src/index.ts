@@ -3,7 +3,9 @@ import { defineComponent, h, type Component } from 'vue';
 import type { WorkflowWebRuntime } from './runtime';
 import { requireWorkflowWebRuntime } from './runtime';
 
-export type { WorkflowWebRuntime } from './runtime';
+export { createLiveWorkflowDictRefs } from './runtime';
+export type { WorkflowDictOption, WorkflowDictSource, WorkflowWebRuntime } from './runtime';
+export { resolveTreePanelGrid } from './tree';
 
 async function runtimeView(
   name: string,

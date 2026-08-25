@@ -1,5 +1,5 @@
 import type { WorkflowDefinitionService } from '@namewta/domain-workflow';
-import type { Ref } from 'vue';
+import { computed, shallowRef, type Ref } from 'vue';
 
 export interface WorkflowDictOption {
   label: string;
@@ -9,12 +9,25 @@ export interface WorkflowDictOption {
 export interface WorkflowWebRuntime {
   confirm(message: string): Promise<void>;
   closeDesigner(activeName: string | undefined): Promise<void> | void;
-  designUrl(definitionId: string, disabled: boolean): string;
-  dicts(...types: string[]): Record<string, Ref<WorkflowDictOption[]>>;
+  designUrl(definitionId: string, disabled: boolean): Promise<string> | string;
+  dicts(...types: string[]): Record<string, Readonly<Ref<readonly WorkflowDictOption[]>>>;
   download(url: string, params: unknown, fileName: string): Promise<void> | void;
   error(message: string): void;
   service: WorkflowDefinitionService;
   success(message: string): void;
+}
+
+export type WorkflowDictSource = Record<string, WorkflowDictOption[]>;
+
+export function createLiveWorkflowDictRefs(
+  types: readonly string[],
+  load: () => Promise<WorkflowDictSource> | WorkflowDictSource
+): Record<string, Readonly<Ref<readonly WorkflowDictOption[]>>> {
+  const source = shallowRef<WorkflowDictSource>();
+  void Promise.resolve(load()).then(loaded => {
+    source.value = loaded;
+  });
+  return Object.fromEntries(types.map(type => [type, computed(() => source.value?.[type] ?? [])]));
 }
 
 export function requireWorkflowWebRuntime(runtime: WorkflowWebRuntime | undefined): WorkflowWebRuntime {

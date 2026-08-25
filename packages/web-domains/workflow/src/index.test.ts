@@ -1,8 +1,10 @@
 import { workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime } from '@namewta/platform-app-runtime';
 import { describe, expect, it, vi } from 'vitest';
+import { reactive } from 'vue';
+import TreePanel from './components/TreePanel.vue';
 import { createDesignerController } from './designer';
-import { createWorkflowWebDomain } from './index';
+import { createLiveWorkflowDictRefs, createWorkflowWebDomain, resolveTreePanelGrid } from './index';
 
 const runtime = {
   service: {},
@@ -72,7 +74,7 @@ describe('workflow web-domain manifest', () => {
 
 describe('workflow designer controller', () => {
   it('preserves definitionId, disabled and close-return semantics', async () => {
-    const designUrl = vi.fn(() => '/designer');
+    const designUrl = vi.fn(async () => '/designer');
     const closeDesigner = vi.fn();
     const controller = createDesignerController(
       {
@@ -87,9 +89,43 @@ describe('workflow designer controller', () => {
       } as never,
       { definitionId: 'definition/a', disabled: 'true', activeName: '1' }
     );
-    expect(controller.url()).toBe('/designer');
+    await expect(controller.url()).resolves.toBe('/designer');
     expect(designUrl).toHaveBeenCalledWith('definition/a', true);
     await controller.onMessage({ method: 'close' });
     expect(closeDesigner).toHaveBeenCalledWith('1');
+  });
+});
+
+describe('workflow host adapters', () => {
+  it('keeps asynchronously loaded dictionary properties live after reassignment', async () => {
+    const source = reactive({ status: [{ label: '初始', value: '0' }] });
+    let load!: (value: typeof source) => void;
+    const dicts = createLiveWorkflowDictRefs(['status'], () => new Promise(resolve => (load = resolve)));
+
+    expect(dicts.status.value).toEqual([]);
+    load(source);
+    await vi.waitFor(() => expect(dicts.status.value).toEqual([{ label: '初始', value: '0' }]));
+    source.status = [{ label: '已加载', value: '1' }];
+    await vi.waitFor(() => expect(dicts.status.value).toEqual([{ label: '已加载', value: '1' }]));
+  });
+
+  it('keeps the tree panel and content grid at 24 columns', () => {
+    expect(resolveTreePanelGrid(false, 4, 1)).toEqual({ panelSpan: 4, contentSpan: 20 });
+    expect(resolveTreePanelGrid(true, 4, 1)).toEqual({ panelSpan: 1, contentSpan: 23 });
+    expect(Object.keys((TreePanel as unknown as { props: Record<string, unknown> }).props)).toEqual(
+      expect.arrayContaining([
+        'title',
+        'placeholder',
+        'data',
+        'nodeKey',
+        'treeProps',
+        'disabledField',
+        'expandedSpan',
+        'collapsedSpan',
+        'filterField',
+        'filterNodeMethod',
+        'collapsed'
+      ])
+    );
   });
 });

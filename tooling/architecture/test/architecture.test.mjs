@@ -793,6 +793,97 @@ test('keeps module and class-static var declarations inside their runtime scopes
   assert.match(result.output, /target=document/);
 });
 
+test('keeps switch-case lexical declarations inside the case block', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'switch (1) { case 1: const window = 1; void window; break; }\nexport const browserWindow = window;\n'
+  );
+
+  assertFailure(
+    await check(root),
+    'terminal-purity',
+    '@namewta/domain-demo',
+    'window',
+    'packages/domains/demo/src/index.ts'
+  );
+});
+
+test('accepts browser-named mapped and inferred type parameters', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'export type Map<T> = { [Document in keyof T]: T[Document] };\nexport type Infer<T> = T extends infer DOMParser ? DOMParser : never;\n'
+  );
+
+  const result = await check(root);
+  assert.equal(result.exitCode, 0, result.output);
+});
+
+test('does not leak an inferred type parameter into a conditional false branch', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'export type Infer<T> = T extends infer DOMParser ? DOMParser : DOMParser;\n'
+  );
+
+  assertFailure(
+    await check(root),
+    'terminal-purity',
+    '@namewta/domain-demo',
+    'DOMParser',
+    'packages/domains/demo/src/index.ts'
+  );
+});
+
+test('does not let ambient declarations shadow runtime browser globals', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'declare const window: unknown;\ndeclare function fetch(): unknown;\ndeclare class DOMParser {}\nexport const runtimeValues = [window, fetch(), new DOMParser()];\n'
+  );
+
+  const result = await check(root);
+  assertFailure(result, 'terminal-purity', '@namewta/domain-demo', 'window', 'packages/domains/demo/src/index.ts');
+  assert.match(result.output, /target=fetch/);
+  assert.match(result.output, /target=DOMParser/);
+});
+
+test('allows an ambient class declaration to satisfy a local type reference', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'declare class DOMParser {}\nexport type Parser = DOMParser;\n'
+  );
+
+  const result = await check(root);
+  assert.equal(result.exitCode, 0, result.output);
+});
+
+test('keeps ambient enum and namespace declarations type-only', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'declare enum Storage { Local }\ndeclare namespace Document { type Root = unknown; }\nexport type Snapshot = Storage | Document.Root;\nexport const runtimeValues = [Storage, Document];\n'
+  );
+
+  const result = await check(root);
+  assertFailure(result, 'terminal-purity', '@namewta/domain-demo', 'Storage', 'packages/domains/demo/src/index.ts');
+  assert.match(result.output, /target=Document/);
+});
+
 test('rejects browser access through unshadowed globalThis properties', async () => {
   const root = await createFixture();
   await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');

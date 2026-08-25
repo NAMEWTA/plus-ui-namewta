@@ -56,11 +56,12 @@
 - Observers: `MutationObserver`, `ResizeObserver`, `IntersectionObserver`, `PerformanceObserver`, and `ReportingObserver`.
 - Network and workers: `XMLHttpRequest`, `WebSocket`, `EventSource`, `BroadcastChannel`, `fetch`, `Worker`, `SharedWorker`, and `ServiceWorker`.
 - Rendering and media queries: `requestAnimationFrame`, `cancelAnimationFrame`, `matchMedia`, and `getComputedStyle`.
-- An unshadowed `globalThis` reference fails by itself, including aliases and destructuring. Value and type declarations are tracked independently: a lexical value declaration or parameter shadows runtime references, a local type alias or interface shadows type references, and class/enum/namespace/value imports bind both namespaces. Type-only declarations do not shadow runtime globals, and unshadowed DOM type references such as `Document` fail terminal purity.
+- An unshadowed `globalThis` reference fails by itself, including aliases and destructuring. Value and type declarations are tracked independently: a lexical value declaration or parameter shadows runtime references, a local type alias or interface shadows type references, and emitted class/enum/namespace/value imports bind both namespaces. Type-only declarations do not shadow runtime globals, mapped/inferred type parameters stay in their lexical type scope, and unshadowed DOM type references such as `Document` fail terminal purity.
+- Ambient variables and functions do not create runtime bindings for this gate. Ambient class/enum/namespace declarations create local type bindings only; imports continue to follow their value versus `import type` form.
 
 ## Validation
 
 - `pnpm architecture:check` validates the live workspace graph without writing files.
-- `pnpm architecture:test` uses OS temporary directories to prove AST/SFC parsing, detail-sensitive baseline growth, direction and terminal purity, reviewed browser-global detection and lexical shadowing, deep/relative imports, inactive content, workspace/catalog drift, and lock importer parity.
+- `pnpm architecture:test` uses OS temporary directories to prove AST/SFC parsing, detail-sensitive baseline growth, direction and terminal purity, reviewed browser-global detection, switch/class/module/type/ambient scope behavior, deep/relative imports, inactive content, workspace/catalog drift, and lock importer parity.
 - Root `build`, `build:dev`, `build:prod`, `lint`, `test`, and `typecheck` retain the root App command names; each aggregate workspace script runs the architecture check before its filter-capable package gate, so `--if-present` cannot silently skip an activated package with a missing script.
 - Playwright runs only in the Lead parent candidate.

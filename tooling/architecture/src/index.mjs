@@ -272,13 +272,28 @@ function collectAstImports(source, fileName, language) {
     if (ts.isSourceFile(node)) return 'source';
     if (ts.isFunctionLike(node)) return 'function';
     if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) return 'class';
-    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) return 'type';
+    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node) || ts.isMappedTypeNode(node)) return 'type';
     if (ts.isModuleBlock(node)) return 'module';
     if (ts.isClassStaticBlockDeclaration(node)) return 'static-block';
     if (ts.isCatchClause(node)) return 'catch';
-    if (ts.isBlock(node) || ts.isForStatement(node) || ts.isForInStatement(node) || ts.isForOfStatement(node))
+    if (
+      ts.isBlock(node) ||
+      ts.isCaseBlock(node) ||
+      ts.isForStatement(node) ||
+      ts.isForInStatement(node) ||
+      ts.isForOfStatement(node)
+    )
       return 'block';
     return undefined;
+  }
+
+  function isAmbient(node) {
+    let current = node;
+    while (current) {
+      if (current.flags & ts.NodeFlags.Ambient) return true;
+      current = current.parent;
+    }
+    return false;
   }
 
   function declare(scope, name, namespaces = ['value']) {
@@ -315,37 +330,58 @@ function collectAstImports(source, fileName, language) {
         : inheritedScope;
     nodeScopes.set(node, scope);
 
-    if (ts.isFunctionDeclaration(node) && node.name) {
+    const ambient = isAmbient(node);
+    if (ts.isFunctionDeclaration(node) && node.name && !ambient) {
       declare(parentScope, node.name);
     } else if (ts.isFunctionExpression(node) && node.name) {
       declare(scope, node.name);
     } else if (ts.isClassDeclaration(node) && node.name) {
-      declare(parentScope, node.name, ['type', 'value']);
-      declare(scope, node.name, ['type', 'value']);
+      const namespaces = ambient ? ['type'] : ['type', 'value'];
+      declare(parentScope, node.name, namespaces);
+      declare(scope, node.name, namespaces);
     } else if (ts.isClassExpression(node) && node.name) {
       declare(scope, node.name, ['type', 'value']);
     } else if (ts.isEnumDeclaration(node)) {
-      declare(scope, node.name, ['type', 'value']);
+      declare(scope, node.name, ambient ? ['type'] : ['type', 'value']);
     } else if (ts.isModuleDeclaration(node) && ts.isIdentifier(node.name)) {
-      declare(scope, node.name, ['type', 'value']);
+      declare(scope, node.name, ambient ? ['type'] : ['type', 'value']);
     } else if (ts.isImportEqualsDeclaration(node)) {
       declare(scope, node.name, node.isTypeOnly ? ['type'] : ['type', 'value']);
     } else if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
       declare(parentScope, node.name, ['type']);
     }
 
+    if (ts.isTypeParameterDeclaration(node) && !ts.isInferTypeNode(node.parent)) declare(scope, node.name, ['type']);
     if (ts.isFunctionLike(node)) {
       for (const parameter of node.parameters) declare(scope, parameter.name);
     }
     for (const parameter of node.typeParameters ?? []) declare(scope, parameter.name, ['type']);
     if (ts.isCatchClause(node) && node.variableDeclaration) declare(scope, node.variableDeclaration.name);
-    if (ts.isVariableDeclaration(node)) {
+    if (ts.isVariableDeclaration(node) && !ambient) {
       const declarationList = ts.isVariableDeclarationList(node.parent) ? node.parent : undefined;
       const declarationScope =
         declarationList && !(declarationList.flags & ts.NodeFlags.BlockScoped) ? nearestFunctionScope(scope) : scope;
       declare(declarationScope, node.name);
     }
     declareImports(node, scope);
+    if (ts.isConditionalTypeNode(node)) {
+      const trueScope = {
+        parent: scope,
+        type: 'type',
+        typeDeclarations: new Set(),
+        valueDeclarations: new Set()
+      };
+      function declareInferredTypes(current) {
+        if (ts.isInferTypeNode(current)) declare(trueScope, current.typeParameter.name, ['type']);
+        ts.forEachChild(current, declareInferredTypes);
+      }
+      declareInferredTypes(node.extendsType);
+      buildScopes(node.checkType, scope);
+      buildScopes(node.extendsType, scope);
+      buildScopes(node.trueType, trueScope);
+      buildScopes(node.falseType, scope);
+      return;
+    }
     ts.forEachChild(node, child => buildScopes(child, scope));
   }
 

@@ -10,7 +10,7 @@
 
 ## Non-responsibilities
 
-- It does not own login payload semantics, generate/select/rotate/persist key material, hard-code or log key values, transport HTTP, or remove response decryption; browser-delivered material is configuration, not a secret or security boundary.
+- It does not own login payload semantics, generate/select/rotate/persist RSA key material, hard-code or log key values, transport HTTP, or remove response decryption. It does generate an ephemeral AES key for each encrypted request; browser-delivered RSA material is configuration, not a secret or security boundary.
 
 ## Allowed dependencies
 
@@ -18,7 +18,7 @@
 
 ## Forbidden dependencies
 
-- Apps, domains, web-domains, web-kit, Axios request orchestration, Taro APIs, embedded key values, key generation/ownership, and logging of any key material.
+- Apps, domains, web-domains, web-kit, Axios request orchestration, Taro APIs, embedded RSA key values, RSA key generation/ownership, and logging of any key material.
 
 ## Public entrypoints
 

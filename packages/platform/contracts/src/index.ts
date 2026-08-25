@@ -24,6 +24,7 @@ export interface HttpRequest {
   method: HttpMethod;
   params?: unknown;
   responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
+  timeout?: number;
   url: string;
 }
 

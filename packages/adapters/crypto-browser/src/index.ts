@@ -32,6 +32,7 @@ export function createBrowserCryptoAdapter(options: BrowserCryptoOptions): Crypt
       };
     },
     decryptResponse(data: string, encryptedKey: string): unknown {
+      if (!encryptedKey.trim()) throw new Error('Unable to decrypt response key');
       const wrapper = new JSEncrypt();
       wrapper.setPrivateKey(options.privateKey);
       const base64Key = wrapper.decrypt(encryptedKey);
@@ -41,7 +42,11 @@ export function createBrowserCryptoAdapter(options: BrowserCryptoOptions): Crypt
         mode: CryptoJS.mode.ECB,
         padding: CryptoJS.pad.Pkcs7
       }).toString(CryptoJS.enc.Utf8);
-      return JSON.parse(text);
+      try {
+        return JSON.parse(text);
+      } catch (cause) {
+        throw new Error('Unable to decrypt response payload', { cause });
+      }
     }
   };
 }

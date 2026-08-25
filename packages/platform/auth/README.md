@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Define terminal-neutral session orchestration and its own injected input contracts for ClientContext values, login/logout, token expiry, recovery, navigation, and error presentation.
+- Define terminal-neutral session orchestration and keep one recovery lock from confirmation through logout and navigation, releasing it in every terminal outcome.
 
 ## Non-responsibilities
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Require session unit tests, multi-Client and 401 Playwright matrices, architecture checks, typecheck, lint, and App builds.
+- Require pending-prompt/logout/navigation and synchronous-failure unit tests, multi-Client and 401 Playwright matrices, architecture checks, typecheck, lint, and App builds.

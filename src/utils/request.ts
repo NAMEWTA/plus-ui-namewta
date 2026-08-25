@@ -55,6 +55,7 @@ const service = createAxiosBrowserAdapter({
   errorPresenter,
   getLanguage,
   getToken,
+  legacyUnauthorizedRejection: true,
   onUnauthorized: () =>
     requestRelogin({
       state: isRelogin,
@@ -77,7 +78,8 @@ const service = createAxiosBrowserAdapter({
 });
 
 export const isHandledRequestError = isHandledError;
-export const extractErrorMessage = (error: unknown) => extractAxiosErrorMessage(error, resolveErrorCode);
+export const extractErrorMessage = async (error: unknown) =>
+  (await extractAxiosErrorMessage(error, resolveErrorCode)) || resolveErrorCode('default');
 export const globalHeaders = () => ({
   Authorization: `Bearer ${getToken()}`,
   clientid: import.meta.env.VITE_APP_CLIENT_ID
@@ -95,7 +97,7 @@ export function download(url: string, params: unknown, fileName: string) {
     save: saveBlob,
     resolveErrorCode,
     presentError: message => ElMessage.error(message),
-    onError: error => console.error(error),
+    onError: () => undefined,
     close: () => downloadLoadingInstance?.close()
   });
 }

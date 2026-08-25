@@ -2,11 +2,11 @@
 
 ## Status
 
-- `active`: `@namewta/platform-http` owns pure error classification used by browser HTTP adapters.
+- `active`: `@namewta/platform-http` owns transport-neutral error classification used by runtime HTTP adapters.
 
 ## Responsibilities
 
-- Own transport-neutral request orchestration, classified failures, auth metadata, repeat-submit semantics, and adapter-facing HTTP contracts.
+- Own transport-neutral request orchestration and stable `TransportError` classification with kind, message, optional code/cause, and explicit handled state.
 
 ## Non-responsibilities
 
@@ -22,7 +22,7 @@
 
 ## Public entrypoints
 
-- `@namewta/platform-http` root exports handled-error and transport-message policies.
+- `@namewta/platform-http` root exports `TransportError`, its factory/guards, and transport-message policies.
 
 ## Backend modules
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Run request contract/unit tests, architecture import checks, typecheck, lint, and both App integration gates when consumers exist.
+- Run structured-error/cause/handled unit tests, request contract tests, architecture import checks, typecheck, lint, and both App integration gates when consumers exist.

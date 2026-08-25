@@ -23,15 +23,30 @@ export function createBrowserTokenStorage({ key, storage }: BrowserTokenStorageO
     }
   };
   return {
-    get: () => target()?.getItem(key) ?? fallbackValue,
+    get: () => {
+      try {
+        const value = target()?.getItem(key) ?? null;
+        if (value !== null) fallbackValue = value;
+        return value ?? fallbackValue;
+      } catch {
+        return fallbackValue;
+      }
+    },
     remove: () => {
-      target()?.removeItem(key);
       fallbackValue = null;
+      try {
+        target()?.removeItem(key);
+      } catch {
+        // The in-memory namespace remains cleared when browser storage is unavailable.
+      }
     },
     set: value => {
-      const current = target();
-      if (current) current.setItem(key, value);
-      else fallbackValue = value;
+      fallbackValue = value;
+      try {
+        target()?.setItem(key, value);
+      } catch {
+        // The current runtime can continue with the isolated in-memory value.
+      }
     }
   };
 }

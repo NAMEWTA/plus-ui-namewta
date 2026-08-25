@@ -1,7 +1,9 @@
 import type { ClientContext, CryptoPort, ErrorPresenter, HttpClient, HttpRequest } from '@namewta/platform-contracts';
+import { requireClientContext } from '@namewta/platform-contracts';
 import {
-  createHandledError,
+  createTransportError,
   isHandledError,
+  isTransportError,
   normalizeTransportMessage,
   payloadErrorMessage
 } from '@namewta/platform-http';
@@ -63,8 +65,9 @@ export interface AxiosBrowserOptions {
   errorPresenter: ErrorPresenter;
   getLanguage(): string;
   getToken(): string | null;
+  legacyUnauthorizedRejection?: boolean;
   now?: () => number;
-  onUnauthorized(): void;
+  onUnauthorized(): Promise<void> | void;
   repeatSubmissions: RepeatSubmissionStore;
   resolveErrorCode(code: unknown): string | undefined;
   serializeParams(params: unknown): string;
@@ -91,20 +94,51 @@ export async function extractAxiosErrorMessage(
   error: unknown,
   resolveCode: (code: unknown) => string | undefined
 ): Promise<string | undefined> {
+  if (isTransportError(error)) return error.message;
   const candidate = error as { message?: string; response?: { data?: unknown } };
   return (
     (await responseDataMessage(candidate.response?.data, resolveCode)) ?? normalizeTransportMessage(candidate.message)
   );
 }
 
+function presentSafely(
+  presenter: ErrorPresenter,
+  kind: 'business' | 'network' | 'server' | 'warning',
+  message: string
+): boolean {
+  try {
+    presenter.present({ kind, message });
+    return true;
+  } catch {
+    // Presentation is secondary to the stable transport rejection.
+    return false;
+  }
+}
+
+function recoverUnauthorizedSafely(recover: () => Promise<void> | void): boolean {
+  try {
+    const result = recover();
+    if (result) void result.catch(() => undefined);
+    return true;
+  } catch {
+    // Recovery failures must not replace the unauthorized transport error.
+    return false;
+  }
+}
+
+function encryptionError(message: string, cause?: unknown) {
+  return createTransportError({ kind: 'encryption', message, cause });
+}
+
 export function createAxiosBrowserAdapter(options: AxiosBrowserOptions): AxiosBrowserClient {
-  if (typeof options.client.clientId !== 'string' || !options.client.clientId.trim()) {
-    throw new Error('ClientContext.clientId is required');
+  const client = requireClientContext(options.client);
+  if (options.encryptionEnabled && !options.crypto) {
+    throw new Error('CryptoPort is required when encryption is enabled');
   }
   const service = axios.create({
     baseURL: options.baseURL,
     timeout: options.timeout ?? 50000,
-    headers: { 'Content-Type': 'application/json;charset=utf-8', clientid: options.client.clientId },
+    headers: { 'Content-Type': 'application/json;charset=utf-8', clientid: client.clientId },
     transitional: { clarifyTimeoutError: true }
   });
 
@@ -137,12 +171,15 @@ export function createAxiosBrowserAdapter(options: AxiosBrowserOptions): AxiosBr
     }
     const shouldEncrypt = String(headers.isEncrypt) === 'true';
     if (options.encryptionEnabled && shouldEncrypt && (config.method === 'post' || config.method === 'put')) {
-      if (!options.crypto) throw new Error('CryptoPort is required when request encryption is enabled');
-      const encrypted = options.crypto.encryptRequest(
-        typeof config.data === 'object' ? JSON.stringify(config.data) : String(config.data)
-      );
-      headers[encryptHeader] = encrypted.encryptedKey;
-      config.data = encrypted.data;
+      try {
+        const encrypted = options.crypto.encryptRequest(
+          typeof config.data === 'object' ? JSON.stringify(config.data) : String(config.data)
+        );
+        headers[encryptHeader] = encrypted.encryptedKey;
+        config.data = encrypted.data;
+      } catch (cause) {
+        throw encryptionError('Unable to encrypt request', cause);
+      }
     }
     if (typeof FormData !== 'undefined' && config.data instanceof FormData) delete headers['Content-Type'];
     return config;
@@ -151,9 +188,22 @@ export function createAxiosBrowserAdapter(options: AxiosBrowserOptions): AxiosBr
   service.interceptors.response.use(
     response => {
       const headers = response.headers as Record<string, unknown>;
+      const responseType =
+        (response.request as { responseType?: string } | undefined)?.responseType ?? response.config.responseType;
       const encryptedKey = headers[encryptHeader];
-      if (options.encryptionEnabled && typeof encryptedKey === 'string' && encryptedKey && options.crypto)
-        response.data = options.crypto.decryptResponse(String(response.data), encryptedKey);
+      if (options.encryptionEnabled && responseType !== 'blob' && responseType !== 'arraybuffer') {
+        if (typeof response.data === 'string' || encryptedKey !== undefined) {
+          if (typeof encryptedKey !== 'string' || !encryptedKey.trim()) {
+            throw encryptionError('Encrypted response key is required');
+          }
+          if (typeof response.data !== 'string') throw encryptionError('Encrypted response payload is malformed');
+          try {
+            response.data = options.crypto.decryptResponse(response.data, encryptedKey);
+          } catch (cause) {
+            throw encryptionError('Unable to decrypt response', cause);
+          }
+        }
+      }
       const data = response.data as Record<string, unknown>;
       const code = Number(data?.code || options.successCode);
       const message =
@@ -161,26 +211,27 @@ export function createAxiosBrowserAdapter(options: AxiosBrowserOptions): AxiosBr
         options.resolveErrorCode(code) ||
         options.resolveErrorCode('default') ||
         '';
-      const responseType =
-        (response.request as { responseType?: string } | undefined)?.responseType ?? response.config.responseType;
       if (responseType === 'blob' || responseType === 'arraybuffer') return response.data;
       if (code === 401) {
-        options.onUnauthorized();
-        return Promise.reject('无效的会话，或者会话已过期，请重新登录。');
+        const handled = recoverUnauthorizedSafely(options.onUnauthorized);
+        if (options.legacyUnauthorizedRejection) return Promise.reject('无效的会话，或者会话已过期，请重新登录。');
+        return Promise.reject(createTransportError({ kind: 'unauthorized', message, code, handled }));
       }
       if (code !== options.successCode) {
         const kind = code === 500 ? 'server' : code === 601 ? 'warning' : 'business';
-        options.errorPresenter.present({ kind, message });
-        return Promise.reject(createHandledError(message));
+        const handled = presentSafely(options.errorPresenter, kind, message);
+        const error = createTransportError({ kind, message, code, handled });
+        return Promise.reject(error);
       }
       return response.data;
     },
     async error => {
       const message =
         (await extractAxiosErrorMessage(error, options.resolveErrorCode)) || options.resolveErrorCode('default') || '';
-      options.errorPresenter.present({ kind: 'network', message });
-      (error as { isHandled?: boolean }).isHandled = true;
-      return Promise.reject(error);
+      const code = (error as { code?: number | string } | undefined)?.code;
+      const handled = presentSafely(options.errorPresenter, 'network', message);
+      const transportError = createTransportError({ kind: 'network', message, code, cause: error, handled });
+      return Promise.reject(transportError);
     }
   );
   return service;
@@ -213,7 +264,12 @@ export async function downloadWithAxios(options: DownloadOptions): Promise<void>
     if (options.isValid(data)) options.save(blob, options.fileName);
     else {
       const payload = JSON.parse(await blob.text()) as Record<string, unknown>;
-      options.presentError(options.resolveErrorCode(payload.code) || String(payload.msg || '') || '系统未知错误');
+      options.presentError(
+        options.resolveErrorCode(payload.code) ||
+          (typeof payload.msg === 'string' ? payload.msg : '') ||
+          options.resolveErrorCode('default') ||
+          '系统未知错误'
+      );
     }
   } catch (error) {
     options.onError(error);

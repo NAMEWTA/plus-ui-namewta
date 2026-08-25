@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Implement platform HttpClient for browsers using Axios, including headers, encryption handoff, downloads, repeat-submit, timeout, and classified failures.
+- Implement platform HttpClient for browsers using Axios, including headers, encryption fail-close, downloads, repeat-submit, request timeout, and structured failures. The root facade alone opts into the legacy 401 string rejection.
 
 ## Non-responsibilities
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Require adapter/request unit tests, 401 and encrypted-login E2E, resource cleanup review, lint, typecheck, architecture checks, and App builds.
+- Require factory/interceptor/download unit matrices, structured-error and callback-failure tests, 401 and encrypted-login E2E, resource cleanup review, lint, typecheck, architecture checks, and App builds.

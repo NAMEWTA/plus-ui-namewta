@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Implement TokenStorage and approved key/value persistence ports over explicit browser storage mechanisms.
+- Implement TokenStorage and SessionStore over explicit browser storage, with isolated in-memory continuity when access is unavailable or an operation raises a browser storage exception.
 
 ## Non-responsibilities
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Require read/write/clear/isolation unit tests, browser boundary/security review, auth E2E, lint, typecheck, architecture checks, and App builds.
+- Require read/write/clear/isolation and SecurityError/QuotaExceededError unit tests, browser boundary/security review, auth E2E, lint, typecheck, architecture checks, and App builds.

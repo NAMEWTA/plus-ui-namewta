@@ -49,6 +49,12 @@ const runtime = vi.hoisted(() => ({
   loadingService: vi.fn()
 }));
 
+const utilityHarness = vi.hoisted(() => ({
+  blobValidate: vi.fn(),
+  saveBlob: vi.fn(),
+  tansParams: vi.fn(() => '')
+}));
+
 vi.mock('axios', () => ({ default: axiosHarness.axios }));
 vi.mock('element-plus/es', () => ({
   ElLoading: { service: runtime.loadingService },
@@ -83,12 +89,12 @@ vi.mock('@/utils/crypto', () => ({
 }));
 vi.mock('@/utils/jsencrypt', () => ({ decrypt: vi.fn(), encrypt: vi.fn() }));
 vi.mock('@/utils/ruoyi', () => ({
-  blobValidate: vi.fn(),
-  tansParams: vi.fn(() => '')
+  blobValidate: utilityHarness.blobValidate,
+  tansParams: utilityHarness.tansParams
 }));
-vi.mock('@/utils/save', () => ({ saveBlob: vi.fn() }));
+vi.mock('@/utils/save', () => ({ saveBlob: utilityHarness.saveBlob }));
 
-import { isRelogin } from './request';
+import { download, extractErrorMessage, isRelogin } from './request';
 
 type ResponseFulfilled = (response: unknown) => unknown;
 
@@ -109,6 +115,7 @@ describe('request 401 baseline', () => {
     vi.clearAllMocks();
     isRelogin.show = false;
     runtime.logout.mockResolvedValue(undefined);
+    runtime.replace.mockResolvedValue(undefined);
   });
 
   it('shows one relogin prompt while concurrent 401 responses are pending', async () => {
@@ -146,6 +153,21 @@ describe('request 401 baseline', () => {
     );
     expect(isRelogin.show).toBe(false);
   });
+
+  it('keeps one recovery locked while logout is still pending', async () => {
+    let finishLogout = () => undefined;
+    runtime.confirm.mockResolvedValue(undefined);
+    runtime.logout.mockReturnValue(new Promise<void>(resolve => (finishLogout = resolve)));
+    const responseFulfilled = getResponseFulfilled();
+
+    await expect(responseFulfilled(unauthorizedResponse())).rejects.toBe('无效的会话，或者会话已过期，请重新登录。');
+    await vi.waitFor(() => expect(runtime.logout).toHaveBeenCalledOnce());
+    expect(isRelogin.show).toBe(true);
+    await expect(responseFulfilled(unauthorizedResponse())).rejects.toBe('无效的会话，或者会话已过期，请重新登录。');
+    expect(runtime.confirm).toHaveBeenCalledOnce();
+    finishLogout();
+    await vi.waitFor(() => expect(isRelogin.show).toBe(false));
+  });
 });
 
 describe('request adapter compatibility', () => {
@@ -166,6 +188,28 @@ describe('request adapter compatibility', () => {
         })
       })
     );
+  });
+
+  it('preserves default extraction and download messages without logging raw errors', async () => {
+    await expect(extractErrorMessage({ response: { data: {} } })).resolves.toBe('系统未知错误，请反馈给管理员');
+
+    const close = vi.fn();
+    runtime.loadingService.mockReturnValue({ close });
+    utilityHarness.blobValidate.mockReturnValue(false);
+    axiosHarness.service.post.mockResolvedValueOnce(new Blob(['{"code":499}']));
+    await download('/report', {}, 'report.xlsx');
+    expect(runtime.message.error).toHaveBeenCalledWith('系统未知错误，请反馈给管理员');
+    expect(close).toHaveBeenCalledOnce();
+
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      axiosHarness.service.post.mockRejectedValueOnce(new Error('token-bearing transport object'));
+      await download('/report', {}, 'report.xlsx');
+      expect(consoleError).not.toHaveBeenCalled();
+      expect(close).toHaveBeenCalledTimes(2);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });
 

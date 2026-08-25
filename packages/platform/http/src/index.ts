@@ -1,13 +1,46 @@
-export type HandledError = Error & { isHandled: true };
+import type { ErrorKind } from '@namewta/platform-contracts';
+
+export type TransportErrorKind = ErrorKind | 'encryption' | 'unauthorized';
+export type TransportErrorCode = number | string;
+
+export interface TransportErrorOptions {
+  cause?: unknown;
+  code?: TransportErrorCode;
+  handled?: boolean;
+  kind: TransportErrorKind;
+  message: string;
+}
+
+export class TransportError extends Error {
+  readonly code?: TransportErrorCode;
+  readonly isHandled: boolean;
+  readonly kind: TransportErrorKind;
+
+  constructor({ cause, code, handled = false, kind, message }: TransportErrorOptions) {
+    super(message, { cause });
+    this.name = 'TransportError';
+    this.code = code;
+    this.isHandled = handled;
+    this.kind = kind;
+  }
+}
+
+export type HandledError = TransportError & { isHandled: true };
+
+export function createTransportError(options: TransportErrorOptions): TransportError {
+  return new TransportError(options);
+}
 
 export function createHandledError(message: string): HandledError {
-  const error = new Error(message) as HandledError;
-  error.isHandled = true;
-  return error;
+  return createTransportError({ kind: 'business', message, handled: true }) as HandledError;
 }
 
 export function isHandledError(error: unknown): error is HandledError {
   return Boolean((error as { isHandled?: boolean } | undefined)?.isHandled);
+}
+
+export function isTransportError(error: unknown): error is TransportError {
+  return error instanceof TransportError;
 }
 
 export function normalizeTransportMessage(message?: string): string | undefined {

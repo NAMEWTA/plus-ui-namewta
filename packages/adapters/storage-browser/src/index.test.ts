@@ -41,4 +41,25 @@ describe('browser token storage', () => {
     session.clear();
     expect(session.getToken()).toBeNull();
   });
+
+  it('falls back when browser storage throws security or quota errors', () => {
+    const storage = {
+      getItem: () => {
+        throw new DOMException('blocked', 'SecurityError');
+      },
+      removeItem: () => {
+        throw new DOMException('blocked', 'SecurityError');
+      },
+      setItem: () => {
+        throw new DOMException('full', 'QuotaExceededError');
+      }
+    };
+    const tokens = createBrowserTokenStorage({ key: 'Admin-Token', storage });
+
+    expect(tokens.get()).toBeNull();
+    expect(() => tokens.set('fallback-token')).not.toThrow();
+    expect(tokens.get()).toBe('fallback-token');
+    expect(() => tokens.remove()).not.toThrow();
+    expect(tokens.get()).toBeNull();
+  });
 });

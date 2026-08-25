@@ -1,7 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.hoisted(() => {
+  process.env.VITE_APP_CLIENT_ID = 'e5cd7e4891bf95d1d19206ce24a7b32e';
+});
+
 const axiosHarness = vi.hoisted(() => {
-  const requestUse = vi.fn();
+  let createdConfig: unknown;
+  let requestFulfilled: ((request: unknown) => unknown) | undefined;
+  const requestUse = vi.fn((fulfilled: (request: unknown) => unknown) => {
+    requestFulfilled = fulfilled;
+  });
   let responseFulfilled: ((response: unknown) => unknown) | undefined;
   const responseUse = vi.fn((fulfilled: (response: unknown) => unknown) => {
     responseFulfilled = fulfilled;
@@ -15,9 +23,20 @@ const axiosHarness = vi.hoisted(() => {
   });
   const axios = {
     defaults: { headers: {} as Record<string, string> },
-    create: vi.fn(() => service)
+    create: vi.fn((config: unknown) => {
+      createdConfig = config;
+      return service;
+    })
   };
-  return { axios, getResponseFulfilled: () => responseFulfilled, requestUse, responseUse, service };
+  return {
+    axios,
+    getCreatedConfig: () => createdConfig,
+    getRequestFulfilled: () => requestFulfilled,
+    getResponseFulfilled: () => responseFulfilled,
+    requestUse,
+    responseUse,
+    service
+  };
 });
 
 const runtime = vi.hoisted(() => ({
@@ -126,6 +145,27 @@ describe('request 401 baseline', () => {
       })
     );
     expect(isRelogin.show).toBe(false);
+  });
+});
+
+describe('request adapter compatibility', () => {
+  it('injects the configured client, token and language headers', async () => {
+    expect(axiosHarness.getCreatedConfig()).toEqual(
+      expect.objectContaining({
+        headers: expect.objectContaining({ clientid: 'e5cd7e4891bf95d1d19206ce24a7b32e' })
+      })
+    );
+    const fulfilled = axiosHarness.getRequestFulfilled();
+    expect(fulfilled).toBeDefined();
+    const request = await fulfilled?.({ method: 'get', url: '/system/user/getInfo', headers: {} });
+    expect(request).toEqual(
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: 'Bearer baseline-token',
+          'Content-Language': 'zh-CN'
+        })
+      })
+    );
   });
 });
 

@@ -59,6 +59,18 @@ importers:
       '@iconify/vue':
         specifier: ^5.0.1
         version: 5.0.1(vue@3.5.40(typescript@6.0.3))
+      '@namewta/adapter-axios-browser':
+        specifier: workspace:*
+        version: link:packages/adapters/axios-browser
+      '@namewta/adapter-crypto-browser':
+        specifier: workspace:*
+        version: link:packages/adapters/crypto-browser
+      '@namewta/adapter-storage-browser':
+        specifier: workspace:*
+        version: link:packages/adapters/storage-browser
+      '@namewta/platform-auth':
+        specifier: workspace:*
+        version: link:packages/platform/auth
       '@vueuse/core':
         specifier: 14.3.0
         version: 14.3.0(vue@3.5.40(typescript@6.0.3))
@@ -192,6 +204,113 @@ importers:
       vue-tsc:
         specifier: ^3.3.8
         version: 3.3.8(typescript@6.0.3)
+
+  packages/adapters/axios-browser:
+    dependencies:
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+      '@namewta/platform-http':
+        specifier: workspace:*
+        version: link:../../platform/http
+      axios:
+        specifier: 'catalog:'
+        version: 1.18.1
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/adapters/crypto-browser:
+    dependencies:
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+      crypto-js:
+        specifier: 'catalog:'
+        version: 4.2.0
+      jsencrypt:
+        specifier: 'catalog:'
+        version: 3.5.4
+    devDependencies:
+      '@types/crypto-js':
+        specifier: 4.2.2
+        version: 4.2.2
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/adapters/storage-browser:
+    dependencies:
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/platform/auth:
+    dependencies:
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/platform/contracts:
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/platform/http:
+    dependencies:
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
 
   tooling/architecture:
     dependencies:

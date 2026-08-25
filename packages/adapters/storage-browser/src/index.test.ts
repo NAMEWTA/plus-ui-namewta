@@ -1,0 +1,44 @@
+import { describe, expect, it } from 'vitest';
+import { createBrowserSessionStore, createBrowserTokenStorage } from './index';
+
+describe('browser token storage', () => {
+  it('retains compatibility in a runtime without localStorage', () => {
+    const tokens = createBrowserTokenStorage({ key: 'Admin-Token' });
+    expect(tokens.get()).toBeNull();
+    tokens.set('server-render-token');
+    expect(tokens.get()).toBe('server-render-token');
+    tokens.remove();
+    expect(tokens.get()).toBeNull();
+  });
+
+  it('preserves the configured key and isolates namespaces', () => {
+    const values = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      removeItem: (key: string) => void values.delete(key),
+      setItem: (key: string, value: string) => void values.set(key, value)
+    };
+    const admin = createBrowserTokenStorage({ key: 'Admin-Token', storage });
+    const client = createBrowserTokenStorage({ key: 'Client-Token', storage });
+    admin.set('admin-token');
+    client.set('client-token');
+    expect(admin.get()).toBe('admin-token');
+    admin.remove();
+    expect(admin.get()).toBeNull();
+    expect(client.get()).toBe('client-token');
+  });
+
+  it('exposes the platform session contract through the same namespace', () => {
+    const values = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      removeItem: (key: string) => void values.delete(key),
+      setItem: (key: string, value: string) => void values.set(key, value)
+    };
+    const session = createBrowserSessionStore({ key: 'Admin-Token', storage });
+    session.setToken('access-token');
+    expect(session.getToken()).toBe('access-token');
+    session.clear();
+    expect(session.getToken()).toBeNull();
+  });
+});

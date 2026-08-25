@@ -1,9 +1,7 @@
-const TokenKey = 'Admin-Token';
+import { createBrowserSessionStore } from '@namewta/adapter-storage-browser';
 
-const tokenStorage = useStorage<null | string>(TokenKey, null);
+const session = createBrowserSessionStore({ key: 'Admin-Token' });
 
-export const getToken = () => tokenStorage.value;
-
-export const setToken = (access_token: string) => (tokenStorage.value = access_token);
-
-export const removeToken = () => (tokenStorage.value = null);
+export const getToken = () => session.getToken();
+export const setToken = (access_token: string) => session.setToken(access_token);
+export const removeToken = () => session.clear();

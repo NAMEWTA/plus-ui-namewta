@@ -92,6 +92,19 @@ body {
   background: var(--client-surface);
 }
 
+.client-right-toolbar {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.client-pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 10px;
+  border-top: 1px solid var(--client-line);
+}
+
 .client-diagnostic {
   max-width: 720px;
   margin: 80px auto;

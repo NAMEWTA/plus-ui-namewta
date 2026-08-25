@@ -6,11 +6,11 @@
 
 ## Responsibilities
 
-- Compose only identity-access and demo public manifests, create browser adapters, own client routing and stable registry diagnostics, and produce an independently deployable client bundle.
+- Compose only identity-access and demo public manifests, create browser adapters, own base-aware client routing and stable registry diagnostics, install the minimal demo toolbar/pagination/icon hosts, and produce an independently deployable client bundle.
 
 ## Non-responsibilities
 
-- It is not an admin clone and does not own reusable identity/demo rules, full authorization recovery, system administration, workflow, AI, devtools, or operations. Until T-07 installs shared access evaluation, migrated demo `v-hasPermi` controls are removed fail-closed; this is not final permission semantics and never grants backend authority.
+- It is not an admin clone and does not own reusable identity/demo rules, full authorization recovery, system administration, workflow, AI, devtools, or operations. Until T-07 installs shared access evaluation, migrated demo `v-hasPermi` controls are removed fail-closed; this is a temporary T-06 proof boundary, not final permission semantics, and never grants backend authority.
 
 ## Allowed dependencies
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Source owner runs `pnpm --filter @namewta/client-web test`, `typecheck`, and `build`; source must not run Playwright. Lead builds root admin and client, starts admin preview on `4173` and `pnpm --filter @namewta/client-web preview` on `4174`, then runs `CLIENT_WEB_URL=http://127.0.0.1:4174 ADMIN_WEB_URL=http://127.0.0.1:4173 pnpm exec playwright test e2e/client-web-proof.spec.ts`.
+- Source owner runs `pnpm --filter @namewta/client-web test`, `typecheck`, and `build`; source must not run Playwright. Lead builds root admin and client, starts admin preview on `4173` and `pnpm --filter @namewta/client-web preview` on `4174`, then runs `CLIENT_WEB_URL=http://127.0.0.1:4174 ADMIN_WEB_URL=http://127.0.0.1:4173 pnpm exec playwright test e2e/client-web-proof.spec.ts`. The proof exercises captcha refresh, demo toolbar/pagination behavior, Router-owned brand navigation, and the T-06 fail-closed permission boundary; T-07 still owns final shared permission/router integration.

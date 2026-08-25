@@ -38,6 +38,14 @@ export function resolveClientManifestDiagnostic(
   }
 }
 
+export interface ClientBrandRouter {
+  resolve(path: string): { href: string };
+}
+
+export function resolveClientBrandHref(router: ClientBrandRouter): string {
+  return router.resolve('/login').href;
+}
+
 const diagnosticPage = (runtime: AppRuntime<Component>) =>
   defineComponent({
     name: 'ClientManifestDiagnostic',
@@ -77,5 +85,5 @@ export function createClientRouter(runtime: AppRuntime<Component>, authenticated
     },
     { path: '/diagnostic', name: 'ClientDiagnostic', component: diagnosticPage(runtime) }
   ];
-  return createRouter({ history: createWebHistory(), routes });
+  return createRouter({ history: createWebHistory(import.meta.env.BASE_URL), routes });
 }

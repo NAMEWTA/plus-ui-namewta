@@ -91,11 +91,13 @@ function parseVerification(value: unknown): LoginVerification {
   if (typeof verification.captchaEnabled !== 'boolean') {
     throw new IdentityAccessError('invalid-verification-response', '登录验证码配置不可用');
   }
-  return Object.freeze({
-    captchaEnabled: verification.captchaEnabled,
-    ...(typeof verification.img === 'string' ? { img: verification.img } : {}),
-    ...(typeof verification.uuid === 'string' ? { uuid: verification.uuid } : {})
-  });
+  if (!verification.captchaEnabled) return Object.freeze({ captchaEnabled: false });
+  const img = typeof verification.img === 'string' ? verification.img.trim() : '';
+  const uuid = typeof verification.uuid === 'string' ? verification.uuid.trim() : '';
+  if (!img || !uuid) {
+    throw new IdentityAccessError('invalid-verification-response', '登录验证码配置不可用');
+  }
+  return Object.freeze({ captchaEnabled: true, img, uuid });
 }
 
 function parseAccessToken(value: unknown): string {

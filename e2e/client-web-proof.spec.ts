@@ -8,6 +8,7 @@ const clientTokenKey = `namewta:client-web:${proofClientId}:access-token`;
 type ClientApiState = {
   authCodeRequests: number;
   clientContextRequests: number;
+  demoPageNumbers: string[];
   demoRequests: number;
   loginBody?: Record<string, unknown>;
   loginClientHeader: string;
@@ -19,6 +20,7 @@ type ClientApiState = {
 const createState = (): ClientApiState => ({
   authCodeRequests: 0,
   clientContextRequests: 0,
+  demoPageNumbers: [],
   demoRequests: 0,
   loginClientHeader: '',
   loginRequests: 0,
@@ -32,7 +34,8 @@ const fulfillJson = (route: Route, body: unknown) =>
 async function installClientApi(
   page: Page,
   state: ClientApiState,
-  context: unknown = { clientEnabled: true, registerEnabled: false }
+  context: unknown = { clientEnabled: true, registerEnabled: false },
+  captcha = false
 ) {
   await page.route('**/prod-api/**', route => {
     const request = route.request();
@@ -45,7 +48,16 @@ async function installClientApi(
     if (path === '/auth/code') {
       state.authCodeRequests += 1;
       state.networkOrder.push('auth-code');
-      return fulfillJson(route, { code: 200, data: { captchaEnabled: false } });
+      return fulfillJson(route, {
+        code: 200,
+        data: captcha
+          ? {
+              captchaEnabled: true,
+              img: 'R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=',
+              uuid: `captcha-${state.authCodeRequests}`
+            }
+          : { captchaEnabled: false }
+      });
     }
     if (path === '/auth/login') {
       state.loginRequests += 1;
@@ -56,8 +68,9 @@ async function installClientApi(
     }
     if (path === '/demo/demo/list') {
       state.demoRequests += 1;
+      state.demoPageNumbers.push(new URL(request.url()).searchParams.get('pageNum') ?? '');
       state.networkOrder.push('demo-list');
-      return fulfillJson(route, { code: 200, data: { rows: [], total: 0 } });
+      return fulfillJson(route, { code: 200, data: { rows: [], total: 11 } });
     }
     state.unknownRequests.push(`${request.method()} ${path}`);
     return fulfillJson(route, { code: 200, data: null });
@@ -66,25 +79,52 @@ async function installClientApi(
 
 test('client-web logs in with one Client identity and an isolated session before loading demo', async ({ page }) => {
   const state = createState();
-  await installClientApi(page, state);
+  await installClientApi(page, state, undefined, true);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'admin-session-must-survive'));
 
   await page.goto(`${clientWebUrl}/login`);
   await expect(page.locator('[data-app-shell="client-web"]')).toBeVisible();
   await expect(page.getByText('入口已就绪', { exact: true })).toBeVisible();
+  await expect(page.getByRole('img', { name: '验证码图片' })).toBeVisible();
+  await page.getByRole('button', { name: '刷新验证码' }).click();
+  await expect.poll(() => state.authCodeRequests).toBe(2);
+  await expect(page.getByText('入口已就绪', { exact: true })).toBeVisible();
   await page.getByLabel('用户名').fill('client-user');
   await page.getByLabel('密码').fill('client-password');
+  await page.locator('input[name="code"]').fill('proof-code');
   await page.getByRole('button', { name: '登录', exact: true }).click();
 
   await expect(page).toHaveURL(`${clientWebUrl}/demo`);
   await expect(page.getByRole('heading', { name: '测试单列表' })).toBeVisible();
-  expect(state.networkOrder).toEqual(['client-context', 'auth-code', 'login', 'demo-list']);
+  expect(state.networkOrder).toEqual([
+    'client-context',
+    'auth-code',
+    'client-context',
+    'auth-code',
+    'login',
+    'demo-list'
+  ]);
   expect(state.loginClientHeader).toBe(proofClientId);
   expect(state.loginBody?.clientId).toBe(proofClientId);
-  expect(state.loginBody).toMatchObject({ username: 'client-user', grantType: 'password' });
+  expect(state.loginBody).toMatchObject({
+    username: 'client-user',
+    code: 'proof-code',
+    uuid: 'captcha-2',
+    grantType: 'password'
+  });
   expect(await page.evaluate(key => sessionStorage.getItem(key), clientTokenKey)).toBe('client-proof-token');
   expect(await page.evaluate(() => sessionStorage.getItem('Admin-Token'))).toBeNull();
   expect(await page.evaluate(() => localStorage.getItem('Admin-Token'))).toBe('admin-session-must-survive');
+
+  await page.getByRole('button', { name: '刷新列表' }).click();
+  await expect.poll(() => state.demoRequests).toBe(2);
+  await page.locator('.client-pagination .btn-next').click();
+  await expect.poll(() => state.demoRequests).toBe(3);
+  expect(state.demoPageNumbers).toEqual(['1', '1', '2']);
+
+  await page.getByRole('link', { name: 'Namewta Client' }).click();
+  await expect(page).toHaveURL(`${clientWebUrl}/login`);
+  await expect.poll(() => state.clientContextRequests).toBe(3);
   expect(state.unknownRequests).toEqual([]);
 });
 

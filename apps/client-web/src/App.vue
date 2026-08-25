@@ -1,5 +1,11 @@
 <template>
-  <ClientWebShell app-name="Namewta Client" :client-label="`Client ${application.clientId}`" :navigation="navigation">
+  <ClientWebShell
+    app-name="Namewta Client"
+    :brand-href="brandHref"
+    :client-label="`Client ${application.clientId}`"
+    :navigation="navigation"
+    :on-brand-select="selectBrand"
+  >
     <p v-if="application.transportMessage.value" class="client-feedback" role="status">
       {{ application.transportMessage.value }}
     </p>
@@ -12,11 +18,16 @@ import { ClientWebShell, type ClientShellNavigationItem } from '@namewta/web-she
 import { computed, inject } from 'vue';
 import { RouterView, useRoute, useRouter } from 'vue-router';
 import { clientApplicationKey } from './application';
+import { resolveClientBrandHref } from './router';
 
 const application = inject(clientApplicationKey);
 if (!application) throw new Error('ClientApplication is required');
 const route = useRoute();
 const router = useRouter();
+const brandHref = computed(() => resolveClientBrandHref(router));
+const selectBrand = () => {
+  void router.push('/login');
+};
 
 const navigation = computed<readonly ClientShellNavigationItem[]>(() => {
   const items: ClientShellNavigationItem[] = [

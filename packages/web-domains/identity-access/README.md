@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Render accessible login controls, await terminal Client preparation, keep submit disabled on fail-close, hand credentials to the injected service, and publish stable message/permission/registration contributions.
+- Render accessible login and captcha controls, refresh the complete preparation sequence while submit remains disabled, keep submit disabled on terminal fail-close, hand credentials to the injected service, and publish stable message/permission/registration contributions.
 
 ## Non-responsibilities
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Manifest tests freeze stable registrations/messages/permissions and reject missing runtime; client unit/build plus Lead E2E verify terminal fail-close and successful injected login.
+- Manifest and presentation-state tests freeze stable contributions, reject missing runtime, and prove captcha refresh stays disabled until a new challenge succeeds; client unit/build plus Lead E2E verify terminal fail-close and successful injected login.

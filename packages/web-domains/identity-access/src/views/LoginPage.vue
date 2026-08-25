@@ -21,7 +21,19 @@
         />
       </el-form-item>
       <el-form-item v-if="verification?.captchaEnabled" label="验证码">
-        <el-input v-model="form.code" name="code" :disabled="!ready || submitting" />
+        <div class="identity-login__captcha">
+          <el-input v-model="form.code" name="code" :disabled="!ready || submitting" />
+          <img :src="captchaImage" alt="验证码图片" />
+          <el-button
+            native-type="button"
+            aria-label="刷新验证码"
+            :loading="preparing"
+            :disabled="submitting"
+            @click="prepare"
+          >
+            刷新
+          </el-button>
+        </div>
       </el-form-item>
       <p v-if="errorMessage" class="identity-login__error" role="alert">{{ errorMessage }}</p>
       <el-button
@@ -29,68 +41,30 @@
         type="primary"
         native-type="submit"
         :loading="submitting"
-        :disabled="!ready"
+        :disabled="!ready || preparing"
       >
         登录
       </el-button>
       <p class="identity-login__status" aria-live="polite">
-        {{ ready ? '入口已就绪' : '正在检查入口状态' }}
+        {{ ready ? '入口已就绪' : preparing ? '正在检查入口状态' : '入口暂不可用' }}
       </p>
     </el-form>
   </section>
 </template>
 
 <script setup lang="ts">
-import type { LoginVerification } from '@namewta/domain-identity-access';
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import type { IdentityAccessWebRuntime } from '../runtime';
+import { createIdentityLoginState } from '../loginState';
 import { requireIdentityAccessWebRuntime } from '../runtime';
 
 const props = defineProps<{ runtime: IdentityAccessWebRuntime }>();
 const runtime = requireIdentityAccessWebRuntime(props.runtime);
-const ready = ref(false);
-const submitting = ref(false);
-const errorMessage = ref('');
-const verification = ref<LoginVerification>();
-const form = reactive({ username: '', password: '', code: '' });
-let active = true;
+const state = createIdentityLoginState(runtime);
+const { captchaImage, errorMessage, form, prepare, preparing, ready, submit, submitting, verification } = state;
 
-const messageFor = (error: unknown) =>
-  error instanceof Error && error.message ? error.message : '登录请求失败，请稍后重试';
-
-const submit = async () => {
-  if (!ready.value || submitting.value) return;
-  submitting.value = true;
-  errorMessage.value = '';
-  try {
-    const session = await runtime.service.login({
-      username: form.username,
-      password: form.password,
-      ...(form.code ? { code: form.code } : {}),
-      ...(verification.value?.uuid ? { uuid: verification.value.uuid } : {})
-    });
-    if (active) await runtime.onAuthenticated(session);
-  } catch (error) {
-    if (active) errorMessage.value = messageFor(error);
-  } finally {
-    if (active) submitting.value = false;
-  }
-};
-
-onMounted(async () => {
-  try {
-    const preparation = await runtime.service.prepareLogin();
-    if (!active) return;
-    verification.value = preparation.verification;
-    ready.value = true;
-  } catch (error) {
-    if (active) errorMessage.value = messageFor(error);
-  }
-});
-
-onUnmounted(() => {
-  active = false;
-});
+onMounted(prepare);
+onUnmounted(state.dispose);
 </script>
 
 <style scoped>
@@ -135,6 +109,20 @@ onUnmounted(() => {
   min-height: 42px;
 }
 
+.identity-login__captcha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.identity-login__captcha img {
+  width: 112px;
+  height: 38px;
+  border: 1px solid var(--client-line);
+  object-fit: contain;
+}
+
 .identity-login__error {
   color: #b42318;
   font-size: 14px;
@@ -156,6 +144,14 @@ onUnmounted(() => {
 
   .identity-login__intro h1 {
     font-size: 36px;
+  }
+
+  .identity-login__captcha {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .identity-login__captcha img {
+    grid-column: 1 / -1;
   }
 }
 </style>

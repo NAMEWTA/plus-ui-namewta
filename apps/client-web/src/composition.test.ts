@@ -3,7 +3,7 @@ import type { IdentityAccessWebRuntime } from '@namewta/web-domain-identity-acce
 import { describe, expect, it, vi } from 'vitest';
 import { clientCompositionManifest, composeClientRuntime } from './composition';
 import { createT06PermissionDirective } from './permissionProof';
-import { resolveClientManifestDiagnostic } from './router';
+import { resolveClientBrandHref, resolveClientManifestDiagnostic } from './router';
 
 const identityRuntime = (): IdentityAccessWebRuntime => ({
   service: {
@@ -83,5 +83,12 @@ describe('client web composition', () => {
     createT06PermissionDirective().mounted({ remove });
 
     expect(remove).toHaveBeenCalledOnce();
+  });
+
+  it('derives the brand href through the App router for a subpath deployment', () => {
+    const resolve = vi.fn(() => ({ href: '/tenant/client/login' }));
+
+    expect(resolveClientBrandHref({ resolve })).toBe('/tenant/client/login');
+    expect(resolve).toHaveBeenCalledWith('/login');
   });
 });

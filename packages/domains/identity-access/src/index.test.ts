@@ -64,6 +64,45 @@ describe('identity access domain', () => {
     ]);
   });
 
+  it('accepts a complete enabled captcha response and preserves its challenge', async () => {
+    const harness = createHarness({
+      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: false } },
+      '/auth/code': { code: 200, data: { captchaEnabled: true, img: ' captcha-image ', uuid: ' captcha-uuid ' } }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      session: harness.session
+    });
+
+    await expect(service.prepareLogin()).resolves.toMatchObject({
+      verification: { captchaEnabled: true, img: 'captcha-image', uuid: 'captcha-uuid' }
+    });
+  });
+
+  it.each([
+    { captchaEnabled: true },
+    { captchaEnabled: true, img: '', uuid: 'captcha-uuid' },
+    { captchaEnabled: true, img: 'captcha-image', uuid: '   ' },
+    { captchaEnabled: true, img: 42, uuid: 'captcha-uuid' }
+  ])('fails closed when an enabled captcha challenge is malformed: %j', async verification => {
+    const harness = createHarness({
+      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: false } },
+      '/auth/code': { code: 200, data: verification }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      session: harness.session
+    });
+
+    await expect(service.prepareLogin()).rejects.toMatchObject({ code: 'invalid-verification-response' });
+    await expect(service.login({ username: 'user', password: 'secret' })).rejects.toMatchObject({
+      code: 'client-context-unavailable'
+    });
+    expect(harness.requests.map(request => request.url)).toEqual(['/auth/client/context', '/auth/code']);
+  });
+
   it.each([
     { clientEnabled: 'true', registerEnabled: true },
     { clientEnabled: true },

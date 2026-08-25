@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Validate the App-injected OAuth Client before authentication traffic, preserve context-to-code-to-login order, build the password payload, validate the token response, and write through an injected SessionStore.
+- Validate the App-injected OAuth Client before authentication traffic, preserve context-to-code-to-login order, require a complete image/UUID challenge when captcha is enabled, build the password payload, validate the token response, and write through an injected SessionStore.
 
 ## Non-responsibilities
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Unit tests cover zero-request invalid Client/context failures, strict request order, body Client identity, session writes, response validation, and namespace isolation; architecture/type/lint/workspace gates prove the package remains headless.
+- Unit tests cover zero-request invalid Client/context failures, strict request order, enabled and malformed captcha responses, body Client identity, session writes, response validation, and namespace isolation; architecture/type/lint/workspace gates prove the package remains headless.

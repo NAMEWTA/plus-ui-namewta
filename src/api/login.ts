@@ -51,7 +51,7 @@ export async function logout(): Promise<RuoYiAjaxResult<null>> {
     import.meta.env.VITE_APP_MESSAGE_ENABLED === 'true' &&
     import.meta.env.VITE_APP_MESSAGE_TRANSPORT.toLowerCase() === 'sse'
   ) {
-    await request({ url: import.meta.env.VITE_APP_MESSAGE_PATH + '/close', method: 'get' });
+    void request({ url: import.meta.env.VITE_APP_MESSAGE_PATH + '/close', method: 'get' }).catch(() => undefined);
   }
   await identityAccessService.logout();
   return result(null);
@@ -61,12 +61,12 @@ export async function getCodeImg(): AxiosPromise<VerifyCodeResult> {
   return result(await identityAccessService.getVerification()) as never;
 }
 
-export async function callback(data: LoginData): AxiosPromise<null> {
+export async function callback(data: LoginData): AxiosPromise<LoginResult | null> {
   const callbackResult = await identityAccessService.socialCallback(data as SocialCallbackInput);
   return result(
     callbackResult.accessToken ? { access_token: callbackResult.accessToken } : null,
     callbackResult.message
-  ) as never;
+  );
 }
 
 export async function getInfo(): AxiosPromise<UserInfo> {

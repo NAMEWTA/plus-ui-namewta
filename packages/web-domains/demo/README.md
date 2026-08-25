@@ -30,8 +30,8 @@
 
 ## Activation conditions
 
-- Activated in T-05 with stable `demo/demo/index` and `demo/tree/index` keys; root view facades load through the composed registry, while a root missing-key harness provides visible diagnostics until T-07 owns global route integration.
+- Activated in T-05 with stable `demo/demo/index` and `demo/tree/index` keys; root view facades load through the composed registry, while the explicit root `manifest-diagnostic` harness exercises a chosen missing key. Arbitrary backend key integration remains owned by T-07.
 
 ## Validation
 
-- Require manifest contribution/deep-freeze tests, duplicate/missing registry tests, keep-alive request-count and visible missing-key E2E, lint, typecheck, and App build.
+- Require manifest contribution/deep-freeze tests, duplicate/missing registry tests, keep-alive request-count and explicit manifest-diagnostic harness E2E, lint, typecheck, and App build.

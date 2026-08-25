@@ -6,18 +6,18 @@ type ApiState = {
   unknownRequests: string[];
 };
 
-type MenuMode = 'missing' | 'valid';
+type MenuMode = 'diagnostic' | 'valid';
 
 const json = (route: Route, body: unknown) =>
   route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
 
 const demoChildren = (mode: MenuMode) =>
-  mode === 'missing'
+  mode === 'diagnostic'
     ? [
         {
-          path: 'missing',
-          name: 'DemoManifestMissing',
-          component: 'demo/missing/index',
+          path: 'manifest-diagnostic',
+          name: 'DemoManifestDiagnostic',
+          component: 'demo/manifest-diagnostic/index',
           meta: { title: '缺失组件诊断', icon: 'warning', noCache: true }
         }
       ]
@@ -123,15 +123,15 @@ test('selected demo registry routes survive a keep-alive menu round trip', async
   expect(state.unknownRequests).toEqual([]);
 });
 
-test('missing demo registry keys render a stable diagnostic instead of a blank route', async ({ page }) => {
+test('explicit demo manifest diagnostic harness renders a stable missing-key error', async ({ page }) => {
   const state = createState();
-  await installApi(page, state, 'missing');
+  await installApi(page, state, 'diagnostic');
 
-  await page.goto('/login?redirect=%2Fdemo%2Fmissing');
+  await page.goto('/login?redirect=%2Fdemo%2Fmanifest-diagnostic');
   await expect(page.locator('.submit-button')).toBeEnabled();
   await page.locator('.submit-button').click();
 
-  await expect(page).toHaveURL(/\/demo\/missing$/);
+  await expect(page).toHaveURL(/\/demo\/manifest-diagnostic$/);
   await expect(page.getByRole('heading', { name: '页面加载失败' })).toBeVisible();
   await expect(page.getByTestId('demo-manifest-error')).toContainText(
     '页面组件不可用 [missing-component-key] app=admin-web domain=demo key=demo/missing/index'

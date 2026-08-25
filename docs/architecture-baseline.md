@@ -71,6 +71,11 @@ The first supplemental E2E source typecheck omitted TypeScript 6's required `--i
 `TS5112` before checking the file. The corrected command shown above exited 0. This static check is additional evidence,
 not a replacement for the Lead-owned Playwright run.
 
+Lead candidate attempt 1 ran six Playwright tests: five passed, while the dynamic-route scenario reached
+`/baseline/route` and rendered the expected heading but failed because an exact text locator matched the menu,
+breadcrumb, and visited-view tag. The source fixture now scopes that assertion to the `面包屑` navigation link; the
+source worktree did not rerun Playwright.
+
 The latest production build reported `dist/index.html` at 115.31 kB (50.80 kB gzip), its largest JavaScript chunk at
 1382.40 kB (435.47 kB gzip), and the main CSS chunk at 992.19 kB (155.77 kB gzip). Hashed file names and elapsed time
 are diagnostic observations, not fixed pass thresholds.

@@ -171,7 +171,7 @@ test('login restores the redirected server-filtered dynamic route without a back
 
   await expect(page).toHaveURL(/\/baseline\/route$/);
   await expect(page.getByRole('heading', { name: 'RuoYi-Vue-Plus 控制台' })).toBeVisible();
-  await expect(page.getByText('迁移基线路由', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('面包屑').getByRole('link', { name: '迁移基线路由' })).toBeVisible();
 
   expect(state.networkOrder).toEqual(['login', 'getInfo', 'getRouters']);
   expect(state.loginRequests).toBe(1);

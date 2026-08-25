@@ -1,20 +1,37 @@
 # Element Web Shell
 
 ## Status
-- `placeholder`: the current root layout remains the active Web shell.
+
+- `active-minimal`: T-06 activates a reusable Element Plus container for client branding, navigation, App Client context, and content slots; admin migration remains later work.
+
 ## Responsibilities
-- Provide reusable Element Plus layout, navigation containers, global feedback surfaces, theme hooks, and Web startup shell contracts.
+
+- Provide accessible brand/navigation landmarks, stable shell data markers, Client context display, and App-owned slot/layout hooks without domain knowledge.
+
 ## Non-responsibilities
-- It does not own domain pages/services, App-specific branding/composition, backend APIs, or authorization truth.
+
+- It does not choose domains, resolve routes, own authentication, call backend APIs, define App branding, or authorize navigation.
+
 ## Allowed dependencies
-- Public platform Web-facing contracts, `ui-element`, `design-tokens`, Vue, Vue Router, and Element Plus after activation.
+
+- Vue, Element Plus, and public design-token primitives.
+
 ## Forbidden dependencies
-- Domains, specific Apps, web-domain internals, backend transport, and concrete business adapters.
+
+- Domains, Apps, web-domain internals, backend transport, concrete adapters, and Router/Store singletons.
+
 ## Public entrypoints
-- Future `@namewta/web-shell-element` root export for shell components, presenter adapters, and shell installation contracts.
+
+- `@namewta/web-shell-element` exports `ClientWebShell` and its typed navigation item contract.
+
 ## Backend modules
-- `backendModules: []`; the shell has no backend capability ownership.
+
+- `backendModules: []`; the shell owns no backend capability.
+
 ## Activation conditions
-- Activate during identity/shell migration only after two Apps demonstrate shared mechanics with independent layout/theme overrides.
+
+- App consumers must supply branding, Client label, navigation callbacks, and content; reusable mechanics must stay independent of a specific App or domain.
+
 ## Validation
-- Require shell component/accessibility tests, presenter/navigation integration, no-domain-import architecture checks, lint, typecheck, and both App builds/E2E.
+
+- Public component tests, architecture/lint/typecheck gates, client build, and Lead dual-preview E2E verify shell identity, accessibility landmarks, and theme distinction.

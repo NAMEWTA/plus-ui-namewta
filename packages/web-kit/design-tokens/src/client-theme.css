@@ -1,0 +1,11 @@
+:root {
+  --client-accent: #087f5b;
+  --client-accent-strong: #065f46;
+  --client-canvas: #eef7f3;
+  --client-line: #cde3d9;
+  --client-surface: #ffffff;
+  --client-text: #172b24;
+  --client-text-muted: #526b61;
+  --client-radius: 6px;
+  --client-shadow: 0 12px 36px rgba(23, 43, 36, 0.1);
+}

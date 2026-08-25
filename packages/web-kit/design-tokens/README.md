@@ -1,20 +1,37 @@
-# Design Tokens
+# Web Design Tokens
 
 ## Status
-- `placeholder`: current styles remain App/root-owned and no token package exists.
+
+- `active`: T-06 activates the minimal semantic palette used by both the client shell and identity login surface.
+
 ## Responsibilities
-- Provide framework-light shared color, spacing, typography, elevation, and semantic token contracts that Apps may override.
+
+- Publish framework-light client accent, canvas, surface, line, text, radius, and elevation primitives with CSS and typed read-only entrypoints.
+
 ## Non-responsibilities
-- It does not impose one brand/theme, contain Vue components, own domain styles, or encode App layout.
+
+- It does not impose an admin brand, render components, own domain styles/layout, or access runtime/backend capabilities.
+
 ## Allowed dependencies
-- Static CSS/data primitives and documented token-generation inputs approved at activation.
+
+- Static CSS and TypeScript data primitives only.
+
 ## Forbidden dependencies
-- Domains, Apps, web-domains, Element components, runtime adapters, and backend modules.
+
+- Domains, Apps, web-domains, Vue/Element components, runtime adapters, DOM access, and backend modules.
+
 ## Public entrypoints
-- Future `@namewta/design-tokens` exported token data/style entrypoints defined by the activation Ticket.
+
+- `@namewta/design-tokens` exports frozen token data; `@namewta/design-tokens/client-theme.css` exports the client CSS custom properties.
+
 ## Backend modules
-- `backendModules: []`; design tokens are presentation-only.
+
+- `backendModules: []`; tokens are presentation-only.
+
 ## Activation conditions
-- Activate only when admin-web and client-web identify a genuinely shared token set with explicit override behavior.
+
+- Changes require at least the shell and a real page surface to consume semantic tokens without embedding App/domain behavior.
+
 ## Validation
-- Require token schema/snapshot review, App override and visual regression evidence, architecture checks, lint/typecheck where applicable, and both Web builds.
+
+- Token unit tests, architecture checks, scoped lint/typecheck, client build, and Lead dual-App visual assertions guard the public values and override boundary.

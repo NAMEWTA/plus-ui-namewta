@@ -1,20 +1,37 @@
 # Client Web Application
 
 ## Status
-- `placeholder`: no package manifest, source, Client configuration, or build target exists.
+
+- `active`: `@namewta/client-web` is the T-06 second-App proof with its own Vite build, preview, ClientContext, session namespace, shell, theme, and explicit composition.
+
 ## Responsibilities
-- Prove a second Web App can compose identity-access and demo with an independent ClientContext, shell, theme, and deployment.
+
+- Compose only identity-access and demo public manifests, create browser adapters, own client routing and stable registry diagnostics, and produce an independently deployable client bundle.
+
 ## Non-responsibilities
-- It is not a reduced admin clone and does not automatically include system administration, workflow, AI, devtools, or operations.
+
+- It is not an admin clone and does not own reusable identity/demo rules, full authorization recovery, system administration, workflow, AI, devtools, or operations. Until T-07 installs shared access evaluation, migrated demo `v-hasPermi` controls are removed fail-closed; this is not final permission semantics and never grants backend authority.
+
 ## Allowed dependencies
-- Public entries for identity-access, demo, Web shell/UI, platform contracts, and browser adapters selected by its composition manifest.
+
+- Public exports of selected identity/demo domains and web-domains, platform contracts/app-runtime, browser axios/storage/crypto adapters, Vue/Router/Element Plus, and the activated shell/design tokens.
+
 ## Forbidden dependencies
-- Admin App internals, unselected domains, deep imports, and global fallback Client configuration.
+
+- Root `src/**`, admin internals, unselected domains, package deep imports, a fallback/default Client, and the `Admin-Token` storage key.
+
 ## Public entrypoints
-- Future App-owned `src/main.ts` and client composition manifest; no entrypoint exists while placeholder.
+
+- `src/main.ts` is the browser entry; `src/composition.ts` owns the compile-time selection; package scripts expose `build`, `preview`, `lint`, `test`, and `typecheck`.
+
 ## Backend modules
-- `backendModules: [ruoyi-admin, ruoyi-system, ruoyi-demo]` for authentication, current-session/menu context, and demo capabilities.
+
+- `backendModules: [ruoyi-admin, ruoyi-system, ruoyi-demo]` through `/auth/client/context`, `/auth/code`, `/auth/login`, and selected demo APIs.
+
 ## Activation conditions
-- Activate at the second-App proof only with a distinct OAuth clientId and service menus aligned to its selected component keys.
+
+- Deployment must inject a non-empty OAuth `VITE_CLIENT_WEB_CLIENT_ID` mapped to the selected server capabilities. The committed proof Client and disabled request encryption are public test configuration, not a production credential or a change to admin encryption.
+
 ## Validation
-- Require independent build/E2E, multi-Client session isolation, selected-only manifest registration, and no App reverse dependency from shared packages.
+
+- Source owner runs `pnpm --filter @namewta/client-web test`, `typecheck`, and `build`; source must not run Playwright. Lead builds root admin and client, starts admin preview on `4173` and `pnpm --filter @namewta/client-web preview` on `4174`, then runs `CLIENT_WEB_URL=http://127.0.0.1:4174 ADMIN_WEB_URL=http://127.0.0.1:4173 pnpm exec playwright test e2e/client-web-proof.spec.ts`.

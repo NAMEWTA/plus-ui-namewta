@@ -1,20 +1,37 @@
 # Identity Access Domain
 
 ## Status
-- `placeholder`: login, session, menu, and permission behavior still lives in the root compatibility App.
+
+- `active-minimal`: T-06 activates strict Client context, password login, and isolated session contracts; T-07 owns full auth/permission migration.
+
 ## Responsibilities
-- Own cross-terminal authentication, registration, social callback, current-user/session recovery, Client context, server-menu consumption, and access semantics.
+
+- Validate the App-injected OAuth Client before authentication traffic, preserve context-to-code-to-login order, build the password payload, validate the token response, and write through an injected SessionStore.
+
 ## Non-responsibilities
-- It does not render Vue pages, register Router records, show Element messages, persist tokens directly, or administer users/roles/Clients.
+
+- It does not render Vue, access DOM/storage, create Axios, select an App, implement registration/social/permission recovery, or administer users, roles, and Clients.
+
 ## Allowed dependencies
-- Public platform contracts/http/auth/permission entries and, after Wave 11, relevant api-contracts.
+
+- Public `@namewta/platform-contracts` ports and `@namewta/platform-app-runtime` metadata only.
+
 ## Forbidden dependencies
-- Apps, web-domains, web-kit, Vue/Router/Pinia, DOM/browser storage, concrete adapters, and system-admin implementation internals.
+
+- Apps, web-domains, web-kit, Vue/Router/Pinia, DOM/browser globals, Axios, concrete adapters, and root `@/` aliases or deep imports.
+
 ## Public entrypoints
-- Future `@namewta/domain-identity-access` root exports for session use cases, models, permission semantics, and `DomainModule` metadata.
+
+- `@namewta/domain-identity-access` exports the service factory, strict transport/domain models, `IdentityAccessError`, isolated session-key helper, and frozen `identityAccessDomainModule`.
+
 ## Backend modules
-- `backendModules: [ruoyi-admin, ruoyi-system]` for `/auth/**`, current-user information, roles/permissions, and Client-filtered menus.
+
+- `backendModules: [ruoyi-admin, ruoyi-system]` for `/auth/client/context`, `/auth/code`, and `/auth/login`.
+
 ## Activation conditions
-- Activate across T-06/T-07 only after second-App proof and all Client/auth/401/dynamic-route baselines are preserved.
+
+- A caller must inject a valid ClientContext, HttpClient, and SessionStore. Login stays unavailable until the exact-Boolean public Client context and verification response succeed.
+
 ## Validation
-- Require headless import checks, session/access unit matrices, multi-Client auth E2E, route-order tests, lint, typecheck, and both App builds.
+
+- Unit tests cover zero-request invalid Client/context failures, strict request order, body Client identity, session writes, response validation, and namespace isolation; architecture/type/lint/workspace gates prove the package remains headless.

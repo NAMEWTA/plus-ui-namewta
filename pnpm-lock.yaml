@@ -214,6 +214,73 @@ importers:
         specifier: ^3.3.8
         version: 3.3.8(typescript@6.0.3)
 
+  apps/client-web:
+    dependencies:
+      '@namewta/adapter-axios-browser':
+        specifier: workspace:*
+        version: link:../../packages/adapters/axios-browser
+      '@namewta/adapter-crypto-browser':
+        specifier: workspace:*
+        version: link:../../packages/adapters/crypto-browser
+      '@namewta/adapter-storage-browser':
+        specifier: workspace:*
+        version: link:../../packages/adapters/storage-browser
+      '@namewta/design-tokens':
+        specifier: workspace:*
+        version: link:../../packages/web-kit/design-tokens
+      '@namewta/domain-demo':
+        specifier: workspace:*
+        version: link:../../packages/domains/demo
+      '@namewta/domain-identity-access':
+        specifier: workspace:*
+        version: link:../../packages/domains/identity-access
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../packages/platform/app-runtime
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../packages/platform/contracts
+      '@namewta/web-domain-demo':
+        specifier: workspace:*
+        version: link:../../packages/web-domains/demo
+      '@namewta/web-domain-identity-access':
+        specifier: workspace:*
+        version: link:../../packages/web-domains/identity-access
+      '@namewta/web-shell-element':
+        specifier: workspace:*
+        version: link:../../packages/web-kit/shell-element
+      element-plus:
+        specifier: 'catalog:'
+        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.40(typescript@6.0.3)
+      vue-router:
+        specifier: 'catalog:'
+        version: 5.2.0(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.40(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vue@3.5.40(typescript@6.0.3))
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.8
+        version: 6.0.8(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vue@3.5.40(typescript@6.0.3))
+      '@vue/compiler-sfc':
+        specifier: 'catalog:'
+        version: 3.5.40
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vite:
+        specifier: ^8.1.5
+        version: 8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0)
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+      vue-tsc:
+        specifier: 3.3.8
+        version: 3.3.8(typescript@6.0.3)
+
   packages/adapters/axios-browser:
     dependencies:
       '@namewta/platform-contracts':
@@ -278,6 +345,25 @@ importers:
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
 
   packages/domains/demo:
+    dependencies:
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../platform/app-runtime
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/domains/identity-access:
     dependencies:
       '@namewta/platform-app-runtime':
         specifier: workspace:*
@@ -363,6 +449,77 @@ importers:
       '@namewta/platform-app-runtime':
         specifier: workspace:*
         version: link:../../platform/app-runtime
+      element-plus:
+        specifier: 'catalog:'
+        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.40(typescript@6.0.3)
+    devDependencies:
+      '@vue/compiler-sfc':
+        specifier: 'catalog:'
+        version: 3.5.40
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+      vue-tsc:
+        specifier: 3.3.8
+        version: 3.3.8(typescript@6.0.3)
+
+  packages/web-domains/identity-access:
+    dependencies:
+      '@namewta/domain-identity-access':
+        specifier: workspace:*
+        version: link:../../domains/identity-access
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../platform/app-runtime
+      element-plus:
+        specifier: 'catalog:'
+        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.40(typescript@6.0.3)
+    devDependencies:
+      '@vue/compiler-sfc':
+        specifier: 'catalog:'
+        version: 3.5.40
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+      vue-tsc:
+        specifier: 3.3.8
+        version: 3.3.8(typescript@6.0.3)
+
+  packages/web-kit/design-tokens:
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/web-kit/shell-element:
+    dependencies:
+      '@namewta/design-tokens':
+        specifier: workspace:*
+        version: link:../design-tokens
       element-plus:
         specifier: 'catalog:'
         version: 2.14.3(vue@3.5.40(typescript@6.0.3))

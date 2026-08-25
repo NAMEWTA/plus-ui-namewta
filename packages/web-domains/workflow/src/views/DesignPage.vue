@@ -1,16 +1,43 @@
-<template><iframe class="workflow-design-frame" :src="src" title="流程设计"></iframe></template>
+<template>
+  <div class="warm-flow-designer-page">
+    <iframe :src="iframeUrl" frameborder="0" class="warm-flow-designer-page__iframe" title="流程设计"></iframe>
+  </div>
+</template>
+
 <script setup name="WarmFlow" lang="ts">
-import { computed } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { WorkflowWebRuntime } from '../runtime';
+import { createDesignerController } from '../designer';
+
 const { runtime } = defineProps<{ runtime: WorkflowWebRuntime }>();
 const route = useRoute();
-const src = computed(() => runtime.designUrl(String(route.query.id ?? '')));
+const iframeUrl = ref('');
+const controller = createDesignerController(runtime, route.query);
+const onDesignerMessage = (event: MessageEvent) => {
+  void controller.onMessage(event.data);
+};
+const open = (definitionId: unknown, disabled: unknown) => {
+  iframeUrl.value = runtime.designUrl(String(definitionId ?? ''), String(disabled) === 'true');
+};
+
+onMounted(() => {
+  window.addEventListener('message', onDesignerMessage);
+  iframeUrl.value = controller.url();
+});
+onBeforeUnmount(() => window.removeEventListener('message', onDesignerMessage));
+defineExpose({ open });
 </script>
+
 <style scoped>
-.workflow-design-frame {
+.warm-flow-designer-page {
   width: 100%;
-  height: calc(100vh - 84px);
-  border: 0;
+  height: calc(100vh - 123px);
+  overflow: hidden;
+}
+.warm-flow-designer-page__iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 </style>

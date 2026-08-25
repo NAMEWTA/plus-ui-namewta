@@ -6,7 +6,8 @@
 
 ## Responsibilities
 
-- Own the category, process-definition, design, and SpEL Vue pages and exact server component-key registrations.
+- Own the complete category, process-definition, design, and SpEL administration behavior and exact server component-key registrations.
+- Obtain confirmation, feedback, dictionaries, downloads, designer URLs, and tab navigation through explicit host runtime ports.
 
 ## Non-responsibilities
 
@@ -22,7 +23,7 @@
 
 ## Public entrypoints
 
-- The package root exports createWorkflowWebDomain and WorkflowWebRuntime.
+- The package root exports `createWorkflowWebDomain` and `WorkflowWebRuntime`.
 
 ## Backend modules
 
@@ -34,6 +35,6 @@
 
 ## Validation
 
-- Manifest tests cover selected/unselected, duplicate keys, exact component names, permissions, typecheck, and App builds.
+- Manifest tests cover selected/unselected composition, duplicate keys, exact component names, query/action permissions, designer query/close behavior, typecheck, and App builds.
 
 Root view facades remain until T-15. The definition-admin slice does not claim ownership of T-09 runtime pages.

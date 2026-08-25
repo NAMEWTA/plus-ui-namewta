@@ -105,7 +105,8 @@ export interface SpelQuery extends PageQuery {
 
 type Identifier = string | number;
 type IdentifierList = Identifier | readonly Identifier[];
-const segment = (value: IdentifierList) => (Array.isArray(value) ? value.join(',') : String(value));
+const segment = (value: IdentifierList) =>
+  (Array.isArray(value) ? value : [value]).map(item => encodeURIComponent(String(item))).join(',');
 
 export interface WorkflowDefinitionService {
   addCategory(data: CategoryForm): Promise<ApiResponse>;
@@ -144,7 +145,7 @@ export function createWorkflowDefinitionService(http: HttpClient): WorkflowDefin
   const request = <T = unknown>(config: Parameters<HttpClient['request']>[0]) => http.request<ApiResponse<T>>(config);
   return Object.freeze({
     listCategories: query => request<CategoryVO[]>({ url: '/workflow/category/list', method: 'get', params: query }),
-    getCategory: id => request<CategoryVO>({ url: '/workflow/category/' + id, method: 'get' }),
+    getCategory: id => request<CategoryVO>({ url: '/workflow/category/' + segment(id), method: 'get' }),
     addCategory: data => request({ url: '/workflow/category', method: 'post', data }),
     updateCategory: data => request({ url: '/workflow/category', method: 'put', data }),
     deleteCategory: id => request({ url: '/workflow/category/' + segment(id), method: 'delete' }),
@@ -159,21 +160,22 @@ export function createWorkflowDefinitionService(http: HttpClient): WorkflowDefin
         params: query
       }),
     legacyDefinitionXml: id =>
-      request<DefinitionXmlVO>({ url: '/workflow/definition/definitionXml/' + id, method: 'get' }),
+      request<DefinitionXmlVO>({ url: '/workflow/definition/definitionXml/' + segment(id), method: 'get' }),
     deleteDefinition: id => request({ url: '/workflow/definition/' + segment(id), method: 'delete' }),
     setDefinitionActive: (id, active) =>
-      request({ url: '/workflow/definition/active/' + id, method: 'put', params: { active } }),
+      request({ url: '/workflow/definition/active/' + segment(id), method: 'put', params: { active } }),
     importDefinition: data =>
       request({ url: '/workflow/definition/importDef', method: 'post', data, headers: { repeatSubmit: false } }),
-    publishDefinition: id => request({ url: '/workflow/definition/publish/' + id, method: 'put' }),
-    unpublishDefinition: id => request({ url: '/workflow/definition/unPublish/' + id, method: 'put' }),
-    getDefinitionXmlString: id => request<string>({ url: '/workflow/definition/xmlString/' + id, method: 'get' }),
+    publishDefinition: id => request({ url: '/workflow/definition/publish/' + segment(id), method: 'put' }),
+    unpublishDefinition: id => request({ url: '/workflow/definition/unPublish/' + segment(id), method: 'put' }),
+    getDefinitionXmlString: id =>
+      request<string>({ url: '/workflow/definition/xmlString/' + segment(id), method: 'get' }),
     addDefinition: data => request({ url: '/workflow/definition', method: 'post', data }),
     updateDefinition: data => request({ url: '/workflow/definition', method: 'put', data }),
-    getDefinition: id => request<FlowDefinitionVO>({ url: '/workflow/definition/' + id, method: 'get' }),
-    copyDefinition: id => request({ url: '/workflow/definition/copy/' + id, method: 'post' }),
+    getDefinition: id => request<FlowDefinitionVO>({ url: '/workflow/definition/' + segment(id), method: 'get' }),
+    copyDefinition: id => request({ url: '/workflow/definition/copy/' + segment(id), method: 'post' }),
     listSpel: query => request<PageResult<SpelVO>>({ url: '/workflow/spel/list', method: 'get', params: query }),
-    getSpel: id => request<SpelVO>({ url: '/workflow/spel/' + id, method: 'get' }),
+    getSpel: id => request<SpelVO>({ url: '/workflow/spel/' + segment(id), method: 'get' }),
     addSpel: data => request({ url: '/workflow/spel', method: 'post', data }),
     updateSpel: data => request({ url: '/workflow/spel', method: 'put', data }),
     deleteSpel: id => request({ url: '/workflow/spel/' + segment(id), method: 'delete' })

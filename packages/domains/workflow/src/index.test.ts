@@ -73,4 +73,24 @@ describe('workflow definition transport contract', () => {
       { url: '/workflow/spel/s1,s2', method: 'delete' }
     ]);
   });
+
+  it('encodes every single and batch identifier while preserving batch separators', async () => {
+    const requests: HttpRequest[] = [];
+    const service = createWorkflowDefinitionService({
+      request: async request => {
+        requests.push(request);
+        return { code: 200 } as never;
+      }
+    });
+    await service.getCategory('category/a b');
+    await service.deleteCategory(['first/id', 'second id', 'comma,value']);
+    await service.deleteDefinition(['definition/a', 'definition b']);
+    await service.getSpel('spel?#');
+    expect(requests.map(request => request.url)).toEqual([
+      '/workflow/category/category%2Fa%20b',
+      '/workflow/category/first%2Fid,second%20id,comma%2Cvalue',
+      '/workflow/definition/definition%2Fa,definition%20b',
+      '/workflow/spel/spel%3F%23'
+    ]);
+  });
 });

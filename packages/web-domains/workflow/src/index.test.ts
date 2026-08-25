@@ -1,6 +1,7 @@
 import { workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime } from '@namewta/platform-app-runtime';
 import { describe, expect, it, vi } from 'vitest';
+import { createDesignerController } from './designer';
 import { createWorkflowWebDomain } from './index';
 
 const runtime = {
@@ -25,6 +26,8 @@ describe('workflow web-domain manifest', () => {
       'workflow-spel'
     ]);
     expect(manifest.permissions.flatMap(item => item.permissions)).toContain('workflow:definition:publish');
+    expect(manifest.permissions.flatMap(item => item.permissions)).toContain('workflow:category:query');
+    expect(manifest.permissions.flatMap(item => item.permissions)).toContain('workflow:spel:query');
   });
 
   it('registers workflow only when selected and rejects duplicate component keys', () => {
@@ -64,5 +67,29 @@ describe('workflow web-domain manifest', () => {
         selectedManifestIds: ['web-domain-workflow', 'workflow-duplicate']
       })
     ).toThrowError(AppRuntimeError);
+  });
+});
+
+describe('workflow designer controller', () => {
+  it('preserves definitionId, disabled and close-return semantics', async () => {
+    const designUrl = vi.fn(() => '/designer');
+    const closeDesigner = vi.fn();
+    const controller = createDesignerController(
+      {
+        service: {},
+        confirm: vi.fn(),
+        success: vi.fn(),
+        error: vi.fn(),
+        dicts: vi.fn(),
+        download: vi.fn(),
+        designUrl,
+        closeDesigner
+      } as never,
+      { definitionId: 'definition/a', disabled: 'true', activeName: '1' }
+    );
+    expect(controller.url()).toBe('/designer');
+    expect(designUrl).toHaveBeenCalledWith('definition/a', true);
+    await controller.onMessage({ method: 'close' });
+    expect(closeDesigner).toHaveBeenCalledWith('1');
   });
 });

@@ -1,10 +1,24 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
-type State = { requests: string[]; unknown: string[] };
+type State = {
+  categories: Record<string, unknown>[];
+  definitions: Record<string, unknown>[];
+  spels: Record<string, unknown>[];
+  mutations: { method: string; path: string; body: unknown }[];
+  unknown: string[];
+};
+const createState = (): State => ({
+  categories: [{ categoryId: 'c1', parentId: 0, categoryName: '审批', orderNum: 1, createTime: '', children: [] }],
+  definitions: [{ id: 'd1', flowName: '请假审批', flowCode: 'leave', version: '1', isPublish: 0, activityStatus: 1 }],
+  spels: [
+    { id: 's1', componentName: 'owner', methodName: 'resolve', methodParams: '', viewSpel: '#owner', status: '0' }
+  ],
+  mutations: [],
+  unknown: []
+});
 const json = (route: Route, body: unknown) =>
   route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
-
-const routes = [
+const menus = [
   {
     path: '/workflow',
     name: 'Workflow',
@@ -18,16 +32,24 @@ const routes = [
         component: 'workflow/processDefinition/index',
         meta: { title: '流程定义' }
       },
+      {
+        path: 'design/index',
+        name: 'WarmFlow',
+        component: 'workflow/processDefinition/design',
+        hidden: true,
+        meta: { title: '流程设计' }
+      },
       { path: 'spel', name: 'Spel', component: 'workflow/spel/index', meta: { title: '流程表达式' } }
     ]
   }
 ];
 
 async function installApi(page: Page, state: State, permissions: string[]) {
-  await page.route('**/prod-api/**', route => {
+  await page.route('**/prod-api/**', async route => {
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/prod-api', '');
-    const key = request.method() + ' ' + path;
+    const method = request.method();
+    if (path.startsWith('/warm-flow-ui/')) return route.fulfill({ contentType: 'text/html', body: '<html></html>' });
     if (path === '/auth/client/context')
       return json(route, { code: 200, data: { clientEnabled: true, registerEnabled: true } });
     if (path === '/auth/code') return json(route, { code: 200, data: { captchaEnabled: false } });
@@ -41,97 +63,109 @@ async function installApi(page: Page, state: State, permissions: string[]) {
           permissions
         }
       });
-    if (path === '/system/menu/getRouters') return json(route, { code: 200, data: routes });
-    if (path === '/workflow/category/list') {
-      state.requests.push(key);
-      return json(route, {
-        code: 200,
-        data: [{ categoryId: '1', parentId: 0, categoryName: '审批', orderNum: 1, createTime: '', children: [] }]
-      });
-    }
+    if (path === '/system/menu/getRouters') return json(route, { code: 200, data: menus });
+    if (path === '/workflow/category/list') return json(route, { code: 200, data: state.categories });
     if (path === '/workflow/category/categoryTree')
-      return json(route, { code: 200, data: [{ id: '1', parentId: 0, label: '审批', weight: 1, children: [] }] });
-    if (path === '/workflow/definition/list') {
-      state.requests.push(key);
       return json(route, {
         code: 200,
-        data: {
-          rows: [{ id: 'd1', flowName: '请假审批', flowCode: 'leave', version: '1', isPublish: 0, activityStatus: 1 }],
-          total: 1
-        }
+        data: state.categories.map(item => ({
+          id: item.categoryId,
+          parentId: item.parentId,
+          label: item.categoryName,
+          weight: item.orderNum,
+          children: []
+        }))
       });
+    if (path === '/workflow/definition/list')
+      return json(route, { code: 200, data: { rows: state.definitions, total: state.definitions.length } });
+    if (path === '/workflow/spel/list')
+      return json(route, { code: 200, data: { rows: state.spels, total: state.spels.length } });
+    if (path === '/workflow/category' && method === 'POST') {
+      const body = request.postDataJSON();
+      state.mutations.push({ method, path, body });
+      state.categories.push({ ...body, categoryId: 'c2', createTime: '', children: [] });
+      return json(route, { code: 200, data: null });
     }
-    if (path === '/workflow/spel/list') {
-      state.requests.push(key);
-      return json(route, {
-        code: 200,
-        data: {
-          rows: [
-            {
-              id: 's1',
-              componentName: 'owner',
-              methodName: 'resolve',
-              methodParams: '',
-              viewSpel: '#owner',
-              status: '0'
-            }
-          ],
-          total: 1
-        }
-      });
+    if (path === '/workflow/definition/publish/d1' && method === 'PUT') {
+      state.mutations.push({ method, path, body: null });
+      state.definitions = state.definitions.map(item => ({ ...item, isPublish: 1 }));
+      return json(route, { code: 200, data: null });
     }
-    if (
-      (path === '/workflow/category' && request.method() === 'POST') ||
-      (path === '/workflow/definition/publish/d1' && request.method() === 'PUT') ||
-      (path === '/workflow/spel' && request.method() === 'POST')
-    ) {
-      state.requests.push(key);
+    if (path === '/workflow/spel' && method === 'POST') {
+      const body = request.postDataJSON();
+      state.mutations.push({ method, path, body });
+      state.spels.push({ ...body, id: 's2' });
       return json(route, { code: 200, data: null });
     }
     if (path === '/resource/message/box')
       return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
-    state.unknown.push(key);
+    state.unknown.push(method + ' ' + path);
     return json(route, { code: 200, data: null });
   });
 }
 
-test('selected workflow manifest reaches terminal pages and preserves representative transports', async ({ page }) => {
-  const state: State = { requests: [], unknown: [] };
+test('selected workflow manifest completes category, definition, designer and SpEL mutations', async ({ page }) => {
+  const state = createState();
   await installApi(page, state, ['*:*:*']);
   await page.goto('/login?redirect=%2Fworkflow%2Fcategory');
   await page.locator('.submit-button').click();
   await expect(page.getByRole('heading', { name: '流程分类' })).toBeVisible();
-  await expect(page.getByText('审批', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '新增' }).click();
+
+  const categoryRow = page.getByRole('row').filter({ hasText: '审批' });
+  await categoryRow.locator('button').nth(1).click();
+  const categoryDialog = page.getByRole('dialog', { name: '添加流程分类' });
+  await categoryDialog.getByPlaceholder('请输入分类名称').fill('财务审批');
+  await categoryDialog.getByRole('button', { name: '确 定' }).click();
+  await expect(page.getByText('财务审批', { exact: true })).toBeVisible();
+
   await page.locator('.sidebar-container').getByText('流程定义', { exact: true }).click();
   await expect(page.getByText('请假审批', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '发布' }).click();
+  await page.getByRole('button', { name: '流程设计' }).click();
+  await expect(page).toHaveURL(/\/workflow\/design\/index.*definitionId=d1.*disabled=false/);
+  await expect(page.locator('iframe[title="流程设计"]')).toHaveAttribute('src', /id=d1&onlyDesignShow=false/);
+  await page.evaluate(() => window.dispatchEvent(new MessageEvent('message', { data: { method: 'close' } })));
+  await expect(page).toHaveURL(/\/workflow\/processDefinition(?:\?.*)?$/);
+  await expect(page.getByRole('tab', { name: '已发布' })).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('button', { name: '发布流程' }).click();
+  await page.getByRole('button', { name: '确定' }).click();
+  await expect(page.getByText('已发布', { exact: true })).toBeVisible();
+
   await page.locator('.sidebar-container').getByText('流程表达式', { exact: true }).click();
-  await expect(page.getByText('#owner', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '新增' }).click();
-  await expect
-    .poll(() => state.requests)
-    .toEqual(
-      expect.arrayContaining([
-        'GET /workflow/category/list',
-        'POST /workflow/category',
-        'GET /workflow/definition/list',
-        'PUT /workflow/definition/publish/d1',
-        'GET /workflow/spel/list',
-        'POST /workflow/spel'
-      ])
-    );
+  await page.getByRole('button', { name: '新增' }).first().click();
+  const spelDialog = page.getByRole('dialog', { name: '添加流程spel表达式定义' });
+  await spelDialog.getByPlaceholder('请输入组件名称').fill('spelRuleComponent');
+  await spelDialog.getByPlaceholder('请输入方法名称').fill('resolveOwner');
+  await spelDialog.getByPlaceholder('请输入方法参数').fill('deptId');
+  await expect(spelDialog.getByText('#{@spelRuleComponent.resolveOwner(#deptId)}', { exact: true })).toBeVisible();
+  await spelDialog.getByRole('button', { name: '确 定' }).click();
+  await expect(page.getByText('#{@spelRuleComponent.resolveOwner(#deptId)}', { exact: true })).toBeVisible();
+
+  expect(state.mutations).toEqual([
+    { method: 'POST', path: '/workflow/category', body: { categoryName: '财务审批', parentId: 'c1', orderNum: 0 } },
+    { method: 'PUT', path: '/workflow/definition/publish/d1', body: null },
+    {
+      method: 'POST',
+      path: '/workflow/spel',
+      body: {
+        componentName: 'spelRuleComponent',
+        methodName: 'resolveOwner',
+        methodParams: 'deptId',
+        viewSpel: '#{@spelRuleComponent.resolveOwner(#deptId)}',
+        status: '0'
+      }
+    }
+  ]);
   expect(state.unknown).toEqual([]);
 });
 
-test('workflow permissions hide mutations without filtering the selected server menu', async ({ page }) => {
-  const state: State = { requests: [], unknown: [] };
-  await installApi(page, state, ['workflow:category:list']);
+test('workflow permissions hide mutations without filtering selected server menus', async ({ page }) => {
+  const state = createState();
+  await installApi(page, state, ['workflow:category:list', 'workflow:category:query']);
   await page.goto('/login?redirect=%2Fworkflow%2Fcategory');
   await page.locator('.submit-button').click();
   await expect(page.getByRole('heading', { name: '流程分类' })).toBeVisible();
   await expect(page.getByRole('button', { name: '新增' })).toHaveCount(0);
-  expect(state.requests).toContain('GET /workflow/category/list');
+  expect(state.mutations).toEqual([]);
   expect(state.unknown).toEqual([]);
 });

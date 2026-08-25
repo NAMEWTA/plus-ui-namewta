@@ -34,6 +34,7 @@ export function createWorkflowWebDomain(runtimeInput: WorkflowWebRuntime | undef
         id: 'workflow-category',
         permissions: Object.freeze([
           'workflow:category:list',
+          'workflow:category:query',
           'workflow:category:add',
           'workflow:category:edit',
           'workflow:category:remove'
@@ -58,6 +59,7 @@ export function createWorkflowWebDomain(runtimeInput: WorkflowWebRuntime | undef
         id: 'workflow-spel',
         permissions: Object.freeze([
           'workflow:spel:list',
+          'workflow:spel:query',
           'workflow:spel:add',
           'workflow:spel:edit',
           'workflow:spel:remove'

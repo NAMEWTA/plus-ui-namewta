@@ -7,22 +7,24 @@
 ## Responsibilities
 
 - Discover only workspace directories that contain a real `package.json`.
-- Enforce recognized package layouts, private package/public export contracts, declared `workspace:*` internal references, dependency direction, public-entry-only imports, cycle freedom, and inactive terminal boundaries.
-- Compare exact current findings with `baseline.json`; new findings, stale entries, and baseline growth fail closed.
+- Parse TypeScript/JavaScript imports with the TypeScript AST and Vue scripts with `@vue/compiler-sfc`; comments, templates, and string examples are not dependency edges.
+- Enforce recognized package layouts, root/package privacy, public exports, declared `workspace:*` internal references, the Spec dependency allowlist, terminal purity, public-entry-only imports, cross-workspace relative imports, cycle freedom, and README-only inactive terminal boundaries.
+- Parse `pnpm-workspace.yaml` and `pnpm-lock.yaml` as structured YAML, then validate exact workspace globs, required catalog families, active importers, dependency specifier parity, and stale importers.
+- Compare exact current findings, including stable violation detail/specifier, with `baseline.json`; new findings, stale entries, and baseline growth fail closed.
 - Emit diagnostics containing rule, source, target, and repository-relative path.
 
 ## Non-responsibilities
 
 - It does not run in product runtime, own App/domain behavior, rewrite manifests, mutate source, or replace behavior and browser tests.
-- It is a conservative static import scanner rather than a TypeScript/Vue compiler or general task orchestrator.
+- It does not typecheck or bundle product code and is not a general task orchestrator; those remain workspace quality scripts.
 
 ## Allowed dependencies
 
-- Node.js built-in modules and tooling-only catalog dependencies used by package scripts.
+- Node.js built-in modules plus direct catalog references to `typescript`, `@vue/compiler-sfc`, and `yaml`.
 
 ## Forbidden dependencies
 
-- Product runtime packages, App/domain code, Nx, Turbo, microfrontend runtimes, public publishing configuration, blanket ignores, or environment-file readers.
+- Product runtime imports, App/domain code ownership, regex-based import discovery, Nx, Turbo, microfrontend runtimes, public publishing configuration, blanket ignores, or environment-file readers.
 
 ## Public entrypoints
 
@@ -41,12 +43,13 @@
 
 ## Baseline contract
 
-- `baseline.json` is explicit, reviewed repository data. `maximumViolations` cannot be exceeded.
+- `baseline.json` is explicit, reviewed repository data. Every identity contains `rule`, `source`, `target`, `path`, and stable `detail`; `maximumViolations` cannot be exceeded.
 - `pnpm --filter @namewta/architecture exec node ./src/cli.mjs baseline --root ../..` prints measured findings for review; it never writes the baseline.
 - Resolved entries must be removed. A broad path/rule ignore is not supported.
 
 ## Validation
 
 - `pnpm architecture:check` validates the live workspace graph without writing files.
-- `pnpm architecture:test` uses OS temporary directories to prove positive behavior and isolated failures for deep imports, undeclared internal imports, reverse edges, invalid layouts, cycles, baseline growth, and placeholder activation.
-- `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build:prod` preserve the root App quality gates. Playwright runs only in the Lead parent candidate.
+- `pnpm architecture:test` uses OS temporary directories to prove AST/SFC parsing, detail-sensitive baseline growth, direction and terminal purity, deep/relative imports, inactive content, workspace/catalog drift, and lock importer parity.
+- Root `build`, `build:dev`, `build:prod`, `lint`, `test`, and `typecheck` retain the root App command names and then use filter-capable workspace scripts for activated packages.
+- Playwright runs only in the Lead parent candidate.

@@ -1,18 +1,51 @@
+import { parse as parseVueSfc } from '@vue/compiler-sfc';
 import { access, readdir, readFile } from 'node:fs/promises';
-import { extname, join, relative, resolve, sep } from 'node:path';
+import { dirname, extname, join, relative, resolve, sep } from 'node:path';
+import ts from 'typescript';
+import { parse as parseYaml } from 'yaml';
 
 const dependencyFields = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
+const runtimeDependencyFields = new Set(['dependencies', 'peerDependencies', 'optionalDependencies']);
 const sourceExtensions = new Set(['.cjs', '.js', '.jsx', '.mjs', '.ts', '.tsx', '.vue']);
 const ignoredDirectories = new Set(['.git', '.output', '.vite', 'coverage', 'dist', 'node_modules']);
+const requiredWorkspaceGlobs = ['.', 'apps/*', 'packages/*', 'packages/*/*', 'tooling/*'];
+const sharedCatalogPackages = [
+  '@types/node',
+  '@vue/compiler-sfc',
+  'axios',
+  'crypto-js',
+  'element-plus',
+  'jsencrypt',
+  'oxlint',
+  'pinia',
+  'typescript',
+  'vue',
+  'vue-router',
+  'yaml'
+];
 const inactivePlaceholders = [
   'apps/mobile-web',
   'apps/miniapp-taro',
   'packages/adapters/taro-request',
   'packages/adapters/taro-storage'
 ];
+const runtimeLayerAllowlist = {
+  app: new Set(['adapter', 'domain', 'platform', 'web-domain', 'web-kit']),
+  'web-domain': new Set(['domain', 'platform', 'web-kit']),
+  domain: new Set(['api-contracts', 'domain', 'platform']),
+  'web-kit': new Set(['platform', 'web-kit']),
+  adapter: new Set(['platform']),
+  platform: new Set(['platform']),
+  'api-contracts': new Set(),
+  tooling: new Set()
+};
 
 function toPosix(path) {
   return path.split(sep).join('/');
+}
+
+function isWithin(path, parent) {
+  return path === parent || path.startsWith(`${parent}${sep}`);
 }
 
 async function exists(path) {
@@ -28,11 +61,15 @@ async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
 }
 
+async function readYaml(path) {
+  return parseYaml(await readFile(path, 'utf8'));
+}
+
 async function childDirectories(path) {
   if (!(await exists(path))) return [];
   return (await readdir(path, { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
-    .map((entry) => join(path, entry.name))
+    .filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
+    .map(entry => join(path, entry.name))
     .toSorted();
 }
 
@@ -44,9 +81,8 @@ async function discoverManifestDirectories(root) {
   directories.push(...apps, ...packageGroups, ...tooling);
   for (const group of packageGroups) directories.push(...(await childDirectories(group)));
 
-  const unique = [...new Set(directories.map((path) => resolve(path)))];
   const manifests = [];
-  for (const directory of unique) {
+  for (const directory of new Set(directories.map(path => resolve(path)))) {
     const manifestPath = join(directory, 'package.json');
     if (await exists(manifestPath)) manifests.push({ directory, manifestPath });
   }
@@ -54,8 +90,7 @@ async function discoverManifestDirectories(root) {
 }
 
 function packageLayer(relativeDirectory) {
-  if (relativeDirectory === '.') return 'app';
-  if (relativeDirectory.startsWith('apps/')) return 'app';
+  if (relativeDirectory === '.' || relativeDirectory.startsWith('apps/')) return 'app';
   if (relativeDirectory.startsWith('packages/platform/')) return 'platform';
   if (relativeDirectory.startsWith('packages/domains/')) return 'domain';
   if (relativeDirectory.startsWith('packages/web-domains/')) return 'web-domain';
@@ -66,16 +101,16 @@ function packageLayer(relativeDirectory) {
   return 'unknown';
 }
 
-function violation(rule, source, target, path, message) {
-  return { rule, source, target, path, message };
+function violation(rule, source, target, path, detail) {
+  return { rule, source, target, path, detail };
 }
 
 function formatViolation(item) {
-  return `[${item.rule}] source=${item.source} target=${item.target} path=${item.path} message=${item.message}`;
+  return `[${item.rule}] source=${item.source} target=${item.target} path=${item.path} detail=${item.detail}`;
 }
 
 function fingerprint(item) {
-  return `${item.rule}\u0000${item.source}\u0000${item.target}\u0000${item.path}`;
+  return `${item.rule}\u0000${item.source}\u0000${item.target}\u0000${item.path}\u0000${item.detail}`;
 }
 
 function internalPackageName(specifier) {
@@ -89,10 +124,11 @@ function exportedSubpath(manifest, specifier) {
   const exportsField = manifest.exports;
   if (requested === '.') {
     if (typeof exportsField === 'string' || Array.isArray(exportsField)) return true;
-    return Boolean(exportsField && typeof exportsField === 'object' && '.' in exportsField);
+    if (!exportsField || typeof exportsField !== 'object') return false;
+    return '.' in exportsField || Object.keys(exportsField).some(key => !key.startsWith('.'));
   }
   if (!exportsField || typeof exportsField !== 'object' || Array.isArray(exportsField)) return false;
-  return Object.keys(exportsField).some((key) => {
+  return Object.keys(exportsField).some(key => {
     if (key === requested) return true;
     if (!key.includes('*')) return false;
     const [prefix, suffixPattern] = key.split('*');
@@ -100,17 +136,31 @@ function exportedSubpath(manifest, specifier) {
   });
 }
 
-function forbiddenDirection(sourceLayer, targetLayer) {
-  const forbidden = {
-    platform: new Set(['adapter', 'app', 'domain', 'web-domain', 'web-kit']),
-    domain: new Set(['adapter', 'app', 'web-domain', 'web-kit']),
-    adapter: new Set(['adapter', 'app', 'domain', 'web-domain', 'web-kit']),
-    'web-kit': new Set(['adapter', 'app', 'domain', 'web-domain']),
-    'web-domain': new Set(['adapter', 'app', 'web-domain']),
-    'api-contracts': new Set(['adapter', 'app', 'domain', 'platform', 'web-domain', 'web-kit']),
-    tooling: new Set(['adapter', 'app', 'domain', 'platform', 'web-domain', 'web-kit'])
-  };
-  return forbidden[sourceLayer]?.has(targetLayer) ?? false;
+function allowedInternalEdge(sourceLayer, targetLayer, field) {
+  if (sourceLayer === 'tooling' || targetLayer === 'tooling') return field === 'devDependencies';
+  return runtimeLayerAllowlist[sourceLayer]?.has(targetLayer) ?? false;
+}
+
+function terminalPackage(specifier) {
+  const name = internalPackageName(specifier);
+  if (['axios', 'crypto-js', 'element-plus', 'jsencrypt', 'pinia', 'vue', 'vue-router'].includes(name)) return name;
+  if (name.startsWith('@element-plus/') || name.startsWith('@tarojs/')) return name;
+  if (/^(?:axios|taro)(?:$|[-/])/.test(name)) return name;
+  return undefined;
+}
+
+async function allFiles(directory) {
+  if (!(await exists(directory))) return [];
+  const result = [];
+  async function visit(current) {
+    for (const entry of await readdir(current, { withFileTypes: true })) {
+      const path = join(current, entry.name);
+      if (entry.isDirectory()) await visit(path);
+      else if (entry.isFile()) result.push(path);
+    }
+  }
+  await visit(directory);
+  return result.toSorted();
 }
 
 async function sourceFiles(directory, excludedDirectories) {
@@ -127,17 +177,55 @@ async function sourceFiles(directory, excludedDirectories) {
   return result.toSorted();
 }
 
-function importedSpecifiers(source) {
-  const results = new Set();
-  const patterns = [
-    /\b(?:import|export)\s+(?:[^'";]*?\s+from\s+)?['"]([^'"]+)['"]/g,
-    /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-    /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g
-  ];
-  for (const pattern of patterns) {
-    for (const match of source.matchAll(pattern)) results.add(match[1]);
+function scriptKind(path, language) {
+  if (language === 'tsx' || path.endsWith('.tsx')) return ts.ScriptKind.TSX;
+  if (language === 'jsx' || path.endsWith('.jsx')) return ts.ScriptKind.JSX;
+  if (language === 'js' || path.endsWith('.js') || path.endsWith('.mjs') || path.endsWith('.cjs'))
+    return ts.ScriptKind.JS;
+  return ts.ScriptKind.TS;
+}
+
+function collectAstImports(source, fileName, language) {
+  const sourceFile = ts.createSourceFile(
+    fileName,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKind(fileName, language)
+  );
+  const specifiers = new Set();
+  function add(node) {
+    if (node && ts.isStringLiteralLike(node)) specifiers.add(node.text);
   }
-  return [...results];
+  function visit(node) {
+    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) add(node.moduleSpecifier);
+    if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference))
+      add(node.moduleReference.expression);
+    if (ts.isCallExpression(node) && node.arguments.length === 1) {
+      const dynamicImport = node.expression.kind === ts.SyntaxKind.ImportKeyword;
+      const commonJsRequire = ts.isIdentifier(node.expression) && node.expression.text === 'require';
+      if (dynamicImport || commonJsRequire) add(node.arguments[0]);
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(sourceFile);
+  return {
+    specifiers,
+    errors: sourceFile.parseDiagnostics.map(item => ts.flattenDiagnosticMessageText(item.messageText, ' '))
+  };
+}
+
+function parsedImports(source, fileName) {
+  if (!fileName.endsWith('.vue')) return collectAstImports(source, fileName);
+  const result = { specifiers: new Set(), errors: [] };
+  const parsed = parseVueSfc(source, { filename: fileName });
+  for (const error of parsed.errors) result.errors.push(error instanceof Error ? error.message : String(error));
+  for (const block of [parsed.descriptor.script, parsed.descriptor.scriptSetup].filter(Boolean)) {
+    const blockResult = collectAstImports(block.content, fileName, block.lang);
+    for (const specifier of blockResult.specifiers) result.specifiers.add(specifier);
+    result.errors.push(...blockResult.errors);
+  }
+  return result;
 }
 
 function findCycles(packagesByName, graph) {
@@ -145,7 +233,6 @@ function findCycles(packagesByName, graph) {
   const state = new Map();
   const stack = [];
   const seen = new Set();
-
   function visit(name) {
     state.set(name, 'visiting');
     stack.push(name);
@@ -153,12 +240,10 @@ function findCycles(packagesByName, graph) {
       if (!packagesByName.has(target)) continue;
       if (!state.has(target)) visit(target);
       else if (state.get(target) === 'visiting') {
-        const start = stack.indexOf(target);
-        const cycle = [...stack.slice(start), target];
-        const nodes = cycle.slice(0, -1);
+        const nodes = stack.slice(stack.indexOf(target));
         const rotations = nodes.map((_, index) => [...nodes.slice(index), ...nodes.slice(0, index)]);
-        const sortedRotations = rotations.toSorted((a, b) => a.join('\u0000').localeCompare(b.join('\u0000')));
-        const canonical = [...sortedRotations[0], sortedRotations[0][0]];
+        const sorted = rotations.toSorted((a, b) => a.join('\u0000').localeCompare(b.join('\u0000')));
+        const canonical = [...sorted[0], sorted[0][0]];
         const key = canonical.join('\u0000');
         if (!seen.has(key)) {
           seen.add(key);
@@ -169,10 +254,7 @@ function findCycles(packagesByName, graph) {
     stack.pop();
     state.set(name, 'visited');
   }
-
-  for (const name of [...packagesByName.keys()].toSorted()) {
-    if (!state.has(name)) visit(name);
-  }
+  for (const name of [...packagesByName.keys()].toSorted()) if (!state.has(name)) visit(name);
   return cycles;
 }
 
@@ -181,8 +263,194 @@ function baselineEntry(entry) {
     rule: String(entry.rule ?? ''),
     source: String(entry.source ?? ''),
     target: String(entry.target ?? ''),
-    path: String(entry.path ?? '')
+    path: String(entry.path ?? ''),
+    detail: String(entry.detail ?? '')
   };
+}
+
+function normalizedImporterPath(path) {
+  if (path === '.' || path === '') return '.';
+  return path.replace(/^\.\//, '').replace(/\/$/, '');
+}
+
+async function validatePnpmState(root, packages) {
+  const detected = [];
+  let workspace;
+  let lockfile;
+  try {
+    workspace = await readYaml(join(root, 'pnpm-workspace.yaml'));
+  } catch (error) {
+    detected.push(
+      violation(
+        'workspace-config',
+        'pnpm-workspace.yaml',
+        'structured YAML',
+        'pnpm-workspace.yaml',
+        error instanceof Error ? error.message : String(error)
+      )
+    );
+  }
+  try {
+    lockfile = await readYaml(join(root, 'pnpm-lock.yaml'));
+  } catch (error) {
+    detected.push(
+      violation(
+        'lockfile-parity',
+        'pnpm-lock.yaml',
+        'structured YAML',
+        'pnpm-lock.yaml',
+        error instanceof Error ? error.message : String(error)
+      )
+    );
+  }
+
+  const actualGlobs = Array.isArray(workspace?.packages) ? workspace.packages.map(String).toSorted() : [];
+  if (JSON.stringify(actualGlobs) !== JSON.stringify(requiredWorkspaceGlobs.toSorted())) {
+    detected.push(
+      violation(
+        'workspace-config',
+        'pnpm-workspace.yaml',
+        'required workspace globs',
+        'pnpm-workspace.yaml',
+        `expected=${requiredWorkspaceGlobs.join(',')} actual=${actualGlobs.join(',')}`
+      )
+    );
+  }
+  const catalog = workspace?.catalog && typeof workspace.catalog === 'object' ? workspace.catalog : {};
+  for (const name of sharedCatalogPackages) {
+    if (!(name in catalog))
+      detected.push(
+        violation(
+          'workspace-config',
+          'pnpm-workspace.yaml',
+          name,
+          'pnpm-workspace.yaml#catalog',
+          `Missing shared catalog entry ${name}`
+        )
+      );
+  }
+
+  for (const item of packages) {
+    const sourceName = item.manifest.name ?? item.relativeDirectory;
+    for (const field of dependencyFields) {
+      for (const [targetName, specification] of Object.entries(item.manifest[field] ?? {})) {
+        if (sharedCatalogPackages.includes(targetName) && specification !== 'catalog:') {
+          detected.push(
+            violation(
+              'catalog-reference',
+              sourceName,
+              targetName,
+              `${item.relativeDirectory}/package.json#${field}`,
+              `Shared dependency must use catalog:; received ${specification}`
+            )
+          );
+        }
+      }
+    }
+  }
+
+  if (!lockfile || typeof lockfile !== 'object') return detected;
+  if (String(lockfile.lockfileVersion) !== '9.0') {
+    detected.push(
+      violation(
+        'lockfile-parity',
+        'pnpm-lock.yaml',
+        'lockfileVersion 9.0',
+        'pnpm-lock.yaml#lockfileVersion',
+        `received=${lockfile.lockfileVersion}`
+      )
+    );
+  }
+  const lockCatalog = lockfile.catalogs?.default ?? {};
+  for (const name of sharedCatalogPackages) {
+    if (name in catalog && lockCatalog[name]?.specifier !== catalog[name]) {
+      detected.push(
+        violation(
+          'lockfile-parity',
+          'pnpm-lock.yaml',
+          name,
+          'pnpm-lock.yaml#catalogs.default',
+          `expected=${catalog[name]} actual=${lockCatalog[name]?.specifier ?? 'missing'}`
+        )
+      );
+    }
+  }
+
+  const importers = lockfile.importers && typeof lockfile.importers === 'object' ? lockfile.importers : {};
+  const activePaths = new Set(packages.map(item => item.relativeDirectory));
+  for (const item of packages) {
+    const importer = importers[item.relativeDirectory];
+    const sourceName = item.manifest.name ?? item.relativeDirectory;
+    if (!importer) {
+      detected.push(
+        violation(
+          'lockfile-parity',
+          sourceName,
+          'active importer',
+          'pnpm-lock.yaml#importers',
+          `Missing importer ${item.relativeDirectory}`
+        )
+      );
+      continue;
+    }
+    for (const field of dependencyFields) {
+      const manifestDependencies = item.manifest[field] ?? {};
+      const lockDependencies = importer[field] ?? {};
+      for (const [targetName, specification] of Object.entries(manifestDependencies)) {
+        if (lockDependencies[targetName]?.specifier !== specification) {
+          detected.push(
+            violation(
+              'lockfile-parity',
+              sourceName,
+              targetName,
+              `pnpm-lock.yaml#importers.${item.relativeDirectory}.${field}`,
+              `expected=${specification} actual=${lockDependencies[targetName]?.specifier ?? 'missing'}`
+            )
+          );
+        }
+      }
+      for (const targetName of Object.keys(lockDependencies)) {
+        if (!Object.hasOwn(manifestDependencies, targetName)) {
+          detected.push(
+            violation(
+              'lockfile-parity',
+              sourceName,
+              targetName,
+              `pnpm-lock.yaml#importers.${item.relativeDirectory}.${field}`,
+              'Lock importer contains a dependency absent from package.json'
+            )
+          );
+        }
+      }
+    }
+  }
+  for (const importerPath of Object.keys(importers)) {
+    const normalized = normalizedImporterPath(importerPath);
+    if (!activePaths.has(normalized))
+      detected.push(
+        violation(
+          'lockfile-parity',
+          normalized,
+          'active workspace importer',
+          'pnpm-lock.yaml#importers',
+          'Stale or inactive importer'
+        )
+      );
+  }
+  for (const placeholder of inactivePlaceholders) {
+    if (Object.keys(importers).some(path => normalizedImporterPath(path) === placeholder)) {
+      detected.push(
+        violation(
+          'lockfile-parity',
+          placeholder,
+          'no inactive importer',
+          'pnpm-lock.yaml#importers',
+          'Inactive placeholder has a lock importer'
+        )
+      );
+    }
+  }
+  return detected;
 }
 
 export async function inspectWorkspace({ root }) {
@@ -213,7 +481,13 @@ export async function inspectWorkspace({ root }) {
     packages.push(item);
     if (typeof manifest.name !== 'string' || !manifest.name) {
       detected.push(
-        violation('manifest-name', relativeDirectory, 'unique package name', `${relativeDirectory}/package.json`, 'Package name is required')
+        violation(
+          'manifest-name',
+          relativeDirectory,
+          'unique package name',
+          `${relativeDirectory}/package.json`,
+          'Package name is required'
+        )
       );
       continue;
     }
@@ -227,58 +501,70 @@ export async function inspectWorkspace({ root }) {
           'Package name must be unique'
         )
       );
-    } else {
-      packagesByName.set(manifest.name, item);
-    }
+    } else packagesByName.set(manifest.name, item);
   }
 
-  for (const relativeDirectory of inactivePlaceholders) {
-    const manifestPath = join(absoluteRoot, relativeDirectory, 'package.json');
-    if (!(await exists(manifestPath))) continue;
-    let name = relativeDirectory;
-    try {
-      name = (await readJson(manifestPath)).name ?? relativeDirectory;
-    } catch {
-      // Manifest validity is reported by the regular discovery pass.
+  for (const placeholder of inactivePlaceholders) {
+    const directory = join(absoluteRoot, placeholder);
+    const files = await allFiles(directory);
+    const manifestPath = join(directory, 'package.json');
+    if (await exists(manifestPath)) {
+      let name = placeholder;
+      try {
+        name = (await readJson(manifestPath)).name ?? placeholder;
+      } catch {
+        // Manifest validity is reported by discovery.
+      }
+      detected.push(
+        violation(
+          'placeholder-activation',
+          name,
+          'inactive placeholder',
+          `${placeholder}/package.json`,
+          'Inactive App or Taro adapter cannot contain a manifest'
+        )
+      );
     }
-    detected.push(
-      violation(
-        'placeholder-activation',
-        name,
-        'inactive placeholder',
-        `${relativeDirectory}/package.json`,
-        'This App or Taro adapter cannot be activated in the current change'
-      )
-    );
+    for (const file of files) {
+      const relativeFile = toPosix(relative(absoluteRoot, file));
+      if (relativeFile === `${placeholder}/README.md`) continue;
+      detected.push(
+        violation(
+          'inactive-placeholder-content',
+          placeholder,
+          'README-only placeholder',
+          relativeFile,
+          `Unexpected inactive asset ${relativeFile}`
+        )
+      );
+    }
   }
 
   const graph = new Map();
   for (const item of packages) {
     const name = item.manifest.name ?? item.relativeDirectory;
     graph.set(name, new Set());
-    if (item.relativeDirectory !== '.' && item.layer === 'unknown') {
+    if (item.layer === 'unknown')
       detected.push(
         violation(
           'package-layout',
           name,
           'recognized workspace layer',
           `${item.relativeDirectory}/package.json`,
-          'Activated package is outside the supported App/platform/domain/web/adapters/api-contracts/tooling layout'
+          'Activated package is outside the supported package layout'
         )
       );
-    }
-    if (item.relativeDirectory !== '.' && item.manifest.private !== true) {
+    if (item.manifest.private !== true)
       detected.push(
         violation(
           'package-private',
           name,
           'private workspace package',
           `${item.relativeDirectory}/package.json`,
-          'Activated packages must set private=true'
+          'Activated packages, including root, must set private=true'
         )
       );
-    }
-    if (item.layer !== 'app' && !item.manifest.exports) {
+    if (item.layer !== 'app' && !item.manifest.exports)
       detected.push(
         violation(
           'public-entry',
@@ -288,15 +574,26 @@ export async function inspectWorkspace({ root }) {
           'Non-App packages must declare public exports'
         )
       );
-    }
 
     for (const field of dependencyFields) {
       for (const [targetName, specification] of Object.entries(item.manifest[field] ?? {})) {
+        const terminal = terminalPackage(targetName);
+        if (terminal && ['domain', 'platform'].includes(item.layer) && runtimeDependencyFields.has(field)) {
+          detected.push(
+            violation(
+              'terminal-purity',
+              name,
+              terminal,
+              `${item.relativeDirectory}/package.json#${field}`,
+              `Terminal dependency ${targetName} is forbidden in ${item.layer}`
+            )
+          );
+        }
         const target = packagesByName.get(targetName);
         if (!target) continue;
         graph.get(name).add(targetName);
         const dependencyPath = `${item.relativeDirectory}/package.json#${field}`;
-        if (specification !== 'workspace:*') {
+        if (specification !== 'workspace:*')
           detected.push(
             violation(
               'workspace-reference',
@@ -306,23 +603,21 @@ export async function inspectWorkspace({ root }) {
               `Internal dependency must use workspace:*; received ${specification}`
             )
           );
-        }
-        if (forbiddenDirection(item.layer, target.layer)) {
+        if (!allowedInternalEdge(item.layer, target.layer, field))
           detected.push(
             violation(
               'dependency-direction',
               name,
               targetName,
               dependencyPath,
-              `${item.layer} packages cannot depend on ${target.layer} packages`
+              `field=${field} ${item.layer}->${target.layer} is not allowed`
             )
           );
-        }
       }
     }
   }
 
-  for (const cycle of findCycles(packagesByName, graph)) {
+  for (const cycle of findCycles(packagesByName, graph))
     detected.push(
       violation(
         'dependency-cycle',
@@ -332,49 +627,91 @@ export async function inspectWorkspace({ root }) {
         `Internal package cycle: ${cycle.join(' -> ')}`
       )
     );
-  }
 
+  const packagesByDepth = packages.toSorted((a, b) => b.directory.length - a.directory.length);
   for (const item of packages) {
     const sourceName = item.manifest.name ?? item.relativeDirectory;
-    const childWorkspaceRoots = new Set(
+    const excluded = new Set(
       packages
-        .filter((candidate) => candidate.directory.startsWith(`${item.directory}${sep}`))
-        .map((candidate) => candidate.directory)
+        .filter(candidate => candidate.directory.startsWith(`${item.directory}${sep}`))
+        .map(candidate => candidate.directory)
     );
-    for (const file of await sourceFiles(item.directory, childWorkspaceRoots)) {
-      const source = await readFile(file, 'utf8');
-      for (const specifier of importedSpecifiers(source)) {
+    if (item.relativeDirectory === '.')
+      for (const placeholder of inactivePlaceholders) excluded.add(join(absoluteRoot, placeholder));
+    for (const file of await sourceFiles(item.directory, excluded)) {
+      const sourcePath = toPosix(relative(absoluteRoot, file));
+      const parsed = parsedImports(await readFile(file, 'utf8'), sourcePath);
+      for (const error of parsed.errors)
+        detected.push(violation('source-parse', sourceName, 'valid source AST', sourcePath, error));
+      for (const specifier of parsed.specifiers) {
+        const terminal = terminalPackage(specifier);
+        if (terminal && ['domain', 'platform'].includes(item.layer))
+          detected.push(
+            violation(
+              'terminal-purity',
+              sourceName,
+              terminal,
+              sourcePath,
+              `Terminal import ${specifier} is forbidden in ${item.layer}`
+            )
+          );
+        if (specifier.startsWith('.')) {
+          const importedPath = resolve(dirname(file), specifier);
+          const target = packagesByDepth.find(candidate => isWithin(importedPath, candidate.directory));
+          if (target && target !== item)
+            detected.push(
+              violation(
+                'cross-workspace-relative-import',
+                sourceName,
+                target.manifest.name ?? target.relativeDirectory,
+                sourcePath,
+                `specifier=${specifier}`
+              )
+            );
+          continue;
+        }
         const targetName = internalPackageName(specifier);
         const target = packagesByName.get(targetName);
         if (!target) continue;
-        const sourcePath = toPosix(relative(absoluteRoot, file));
-        const declared = dependencyFields.some((field) => Object.hasOwn(item.manifest[field] ?? {}, targetName));
-        if (targetName !== sourceName && !declared) {
+        const declared = dependencyFields.some(field => Object.hasOwn(item.manifest[field] ?? {}, targetName));
+        if (targetName !== sourceName && !declared)
           detected.push(
             violation(
               'internal-dependency-declaration',
               sourceName,
               targetName,
               sourcePath,
-              `Internal import ${specifier} must be declared with workspace:* in a dependency field`
+              `specifier=${specifier} requires a workspace:* dependency declaration`
             )
           );
-        }
-        if (!exportedSubpath(target.manifest, specifier)) {
+        const sourceField = /(?:^|\/)(?:test|tests|__tests__)(?:\/|$)|\.(?:spec|test)\.[^.]+$/.test(sourcePath)
+          ? 'devDependencies'
+          : 'dependencies';
+        if (targetName !== sourceName && !allowedInternalEdge(item.layer, target.layer, sourceField))
+          detected.push(
+            violation(
+              'dependency-direction',
+              sourceName,
+              targetName,
+              sourcePath,
+              `specifier=${specifier} ${item.layer}->${target.layer} is not allowed`
+            )
+          );
+        if (!exportedSubpath(target.manifest, specifier))
           detected.push(
             violation(
               'public-entry',
               sourceName,
               targetName,
               sourcePath,
-              `Internal import ${specifier} is not exposed by ${targetName}`
+              `specifier=${specifier} is not exported by ${targetName}`
             )
           );
-        }
       }
     }
   }
 
+  detected.push(...(await validatePnpmState(absoluteRoot, packages)));
   return { root: absoluteRoot, packages, detected };
 }
 
@@ -383,20 +720,15 @@ export async function createBaseline({ root }) {
   const entries = inspection.detected
     .map(baselineEntry)
     .toSorted((a, b) => fingerprint(a).localeCompare(fingerprint(b)));
-  return {
-    schemaVersion: 1,
-    maximumViolations: entries.length,
-    violations: entries
-  };
+  return { schemaVersion: 1, maximumViolations: entries.length, violations: entries };
 }
 
 export async function runArchitectureCheck({ root }) {
   const inspection = await inspectWorkspace({ root });
-  const baselinePath = join(inspection.root, 'tooling/architecture/baseline.json');
   const failures = [];
   let baseline;
   try {
-    baseline = await readJson(baselinePath);
+    baseline = await readJson(join(inspection.root, 'tooling/architecture/baseline.json'));
   } catch (error) {
     failures.push(
       violation(
@@ -409,20 +741,18 @@ export async function runArchitectureCheck({ root }) {
     );
     baseline = { schemaVersion: 1, maximumViolations: 0, violations: [] };
   }
-
   const entries = Array.isArray(baseline.violations) ? baseline.violations.map(baselineEntry) : [];
-  if (baseline.schemaVersion !== 1 || !Number.isInteger(baseline.maximumViolations) || baseline.maximumViolations < 0) {
+  if (baseline.schemaVersion !== 1 || !Number.isInteger(baseline.maximumViolations) || baseline.maximumViolations < 0)
     failures.push(
       violation(
         'baseline-integrity',
         'tooling/architecture/baseline.json',
-        'schemaVersion=1 and non-negative integer maximumViolations',
+        'valid metadata',
         'tooling/architecture/baseline.json',
-        'Baseline metadata is invalid'
+        'Expected schemaVersion=1 and non-negative integer maximumViolations'
       )
     );
-  }
-  if (!Array.isArray(baseline.violations)) {
+  if (!Array.isArray(baseline.violations))
     failures.push(
       violation(
         'baseline-integrity',
@@ -432,44 +762,53 @@ export async function runArchitectureCheck({ root }) {
         'Baseline violations must be an array'
       )
     );
-  } else if (entries.length > baseline.maximumViolations) {
+  else if (entries.length > baseline.maximumViolations)
     failures.push(
       violation(
         'baseline-growth',
         'tooling/architecture/baseline.json',
         'reviewed baseline',
         'tooling/architecture/baseline.json',
-        `Baseline contains ${entries.length} entries but maximumViolations is ${baseline.maximumViolations}`
+        `entries=${entries.length} maximum=${baseline.maximumViolations}`
       )
     );
-  }
 
-  const known = new Set(entries.map(fingerprint));
-  const actual = new Set(inspection.detected.map(fingerprint));
-  failures.push(...inspection.detected.filter((item) => !known.has(fingerprint(item))));
+  const baselineCounts = new Map();
+  const actualCounts = new Map();
+  for (const entry of entries)
+    baselineCounts.set(fingerprint(entry), (baselineCounts.get(fingerprint(entry)) ?? 0) + 1);
+  for (const item of inspection.detected)
+    actualCounts.set(fingerprint(item), (actualCounts.get(fingerprint(item)) ?? 0) + 1);
+  for (const item of inspection.detected) {
+    const key = fingerprint(item);
+    const remaining = baselineCounts.get(key) ?? 0;
+    if (remaining > 0) baselineCounts.set(key, remaining - 1);
+    else failures.push(item);
+  }
   for (const entry of entries) {
-    if (!actual.has(fingerprint(entry))) {
+    const key = fingerprint(entry);
+    const remaining = actualCounts.get(key) ?? 0;
+    if (remaining > 0) actualCounts.set(key, remaining - 1);
+    else
       failures.push(
         violation(
           'baseline-stale',
           entry.source,
           entry.target,
           entry.path,
-          `Remove resolved baseline entry for ${entry.rule}`
+          `Remove resolved ${entry.rule}: ${entry.detail}`
         )
       );
-    }
   }
 
   const sortedFailures = failures.toSorted((a, b) => fingerprint(a).localeCompare(fingerprint(b)));
   const summary = sortedFailures.length
     ? `Architecture check failed: ${sortedFailures.length} violation(s).`
     : `Architecture check passed: ${inspection.packages.length} workspace package(s), ${entries.length} reviewed baseline violation(s).`;
-  const output = [...sortedFailures.map(formatViolation), summary].join('\n');
   return {
     exitCode: sortedFailures.length ? 1 : 0,
-    output,
-    packages: inspection.packages.map((item) => ({ name: item.manifest.name, path: item.relativeDirectory })),
+    output: [...sortedFailures.map(formatViolation), summary].join('\n'),
+    packages: inspection.packages.map(item => ({ name: item.manifest.name, path: item.relativeDirectory })),
     violations: sortedFailures
   };
 }

@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Own transport-neutral request orchestration and stable `TransportError` classification with kind, message, optional code/cause, and explicit handled state.
+- Own transport-neutral request orchestration and stable `TransportError` classification with kind, message, optional code, sanitized cause metadata, and explicit handled state.
 
 ## Non-responsibilities
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Run structured-error/cause/handled unit tests, request contract tests, architecture import checks, typecheck, lint, and both App integration gates when consumers exist.
+- Run structured-error/sanitized-cause/handled unit tests, request contract tests, architecture import checks, typecheck, lint, and both App integration gates when consumers exist.

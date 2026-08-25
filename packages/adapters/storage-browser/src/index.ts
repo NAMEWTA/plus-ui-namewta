@@ -24,10 +24,12 @@ export function createBrowserTokenStorage({ key, storage }: BrowserTokenStorageO
   };
   return {
     get: () => {
+      const storageTarget = target();
+      if (!storageTarget) return fallbackValue;
       try {
-        const value = target()?.getItem(key) ?? null;
-        if (value !== null) fallbackValue = value;
-        return value ?? fallbackValue;
+        const value = storageTarget.getItem(key);
+        fallbackValue = value;
+        return value;
       } catch {
         return fallbackValue;
       }

@@ -94,11 +94,16 @@ function adapterOptions(overrides: Partial<AxiosBrowserOptions> = {}) {
   return { errorPresenter, options };
 }
 
-const response = (data: unknown, headers: Record<string, unknown> = {}) => ({
-  config: { headers: {}, responseType: 'json' },
+const response = (
+  data: unknown,
+  headers: Record<string, unknown> = {},
+  requestHeaders: Record<string, unknown> = {},
+  responseType = 'json'
+) => ({
+  config: { headers: requestHeaders, responseType },
   data,
   headers,
-  request: { responseType: 'json' }
+  request: { responseType }
 });
 
 describe('axios browser request boundary', () => {
@@ -242,6 +247,18 @@ describe('axios browser response boundary', () => {
     });
   });
 
+  it('does not report asynchronous unauthorized recovery as already handled', async () => {
+    const onUnauthorized = vi.fn(() => Promise.reject(new Error('logout failed')));
+    createAxiosBrowserAdapter(adapterOptions({ onUnauthorized }).options);
+
+    await expect(Promise.resolve(getResponseInterceptor()(response({ code: 401 })))).rejects.toMatchObject({
+      kind: 'unauthorized',
+      code: 401,
+      isHandled: false
+    });
+    expect(onUnauthorized).toHaveBeenCalledOnce();
+  });
+
   it('supports an explicit legacy 401 rejection at the root compatibility boundary', async () => {
     const onUnauthorized = vi.fn();
     createAxiosBrowserAdapter(adapterOptions({ legacyUnauthorizedRejection: true, onUnauthorized }).options);
@@ -252,12 +269,12 @@ describe('axios browser response boundary', () => {
     expect(onUnauthorized).toHaveBeenCalledOnce();
   });
 
-  it('decrypts encrypted responses and fails closed for missing or malformed keys', async () => {
+  it('uses response headers and explicit request intent to decide response decryption', async () => {
     const crypto: CryptoPort = {
       decryptResponse: vi.fn(() => ({ code: 200, value: 'clear' })),
       encryptRequest: vi.fn()
     };
-    createAxiosBrowserAdapter(adapterOptions({ crypto, encryptionEnabled: true }).options);
+    createAxiosBrowserAdapter(adapterOptions({ crypto, encryptionEnabled: false }).options);
     const intercept = getResponseInterceptor();
     expect(intercept(response('ciphertext', { 'encrypt-key': 'wrapped-key' }))).toEqual({
       code: 200,
@@ -265,7 +282,12 @@ describe('axios browser response boundary', () => {
     });
     expect(crypto.decryptResponse).toHaveBeenCalledWith('ciphertext', 'wrapped-key');
 
-    await expect(Promise.resolve().then(() => intercept(response('ciphertext')))).rejects.toMatchObject({
+    expect(intercept(response('plain text', {}, {}, 'text'))).toBe('plain text');
+    expect(crypto.decryptResponse).toHaveBeenCalledTimes(1);
+
+    await expect(
+      Promise.resolve().then(() => intercept(response('ciphertext', {}, { isEncrypt: true })))
+    ).rejects.toMatchObject({
       kind: 'encryption',
       isHandled: false
     });
@@ -279,10 +301,13 @@ describe('axios browser response boundary', () => {
     });
     await expect(
       Promise.resolve().then(() => intercept(response('ciphertext', { 'encrypt-key': 'bad-key' })))
-    ).rejects.toMatchObject({ kind: 'encryption', cause });
+    ).rejects.toMatchObject({
+      kind: 'encryption',
+      cause: { message: 'bad rsa key', name: 'Error' }
+    });
   });
 
-  it('classifies network errors with the original cause and code', async () => {
+  it('classifies network errors with a sanitized cause and code', async () => {
     const { errorPresenter, options } = adapterOptions();
     createAxiosBrowserAdapter(options);
     const rawError = { code: 'ECONNABORTED', message: 'timeout of 50000ms exceeded' };
@@ -290,7 +315,7 @@ describe('axios browser response boundary', () => {
       kind: 'network',
       code: 'ECONNABORTED',
       message: '系统接口请求超时',
-      cause: rawError,
+      cause: { code: 'ECONNABORTED', message: 'timeout of 50000ms exceeded' },
       isHandled: true
     });
     expect(errorPresenter.present).toHaveBeenCalledWith({ kind: 'network', message: '系统接口请求超时' });

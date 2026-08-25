@@ -3,6 +3,12 @@ import type { ErrorKind } from '@namewta/platform-contracts';
 export type TransportErrorKind = ErrorKind | 'encryption' | 'unauthorized';
 export type TransportErrorCode = number | string;
 
+export interface TransportErrorCause {
+  code?: TransportErrorCode;
+  message?: string;
+  name?: string;
+}
+
 export interface TransportErrorOptions {
   cause?: unknown;
   code?: TransportErrorCode;
@@ -12,17 +18,31 @@ export interface TransportErrorOptions {
 }
 
 export class TransportError extends Error {
+  override readonly cause?: TransportErrorCause;
   readonly code?: TransportErrorCode;
   readonly isHandled: boolean;
   readonly kind: TransportErrorKind;
 
   constructor({ cause, code, handled = false, kind, message }: TransportErrorOptions) {
-    super(message, { cause });
+    const safeCause = sanitizeTransportCause(cause);
+    super(message, safeCause ? { cause: safeCause } : undefined);
     this.name = 'TransportError';
+    this.cause = safeCause;
     this.code = code;
     this.isHandled = handled;
     this.kind = kind;
   }
+}
+
+function sanitizeTransportCause(cause: unknown): TransportErrorCause | undefined {
+  if (typeof cause === 'string') return { message: cause };
+  if (!cause || typeof cause !== 'object') return undefined;
+  const candidate = cause as { code?: unknown; message?: unknown; name?: unknown };
+  const safeCause: TransportErrorCause = {};
+  if (typeof candidate.name === 'string') safeCause.name = candidate.name;
+  if (typeof candidate.message === 'string') safeCause.message = candidate.message;
+  if (typeof candidate.code === 'string' || typeof candidate.code === 'number') safeCause.code = candidate.code;
+  return Object.keys(safeCause).length > 0 ? Object.freeze(safeCause) : undefined;
 }
 
 export type HandledError = TransportError & { isHandled: true };

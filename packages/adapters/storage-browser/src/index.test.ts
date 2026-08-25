@@ -28,6 +28,21 @@ describe('browser token storage', () => {
     expect(client.get()).toBe('client-token');
   });
 
+  it('treats a successful null read as an authoritative external removal', () => {
+    const values = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      removeItem: (key: string) => void values.delete(key),
+      setItem: (key: string, value: string) => void values.set(key, value)
+    };
+    const tokens = createBrowserTokenStorage({ key: 'Admin-Token', storage });
+    tokens.set('access-token');
+    values.delete('Admin-Token');
+
+    expect(tokens.get()).toBeNull();
+    expect(tokens.get()).toBeNull();
+  });
+
   it('exposes the platform session contract through the same namespace', () => {
     const values = new Map<string, string>();
     const storage = {

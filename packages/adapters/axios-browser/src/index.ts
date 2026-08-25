@@ -19,7 +19,7 @@ interface AxiosBrowserRequest {
 }
 
 interface AxiosBrowserResponse {
-  config: AxiosBrowserRequest;
+  config?: AxiosBrowserRequest;
   data: unknown;
   headers: Record<string, unknown>;
   request?: { responseType?: string };
@@ -118,7 +118,10 @@ function presentSafely(
 function recoverUnauthorizedSafely(recover: () => Promise<void> | void): boolean {
   try {
     const result = recover();
-    if (result) void result.catch(() => undefined);
+    if (result) {
+      void result.catch(() => undefined);
+      return false;
+    }
     return true;
   } catch {
     // Recovery failures must not replace the unauthorized transport error.
@@ -189,19 +192,20 @@ export function createAxiosBrowserAdapter(options: AxiosBrowserOptions): AxiosBr
     response => {
       const headers = response.headers as Record<string, unknown>;
       const responseType =
-        (response.request as { responseType?: string } | undefined)?.responseType ?? response.config.responseType;
+        (response.request as { responseType?: string } | undefined)?.responseType ?? response.config?.responseType;
       const encryptedKey = headers[encryptHeader];
-      if (options.encryptionEnabled && responseType !== 'blob' && responseType !== 'arraybuffer') {
-        if (typeof response.data === 'string' || encryptedKey !== undefined) {
-          if (typeof encryptedKey !== 'string' || !encryptedKey.trim()) {
-            throw encryptionError('Encrypted response key is required');
-          }
-          if (typeof response.data !== 'string') throw encryptionError('Encrypted response payload is malformed');
-          try {
-            response.data = options.crypto.decryptResponse(response.data, encryptedKey);
-          } catch (cause) {
-            throw encryptionError('Unable to decrypt response', cause);
-          }
+      const expectsEncryptedResponse = String(response.config?.headers?.isEncrypt) === 'true';
+      const hasEncryptedKey = encryptedKey !== undefined;
+      if (responseType !== 'blob' && responseType !== 'arraybuffer' && (hasEncryptedKey || expectsEncryptedResponse)) {
+        if (typeof encryptedKey !== 'string' || !encryptedKey.trim()) {
+          throw encryptionError('Encrypted response key is required');
+        }
+        if (typeof response.data !== 'string') throw encryptionError('Encrypted response payload is malformed');
+        if (!options.crypto) throw encryptionError('CryptoPort is required for encrypted responses');
+        try {
+          response.data = options.crypto.decryptResponse(response.data, encryptedKey);
+        } catch (cause) {
+          throw encryptionError('Unable to decrypt response', cause);
         }
       }
       const data = response.data as Record<string, unknown>;
@@ -226,6 +230,7 @@ export function createAxiosBrowserAdapter(options: AxiosBrowserOptions): AxiosBr
       return response.data;
     },
     async error => {
+      if (isTransportError(error)) return Promise.reject(error);
       const message =
         (await extractAxiosErrorMessage(error, options.resolveErrorCode)) || options.resolveErrorCode('default') || '';
       const code = (error as { code?: number | string } | undefined)?.code;

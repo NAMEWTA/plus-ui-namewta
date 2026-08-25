@@ -612,6 +612,74 @@ for (const [layer, path, source, globalName] of [
   });
 }
 
+for (const globalName of [
+  'self',
+  'history',
+  'visualViewport',
+  'indexedDB',
+  'caches',
+  'cookieStore',
+  'IDBFactory',
+  'CacheStorage',
+  'DOMParser',
+  'XMLSerializer',
+  'Node',
+  'HTMLElement',
+  'Element',
+  'Document',
+  'DocumentFragment',
+  'customElements',
+  'CustomElementRegistry',
+  'Storage',
+  'MutationObserver',
+  'ResizeObserver',
+  'IntersectionObserver',
+  'PerformanceObserver',
+  'ReportingObserver',
+  'XMLHttpRequest',
+  'WebSocket',
+  'EventSource',
+  'BroadcastChannel',
+  'fetch',
+  'Worker',
+  'SharedWorker',
+  'ServiceWorker',
+  'requestAnimationFrame',
+  'cancelAnimationFrame',
+  'matchMedia',
+  'getComputedStyle',
+  'screen'
+]) {
+  test(`rejects reviewed browser global ${globalName}`, async () => {
+    const root = await createFixture();
+    await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+    await writeFixtureFile(root, 'packages/domains/demo/src/index.js', `export const host = ${globalName};\n`);
+
+    assertFailure(
+      await check(root),
+      'terminal-purity',
+      '@namewta/domain-demo',
+      globalName,
+      'packages/domains/demo/src/index.js'
+    );
+  });
+}
+
+test('rejects browser host aliases and destructuring through unshadowed globals', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.js',
+    'export const storage = self.localStorage;\nexport const database = indexedDB;\nexport const parser = new DOMParser();\nexport const host = globalThis;\nexport const { localStorage } = globalThis;\n'
+  );
+
+  const result = await check(root);
+  assert.equal(result.exitCode, 1, result.output);
+  for (const globalName of ['self', 'indexedDB', 'DOMParser', 'globalThis'])
+    assert.match(result.output, new RegExp(`target=${globalName}`));
+});
+
 test('accepts browser-global names shadowed by lexical declarations', async () => {
   const root = await createFixture();
   await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
@@ -623,6 +691,106 @@ test('accepts browser-global names shadowed by lexical declarations', async () =
 
   const result = await check(root);
   assert.equal(result.exitCode, 0, result.output);
+});
+
+test('keeps named class-expression bindings local to the class', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.js',
+    'export const Host = class window { static current() { return window; } };\nexport const actualHost = window;\n'
+  );
+
+  assertFailure(
+    await check(root),
+    'terminal-purity',
+    '@namewta/domain-demo',
+    'window',
+    'packages/domains/demo/src/index.js'
+  );
+});
+
+test('accepts class-local and locally shadowed browser host names', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.js',
+    'export const Host = class window { static current() { return window; } };\nexport class document { static current() { return document; } }\nexport function inspect(self, globalThis, DOMParser, indexedDB) { return [self, globalThis, DOMParser, indexedDB]; }\n'
+  );
+
+  const result = await check(root);
+  assert.equal(result.exitCode, 0, result.output);
+});
+
+test('does not treat TypeScript value and type declaration names as browser references', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'type location = string;\ninterface Document { value: string }\ninterface Model { window: string }\nexport type Snapshot = location & Document & Model;\n'
+  );
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/namespace.ts',
+    'namespace location { export const value = 1; }\nexport const namespaceValue = location.value;\n'
+  );
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/import-equals.ts',
+    "import location = require('node:path');\nexport const separator = location.sep;\n"
+  );
+
+  const result = await check(root);
+  assert.equal(result.exitCode, 0, result.output);
+});
+
+test('does not let a type-only declaration shadow a runtime browser global', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'type location = string;\nexport const actualLocation = location;\n'
+  );
+
+  assertFailure(
+    await check(root),
+    'terminal-purity',
+    '@namewta/domain-demo',
+    'location',
+    'packages/domains/demo/src/index.ts'
+  );
+});
+
+test('rejects an unshadowed DOM global used only as a type', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'export interface Snapshot { root: Document; element: HTMLElement }\n'
+  );
+
+  const result = await check(root);
+  assertFailure(result, 'terminal-purity', '@namewta/domain-demo', 'Document', 'packages/domains/demo/src/index.ts');
+  assert.match(result.output, /target=HTMLElement/);
+});
+
+test('keeps module and class-static var declarations inside their runtime scopes', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');
+  await writeFixtureFile(
+    root,
+    'packages/domains/demo/src/index.ts',
+    'namespace Internal { var window = 1; export const value = window; }\nclass Host { static { var document = {}; void document; } }\nexport const browserValues = [window, document];\n'
+  );
+
+  const result = await check(root);
+  assertFailure(result, 'terminal-purity', '@namewta/domain-demo', 'window', 'packages/domains/demo/src/index.ts');
+  assert.match(result.output, /target=document/);
 });
 
 test('rejects browser access through unshadowed globalThis properties', async () => {

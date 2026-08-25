@@ -7,7 +7,51 @@ import { parse as parseYaml } from 'yaml';
 const dependencyFields = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
 const runtimeDependencyFields = new Set(['dependencies', 'peerDependencies', 'optionalDependencies']);
 const requiredGateScripts = ['build', 'lint', 'test', 'typecheck'];
-const browserGlobals = new Set(['window', 'document', 'localStorage', 'sessionStorage', 'navigator', 'location']);
+const browserGlobals = new Set([
+  'globalThis',
+  'window',
+  'self',
+  'document',
+  'navigator',
+  'location',
+  'history',
+  'screen',
+  'visualViewport',
+  'localStorage',
+  'sessionStorage',
+  'indexedDB',
+  'caches',
+  'cookieStore',
+  'Storage',
+  'IDBFactory',
+  'CacheStorage',
+  'DOMParser',
+  'XMLSerializer',
+  'Node',
+  'Element',
+  'HTMLElement',
+  'Document',
+  'DocumentFragment',
+  'customElements',
+  'CustomElementRegistry',
+  'MutationObserver',
+  'ResizeObserver',
+  'IntersectionObserver',
+  'PerformanceObserver',
+  'ReportingObserver',
+  'XMLHttpRequest',
+  'WebSocket',
+  'EventSource',
+  'BroadcastChannel',
+  'fetch',
+  'Worker',
+  'SharedWorker',
+  'ServiceWorker',
+  'requestAnimationFrame',
+  'cancelAnimationFrame',
+  'matchMedia',
+  'getComputedStyle'
+]);
 const sourceExtensions = new Set(['.cjs', '.js', '.jsx', '.mjs', '.ts', '.tsx', '.vue']);
 const ignoredDirectories = new Set(['.git', '.output', '.vite', 'coverage', 'dist', 'node_modules']);
 const requiredWorkspaceGlobs = ['.', 'apps/*', 'packages/*', 'packages/*/*', 'tooling/*'];
@@ -199,7 +243,12 @@ function collectAstImports(source, fileName, language) {
   const globals = new Set();
   const declarationIdentifiers = new Set();
   const nodeScopes = new Map();
-  const rootScope = { declarations: new Set(), parent: undefined, type: 'source' };
+  const rootScope = {
+    parent: undefined,
+    type: 'source',
+    typeDeclarations: new Set(),
+    valueDeclarations: new Set()
+  };
 
   function bindingIdentifiers(name, callback) {
     if (ts.isIdentifier(name)) {
@@ -214,33 +263,40 @@ function collectAstImports(source, fileName, language) {
 
   function nearestFunctionScope(scope) {
     let current = scope;
-    while (current.parent && !['function', 'source'].includes(current.type)) current = current.parent;
+    while (current.parent && !['function', 'module', 'source', 'static-block'].includes(current.type))
+      current = current.parent;
     return current;
   }
 
   function scopeType(node) {
     if (ts.isSourceFile(node)) return 'source';
     if (ts.isFunctionLike(node)) return 'function';
+    if (ts.isClassDeclaration(node) || ts.isClassExpression(node)) return 'class';
+    if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) return 'type';
+    if (ts.isModuleBlock(node)) return 'module';
+    if (ts.isClassStaticBlockDeclaration(node)) return 'static-block';
     if (ts.isCatchClause(node)) return 'catch';
-    if (
-      ts.isBlock(node) ||
-      ts.isModuleBlock(node) ||
-      ts.isForStatement(node) ||
-      ts.isForInStatement(node) ||
-      ts.isForOfStatement(node)
-    )
+    if (ts.isBlock(node) || ts.isForStatement(node) || ts.isForInStatement(node) || ts.isForOfStatement(node))
       return 'block';
     return undefined;
   }
 
+  function declare(scope, name, namespaces = ['value']) {
+    bindingIdentifiers(name, identifier => {
+      if (namespaces.includes('type')) scope.typeDeclarations.add(identifier);
+      if (namespaces.includes('value')) scope.valueDeclarations.add(identifier);
+    });
+  }
+
   function declareImports(node, scope) {
     if (!ts.isImportDeclaration(node) || !node.importClause) return;
-    if (node.importClause.name) bindingIdentifiers(node.importClause.name, name => scope.declarations.add(name));
+    const clauseNamespaces = node.importClause.isTypeOnly ? ['type'] : ['type', 'value'];
+    if (node.importClause.name) declare(scope, node.importClause.name, clauseNamespaces);
     const bindings = node.importClause.namedBindings;
-    if (bindings && ts.isNamespaceImport(bindings))
-      bindingIdentifiers(bindings.name, name => scope.declarations.add(name));
+    if (bindings && ts.isNamespaceImport(bindings)) declare(scope, bindings.name, clauseNamespaces);
     if (bindings && ts.isNamedImports(bindings)) {
-      for (const element of bindings.elements) bindingIdentifiers(element.name, name => scope.declarations.add(name));
+      for (const element of bindings.elements)
+        declare(scope, element.name, element.isTypeOnly ? ['type'] : clauseNamespaces);
     }
   }
 
@@ -250,30 +306,44 @@ function collectAstImports(source, fileName, language) {
     const scope = ts.isSourceFile(node)
       ? rootScope
       : type
-        ? { declarations: new Set(), parent: inheritedScope, type }
+        ? {
+            parent: inheritedScope,
+            type,
+            typeDeclarations: new Set(),
+            valueDeclarations: new Set()
+          }
         : inheritedScope;
     nodeScopes.set(node, scope);
 
     if (ts.isFunctionDeclaration(node) && node.name) {
-      bindingIdentifiers(node.name, name => parentScope.declarations.add(name));
-    } else if ((ts.isFunctionExpression(node) || ts.isClassExpression(node)) && node.name) {
-      bindingIdentifiers(node.name, name => scope.declarations.add(name));
+      declare(parentScope, node.name);
+    } else if (ts.isFunctionExpression(node) && node.name) {
+      declare(scope, node.name);
     } else if (ts.isClassDeclaration(node) && node.name) {
-      bindingIdentifiers(node.name, name => parentScope.declarations.add(name));
+      declare(parentScope, node.name, ['type', 'value']);
+      declare(scope, node.name, ['type', 'value']);
+    } else if (ts.isClassExpression(node) && node.name) {
+      declare(scope, node.name, ['type', 'value']);
     } else if (ts.isEnumDeclaration(node)) {
-      bindingIdentifiers(node.name, name => scope.declarations.add(name));
+      declare(scope, node.name, ['type', 'value']);
+    } else if (ts.isModuleDeclaration(node) && ts.isIdentifier(node.name)) {
+      declare(scope, node.name, ['type', 'value']);
+    } else if (ts.isImportEqualsDeclaration(node)) {
+      declare(scope, node.name, node.isTypeOnly ? ['type'] : ['type', 'value']);
+    } else if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
+      declare(parentScope, node.name, ['type']);
     }
 
     if (ts.isFunctionLike(node)) {
-      for (const parameter of node.parameters) bindingIdentifiers(parameter.name, name => scope.declarations.add(name));
+      for (const parameter of node.parameters) declare(scope, parameter.name);
     }
-    if (ts.isCatchClause(node) && node.variableDeclaration)
-      bindingIdentifiers(node.variableDeclaration.name, name => scope.declarations.add(name));
+    for (const parameter of node.typeParameters ?? []) declare(scope, parameter.name, ['type']);
+    if (ts.isCatchClause(node) && node.variableDeclaration) declare(scope, node.variableDeclaration.name);
     if (ts.isVariableDeclaration(node)) {
       const declarationList = ts.isVariableDeclarationList(node.parent) ? node.parent : undefined;
       const declarationScope =
         declarationList && !(declarationList.flags & ts.NodeFlags.BlockScoped) ? nearestFunctionScope(scope) : scope;
-      bindingIdentifiers(node.name, name => declarationScope.declarations.add(name));
+      declare(declarationScope, node.name);
     }
     declareImports(node, scope);
     ts.forEachChild(node, child => buildScopes(child, scope));
@@ -281,6 +351,7 @@ function collectAstImports(source, fileName, language) {
 
   function isReferenceIdentifier(node) {
     if (declarationIdentifiers.has(node)) return false;
+    if (ts.isDeclarationName(node)) return false;
     const parent = node.parent;
     if (ts.isPropertyAccessExpression(parent) && parent.name === node) return false;
     if (ts.isQualifiedName(parent) && parent.right === node) return false;
@@ -303,10 +374,19 @@ function collectAstImports(source, fileName, language) {
     return true;
   }
 
-  function isDeclared(name, scope) {
+  function referenceNamespace(node) {
+    let current = node;
+    while (current.parent && ts.isPartOfTypeNode(current)) {
+      if (ts.isTypeQueryNode(current.parent)) return 'value';
+      current = current.parent;
+    }
+    return ts.isPartOfTypeNode(node) ? 'type' : 'value';
+  }
+
+  function isDeclared(name, scope, namespace = 'value') {
     let current = scope;
     while (current) {
-      if (current.declarations.has(name)) return true;
+      if (current[`${namespace}Declarations`].has(name)) return true;
       current = current.parent;
     }
     return false;
@@ -337,7 +417,7 @@ function collectAstImports(source, fileName, language) {
       ts.isIdentifier(node) &&
       browserGlobals.has(node.text) &&
       isReferenceIdentifier(node) &&
-      !isDeclared(node.text, nodeScopes.get(node))
+      !isDeclared(node.text, nodeScopes.get(node), referenceNamespace(node))
     )
       globals.add(node.text);
     if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) add(node.moduleSpecifier);

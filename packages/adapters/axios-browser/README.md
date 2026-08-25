@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Implement platform HttpClient for browsers using Axios, including headers, encryption fail-close, downloads, repeat-submit, request timeout, and structured failures with sanitized causes. Only a response `encrypt-key` identifies an encrypted response; encrypted requests remain compatible with plaintext JSON responses. A response key without a CryptoPort or a valid decryptable payload fails closed. The root facade alone opts into the legacy 401 string rejection.
+- Implement platform HttpClient for browsers using Axios, including headers, encryption fail-close, downloads, repeat-submit, request timeout, and structured failures with sanitized causes. Only a response `encrypt-key` identifies an encrypted response; encrypted requests remain compatible with plaintext JSON responses. A response key without a CryptoPort or a valid decryptable payload fails closed, and key-marked binary responses are rejected without exposing their payload. The root facade alone opts into the legacy 401 string rejection.
 
 ## Non-responsibilities
 

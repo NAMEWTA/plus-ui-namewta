@@ -317,6 +317,31 @@ describe('axios browser response boundary', () => {
     });
   });
 
+  it('fails closed when binary responses carry an encryption key', async () => {
+    const crypto: CryptoPort = {
+      decryptResponse: vi.fn(),
+      encryptRequest: vi.fn()
+    };
+    createAxiosBrowserAdapter(adapterOptions({ crypto, encryptionEnabled: true }).options);
+    const intercept = getResponseInterceptor();
+
+    for (const [payload, responseType] of [
+      [new Blob(['sensitive-blob']), 'blob'],
+      [new TextEncoder().encode('sensitive-buffer').buffer, 'arraybuffer']
+    ] as const) {
+      const error = await Promise.resolve()
+        .then(() => intercept(response(payload, { 'encrypt-key': 'wrapped-key' }, {}, responseType)))
+        .catch(value => value);
+      expect(error).toMatchObject({
+        kind: 'encryption',
+        message: 'Encrypted binary responses are unsupported',
+        isHandled: false
+      });
+      expect(JSON.stringify(error)).not.toContain('sensitive');
+    }
+    expect(crypto.decryptResponse).not.toHaveBeenCalled();
+  });
+
   it('classifies network errors with a sanitized cause and code', async () => {
     const { errorPresenter, options } = adapterOptions();
     createAxiosBrowserAdapter(options);

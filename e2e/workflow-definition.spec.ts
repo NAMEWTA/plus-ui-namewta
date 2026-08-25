@@ -5,11 +5,14 @@ type State = {
   publishedDefinitions: Record<string, unknown>[];
   unpublishedDefinitions: Record<string, unknown>[];
   definitionRequests: string[];
+  exports: { method: string; path: string }[];
+  failCategoryAdd: boolean;
+  imports: { body: string; contentType: string; method: string; path: string }[];
   spels: Record<string, unknown>[];
   mutations: { method: string; path: string; body: unknown }[];
   unknown: string[];
 };
-const createState = (): State => ({
+const createState = (overrides: Partial<State> = {}): State => ({
   categories: [{ categoryId: 'c1', parentId: 0, categoryName: '审批', orderNum: 1, createTime: '', children: [] }],
   publishedDefinitions: [
     { id: 'd0', flowName: '既有已发布流程', flowCode: 'published', version: '1', isPublish: 1, activityStatus: 1 }
@@ -18,11 +21,15 @@ const createState = (): State => ({
     { id: 'd1', flowName: '请假审批', flowCode: 'leave', version: '1', isPublish: 0, activityStatus: 1 }
   ],
   definitionRequests: [],
+  exports: [],
+  failCategoryAdd: false,
+  imports: [],
   spels: [
     { id: 's1', componentName: 'owner', methodName: 'resolve', methodParams: '', viewSpel: '#owner', status: '0' }
   ],
   mutations: [],
-  unknown: []
+  unknown: [],
+  ...overrides
 });
 const json = (route: Route, body: unknown) =>
   route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
@@ -102,6 +109,7 @@ async function installApi(page: Page, state: State, permissions: string[]) {
       return json(route, { code: 200, data: { rows: state.spels, total: state.spels.length } });
     if (path === '/workflow/category' && method === 'POST') {
       const body = request.postDataJSON();
+      if (state.failCategoryAdd) return json(route, { code: 500, msg: '分类保存失败' });
       state.mutations.push({ method, path, body });
       state.categories.push({ ...body, categoryId: 'c2', createTime: '', children: [] });
       return json(route, { code: 200, data: null });
@@ -113,6 +121,27 @@ async function installApi(page: Page, state: State, permissions: string[]) {
       state.unpublishedDefinitions = state.unpublishedDefinitions.filter(item => item.id !== 'd1');
       if (published) state.publishedDefinitions.push({ ...published, isPublish: 1 });
       return json(route, { code: 200, data: null });
+    }
+    if (path === '/workflow/definition/importDef' && method === 'POST') {
+      state.imports.push({
+        method,
+        path,
+        contentType: request.headers()['content-type'] ?? '',
+        body: request.postData() ?? ''
+      });
+      state.unpublishedDefinitions.push({
+        id: 'd2',
+        flowName: '导入流程',
+        flowCode: 'imported',
+        version: '1',
+        isPublish: 0,
+        activityStatus: 1
+      });
+      return json(route, { code: 200, data: null });
+    }
+    if (path === '/workflow/definition/exportDef/d0' && method === 'POST') {
+      state.exports.push({ method, path });
+      return route.fulfill({ contentType: 'application/octet-stream', body: '{"flowCode":"published"}' });
     }
     if (path === '/workflow/spel' && method === 'POST') {
       const body = request.postDataJSON();
@@ -144,9 +173,15 @@ test('selected workflow manifest completes category, definition, designer and Sp
 
   await page.locator('.sidebar-container').getByText('流程定义', { exact: true }).click();
   await expect(page.getByText('既有已发布流程', { exact: true })).toBeVisible();
+  const publishedRow = page.getByRole('row').filter({ hasText: '既有已发布流程' });
+  await publishedRow.getByRole('checkbox').check();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: '导出' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('published.json');
   await page.getByRole('tab', { name: '未发布' }).click();
   await expect(page.getByText('请假审批', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '流程设计' }).click();
+  await page.getByRole('row').filter({ hasText: '请假审批' }).getByRole('button', { name: '流程设计' }).click();
   await expect(page).toHaveURL(/\/workflow\/design\/index.*definitionId=d1.*disabled=false/);
   const iframe = page.locator('iframe[title="流程设计"]');
   await expect(iframe).toHaveAttribute('src', /id=d1&onlyDesignShow=false/);
@@ -160,6 +195,17 @@ test('selected workflow manifest completes category, definition, designer and Sp
   await expect(
     page.getByRole('row').filter({ hasText: '请假审批' }).getByText('已发布', { exact: true })
   ).toBeVisible();
+
+  await page.getByRole('button', { name: '部署流程文件' }).click();
+  const uploadDialog = page.getByRole('dialog', { name: '部署流程文件' });
+  await uploadDialog.locator('.el-select__wrapper').click();
+  await page.locator('.el-select-dropdown:visible').getByText('审批', { exact: true }).click();
+  await uploadDialog.locator('input[type="file"]').setInputFiles({
+    name: 'import-flow.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{"flowCode":"imported","flowName":"导入流程"}')
+  });
+  await expect(page.getByRole('row').filter({ hasText: '导入流程' })).toBeVisible();
 
   await page.locator('.sidebar-container').getByText('流程表达式', { exact: true }).click();
   await page.getByRole('button', { name: '新增' }).first().click();
@@ -192,6 +238,35 @@ test('selected workflow manifest completes category, definition, designer and Sp
   expect(unpublishedIndex).toBeGreaterThan(-1);
   expect(publishIndex).toBeGreaterThan(unpublishedIndex);
   expect(refreshedPublishedIndex).toBeGreaterThan(publishIndex);
+  expect(state.exports).toEqual([{ method: 'POST', path: '/workflow/definition/exportDef/d0' }]);
+  expect(state.imports).toHaveLength(1);
+  expect(state.imports[0]).toMatchObject({ method: 'POST', path: '/workflow/definition/importDef' });
+  expect(state.imports[0].contentType).toContain('multipart/form-data; boundary=');
+  expect(state.imports[0].body).toContain('name="category"');
+  expect(state.imports[0].body).toContain('c1');
+  expect(state.imports[0].body).toContain('filename="import-flow.json"');
+  expect(state.imports[0].body).toContain('"flowCode":"imported"');
+  expect(state.unknown).toEqual([]);
+});
+
+test('workflow business failure stays visible without false success or loading lock', async ({ page }) => {
+  const state = createState({ failCategoryAdd: true });
+  await installApi(page, state, ['*:*:*']);
+  await page.goto('/login?redirect=%2Fworkflow%2Fcategory');
+  await page.locator('.submit-button').click();
+  await expect(page.getByRole('heading', { name: '流程分类' })).toBeVisible();
+
+  await page.getByRole('row').filter({ hasText: '审批' }).locator('button').nth(1).click();
+  const dialog = page.getByRole('dialog', { name: '添加流程分类' });
+  await dialog.getByPlaceholder('请输入分类名称').fill('失败分类');
+  await dialog.getByRole('button', { name: '确 定' }).click();
+  await expect(page.getByText('分类保存失败', { exact: true })).toBeVisible();
+  await expect(page.getByText('操作成功', { exact: true })).toHaveCount(0);
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '确 定' })).toBeEnabled();
+  await expect(page.getByRole('table').getByText('失败分类', { exact: true })).toHaveCount(0);
+  expect(state.categories.some(item => item.categoryName === '失败分类')).toBe(false);
+  expect(state.mutations).toEqual([]);
   expect(state.unknown).toEqual([]);
 });
 

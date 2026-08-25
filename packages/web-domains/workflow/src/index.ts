@@ -5,7 +5,6 @@ import { requireWorkflowWebRuntime } from './runtime';
 
 export { createLiveWorkflowDictRefs } from './runtime';
 export type { WorkflowDictOption, WorkflowDictSource, WorkflowWebRuntime } from './runtime';
-export { matchesTreePanelFilter, resolveTreePanelGrid } from './tree';
 
 async function runtimeView(
   name: string,

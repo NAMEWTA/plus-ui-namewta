@@ -13,7 +13,7 @@
         @node-click="handleNodeClick"
       />
       <el-col
-        :lg="definitionGrid.contentSpan"
+        :lg="treeCollapsed ? 23 : 20"
         :xs="24"
         class="tree-content-col content-main"
         :class="{ 'is-tree-collapsed': treeCollapsed }"
@@ -340,7 +340,6 @@ import {
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { WorkflowWebRuntime } from '../runtime';
-import TreePanel from '../components/TreePanel.vue';
 import {
   useDialogState,
   useFormDialog,
@@ -350,15 +349,15 @@ import {
   useTableSelection,
   useTreeCollapsed
 } from '../composables';
-import { resolveTreePanelGrid } from '../tree';
 
 const { runtime } = defineProps<{ runtime: WorkflowWebRuntime }>();
+const TreePanel = runtime.treePanel;
 
 const route = useRoute();
 const router = useRouter();
 
 const queryFormRef = ref<ElFormInstance>();
-const treePanelRef = ref<InstanceType<typeof TreePanel>>();
+const treePanelRef = ref<{ setCurrentKey(key?: string): void }>();
 
 const { loading, setLoading, withLoading } = useLoading(true);
 const total = ref(0);
@@ -366,7 +365,6 @@ const uploadDialogLoading = ref(false);
 const processDefinitionList = ref<FlowDefinitionVo[]>([]);
 const categoryOptions = ref<CategoryTreeVO[]>([]);
 const { treeCollapsed } = useTreeCollapsed();
-const definitionGrid = computed(() => resolveTreePanelGrid(treeCollapsed.value, 4, 1));
 const { showSearch } = useSearchToggle();
 const autoPass = ref(false);
 /** 部署文件分类选择 */

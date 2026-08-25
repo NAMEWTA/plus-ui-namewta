@@ -6,6 +6,7 @@ import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } fro
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
 import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
+import WorkflowTreePanel from '@/components/TreePanel/index.vue';
 
 const identityService: IdentityAccessService = {
   client: Object.freeze({ clientId: import.meta.env.VITE_APP_CLIENT_ID }),
@@ -53,6 +54,7 @@ const workflowManifest = createWorkflowWebDomain({
   success: message => {
     void import('@/plugins/modal').then(({ default: modal }) => modal.msgSuccess(message));
   },
+  treePanel: WorkflowTreePanel,
   error: message => {
     void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
   },

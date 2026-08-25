@@ -13,12 +13,3 @@ export function handleTree<T extends object>(data: T[] | undefined, idKey: keyof
   }
   return roots;
 }
-
-export function resolveTreePanelGrid(collapsed: boolean, expandedSpan = 5, collapsedSpan = 1) {
-  const panelSpan = collapsed ? collapsedSpan : expandedSpan;
-  return Object.freeze({ panelSpan, contentSpan: 24 - panelSpan });
-}
-
-export function matchesTreePanelFilter(value: string, data: Record<string, unknown>, filterField = 'label'): boolean {
-  return !value || String(data[filterField] ?? '').includes(value);
-}

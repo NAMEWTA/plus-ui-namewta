@@ -2,14 +2,8 @@ import { workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime } from '@namewta/platform-app-runtime';
 import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
-import TreePanel from './components/TreePanel.vue';
 import { createDesignerController } from './designer';
-import {
-  createLiveWorkflowDictRefs,
-  createWorkflowWebDomain,
-  matchesTreePanelFilter,
-  resolveTreePanelGrid
-} from './index';
+import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from './index';
 
 const runtime = {
   service: {},
@@ -112,31 +106,5 @@ describe('workflow host adapters', () => {
     await vi.waitFor(() => expect(dicts.status.value).toEqual([{ label: '初始', value: '0' }]));
     source.status = [{ label: '已加载', value: '1' }];
     await vi.waitFor(() => expect(dicts.status.value).toEqual([{ label: '已加载', value: '1' }]));
-  });
-
-  it('keeps the tree panel and content grid at 24 columns', () => {
-    expect(resolveTreePanelGrid(false, 4, 1)).toEqual({ panelSpan: 4, contentSpan: 20 });
-    expect(resolveTreePanelGrid(true, 4, 1)).toEqual({ panelSpan: 1, contentSpan: 23 });
-    expect(Object.keys((TreePanel as unknown as { props: Record<string, unknown> }).props)).toEqual(
-      expect.arrayContaining([
-        'title',
-        'placeholder',
-        'data',
-        'nodeKey',
-        'treeProps',
-        'disabledField',
-        'expandedSpan',
-        'collapsedSpan',
-        'filterField',
-        'filterNodeMethod',
-        'collapsed'
-      ])
-    );
-  });
-
-  it('filters backend category tree nodes by label', () => {
-    const category = { id: 'category-1', label: '财务审批' };
-    expect(matchesTreePanelFilter('财务', category, 'label')).toBe(true);
-    expect(matchesTreePanelFilter('人事', category, 'label')).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import type { WorkflowDefinitionService } from '@namewta/domain-workflow';
-import { computed, shallowRef, type Ref } from 'vue';
+import { computed, shallowRef, type Component, type Ref } from 'vue';
 
 export interface WorkflowDictOption {
   label: string;
@@ -15,6 +15,7 @@ export interface WorkflowWebRuntime {
   error(message: string): void;
   service: WorkflowDefinitionService;
   success(message: string): void;
+  treePanel: Component;
 }
 
 export type WorkflowDictSource = Record<string, WorkflowDictOption[]>;

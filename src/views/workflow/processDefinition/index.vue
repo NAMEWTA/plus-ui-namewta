@@ -8,3 +8,11 @@ const WorkflowPage = defineAsyncComponent(async () => {
   return registration.load();
 });
 </script>
+
+<style lang="scss">
+@use '@/assets/styles/components/page-shell' as pageShell;
+
+.workflow-process-definition-page {
+  @include pageShell.tree-table-crud-page;
+}
+</style>

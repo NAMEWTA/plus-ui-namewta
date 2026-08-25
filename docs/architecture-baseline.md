@@ -57,7 +57,7 @@ Working directory: the T-01 `plus-ui-namewta` source worktree at base
 | `pnpm lint` | 0 | Oxlint completed without diagnostics. |
 | `pnpm typecheck` | 0 | Final `vue-tsc --noEmit` run completed without diagnostics. |
 | `pnpm exec tsc --ignoreConfig --noEmit --module ESNext --moduleResolution Bundler --target ESNext --types node,@playwright/test --skipLibCheck e2e/multi-app-baseline.spec.ts` | 0 | Supplemental E2E source typecheck completed without diagnostics; no browser or web server was started. |
-| `pnpm build:prod` | 0 | Latest run transformed 3364 modules and reported `built in 2.59s`; gzip output generation completed. |
+| `pnpm build:prod` | 0 | Latest run transformed 3364 modules and reported `built in 2.60s`; gzip output generation completed. |
 | `pnpm test:e2e` | not run | Required in the Lead-owned parent-candidate; source worktrees must not run Playwright. |
 
 The first targeted Vitest run failed because the test cleared the interceptor registration record. The fixture was
@@ -73,8 +73,8 @@ not a replacement for the Lead-owned Playwright run.
 
 Lead candidate attempt 1 ran six Playwright tests: five passed, while the dynamic-route scenario reached
 `/baseline/route` and rendered the expected heading but failed because an exact text locator matched the menu,
-breadcrumb, and visited-view tag. The source fixture now scopes that assertion to the `面包屑` navigation link; the
-source worktree did not rerun Playwright.
+breadcrumb, and visited-view tag. The source fixture now scopes an exact-text assertion to the current item inside the
+`面包屑` region; the source worktree did not rerun Playwright.
 
 The latest production build reported `dist/index.html` at 115.31 kB (50.80 kB gzip), its largest JavaScript chunk at
 1382.40 kB (435.47 kB gzip), and the main CSS chunk at 992.19 kB (155.77 kB gzip). Hashed file names and elapsed time

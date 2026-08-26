@@ -296,9 +296,11 @@ test('admin previews generated source, downloads a valid ZIP and rejects an erro
   const row = page.locator('.devtools-generator-page .el-table__body tr').filter({ hasText: 'proof_table' });
   await expect(row).toBeVisible();
   await row.locator('button').nth(0).click();
-  await expect(page.getByRole('dialog', { name: '代码预览' })).toBeVisible();
+  const previewDialog = page.getByRole('dialog', { name: '代码预览' });
+  await expect(previewDialog).toBeVisible();
   await expect(page.getByTestId('generator-preview-source')).toContainText('public class ProofTable {}');
-  await page.getByRole('dialog', { name: '代码预览' }).getByRole('button', { name: 'Close' }).click();
+  await page.keyboard.press('Escape');
+  await expect(previewDialog).toBeHidden();
 
   await row.locator('button').nth(3).click();
   await expect.poll(() => downloads).toEqual(['ruoyi.zip']);
@@ -324,7 +326,7 @@ test('edit uses public metadata ports and preserves the complete generator paylo
   await expect(page.getByText('查询方式', { exact: true })).toBeVisible();
   await expect(page.getByText('必填', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '生成信息' }).click();
-  await expect(page.getByText('系统工具', { exact: true })).toBeVisible();
+  await expect(page.getByRole('tabpanel', { name: '生成信息' }).getByText('系统工具', { exact: true })).toBeVisible();
   await page.getByTestId('enable-unique').click();
   await page.getByTestId('unique-fields').click();
   await page.getByRole('option', { name: /name：名称/ }).click();
@@ -395,7 +397,7 @@ test('auxiliary metadata failures do not hide primary list or edit data and can 
   await expect(page.getByText('proof_id', { exact: true })).toBeVisible();
   await expect(page.getByText('字典类型加载失败，其他字段仍可编辑。')).toBeVisible();
   await page.getByRole('tab', { name: '生成信息' }).click();
-  await expect(page.getByDisplayValue('org.proof')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: '生成包路径' })).toHaveValue('org.proof');
   await expect(page.getByText('菜单目录加载失败，其他生成配置仍可编辑。')).toBeVisible();
   state.auxiliaryMode = 'success';
   await page.getByText('菜单目录加载失败，其他生成配置仍可编辑。').locator('..').getByRole('button').click();

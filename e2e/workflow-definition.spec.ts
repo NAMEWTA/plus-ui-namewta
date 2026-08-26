@@ -272,20 +272,25 @@ test('selected workflow manifest completes category, definition, designer and Sp
   await spelDialog.getByRole('button', { name: '确 定' }).click();
   await expect(page.getByText('#{@spelRuleComponent.resolveOwner(#deptId)}', { exact: true })).toBeVisible();
 
+  const expectedSpelMutation = {
+    method: 'POST',
+    path: '/workflow/spel',
+    body: {
+      componentName: 'spelRuleComponent',
+      methodName: 'resolveOwner',
+      methodParams: 'deptId',
+      viewSpel: '#{@spelRuleComponent.resolveOwner(#deptId)}',
+      status: '0'
+    }
+  };
+  await expect
+    .poll(() => state.mutations.find(item => item.method === 'POST' && item.path === '/workflow/spel'))
+    .toEqual(expectedSpelMutation);
+
   expect(state.mutations).toEqual([
     { method: 'POST', path: '/workflow/category', body: { categoryName: '财务审批', parentId: 'c1', orderNum: 0 } },
     { method: 'PUT', path: '/workflow/definition/publish/d1', body: null },
-    {
-      method: 'POST',
-      path: '/workflow/spel',
-      body: {
-        componentName: 'spelRuleComponent',
-        methodName: 'resolveOwner',
-        methodParams: 'deptId',
-        viewSpel: '#{@spelRuleComponent.resolveOwner(#deptId)}',
-        status: '0'
-      }
-    }
+    expectedSpelMutation
   ]);
   const unpublishedIndex = state.definitionRequests.indexOf('GET /workflow/definition/unPublishList');
   const publishIndex = state.definitionRequests.indexOf('PUT /workflow/definition/publish/d1');

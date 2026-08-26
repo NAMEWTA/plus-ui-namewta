@@ -165,24 +165,43 @@ async function expectDefinitionGrid(page: Page, panelSpan: 1 | 4, contentSpan: 2
   const grid = page.locator('.workflow-process-definition-page .content-grid');
   await expect(panel).toHaveClass(new RegExp(`el-col-lg-${panelSpan}`));
   await expect(content).toHaveClass(new RegExp(`el-col-lg-${contentSpan}`));
-  const boxes = await Promise.all([panel.boundingBox(), content.boundingBox(), grid.boundingBox()]);
-  expect(boxes.every(Boolean)).toBe(true);
-  const [panelBox, contentBox, gridBox] = boxes as [
-    NonNullable<(typeof boxes)[0]>,
-    NonNullable<(typeof boxes)[0]>,
-    NonNullable<(typeof boxes)[0]>
-  ];
-  expect(Math.abs(panelBox.y - contentBox.y)).toBeLessThan(2);
-  expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(contentBox.x + 1);
-  expect(contentBox.x + contentBox.width).toBeLessThanOrEqual(gridBox.x + gridBox.width + 1);
-  if (panelSpan === 4) {
-    expect(panelBox.width / gridBox.width).toBeGreaterThan(0.14);
-    expect(panelBox.width / gridBox.width).toBeLessThan(0.2);
-  } else {
-    expect(panelBox.width).toBeGreaterThanOrEqual(54);
-    expect(panelBox.width).toBeLessThanOrEqual(58);
-    expect(contentBox.width / gridBox.width).toBeGreaterThan(0.9);
-  }
+  let previous: number[] | undefined;
+  let stableSamples = 0;
+  await expect
+    .poll(
+      async () => {
+        const boxes = await Promise.all([panel.boundingBox(), content.boundingBox(), grid.boundingBox()]);
+        if (!boxes.every(Boolean)) return false;
+        const [panelBox, contentBox, gridBox] = boxes as [
+          NonNullable<(typeof boxes)[0]>,
+          NonNullable<(typeof boxes)[0]>,
+          NonNullable<(typeof boxes)[0]>
+        ];
+        const terminalRange =
+          Math.abs(panelBox.y - contentBox.y) < 2 &&
+          panelBox.x + panelBox.width <= contentBox.x + 1 &&
+          contentBox.x + contentBox.width <= gridBox.x + gridBox.width + 1 &&
+          (panelSpan === 4
+            ? panelBox.width / gridBox.width > 0.14 && panelBox.width / gridBox.width < 0.2
+            : panelBox.width >= 54 && panelBox.width <= 58 && contentBox.width / gridBox.width > 0.9);
+        const signature = [
+          panelBox.x,
+          panelBox.y,
+          panelBox.width,
+          contentBox.x,
+          contentBox.y,
+          contentBox.width,
+          gridBox.x,
+          gridBox.width
+        ];
+        const stable = previous?.every((value, index) => Math.abs(value - signature[index]) < 0.5) ?? false;
+        stableSamples = terminalRange ? (stable ? stableSamples + 1 : 1) : 0;
+        previous = signature;
+        return stableSamples >= 3;
+      },
+      { message: `definition grid did not settle at ${panelSpan}+${contentSpan}` }
+    )
+    .toBe(true);
 }
 
 test('selected workflow manifest completes category, definition, designer and SpEL mutations', async ({ page }) => {

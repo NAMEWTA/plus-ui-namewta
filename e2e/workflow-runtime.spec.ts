@@ -547,7 +547,7 @@ test('user and task failures remain visible without clearing approval input', as
   await selector.getByRole('button', { name: '确定', exact: true }).click();
   await processDialog.getByRole('button', { name: '提交', exact: true }).click();
   await page.getByRole('button', { name: '确定', exact: true }).click();
-  await expect(page.getByText('任务办理失败', { exact: true })).toBeVisible();
+  await expect(processDialog.getByText('任务办理失败', { exact: true })).toBeVisible();
   await expect(processDialog.getByLabel('审批意见')).toHaveValue('保留这段审批意见');
   expect(state.completeBodies).toEqual([]);
   expect(state.unknown).toEqual([]);
@@ -727,7 +727,7 @@ test('task back uploads a real attachment and preserves the exact payload', asyn
   const processDialog = page.getByRole('dialog', { name: '流程办理' });
   await processDialog.getByRole('button', { name: '退回', exact: true }).click();
   const backDialog = page.getByRole('dialog', { name: '退回任务' });
-  await backDialog.getByPlaceholder('请输入退回意见').fill('请补充附件');
+  await backDialog.getByPlaceholder('请输入退回意见').fill('首次退回失败');
   await backDialog.locator('input[type="file"]').setInputFiles({
     name: 'approval.txt',
     mimeType: 'text/plain',
@@ -737,10 +737,11 @@ test('task back uploads a real attachment and preserves the exact payload', asyn
   await backDialog.getByRole('button', { name: '确认退回', exact: true }).click();
   await page.getByRole('button', { name: '确定', exact: true }).click();
   await expect(backDialog.getByText('退回任务失败', { exact: true })).toBeVisible();
-  await expect(backDialog.getByPlaceholder('请输入退回意见')).toHaveValue('请补充附件');
+  await expect(backDialog.getByPlaceholder('请输入退回意见')).toHaveValue('首次退回失败');
   await expect(backDialog.getByRole('link', { name: 'approval.txt' }).first()).toBeVisible();
   expect(state.backBodies).toEqual([]);
 
+  await backDialog.getByPlaceholder('请输入退回意见').fill('请补充附件');
   state.failBack = false;
   await backDialog.getByRole('button', { name: '确认退回', exact: true }).click();
   await page.getByRole('button', { name: '确定', exact: true }).click();

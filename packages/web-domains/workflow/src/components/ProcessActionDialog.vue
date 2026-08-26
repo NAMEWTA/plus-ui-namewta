@@ -110,7 +110,7 @@
 
 <script setup lang="ts">
 import type { UserSummary, WorkflowTask } from '@namewta/domain-workflow';
-import { computed, reactive, ref } from 'vue';
+import { computed, nextTick, reactive, ref } from 'vue';
 import type { WorkflowWebRuntime } from '../runtime';
 import {
   createBackPayload,
@@ -202,20 +202,22 @@ async function open(taskId: string | number) {
     loading.value = false;
   }
 }
-function openSelector(action: SelectorAction, multiple: boolean) {
+async function openSelector(action: SelectorAction, multiple: boolean) {
   selectorAction.value = action;
   selectorMultiple.value = multiple;
   selectorData.value = action === 'copy' ? copyUsers.value.map(user => user.userId) : [];
   selectorUserIds.value = undefined;
-  void selector.value?.open();
+  await nextTick();
+  await selector.value?.open();
 }
-function selectNode(node: NodeOption) {
+async function selectNode(node: NodeOption) {
   selectedNode.value = node;
   selectorAction.value = 'node';
   selectorMultiple.value = true;
   selectorData.value = [];
   selectorUserIds.value = node.permissionFlag;
-  void selector.value?.open();
+  await nextTick();
+  await selector.value?.open();
 }
 async function handleUsers(users: UserSummary[]) {
   if (!task.value || !users.length) return;

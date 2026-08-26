@@ -17,6 +17,18 @@
         <el-button icon="Refresh" @click="reset">重置</el-button>
       </el-form-item>
     </el-form>
+    <el-alert v-if="dataSourceError" type="warning" :closable="false" show-icon>
+      <template #title>
+        导入数据源加载失败，仍可查询默认数据源。
+        <el-button link type="primary" @click="loadDataSources">重新加载</el-button>
+      </template>
+    </el-alert>
+    <el-alert v-if="tableError" type="error" :closable="false" show-icon>
+      <template #title>
+        待导入表加载失败。
+        <el-button link type="primary" @click="load">重新加载</el-button>
+      </template>
+    </el-alert>
     <el-table
       ref="tableRef"
       border
@@ -57,14 +69,36 @@ const total = ref(0);
 const rows = ref<DbTableVO[]>([]);
 const selected = ref<DbTableVO[]>([]);
 const dataSources = ref<string[]>([]);
+const dataSourceError = ref(false);
+const tableError = ref(false);
 const tableRef = ref<ElTableInstance>();
 const queryFormRef = ref<ElFormInstance>();
 const query = reactive<DbTableQuery>({ pageNum: 1, pageSize: 10, dataName: '', tableName: '', tableComment: '' });
 
 async function load() {
-  const response = await props.runtime.service.listDatabaseTables({ ...query });
-  rows.value = response.data?.rows ?? [];
-  total.value = response.data?.total ?? 0;
+  try {
+    const response = await props.runtime.service.listDatabaseTables({ ...query });
+    rows.value = response.data?.rows ?? [];
+    total.value = response.data?.total ?? 0;
+    tableError.value = false;
+  } catch {
+    tableError.value = true;
+    props.runtime.error('待导入表加载失败，可点击重新加载');
+  }
+}
+async function loadDataSources() {
+  try {
+    const response = await props.runtime.service.dataSourceNames();
+    dataSources.value = response.data ?? [];
+    if (!query.dataName && dataSources.value[0]) {
+      query.dataName = dataSources.value[0];
+      await load();
+    }
+    dataSourceError.value = false;
+  } catch {
+    dataSourceError.value = true;
+    props.runtime.error('导入数据源加载失败，可点击重新加载');
+  }
 }
 function search() {
   query.pageNum = 1;
@@ -74,12 +108,12 @@ function reset() {
   queryFormRef.value?.resetFields();
   search();
 }
-async function show(dataName: string) {
-  const response = await props.runtime.service.dataSourceNames();
-  dataSources.value = response.data ?? [];
-  query.dataName = dataName || dataSources.value[0] || '';
-  await load();
+function show(dataName: string) {
+  query.dataName = dataName;
+  selected.value = [];
   visible.value = true;
+  void load();
+  void loadDataSources();
 }
 async function submit() {
   if (!selected.value.length) return props.runtime.error('请选择要导入的表');

@@ -43,6 +43,28 @@ const singleEntryZip = () => {
   writeU32(view, 92, 30);
   return bytes;
 };
+const truncatedEntryDataZip = () => {
+  const bytes = singleEntryZip();
+  const view = new DataView(bytes.buffer);
+  writeU32(view, 18, 1);
+  writeU32(view, 50, 1);
+  return bytes;
+};
+const overlappingEntriesZip = () => {
+  const bytes = new Uint8Array(144);
+  const view = new DataView(bytes.buffer);
+  writeU32(view, 0, 0x04034b50);
+  writeU32(view, 30, 0x02014b50);
+  writeU32(view, 72, 0);
+  writeU32(view, 76, 0x02014b50);
+  writeU32(view, 118, 0);
+  writeU32(view, 122, 0x06054b50);
+  writeU16(view, 130, 2);
+  writeU16(view, 132, 2);
+  writeU32(view, 134, 92);
+  writeU32(view, 138, 30);
+  return bytes;
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -62,7 +84,9 @@ describe('ZIP download safety', () => {
       new Blob([new Uint8Array(30).fill(0).map((value, index) => [0x50, 0x4b, 0x03, 0x04][index] ?? value)])
     ],
     ['data descriptor only', new Blob([new Uint8Array([0x50, 0x4b, 0x07, 0x08, 0, 0, 0, 0])])],
-    ['truncated EOCD', new Blob([emptyZip().slice(0, 21)])]
+    ['truncated EOCD', new Blob([emptyZip().slice(0, 21)])],
+    ['truncated file data', new Blob([truncatedEntryDataZip()])],
+    ['overlapping local entries', new Blob([overlappingEntriesZip()])]
   ])('rejects %s without saving a corrupt file', async (_label, payload) => {
     harness.axios.mockResolvedValue({ data: payload });
 
@@ -106,5 +130,7 @@ describe('ZIP download safety', () => {
     const brokenCentralDirectory = singleEntryZip();
     brokenCentralDirectory[30] = 0;
     await expect(isZipPayload(brokenCentralDirectory)).resolves.toBe(false);
+    await expect(isZipPayload(truncatedEntryDataZip())).resolves.toBe(false);
+    await expect(isZipPayload(overlappingEntriesZip())).resolves.toBe(false);
   });
 });

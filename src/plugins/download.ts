@@ -63,6 +63,7 @@ export async function isZipPayload(data: unknown): Promise<boolean> {
   if (totalEntries === 0xffff || centralSize === 0xffffffff || centralOffset === 0xffffffff) return false;
 
   let cursor = centralOffset;
+  const localSpans: Array<{ start: number; end: number }> = [];
   for (let entry = 0; entry < totalEntries; entry++) {
     if (cursor + 46 > eocdOffset || u32(cursor) !== ZIP_CENTRAL_FILE) return false;
     const centralEntrySize = 46 + u16(cursor + 28) + u16(cursor + 30) + u16(cursor + 32);
@@ -71,9 +72,18 @@ export async function isZipPayload(data: unknown): Promise<boolean> {
     if (u32(localOffset) !== ZIP_LOCAL_FILE) return false;
     const localHeaderSize = 30 + u16(localOffset + 26) + u16(localOffset + 28);
     if (localOffset + localHeaderSize > centralOffset) return false;
+    const compressedSize = u32(cursor + 20);
+    const localCompressedSize = u32(localOffset + 18);
+    const usesDataDescriptor = (u16(localOffset + 6) & 0x0008) !== 0;
+    if (!usesDataDescriptor && localCompressedSize !== compressedSize) return false;
+    const localEnd = localOffset + localHeaderSize + compressedSize;
+    if (localEnd > centralOffset) return false;
+    localSpans.push({ start: localOffset, end: localEnd });
     cursor += centralEntrySize;
   }
-  return cursor === eocdOffset;
+  if (cursor !== eocdOffset) return false;
+  localSpans.sort((left, right) => left.start - right.start);
+  return localSpans.every((span, index) => index === 0 || localSpans[index - 1].end <= span.start);
 }
 export default {
   async oss(ossId: string | number) {

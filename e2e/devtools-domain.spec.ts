@@ -31,6 +31,20 @@ const createState = (): ApiState => ({
   unknown: [],
   updates: []
 });
+const truncatedEntryDataZip = () => {
+  const bytes = Buffer.alloc(98);
+  bytes.writeUInt32LE(0x04034b50, 0);
+  bytes.writeUInt32LE(1, 18);
+  bytes.writeUInt32LE(0x02014b50, 30);
+  bytes.writeUInt32LE(1, 50);
+  bytes.writeUInt32LE(0, 72);
+  bytes.writeUInt32LE(0x06054b50, 76);
+  bytes.writeUInt16LE(1, 84);
+  bytes.writeUInt16LE(1, 86);
+  bytes.writeUInt32LE(46, 88);
+  bytes.writeUInt32LE(30, 92);
+  return bytes;
+};
 
 async function installApi(page: Page, state: ApiState) {
   await page.route('**/prod-api/**', route => {
@@ -80,6 +94,21 @@ async function installApi(page: Page, state: ApiState) {
               functionAuthor: 'specdev',
               tree: false,
               crud: true,
+              updateTime: '2026-08-26 23:00:00'
+            }
+          ],
+          total: 1
+        }
+      });
+    if (path === '/tool/gen/db/list')
+      return json(route, {
+        code: 200,
+        data: {
+          rows: [
+            {
+              tableName: 'candidate_table',
+              tableComment: '可导入候选表',
+              createTime: '2026-08-26 22:00:00',
               updateTime: '2026-08-26 23:00:00'
             }
           ],
@@ -229,7 +258,7 @@ async function installApi(page: Page, state: ApiState) {
     if (path === '/tool/gen/batchGenCode' && request.method() === 'GET') {
       state.downloadRequests += 1;
       if (state.downloadMode === 'invalid')
-        return route.fulfill({ contentType: 'application/zip', body: Buffer.from([0x50, 0x4b, 0x03, 0x04, 0, 0]) });
+        return route.fulfill({ contentType: 'application/zip', body: truncatedEntryDataZip() });
       return route.fulfill({
         contentType: 'application/zip',
         body: Buffer.from([0x50, 0x4b, 0x05, 0x06, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -337,8 +366,16 @@ test('auxiliary metadata failures do not hide primary list or edit data and can 
   const row = page.locator('.devtools-generator-page .el-table__body tr').filter({ hasText: 'proof_table' });
   await expect(row).toBeVisible();
   await expect(page.getByText('数据源列表加载失败，表格仍可使用。')).toBeVisible();
+  await page.getByRole('button', { name: '导入' }).click();
+  const importDialog = page.getByRole('dialog', { name: '导入表' });
+  await expect(importDialog).toBeVisible();
+  await expect(importDialog.getByText('candidate_table', { exact: true })).toBeVisible();
+  await expect(importDialog.getByText('导入数据源加载失败，仍可查询默认数据源。')).toBeVisible();
   state.auxiliaryMode = 'success';
-  await page.getByRole('button', { name: '重新加载' }).click();
+  await importDialog.getByRole('button', { name: '重新加载' }).click();
+  await expect(importDialog.getByText('导入数据源加载失败，仍可查询默认数据源。')).toHaveCount(0);
+  await importDialog.getByRole('button', { name: '取消' }).click();
+  await page.getByText('数据源列表加载失败，表格仍可使用。').locator('..').getByRole('button').click();
   await expect(page.getByText('数据源列表加载失败，表格仍可使用。')).toHaveCount(0);
 
   state.auxiliaryMode = 'failure';

@@ -9,7 +9,6 @@ export interface AiChatSnapshot {
 
 export interface AiChatSession {
   dispose(): void;
-  frameFailed(sourceUrl?: string): void;
   frameLoaded(sourceUrl?: string): void;
   load(): Promise<void>;
   snapshot(): AiChatSnapshot;
@@ -20,11 +19,35 @@ const missingBaseUrlMessage = 'AI 服务地址不存在，请联系管理员';
 const missingIdentityMessage = '获取 AI 用户身份失败';
 const registrationFailureMessage = '加载 AI 聊天失败，请稍后重试';
 const frameFailureMessage = 'AI 聊天连接中断，请重新加载';
+const frameLoadTimeoutMs = 15000;
+const parserOrigin = 'https://app.namewta.invalid';
 
-function createFrameUrl(baseUrl: string, openId: string, credential: string): string {
-  const normalizedBase = baseUrl.replace(/\/+$/, '');
+function parseSameOriginBasePath(input: unknown): string | undefined {
+  if (typeof input !== 'string') return undefined;
+  const candidate = input.trim();
+  if (!candidate.startsWith('/') || candidate.startsWith('//')) return undefined;
+  try {
+    const parsed = new URL(candidate, parserOrigin);
+    if (
+      parsed.origin !== parserOrigin ||
+      parsed.username ||
+      parsed.password ||
+      parsed.search ||
+      parsed.hash
+    ) {
+      return undefined;
+    }
+    const normalized = parsed.pathname.replace(/\/+$/, '');
+    return normalized || '/';
+  } catch {
+    return undefined;
+  }
+}
+
+function createFrameUrl(basePath: string, openId: string, credential: string): string {
   const params = new URLSearchParams({ openId, trustedCredential: credential });
-  return `${normalizedBase}/snail-chat/?${params.toString()}`;
+  const prefix = basePath === '/' ? '' : basePath;
+  return `${prefix}/snail-chat/?${params.toString()}`;
 }
 
 export function createAiChatSession(
@@ -33,7 +56,9 @@ export function createAiChatSession(
 ): AiChatSession {
   const runtime = requireAiWebRuntime(runtimeInput);
   let attempt = 0;
+  let activeProbe: AbortController | undefined;
   let disposed = false;
+  let frameTimer: ReturnType<typeof setTimeout> | undefined;
   let state: AiChatSnapshot = { error: '', frameUrl: '', loading: false };
 
   const snapshot = (): AiChatSnapshot => ({ ...state });
@@ -43,17 +68,37 @@ export function createAiChatSession(
     publish();
   };
   const matchesFrame = (sourceUrl?: string) => !sourceUrl || sourceUrl === state.frameUrl;
+  const clearFrameTimer = () => {
+    if (frameTimer !== undefined) clearTimeout(frameTimer);
+    frameTimer = undefined;
+  };
+  const cancelPending = () => {
+    activeProbe?.abort();
+    activeProbe = undefined;
+    clearFrameTimer();
+  };
 
   return Object.freeze({
     async load() {
       const currentAttempt = ++attempt;
+      cancelPending();
       replaceState({ error: '', frameUrl: '', loading: true });
-      const baseUrl = runtime.baseUrl();
-      if (typeof baseUrl !== 'string' || baseUrl.trim() === '') {
+      let basePath: string | undefined;
+      try {
+        basePath = parseSameOriginBasePath(runtime.baseUrl());
+      } catch {
+        basePath = undefined;
+      }
+      if (!basePath) {
         replaceState({ error: missingBaseUrlMessage, frameUrl: '', loading: false });
         return;
       }
-      const credential = runtime.trustedCredential();
+      let credential: string | null = null;
+      try {
+        credential = runtime.trustedCredential();
+      } catch {
+        credential = null;
+      }
       if (typeof credential !== 'string' || credential.trim() === '') {
         replaceState({ error: missingCredentialMessage, frameUrl: '', loading: false });
         return;
@@ -67,7 +112,26 @@ export function createAiChatSession(
           replaceState({ error: missingIdentityMessage, frameUrl: '', loading: false });
           return;
         }
-        replaceState({ error: '', frameUrl: createFrameUrl(baseUrl, openId, credential), loading: true });
+        const frameUrl = createFrameUrl(basePath, openId, credential);
+        const probe = new AbortController();
+        activeProbe = probe;
+        try {
+          await runtime.probeFrame({ signal: probe.signal, url: frameUrl });
+        } catch {
+          if (disposed || currentAttempt !== attempt) return;
+          replaceState({ error: frameFailureMessage, frameUrl: '', loading: false });
+          return;
+        } finally {
+          if (activeProbe === probe) activeProbe = undefined;
+        }
+        if (disposed || currentAttempt !== attempt) return;
+        frameTimer = setTimeout(() => {
+          if (disposed || currentAttempt !== attempt || !state.frameUrl) return;
+          ++attempt;
+          replaceState({ error: frameFailureMessage, frameUrl: '', loading: false });
+          frameTimer = undefined;
+        }, frameLoadTimeoutMs);
+        replaceState({ error: '', frameUrl, loading: true });
       } catch {
         if (disposed || currentAttempt !== attempt) return;
         replaceState({ error: registrationFailureMessage, frameUrl: '', loading: false });
@@ -75,16 +139,13 @@ export function createAiChatSession(
     },
     frameLoaded(sourceUrl) {
       if (disposed || !state.frameUrl || !matchesFrame(sourceUrl)) return;
+      clearFrameTimer();
       replaceState({ ...state, loading: false });
-    },
-    frameFailed(sourceUrl) {
-      if (disposed || !state.frameUrl || !matchesFrame(sourceUrl)) return;
-      ++attempt;
-      replaceState({ error: frameFailureMessage, frameUrl: '', loading: false });
     },
     dispose() {
       disposed = true;
       ++attempt;
+      cancelPending();
       state = { error: '', frameUrl: '', loading: false };
     },
     snapshot

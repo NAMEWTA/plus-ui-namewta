@@ -27,6 +27,10 @@ export const aiDomainModule: DomainModule = Object.freeze({
 export function createAiService(http: HttpClient): AiService {
   return Object.freeze({
     registerCurrentSnailUser: () =>
-      http.request<AiApiResponse<SnailOpenApiUser>>({ url: '/snail-ai/user/register', method: 'post' })
+      http.request<AiApiResponse<SnailOpenApiUser>>({
+        url: '/snail-ai/user/register',
+        method: 'post',
+        headers: { repeatSubmit: false }
+      })
   });
 }

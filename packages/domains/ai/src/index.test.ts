@@ -25,7 +25,9 @@ describe('AI domain', () => {
       code: 200,
       data: { openId: 'open-user' }
     });
-    expect(requests).toEqual([{ url: '/snail-ai/user/register', method: 'post' }]);
+    expect(requests).toEqual([
+      { url: '/snail-ai/user/register', method: 'post', headers: { repeatSubmit: false } }
+    ]);
     expectTypeOf(service.registerCurrentSnailUser).toEqualTypeOf<
       () => Promise<AiApiResponse<SnailOpenApiUser>>
     >();

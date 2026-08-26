@@ -5,9 +5,11 @@ const clientUrl = process.env.CLIENT_WEB_URL ?? 'http://127.0.0.1:4174';
 const adminClientId = 'e5cd7e4891bf95d1d19206ce24a7b32e';
 
 type AiProofState = {
+  abortedProbes: number;
   authenticatedRegistration: boolean;
   clientIds: string[];
   frameRequests: number;
+  probes: number;
   registrations: number;
   unknownRequests: string[];
 };
@@ -57,8 +59,22 @@ async function installAdminApi(page: Page, state: AiProofState) {
       return json(route, { code: 200, data: { openId: 'browser-proof-user' } });
     }
     if (path === '/snail-chat/' && method === 'GET') {
+      if (request.resourceType() === 'fetch') {
+        state.probes += 1;
+        if (state.abortedProbes > 0) {
+          state.abortedProbes -= 1;
+          return route.abort('failed');
+        }
+        return route.fulfill({
+          contentType: 'text/html',
+          body: '<!doctype html><title>Snail AI probe</title>'
+        });
+      }
       state.frameRequests += 1;
-      return route.fulfill({ contentType: 'text/html', body: '<!doctype html><title>Snail AI proof</title>' });
+      return route.fulfill({
+        contentType: 'text/html',
+        body: '<!doctype html><title>Snail AI proof</title><main>Snail AI ready</main>'
+      });
     }
 
     state.unknownRequests.push(`${method} ${path}`);
@@ -67,9 +83,11 @@ async function installAdminApi(page: Page, state: AiProofState) {
 }
 
 const createState = (): AiProofState => ({
+  abortedProbes: 0,
   authenticatedRegistration: false,
   clientIds: [],
   frameRequests: 0,
+  probes: 0,
   registrations: 0,
   unknownRequests: []
 });
@@ -82,6 +100,9 @@ test('admin selects the permission-neutral AI manifest and loads the embedded ch
   await page.goto(`${adminUrl}/ai-chat-proof`);
   const frame = page.locator('iframe[title="Snail AI"]');
   await expect(frame).toBeVisible();
+  await expect(frame.contentFrame().getByText('Snail AI ready', { exact: true })).toBeVisible();
+  await expect(page.locator('.ai-chat-page .el-loading-mask')).toHaveCount(0);
+  await expect.poll(() => state.probes).toBe(1);
   await expect.poll(() => state.frameRequests).toBe(1);
 
   const source = await frame.getAttribute('src');
@@ -97,23 +118,31 @@ test('admin selects the permission-neutral AI manifest and loads the embedded ch
   });
 });
 
-test('an iframe interruption clears the sensitive URL, ends loading, and retries', async ({ page }) => {
+test('a failed chat probe keeps the sensitive URL private, ends loading, and retries immediately', async ({ page }) => {
   const state = createState();
+  state.abortedProbes = 1;
   await installAdminApi(page, state);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'ai-browser-retry-proof'));
 
   await page.goto(`${adminUrl}/ai-chat-proof`);
   const frame = page.locator('iframe[title="Snail AI"]');
-  await expect(frame).toBeVisible();
-  await frame.evaluate(element => element.dispatchEvent(new Event('error')));
-
   await expect(page.getByText('AI 聊天连接中断，请重新加载', { exact: true })).toBeVisible();
   await expect(frame).toHaveCount(0);
   await expect(page.locator('.ai-chat-page .el-loading-mask')).toHaveCount(0);
+  await expect.poll(() => state.registrations).toBe(1);
+  await expect.poll(() => state.probes).toBe(1);
+  expect(await page.locator('html').innerHTML()).not.toContain('ai-browser-retry-proof');
 
   await page.getByRole('button', { name: '重新加载' }).click();
-  await expect(page.locator('iframe[title="Snail AI"]')).toBeVisible();
+  const retryFrame = page.locator('iframe[title="Snail AI"]');
+  await expect(retryFrame).toBeVisible();
+  await expect(retryFrame.contentFrame().getByText('Snail AI ready', { exact: true })).toBeVisible();
+  await expect(page.locator('.ai-chat-page .el-loading-mask')).toHaveCount(0);
   await expect.poll(() => state.registrations).toBe(2);
+  await expect.poll(() => state.probes).toBe(2);
+  await expect.poll(() => state.frameRequests).toBe(1);
+  const retrySource = await retryFrame.getAttribute('src');
+  expect(new URL(retrySource!, page.url()).searchParams.has('trustedCredential')).toBe(true);
   expect(state.unknownRequests).toEqual([]);
 });
 

@@ -6,6 +6,7 @@ import type { AiWebRuntime } from './runtime';
 
 const runtime = (): AiWebRuntime => ({
   baseUrl: () => '/prod-api',
+  probeFrame: vi.fn<AiWebRuntime['probeFrame']>(async () => undefined),
   service: { registerCurrentSnailUser: vi.fn() },
   trustedCredential: vi.fn(() => 'credential')
 });
@@ -48,6 +49,9 @@ describe('AI web-domain manifest', () => {
     expect(() => createAiWebDomain(undefined as unknown as AiWebRuntime)).toThrow('AiWebRuntime is required');
     expect(() => createAiWebDomain({ ...runtime(), baseUrl: undefined as never })).toThrow(
       'AiWebRuntime.baseUrl is required'
+    );
+    expect(() => createAiWebDomain({ ...runtime(), probeFrame: undefined as never })).toThrow(
+      'AiWebRuntime.probeFrame is required'
     );
   });
 });

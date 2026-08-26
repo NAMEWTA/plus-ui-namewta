@@ -11,7 +11,6 @@ const session = createAiChatSession(runtime, snapshot => Object.assign(state, sn
 
 const frameSource = (event: Event) => (event.currentTarget as HTMLIFrameElement | null)?.getAttribute('src') ?? undefined;
 const handleFrameLoad = (event: Event) => session.frameLoaded(frameSource(event));
-const handleFrameError = (event: Event) => session.frameFailed(frameSource(event));
 const retry = () => void session.load();
 
 onMounted(retry);
@@ -27,7 +26,6 @@ onBeforeUnmount(() => session.dispose());
       title="Snail AI"
       allow="clipboard-read; clipboard-write"
       @load="handleFrameLoad"
-      @error="handleFrameError"
     />
     <el-empty v-else class="chat-empty" :description="state.error || '正在加载 Snail AI'">
       <el-button v-if="state.error" type="primary" @click="retry">重新加载</el-button>

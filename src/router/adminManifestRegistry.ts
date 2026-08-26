@@ -29,6 +29,13 @@ const aiService = createAiService({
 });
 export const adminAiWebRuntime: AiWebRuntime = {
   baseUrl: () => import.meta.env.VITE_APP_BASE_API,
+  probeFrame: async ({ signal, url }) => {
+    const response = await fetch(url, { credentials: 'same-origin', method: 'GET', redirect: 'error', signal });
+    const contentType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+    if (!response.ok || (contentType !== 'text/html' && contentType !== 'application/xhtml+xml')) {
+      throw new Error('AI chat probe failed');
+    }
+  },
   service: aiService,
   trustedCredential: () => getToken() ?? null
 };

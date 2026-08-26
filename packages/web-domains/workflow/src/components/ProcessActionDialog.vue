@@ -102,7 +102,9 @@
         :file-size="20"
       />
     </el-form-item>
-    <template #footer><el-button type="primary" @click="back">确认退回</el-button></template>
+    <template #footer>
+      <el-button type="primary" :loading="submitting" @click="back">确认退回</el-button>
+    </template>
   </el-dialog>
 </template>
 
@@ -309,7 +311,7 @@ async function openBack() {
   backVisible.value = true;
 }
 async function back() {
-  if (!task.value || !backNodeCode.value) return;
+  if (submitting.value || !task.value || !backNodeCode.value) return;
   const currentTask = task.value;
   submitting.value = true;
   backFailure.value = '';

@@ -1,6 +1,1 @@
-export interface SnailOpenApiUser {
-  openId: string;
-  nickname?: string;
-  externalId?: string;
-  created?: boolean;
-}
+export type { SnailOpenApiUser } from '@namewta/domain-ai';

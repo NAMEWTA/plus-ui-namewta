@@ -1,20 +1,20 @@
 # AI Web Domain
 
 ## Status
-- `placeholder`: AI pages and Web interaction state remain in the root App.
+- `active`: `@namewta/web-domain-ai` owns the Snail AI iframe page, lifecycle, and explicit manifest.
 ## Responsibilities
-- Provide Vue agent/conversation views, stream presentation and cancellation UI, AI messages/styles, and manifest contributions.
+- Provide the Vue iframe page, registration/loading/error/retry lifecycle, same-origin HTML probe, AI messages/styles, and manifest contribution.
 ## Non-responsibilities
-- It does not own AI transport/business services, global shell, model infrastructure, or browser transport implementation.
+- It does not own AI transport, global shell, model infrastructure, or invent postMessage/SSE/ReadableStream/backend protocols.
 ## Allowed dependencies
-- Public AI domain, platform streaming/error contracts, and selected web-kit entries.
+- Public AI domain, platform app-runtime, Vue, and Element Plus.
 ## Forbidden dependencies
 - Apps, other web-domain internals, concrete adapters, direct globals for domain behavior, and secret-bearing logs.
 ## Public entrypoints
-- Future `@namewta/web-domain-ai` root export for AI views/composables/messages and `WebDomainManifest`.
+- `@namewta/web-domain-ai` exports the typed runtime, lazy page loader, and `createAiWebDomain`; `./pages` exports the compatibility-safe page.
 ## Backend modules
-- `backendModules: [ruoyi-ai]`, inherited from AI agent and model-service capabilities.
+- `backendModules: [ruoyi-ai]`, inherited from the current-user registration capability.
 ## Activation conditions
-- Activate in T-12 with terminal-neutral stream ownership in the domain/platform layer and explicit App selection.
+- Activated in T-12 only when an App explicitly selects `ai` and `web-domain-ai`; admin does so and client does not.
 ## Validation
-- Require stream loading/cancel/retry UI tests, manifest selected-only checks, secret review, lint, typecheck, E2E, and admin/client build comparison.
+- Require registration, probe failure, iframe load timeout, retry, credential URL cleanup, selected-only checks, secret review, lint, typecheck, E2E, and dual-App builds.

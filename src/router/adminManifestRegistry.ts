@@ -1,9 +1,11 @@
+import { aiDomainModule, createAiService } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
 import { identityAccessDomainModule, type IdentityAccessService } from '@namewta/domain-identity-access';
 import { createSystemAdminService, systemAdminDomainModule } from '@namewta/domain-system-admin';
 import { createWorkflowDefinitionService, workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } from '@namewta/platform-app-runtime';
 import { createAccessEvaluator } from '@namewta/platform-permission';
+import { createAiWebDomain, type AiWebRuntime } from '@namewta/web-domain-ai';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
 import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
 import {
@@ -21,6 +23,42 @@ import { sanitizeHtml } from '@/utils/sanitize';
 const WorkflowFileUpload = defineAsyncComponent(() => import('@/components/FileUpload/index.vue'));
 const SystemEditor = defineAsyncComponent(() => import('@/components/Editor/index.vue'));
 const SystemImagePreview = defineAsyncComponent(() => import('@/components/ImagePreview/index.vue'));
+
+const aiService = createAiService({
+  async request<T>(config) {
+    const { default: request } = await import('@/utils/request');
+    return request(config) as Promise<T>;
+  }
+});
+
+async function cancelUnreadResponseBody(response: Response | undefined): Promise<void> {
+  const body = response?.body;
+  if (!body || response.bodyUsed || body.locked) return;
+  try {
+    await body.cancel();
+  } catch {
+    // Probe outcome must not be replaced by a best-effort transport cleanup failure.
+  }
+}
+
+export const adminAiWebRuntime: AiWebRuntime = {
+  baseUrl: () => import.meta.env.VITE_APP_BASE_API,
+  probeFrame: async ({ signal, url }) => {
+    let response: Response | undefined;
+    try {
+      response = await fetch(url, { credentials: 'same-origin', method: 'GET', redirect: 'error', signal });
+      const contentType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+      if (!response.ok || (contentType !== 'text/html' && contentType !== 'application/xhtml+xml')) {
+        throw new Error('AI chat probe failed');
+      }
+    } finally {
+      await cancelUnreadResponseBody(response);
+    }
+  },
+  service: aiService,
+  trustedCredential: () => getToken() ?? null
+};
+const aiManifest = createAiWebDomain(adminAiWebRuntime);
 
 const identityService: IdentityAccessService = {
   client: Object.freeze({ clientId: import.meta.env.VITE_APP_CLIENT_ID }),
@@ -182,7 +220,13 @@ const systemAdminManifest = createSystemAdminWebDomain(adminSystemAdminWebRuntim
 
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
-  domainModules: [identityAccessDomainModule, demoDomainModule, workflowDomainModule, systemAdminDomainModule],
+  domainModules: [
+    identityAccessDomainModule,
+    demoDomainModule,
+    workflowDomainModule,
+    systemAdminDomainModule,
+    aiDomainModule
+  ],
   manifests: [
     createIdentityAccessWebDomain({
       service: identityService,
@@ -192,14 +236,16 @@ const runtime = composeAppRuntime<Component>({
     }),
     createDemoWebDomain(demoRuntime),
     workflowManifest,
-    systemAdminManifest
+    systemAdminManifest,
+    aiManifest
   ],
-  selectedDomainIds: ['identity-access', 'demo', 'workflow', 'system-admin'],
+  selectedDomainIds: ['identity-access', 'demo', 'workflow', 'system-admin', 'ai'],
   selectedManifestIds: [
     'web-domain-identity-access',
     'web-domain-demo',
     'web-domain-workflow',
-    'web-domain-system-admin'
+    'web-domain-system-admin',
+    'web-domain-ai'
   ]
 });
 

@@ -328,8 +328,9 @@ test('edit uses public metadata ports and preserves the complete generator paylo
   await page.getByRole('tab', { name: '生成信息' }).click();
   await expect(page.getByRole('tabpanel', { name: '生成信息' }).getByText('系统工具', { exact: true })).toBeVisible();
   const chooseOption = async (testId: string, optionName: RegExp) => {
-    const combobox = page.getByTestId(testId).getByRole('combobox');
-    await combobox.click();
+    const select = page.getByTestId(testId);
+    const combobox = select.getByRole('combobox');
+    await select.click();
     const listboxId = await combobox.getAttribute('aria-controls');
     expect(listboxId).toBeTruthy();
     const listbox = page.locator(`[id="${listboxId}"]`);

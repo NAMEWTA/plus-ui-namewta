@@ -157,6 +157,7 @@
             <el-tooltip content="下载" placement="top">
               <el-button
                 v-hasPermi="['system:oss:download']"
+                aria-label="下载"
                 link
                 type="primary"
                 icon="Download"
@@ -166,6 +167,7 @@
             <el-tooltip content="删除" placement="top">
               <el-button
                 v-hasPermi="['system:oss:remove']"
+                aria-label="删除"
                 link
                 type="primary"
                 icon="Delete"

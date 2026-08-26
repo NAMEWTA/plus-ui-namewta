@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 import { createLiveSystemDictRefs, createSystemAdminWebDomain } from './index';
 import dictPage from './views/DictPage.vue?raw';
+import ossPage from './views/OssPage.vue?raw';
 
 const runtime = { service: {} } as never;
 
@@ -81,5 +82,10 @@ describe('system-admin web manifest', () => {
   it('settles both dictionary loading states when a request rejects', () => {
     expect(dictPage).toMatch(/const getTypeList = async \(\) =>[\s\S]*?finally[\s\S]*?typeLoading\.value = false/);
     expect(dictPage).toMatch(/const getDataList = async \(\) =>[\s\S]*?finally[\s\S]*?dataLoading\.value = false/);
+  });
+
+  it('labels icon-only OSS row actions for assistive technology', () => {
+    expect(ossPage).toContain('aria-label="下载"');
+    expect(ossPage).toContain('aria-label="删除"');
   });
 });

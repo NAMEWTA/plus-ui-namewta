@@ -9,7 +9,11 @@ const axios = axiosModule as any;
 const baseURL = import.meta.env.VITE_APP_BASE_API;
 let downloadLoadingInstance: LoadingInstance | undefined;
 
-const zipSignatures = new Set(['80,75,3,4', '80,75,5,6', '80,75,7,8']);
+const ZIP_LOCAL_FILE = 0x04034b50;
+const ZIP_CENTRAL_FILE = 0x02014b50;
+const ZIP_EOCD = 0x06054b50;
+const EOCD_MIN_SIZE = 22;
+const MAX_EOCD_SEARCH = EOCD_MIN_SIZE + 0xffff;
 const sanitizedMessage = (value: unknown) =>
   [...String(value ?? '')]
     .map(character => {
@@ -23,15 +27,53 @@ const sanitizedMessage = (value: unknown) =>
     .slice(0, 200);
 
 export async function isZipPayload(data: unknown): Promise<boolean> {
-  const bytes =
-    data instanceof Blob
-      ? new Uint8Array(await data.slice(0, 4).arrayBuffer())
-      : data instanceof ArrayBuffer
-        ? new Uint8Array(data.slice(0, 4))
-        : ArrayBuffer.isView(data)
-          ? new Uint8Array(data.buffer, data.byteOffset, Math.min(data.byteLength, 4))
-          : new Uint8Array();
-  return bytes.byteLength >= 4 && zipSignatures.has(Array.from(bytes).join(','));
+  let bytes: Uint8Array;
+  if (data instanceof Blob) bytes = new Uint8Array(await data.arrayBuffer());
+  else if (data instanceof ArrayBuffer) bytes = new Uint8Array(data);
+  else if (ArrayBuffer.isView(data)) {
+    bytes = new Uint8Array(data.byteLength);
+    bytes.set(new Uint8Array(data.buffer, data.byteOffset, data.byteLength));
+  } else return false;
+  if (bytes.byteLength < EOCD_MIN_SIZE) return false;
+
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const u16 = (offset: number) => view.getUint16(offset, true);
+  const u32 = (offset: number) => view.getUint32(offset, true);
+  let eocdOffset = -1;
+  for (
+    let offset = bytes.byteLength - EOCD_MIN_SIZE;
+    offset >= Math.max(0, bytes.byteLength - MAX_EOCD_SEARCH);
+    offset--
+  ) {
+    if (u32(offset) === ZIP_EOCD) {
+      eocdOffset = offset;
+      break;
+    }
+  }
+  if (eocdOffset < 0 || eocdOffset + EOCD_MIN_SIZE + u16(eocdOffset + 20) !== bytes.byteLength) return false;
+
+  const disk = u16(eocdOffset + 4);
+  const centralDisk = u16(eocdOffset + 6);
+  const diskEntries = u16(eocdOffset + 8);
+  const totalEntries = u16(eocdOffset + 10);
+  const centralSize = u32(eocdOffset + 12);
+  const centralOffset = u32(eocdOffset + 16);
+  if (disk || centralDisk || diskEntries !== totalEntries || centralOffset + centralSize !== eocdOffset) return false;
+  if (totalEntries === 0) return centralOffset === 0 && centralSize === 0 && eocdOffset === 0;
+  if (totalEntries === 0xffff || centralSize === 0xffffffff || centralOffset === 0xffffffff) return false;
+
+  let cursor = centralOffset;
+  for (let entry = 0; entry < totalEntries; entry++) {
+    if (cursor + 46 > eocdOffset || u32(cursor) !== ZIP_CENTRAL_FILE) return false;
+    const centralEntrySize = 46 + u16(cursor + 28) + u16(cursor + 30) + u16(cursor + 32);
+    const localOffset = u32(cursor + 42);
+    if (cursor + centralEntrySize > eocdOffset || localOffset + 30 > centralOffset) return false;
+    if (u32(localOffset) !== ZIP_LOCAL_FILE) return false;
+    const localHeaderSize = 30 + u16(localOffset + 26) + u16(localOffset + 28);
+    if (localOffset + localHeaderSize > centralOffset) return false;
+    cursor += centralEntrySize;
+  }
+  return cursor === eocdOffset;
 }
 export default {
   async oss(ossId: string | number) {

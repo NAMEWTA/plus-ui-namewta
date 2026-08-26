@@ -25,7 +25,14 @@ describe('devtools domain', () => {
       { dictTypes, menus }
     );
 
-    await service.list({ pageNum: 1, pageSize: 10, tableName: 'sys/user', tableComment: '', dataName: 'master' });
+    await service.list({
+      pageNum: 1,
+      pageSize: 10,
+      tableName: 'sys/user',
+      tableComment: '',
+      dataName: 'master',
+      params: { beginTime: '2026-08-01', endTime: '2026-08-26' }
+    });
     await service.listDatabaseTables({
       pageNum: 2,
       pageSize: 20,
@@ -45,7 +52,14 @@ describe('devtools domain', () => {
       {
         url: '/tool/gen/list',
         method: 'get',
-        params: { pageNum: 1, pageSize: 10, tableName: 'sys/user', tableComment: '', dataName: 'master' }
+        params: {
+          pageNum: 1,
+          pageSize: 10,
+          tableName: 'sys/user',
+          tableComment: '',
+          dataName: 'master',
+          params: { beginTime: '2026-08-01', endTime: '2026-08-26' }
+        }
       },
       {
         url: '/tool/gen/db/list',

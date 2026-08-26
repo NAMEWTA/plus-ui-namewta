@@ -22,6 +22,28 @@ vi.mock('@/utils/save', () => ({ saveBlob: harness.saveBlob }));
 
 import download, { isZipPayload } from './download';
 
+const writeU16 = (view: DataView, offset: number, value: number) => view.setUint16(offset, value, true);
+const writeU32 = (view: DataView, offset: number, value: number) => view.setUint32(offset, value, true);
+const emptyZip = () => {
+  const bytes = new Uint8Array(22);
+  const view = new DataView(bytes.buffer);
+  writeU32(view, 0, 0x06054b50);
+  return bytes;
+};
+const singleEntryZip = () => {
+  const bytes = new Uint8Array(98);
+  const view = new DataView(bytes.buffer);
+  writeU32(view, 0, 0x04034b50);
+  writeU32(view, 30, 0x02014b50);
+  writeU32(view, 72, 0);
+  writeU32(view, 76, 0x06054b50);
+  writeU16(view, 84, 1);
+  writeU16(view, 86, 1);
+  writeU32(view, 88, 46);
+  writeU32(view, 92, 30);
+  return bytes;
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -34,7 +56,13 @@ describe('ZIP download safety', () => {
     ],
     ['html', new Blob(['<html>gateway error</html>'], { type: 'text/html' })],
     ['plain text', new Blob(['gateway error'], { type: 'text/plain' })],
-    ['truncated signature', new Blob([new Uint8Array([0x50, 0x4b, 0x03])], { type: 'application/zip' })]
+    ['truncated signature', new Blob([new Uint8Array([0x50, 0x4b, 0x03])], { type: 'application/zip' })],
+    [
+      'local header only',
+      new Blob([new Uint8Array(30).fill(0).map((value, index) => [0x50, 0x4b, 0x03, 0x04][index] ?? value)])
+    ],
+    ['data descriptor only', new Blob([new Uint8Array([0x50, 0x4b, 0x07, 0x08, 0, 0, 0, 0])])],
+    ['truncated EOCD', new Blob([emptyZip().slice(0, 21)])]
   ])('rejects %s without saving a corrupt file', async (_label, payload) => {
     harness.axios.mockResolvedValue({ data: payload });
 
@@ -50,7 +78,7 @@ describe('ZIP download safety', () => {
   });
 
   it('saves a payload with a valid ZIP local-file signature', async () => {
-    const payload = new Blob([new Uint8Array([0x50, 0x4b, 0x03, 0x04, 0x14, 0x00])]);
+    const payload = new Blob([singleEntryZip()]);
     harness.axios.mockResolvedValue({ data: payload });
 
     await download.zip('/tool/gen/batchGenCode?tableIdStr=1', 'ruoyi.zip');
@@ -71,9 +99,12 @@ describe('ZIP download safety', () => {
     expect(harness.close).toHaveBeenCalledTimes(1);
   });
 
-  it('recognizes all supported ZIP signatures and rejects arbitrary bytes', async () => {
-    await expect(isZipPayload(new Uint8Array([0x50, 0x4b, 0x05, 0x06]))).resolves.toBe(true);
-    await expect(isZipPayload(new Uint8Array([0x50, 0x4b, 0x07, 0x08]))).resolves.toBe(true);
+  it('validates complete empty and non-empty ZIP structures and rejects arbitrary bytes', async () => {
+    await expect(isZipPayload(emptyZip())).resolves.toBe(true);
+    await expect(isZipPayload(singleEntryZip())).resolves.toBe(true);
     await expect(isZipPayload(new Uint8Array([0x7b, 0x22, 0x78, 0x22]))).resolves.toBe(false);
+    const brokenCentralDirectory = singleEntryZip();
+    brokenCentralDirectory[30] = 0;
+    await expect(isZipPayload(brokenCentralDirectory)).resolves.toBe(false);
   });
 });

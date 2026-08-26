@@ -26,7 +26,7 @@
 
 ## Backend modules
 
-- Generation uses `ruoyi-admin`; dictionary/menu metadata remains behind system public ports.
+- Generation maps to `ruoyi-gen`; dictionary/menu metadata maps to `ruoyi-system` and remains behind public ports.
 
 ## Activation conditions
 

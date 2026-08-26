@@ -13,11 +13,27 @@
         <el-form-item label="表描述" prop="tableComment">
           <el-input v-model="query.tableComment" clearable @keyup.enter="search" />
         </el-form-item>
+        <el-form-item label="创建时间">
+          <el-date-picker
+            v-model="dateRange"
+            value-format="YYYY-MM-DD"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="Search" @click="search">搜索</el-button>
           <el-button icon="Refresh" @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
+      <el-alert v-if="dataSourceError" type="warning" :closable="false" show-icon>
+        <template #title>
+          数据源列表加载失败，表格仍可使用。
+          <el-button link type="primary" @click="loadDataSources">重新加载</el-button>
+        </template>
+      </el-alert>
 
       <div class="toolbar">
         <div>
@@ -142,6 +158,16 @@
     <el-dialog v-model="preview.visible" title="代码预览" width="80%" top="5vh" append-to-body>
       <el-tabs v-model="preview.active">
         <el-tab-pane v-for="(source, path) in preview.files" :key="path" :label="fileName(path)" :name="path">
+          <el-button
+            v-copyText="source"
+            v-copyText:callback="copySuccess"
+            class="copy-button"
+            link
+            type="primary"
+            icon="DocumentCopy"
+          >
+            复制
+          </el-button>
           <pre data-testid="generator-preview-source"><code>{{ source }}</code></pre>
         </el-tab-pane>
       </el-tabs>
@@ -166,6 +192,8 @@ const total = ref(0);
 const rows = ref<TableVO[]>([]);
 const selected = ref<TableVO[]>([]);
 const dataSources = ref<string[]>([]);
+const dataSourceError = ref(false);
+const dateRange = ref<[string, string]>(['', '']);
 const queryFormRef = ref<ElFormInstance>();
 const importRef = ref<InstanceType<typeof ImportTableDialog>>();
 const query = reactive<TableQuery>({ pageNum: 1, pageSize: 10, tableName: '', tableComment: '', dataName: '' });
@@ -174,9 +202,14 @@ const preview = reactive({ visible: false, active: '', files: {} as Record<strin
 async function load() {
   loading.value = true;
   try {
-    const response = await runtime.service.list({ ...query });
+    const response = await runtime.service.list({
+      ...query,
+      params: { beginTime: dateRange.value[0] || undefined, endTime: dateRange.value[1] || undefined }
+    });
     rows.value = response.data?.rows ?? [];
     total.value = response.data?.total ?? 0;
+  } catch {
+    runtime.error('生成表加载失败，请重试');
   } finally {
     loading.value = false;
   }
@@ -187,6 +220,7 @@ function search() {
 }
 function reset() {
   queryFormRef.value?.resetFields();
+  dateRange.value = ['', ''];
   search();
 }
 function edit(row?: Partial<TableVO>) {
@@ -222,12 +256,24 @@ function downloadSelected() {
 function fileName(path: string) {
   return path.split('/').pop()?.replace('.ftl', '') ?? path;
 }
+function copySuccess() {
+  runtime.success('复制成功');
+}
+async function loadDataSources() {
+  try {
+    const response = await runtime.service.dataSourceNames();
+    dataSources.value = response.data ?? [];
+    dataSourceError.value = false;
+  } catch {
+    dataSourceError.value = true;
+    runtime.error('数据源列表加载失败，可点击重新加载');
+  }
+}
 
-onMounted(async () => {
+onMounted(() => {
   query.pageNum = Number(route.query.pageNum) || 1;
-  const response = await runtime.service.dataSourceNames();
-  dataSources.value = response.data ?? [];
-  await load();
+  void load();
+  void loadDataSources();
 });
 </script>
 
@@ -250,6 +296,10 @@ onMounted(async () => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+.copy-button {
+  float: right;
+  margin-bottom: 8px;
 }
 pre {
   max-height: 60vh;

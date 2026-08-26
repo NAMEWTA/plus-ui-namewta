@@ -60,6 +60,7 @@ export interface TableQuery extends PageQuery {
   tableName: string;
   tableComment: string;
   dataName: string;
+  params?: { beginTime?: string; endTime?: string };
 }
 export interface DbTableQuery extends TableQuery {}
 export interface DbColumnVO extends BaseEntity {
@@ -80,6 +81,37 @@ export interface DbColumnVO extends BaseEntity {
   dictType?: string;
   sort?: number;
   [key: string]: unknown;
+}
+export interface DbColumnForm extends BaseEntity {
+  createDept: number;
+  columnId: string;
+  tableId: string;
+  columnName: string;
+  columnComment: string;
+  columnType: string;
+  javaType: string;
+  javaField: string;
+  isPk: string;
+  isIncrement: string;
+  isRequired: string;
+  isInsert?: string;
+  isEdit: string;
+  isList: string;
+  isQuery?: string;
+  queryType: string;
+  htmlType: string;
+  dictType: string;
+  sort: number;
+  increment: boolean;
+  capJavaField: string;
+  usableColumn: boolean;
+  superColumn: boolean;
+  list: boolean;
+  pk: boolean;
+  insert: boolean;
+  edit: boolean;
+  query: boolean;
+  required: boolean;
 }
 export interface DbTableVO extends Partial<TableVO> {
   tableName: string;
@@ -108,7 +140,8 @@ export interface DbParamForm {
   treeAncestors?: string;
   treeOrderField?: string;
 }
-export interface DbTableForm extends DbTableVO {
+export interface DbTableForm extends Omit<DbTableVO, 'columns'> {
+  columns: DbColumnForm[];
   params: DbParamForm;
   options?: string;
 }

@@ -1,9 +1,11 @@
+import { aiDomainModule, createAiService } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
 import { identityAccessDomainModule, type IdentityAccessService } from '@namewta/domain-identity-access';
 import { createSystemAdminService, systemAdminDomainModule } from '@namewta/domain-system-admin';
 import { createWorkflowDefinitionService, workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } from '@namewta/platform-app-runtime';
 import { createAccessEvaluator } from '@namewta/platform-permission';
+import { createAiWebDomain, type AiWebRuntime } from '@namewta/web-domain-ai';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
 import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
 import {
@@ -18,6 +20,19 @@ import WorkflowTreePanel from '@/components/TreePanel/index.vue';
 import { getToken } from '@/utils/auth';
 
 const WorkflowFileUpload = defineAsyncComponent(() => import('@/components/FileUpload/index.vue'));
+
+const aiService = createAiService({
+  async request<T>(config) {
+    const { default: request } = await import('@/utils/request');
+    return request(config) as Promise<T>;
+  }
+});
+export const adminAiWebRuntime: AiWebRuntime = {
+  baseUrl: () => import.meta.env.VITE_APP_BASE_API,
+  service: aiService,
+  trustedCredential: () => getToken() ?? null
+};
+const aiManifest = createAiWebDomain(adminAiWebRuntime);
 
 const identityService: IdentityAccessService = {
   client: Object.freeze({ clientId: import.meta.env.VITE_APP_CLIENT_ID }),
@@ -165,7 +180,13 @@ const systemAdminManifest = createSystemAdminWebDomain(adminSystemAdminWebRuntim
 
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
-  domainModules: [identityAccessDomainModule, demoDomainModule, workflowDomainModule, systemAdminDomainModule],
+  domainModules: [
+    identityAccessDomainModule,
+    demoDomainModule,
+    workflowDomainModule,
+    systemAdminDomainModule,
+    aiDomainModule
+  ],
   manifests: [
     createIdentityAccessWebDomain({
       service: identityService,
@@ -175,14 +196,16 @@ const runtime = composeAppRuntime<Component>({
     }),
     createDemoWebDomain(demoRuntime),
     workflowManifest,
-    systemAdminManifest
+    systemAdminManifest,
+    aiManifest
   ],
-  selectedDomainIds: ['identity-access', 'demo', 'workflow', 'system-admin'],
+  selectedDomainIds: ['identity-access', 'demo', 'workflow', 'system-admin', 'ai'],
   selectedManifestIds: [
     'web-domain-identity-access',
     'web-domain-demo',
     'web-domain-workflow',
-    'web-domain-system-admin'
+    'web-domain-system-admin',
+    'web-domain-ai'
   ]
 });
 

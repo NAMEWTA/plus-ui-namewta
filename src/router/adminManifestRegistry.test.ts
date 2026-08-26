@@ -24,5 +24,9 @@ describe('admin selected manifest registry', () => {
       componentName: 'AuthUser'
     });
     expect(resolveAdminWebRegistration('system/oss/index', 'system-admin')).toBeUndefined();
+    expect(resolveAdminWebRegistration('ai/chat/index', 'ai')).toMatchObject({
+      componentName: 'AiChatPage'
+    });
+    expect(resolveAdminWebRegistration('ai/model/index', 'ai')).toBeUndefined();
   });
 });

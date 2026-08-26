@@ -1,20 +1,20 @@
 # AI Domain
 
 ## Status
-- `placeholder`: AI transport and models remain in the root App.
+- `active`: `@namewta/domain-ai` owns the current Snail AI user-registration transport and embedded-chat metadata.
 ## Responsibilities
-- Own AI agent/model request contracts, application services, conversation/stream lifecycle semantics, and domain-level failures.
+- Own the current-user registration request/response contract, injected application service, and traceable domain metadata.
 ## Non-responsibilities
-- It does not render chat/agent Vue pages, own Web streaming UI state, provide model infrastructure, or expose prompts/tokens to logs.
+- It does not render the chat iframe, own browser credentials or URLs, provide model infrastructure, or expose credentials to logs.
 ## Allowed dependencies
-- Public platform contracts/http and terminal-neutral streaming ports; later, matching api-contracts.
+- Public platform contracts/http and app-runtime metadata; later, matching api-contracts.
 ## Forbidden dependencies
 - Apps, web-domains, web-kit, Vue/DOM, concrete browser adapters, and unrelated domains.
 ## Public entrypoints
-- Future `@namewta/domain-ai` root exports for AI services, models, stream events, and `DomainModule` metadata.
+- `@namewta/domain-ai` exports the typed registration service/model and `aiDomainModule` metadata.
 ## Backend modules
-- `backendModules: [ruoyi-ai]` for AI agent and model-service HTTP capabilities.
+- `backendModules: [ruoyi-ai]` for current-user Snail AI registration.
 ## Activation conditions
-- Activate in T-12 after platform/identity gates with real stream cancellation, retry, and error ownership specified.
+- Activated in T-12; the root `src/api/ai/**` path remains a compatibility facade until T-15.
 ## Validation
-- Require headless import checks, request/stream lifecycle tests, secret/log review, lint, typecheck, manifest E2E, and dual-App build selection.
+- Require headless import checks, exact transport tests, secret/log review, lint, typecheck, manifest E2E, and dual-App build selection.

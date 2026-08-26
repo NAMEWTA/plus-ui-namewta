@@ -1,10 +1,6 @@
-import type { AxiosPromise } from '@/utils/api-types';
+import { createAiService } from '@namewta/domain-ai';
 import request from '@/utils/request';
-import type { SnailOpenApiUser } from './types';
 
-export const registerCurrentSnailUser = (): AxiosPromise<SnailOpenApiUser> => {
-  return request({
-    url: '/snail-ai/user/register',
-    method: 'post'
-  });
-};
+const service = createAiService(request);
+
+export const registerCurrentSnailUser = service.registerCurrentSnailUser;

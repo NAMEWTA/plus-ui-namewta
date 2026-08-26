@@ -329,16 +329,28 @@ test('edit uses public metadata ports and preserves the complete generator paylo
   await expect(page.getByRole('tabpanel', { name: '生成信息' }).getByText('系统工具', { exact: true })).toBeVisible();
   await page.getByTestId('enable-unique').click();
   await page.getByTestId('unique-fields').click();
-  await page.getByRole('option', { name: /name：名称/ }).click();
+  await page
+    .locator('.el-select-dropdown:visible')
+    .getByRole('option', { name: /name：名称/ })
+    .click();
   await page.getByTestId('enable-sort').click();
   await page.getByTestId('sort-field').click();
-  await page.getByRole('option', { name: /sort_num：排序/ }).click();
+  await page
+    .locator('.el-select-dropdown:visible')
+    .getByRole('option', { name: /sort_num：排序/ })
+    .click();
   await page.getByRole('radio', { name: '树表' }).click();
   await page.getByTestId('tree-root-value').locator('input').fill('ROOT');
   await page.getByTestId('tree-name').click();
-  await page.getByRole('option', { name: /name：名称/ }).click();
+  await page
+    .locator('.el-select-dropdown:visible')
+    .getByRole('option', { name: /name：名称/ })
+    .click();
   await page.getByTestId('tree-order').click();
-  await page.getByRole('option', { name: /sort_num：排序/ }).click();
+  await page
+    .locator('.el-select-dropdown:visible')
+    .getByRole('option', { name: /sort_num：排序/ })
+    .click();
   await page.getByRole('button', { name: '提交', exact: true }).click();
 
   await expect.poll(() => state.updates.length).toBe(1);

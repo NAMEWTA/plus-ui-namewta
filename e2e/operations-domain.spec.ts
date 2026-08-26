@@ -8,7 +8,12 @@ const json = (route: Route, body: unknown) =>
 const menus = [
   { path: '/monitor-online', name: 'OnlineProof', component: 'monitor/online/index', meta: { title: '在线用户' } },
   { path: '/monitor-admin', name: 'MonitorAdminProof', component: 'monitor/admin/index', meta: { title: '服务监控' } },
-  { path: '/monitor-snailjob', name: 'SnailJobProof', component: 'monitor/snailjob/index', meta: { title: '任务调度' } },
+  {
+    path: '/monitor-snailjob',
+    name: 'SnailJobProof',
+    component: 'monitor/snailjob/index',
+    meta: { title: '任务调度' }
+  },
   { path: '/monitor-notify', name: 'NotifyProof', component: 'monitor/notify/index', meta: { title: '通知监控' } }
 ];
 
@@ -108,7 +113,9 @@ async function installApi(page: Page, permissions: string[], state: ApiState) {
 
 const createState = (): ApiState => ({ attachmentMode: 'unsafe', attachmentRequests: 0, unknown: [] });
 
-test('admin selects operations, queries a real monitor seam and enforces the configured URL boundary', async ({ page }) => {
+test('admin selects operations, queries a real monitor seam and enforces the configured URL boundary', async ({
+  page
+}) => {
   const state = createState();
   const embeddedRequests: string[] = [];
   page.on('request', request => {
@@ -170,7 +177,9 @@ test('unsafe and failed attachment authorization stays visible and creates no do
   });
 
   await page.goto(`${adminUrl}/monitor-notify`);
-  const row = page.locator('.monitor-notify-page .el-table__body tr').filter({ hasText: 'notify-proof' });
+  const row = page
+    .locator('.monitor-notify-page .el-table__body tr')
+    .filter({ has: page.getByRole('cell', { name: '71', exact: true }) });
   await expect(row).toBeVisible();
   await row.locator('button').first().click();
   const drawer = page.getByRole('dialog', { name: '通知详情' });

@@ -47,6 +47,7 @@ const segment = (value: IdentifierList) =>
   (Array.isArray(value) ? value : [value]).map(item => encodeURIComponent(String(item))).join(',');
 const relativeUrlBase = 'https://operations.invalid';
 const invalidPercentEncoding = /%(?![\dA-Fa-f]{2})/;
+const unsafeWhitespace = /\s/u;
 const safeUrl = (rawUrl: string | undefined) => {
   if (!rawUrl) throw new OperationsSecurityError('missing-url', '未配置运维入口地址');
   const hasControlCharacter = [...rawUrl].some(
@@ -54,6 +55,7 @@ const safeUrl = (rawUrl: string | undefined) => {
   );
   if (
     rawUrl !== rawUrl.trim() ||
+    unsafeWhitespace.test(rawUrl) ||
     rawUrl.includes('\\') ||
     hasControlCharacter ||
     invalidPercentEncoding.test(rawUrl)

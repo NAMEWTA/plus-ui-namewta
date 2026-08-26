@@ -56,6 +56,7 @@ describe('operations transport and security contracts', () => {
     'data:text/html,x',
     '//evil.example/x',
     'https://user@evil.example/x',
+    'https://bad host/path',
     'https://exa%mple.example/x',
     'https://example.test:99999/x',
     'https://[2001:db8::1/x',

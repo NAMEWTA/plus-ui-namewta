@@ -2,16 +2,17 @@
 
 ## Status
 
-- Active in T-08 for definition administration.
+- Active for definition administration and T-09 workflow runtime.
 
 ## Responsibilities
 
 - Own the complete category, process-definition, design, and SpEL administration behavior and exact server component-key registrations.
+- Own task, instance, leave, approval and user-selection Vue behavior for the admin workflow manifest.
 - Obtain confirmation, feedback, dictionaries, downloads, designer URLs, and tab navigation through explicit host runtime ports.
 
 ## Non-responsibilities
 
-- Does not own task, instance, leave, Process components, App routing, or transport implementation.
+- Does not own App routing, transport implementation, system user administration, or server authorization.
 
 ## Allowed dependencies
 
@@ -23,7 +24,7 @@
 
 ## Public entrypoints
 
-- The package root exports `createWorkflowWebDomain` and `WorkflowWebRuntime`.
+- The package root exports `createWorkflowWebDomain`, `WorkflowWebRuntime`, and the compatibility-safe WorkflowUserSelect.
 
 ## Backend modules
 
@@ -35,6 +36,6 @@
 
 ## Validation
 
-- Manifest tests cover selected/unselected composition, duplicate keys, exact component names, query/action permissions, designer query/close behavior, typecheck, and App builds.
+- Manifest tests cover selected/unselected composition, duplicate keys, all exact definition/runtime component names, permissions, designer behavior, user failure handling, typecheck, and App builds.
 
-Root view facades remain until T-15. The definition-admin slice does not claim ownership of T-09 runtime pages.
+Root API/view/UserSelect facades remain until T-15. TreePanel stays an injected shared host component because system pages also consume its exact behavior.

@@ -93,4 +93,83 @@ describe('workflow definition transport contract', () => {
       '/workflow/spel/spel%3F%23'
     ]);
   });
+
+  it('preserves task, instance and leave runtime transport contracts', async () => {
+    const requests: HttpRequest[] = [];
+    const service = createWorkflowDefinitionService({
+      request: async request => {
+        requests.push(request);
+        return { code: 200 } as never;
+      }
+    });
+    const query = { pageNum: 1, pageSize: 10 };
+    const data = { taskId: 'task/1' };
+    await service.pageTaskWaiting(query);
+    await service.pageTaskFinished(query);
+    await service.pageTaskCopies(query);
+    await service.pageAllTaskWaiting(query);
+    await service.pageAllTaskFinished(query);
+    await service.startWorkflow(data);
+    await service.completeTask(data);
+    await service.backProcess(data);
+    await service.getTask('task/1');
+    await service.updateAssignee(['task/1'], 'user/1');
+    await service.terminateTask(data);
+    await service.getBackTaskNodes('task/1', 'node/a');
+    await service.operateTask(data, 'transferTask');
+    await service.currentTaskUsers('task/1');
+    await service.getNextNodes(data);
+    await service.urgeTask(data);
+    await service.pageRunningInstances(query);
+    await service.pageFinishedInstances(query);
+    await service.pageCurrentInstances(query);
+    await service.flowHistory('business/1');
+    await service.cancelProcess(data);
+    await service.instanceVariables('instance/1');
+    await service.deleteInstances(['instance/1', 'instance 2']);
+    await service.deleteHistoricInstances('instance/1');
+    await service.invalidateInstance(data);
+    await service.updateInstanceVariables(data);
+    await service.listLeaves(query);
+    await service.getLeave('leave/1');
+    await service.addLeave(data);
+    await service.submitLeave(data);
+    await service.updateLeave(data);
+    await service.deleteLeaves(['leave/1', 'leave 2']);
+
+    expect(requests.map(({ url, method }) => `${method} ${url}`)).toEqual([
+      'get /workflow/task/pageByTaskWait',
+      'get /workflow/task/pageByTaskFinish',
+      'get /workflow/task/pageByTaskCopy',
+      'get /workflow/task/pageByAllTaskWait',
+      'get /workflow/task/pageByAllTaskFinish',
+      'post /workflow/task/startWorkFlow',
+      'post /workflow/task/completeTask',
+      'post /workflow/task/backProcess',
+      'get /workflow/task/getTask/task%2F1',
+      'put /workflow/task/updateAssignee/user%2F1',
+      'post /workflow/task/terminationTask',
+      'get /workflow/task/getBackTaskNode/task%2F1/node%2Fa',
+      'post /workflow/task/taskOperation/transferTask',
+      'get /workflow/task/currentTaskAllUser/task%2F1',
+      'post /workflow/task/getNextNodeList',
+      'post /workflow/task/urgeTask',
+      'get /workflow/instance/pageByRunning',
+      'get /workflow/instance/pageByFinish',
+      'get /workflow/instance/pageByCurrent',
+      'get /workflow/instance/flowHisTaskList/business%2F1',
+      'put /workflow/instance/cancelProcessApply',
+      'get /workflow/instance/instanceVariable/instance%2F1',
+      'delete /workflow/instance/deleteByInstanceIds/instance%2F1,instance%202',
+      'delete /workflow/instance/deleteHisByInstanceIds/instance%2F1',
+      'post /workflow/instance/invalid',
+      'put /workflow/instance/updateVariable',
+      'get /workflow/leave/list',
+      'get /workflow/leave/leave%2F1',
+      'post /workflow/leave',
+      'post /workflow/leave/submitAndFlowStart',
+      'put /workflow/leave',
+      'delete /workflow/leave/leave%2F1,leave%202'
+    ]);
+  });
 });

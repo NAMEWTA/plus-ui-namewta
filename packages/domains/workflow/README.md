@@ -2,19 +2,20 @@
 
 ## Status
 
-- Active in T-08 as the headless workflow definition-administration domain.
+- Active for workflow definition administration and T-09 task/instance/leave runtime.
 
 ## Responsibilities
 
-- Own category, process-definition, design transport, and SpEL models/services plus domain metadata.
+- Own category, definition, SpEL, task, instance and leave transport models/services plus domain metadata.
+- Consume the minimal `@namewta/domain-system-admin/public/user` query port; no system implementation or private user model crosses the boundary.
 
 ## Non-responsibilities
 
-- Does not own task/instance/leave runtime, Vue pages, browser state, routing, or concrete HTTP adapters.
+- Does not own Vue pages, browser state, routing, concrete HTTP adapters, or system user administration.
 
 ## Allowed dependencies
 
-- Platform contracts and app-runtime public exports through an injected HttpClient.
+- Platform contracts, app-runtime, and the system-admin public user seam through an injected HttpClient.
 
 ## Forbidden dependencies
 
@@ -22,7 +23,7 @@
 
 ## Public entrypoints
 
-- The package root exports models, WorkflowDefinitionService, its factory, and workflowDomainModule.
+- The package root exports all workflow runtime models, WorkflowDefinitionService, its factory, user seam types, and workflowDomainModule.
 
 ## Backend modules
 
@@ -34,7 +35,7 @@
 
 ## Validation
 
-- Exhaustive transport tests lock 24 category/definition/SpEL calls, architecture checks, lint, typecheck, and builds.
+- Exhaustive transport tests lock definition and runtime methods/paths/encoding; user failures propagate; architecture checks prove the headless dependency boundary.
 
 ## Compatibility
 

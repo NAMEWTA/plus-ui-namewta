@@ -1,5 +1,14 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient } from '@namewta/platform-contracts';
+import { createUserQueryPort, type UserQueryPort, type UserSummary } from '@namewta/domain-system-admin/public/user';
+
+export type {
+  DepartmentSummary,
+  UserPage,
+  UserQuery,
+  UserQueryPort,
+  UserSummary
+} from '@namewta/domain-system-admin/public/user';
 
 export interface ApiResponse<T = unknown> {
   code?: number;
@@ -103,6 +112,101 @@ export interface SpelQuery extends PageQuery {
   viewSpel?: string;
 }
 
+export interface TaskQuery extends PageQuery {
+  createByIds?: readonly (string | number)[];
+  flowCode?: string;
+  flowName?: string;
+  nodeName?: string;
+}
+
+export interface FlowCopy {
+  nickName: string;
+  userId: string | number;
+}
+
+export interface WorkflowTask {
+  applyNode?: boolean;
+  businessCode: string;
+  businessId: string;
+  businessTitle: string;
+  buttonList?: { code: string; show: boolean }[];
+  copyList?: FlowCopy[];
+  createTime?: Date;
+  definitionId?: string;
+  flowCode: string;
+  flowName: string;
+  flowStatus: string;
+  formCustom: string;
+  formPath: string;
+  id: string | number;
+  instanceId: string;
+  nodeCode: string;
+  nodeName: string;
+  nodeRatio: string | number;
+  nodeType: number;
+  tenantId?: string;
+  updateTime?: Date;
+  varList?: Map<string, string>;
+  version?: string;
+}
+
+export interface WorkflowHistory {
+  instanceId: string | number;
+  list: Record<string, unknown>[];
+}
+
+export interface WorkflowInstance extends BaseEntity {
+  activityStatus: number;
+  businessCode: string;
+  businessId: string;
+  businessTitle: string;
+  definitionId: string;
+  flowCode: string;
+  flowName: string;
+  flowStatus: string;
+  flowStatusName: string;
+  flowTaskList: WorkflowTask[];
+  id: string | number;
+  version: string;
+}
+
+export interface InstanceQuery extends PageQuery {
+  businessId?: string;
+  category?: string | number;
+  createByIds?: readonly (string | number)[];
+  flowCode?: string;
+  flowName?: string;
+  nodeName?: string;
+}
+
+export interface LeaveRecord {
+  applyCode?: string;
+  endDate: string;
+  id: string | number;
+  leaveDays: number;
+  leaveType: string;
+  remark: string;
+  startDate: string;
+  status?: string;
+}
+
+export interface LeaveForm extends BaseEntity {
+  applyCode?: string;
+  endDate?: string;
+  id?: string | number;
+  leaveDays?: number;
+  leaveType?: string;
+  startDate?: string;
+  status?: string;
+}
+
+export interface LeaveQuery extends PageQuery {
+  endLeaveDays?: number;
+  startLeaveDays?: number;
+}
+
+export type WorkflowPayload = Record<string, unknown>;
+
 type Identifier = string | number;
 type IdentifierList = Identifier | readonly Identifier[];
 const segment = (value: IdentifierList) =>
@@ -133,17 +237,59 @@ export interface WorkflowDefinitionService {
   updateCategory(data: CategoryForm): Promise<ApiResponse>;
   updateDefinition(data: FlowDefinitionForm | Record<string, unknown>): Promise<ApiResponse>;
   updateSpel(data: SpelForm | Record<string, unknown>): Promise<ApiResponse>;
+  readonly users: UserQueryPort;
+  pageTaskWaiting(query: TaskQuery): Promise<ApiResponse<PageResult<WorkflowTask>>>;
+  pageTaskFinished(query: TaskQuery): Promise<ApiResponse<PageResult<WorkflowTask>>>;
+  pageTaskCopies(query: TaskQuery): Promise<ApiResponse<PageResult<WorkflowTask>>>;
+  pageAllTaskWaiting(query: TaskQuery): Promise<ApiResponse<PageResult<WorkflowTask>>>;
+  pageAllTaskFinished(query: TaskQuery): Promise<ApiResponse<PageResult<WorkflowTask>>>;
+  startWorkflow(data: WorkflowPayload): Promise<ApiResponse>;
+  completeTask(data: WorkflowPayload): Promise<ApiResponse>;
+  backProcess(data: WorkflowPayload): Promise<ApiResponse>;
+  getTask(taskId: Identifier): Promise<ApiResponse<WorkflowTask>>;
+  updateAssignee(taskIds: readonly string[], userId: Identifier): Promise<ApiResponse>;
+  terminateTask(data: WorkflowPayload): Promise<ApiResponse>;
+  getBackTaskNodes(taskId: Identifier, nodeCode: string): Promise<ApiResponse<Record<string, unknown>[]>>;
+  operateTask(data: WorkflowPayload, operation: string): Promise<ApiResponse>;
+  currentTaskUsers(taskId: Identifier): Promise<ApiResponse<UserSummary[]>>;
+  getNextNodes(data: WorkflowPayload): Promise<ApiResponse<Record<string, unknown>[]>>;
+  urgeTask(data: WorkflowPayload): Promise<ApiResponse>;
+  pageRunningInstances(query: InstanceQuery): Promise<ApiResponse<PageResult<WorkflowInstance>>>;
+  pageFinishedInstances(query: InstanceQuery): Promise<ApiResponse<PageResult<WorkflowInstance>>>;
+  pageCurrentInstances(query: InstanceQuery): Promise<ApiResponse<PageResult<WorkflowInstance>>>;
+  flowHistory(businessId: Identifier): Promise<ApiResponse<WorkflowHistory>>;
+  cancelProcess(data: WorkflowPayload): Promise<ApiResponse>;
+  instanceVariables(instanceId: Identifier): Promise<ApiResponse<Record<string, unknown>>>;
+  deleteInstances(instanceIds: IdentifierList): Promise<ApiResponse>;
+  deleteHistoricInstances(instanceIds: IdentifierList): Promise<ApiResponse>;
+  invalidateInstance(data: WorkflowPayload): Promise<ApiResponse>;
+  updateInstanceVariables(data: WorkflowPayload): Promise<ApiResponse>;
+  listLeaves(query?: LeaveQuery): Promise<ApiResponse<PageResult<LeaveRecord>>>;
+  getLeave(id: Identifier): Promise<ApiResponse<LeaveRecord>>;
+  addLeave(data: LeaveForm | WorkflowPayload): Promise<ApiResponse<LeaveRecord>>;
+  submitLeave(data: LeaveForm | WorkflowPayload): Promise<ApiResponse<LeaveRecord>>;
+  updateLeave(data: LeaveForm | WorkflowPayload): Promise<ApiResponse<LeaveRecord>>;
+  deleteLeaves(ids: IdentifierList): Promise<ApiResponse>;
 }
 
 export const workflowDomainModule: DomainModule = Object.freeze({
   id: 'workflow',
   backendModules: Object.freeze(['ruoyi-workflow']),
-  capabilities: Object.freeze(['category-admin', 'definition-admin', 'definition-design', 'spel-admin'])
+  capabilities: Object.freeze([
+    'category-admin',
+    'definition-admin',
+    'definition-design',
+    'spel-admin',
+    'task-runtime',
+    'instance-runtime',
+    'leave-runtime'
+  ])
 });
 
 export function createWorkflowDefinitionService(http: HttpClient): WorkflowDefinitionService {
   const request = <T = unknown>(config: Parameters<HttpClient['request']>[0]) => http.request<ApiResponse<T>>(config);
   return Object.freeze({
+    users: createUserQueryPort(http),
     listCategories: query => request<CategoryVO[]>({ url: '/workflow/category/list', method: 'get', params: query }),
     getCategory: id => request<CategoryVO>({ url: '/workflow/category/' + segment(id), method: 'get' }),
     addCategory: data => request({ url: '/workflow/category', method: 'post', data }),
@@ -178,6 +324,62 @@ export function createWorkflowDefinitionService(http: HttpClient): WorkflowDefin
     getSpel: id => request<SpelVO>({ url: '/workflow/spel/' + segment(id), method: 'get' }),
     addSpel: data => request({ url: '/workflow/spel', method: 'post', data }),
     updateSpel: data => request({ url: '/workflow/spel', method: 'put', data }),
-    deleteSpel: id => request({ url: '/workflow/spel/' + segment(id), method: 'delete' })
+    deleteSpel: id => request({ url: '/workflow/spel/' + segment(id), method: 'delete' }),
+    pageTaskWaiting: query =>
+      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByTaskWait', method: 'get', params: query }),
+    pageTaskFinished: query =>
+      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByTaskFinish', method: 'get', params: query }),
+    pageTaskCopies: query =>
+      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByTaskCopy', method: 'get', params: query }),
+    pageAllTaskWaiting: query =>
+      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByAllTaskWait', method: 'get', params: query }),
+    pageAllTaskFinished: query =>
+      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByAllTaskFinish', method: 'get', params: query }),
+    startWorkflow: data => request({ url: '/workflow/task/startWorkFlow', method: 'post', data }),
+    completeTask: data => request({ url: '/workflow/task/completeTask', method: 'post', data }),
+    backProcess: data => request({ url: '/workflow/task/backProcess', method: 'post', data }),
+    getTask: taskId => request<WorkflowTask>({ url: '/workflow/task/getTask/' + segment(taskId), method: 'get' }),
+    updateAssignee: (taskIds, userId) =>
+      request({ url: '/workflow/task/updateAssignee/' + segment(userId), method: 'put', data: taskIds }),
+    terminateTask: data => request({ url: '/workflow/task/terminationTask', method: 'post', data }),
+    getBackTaskNodes: (taskId, nodeCode) =>
+      request<Record<string, unknown>[]>({
+        url: '/workflow/task/getBackTaskNode/' + segment(taskId) + '/' + segment(nodeCode),
+        method: 'get'
+      }),
+    operateTask: (data, operation) =>
+      request({ url: '/workflow/task/taskOperation/' + segment(operation), method: 'post', data }),
+    currentTaskUsers: taskId =>
+      request<UserSummary[]>({ url: '/workflow/task/currentTaskAllUser/' + segment(taskId), method: 'get' }),
+    getNextNodes: data =>
+      request<Record<string, unknown>[]>({ url: '/workflow/task/getNextNodeList', method: 'post', data }),
+    urgeTask: data => request({ url: '/workflow/task/urgeTask', method: 'post', data }),
+    pageRunningInstances: query =>
+      request<PageResult<WorkflowInstance>>({ url: '/workflow/instance/pageByRunning', method: 'get', params: query }),
+    pageFinishedInstances: query =>
+      request<PageResult<WorkflowInstance>>({ url: '/workflow/instance/pageByFinish', method: 'get', params: query }),
+    pageCurrentInstances: query =>
+      request<PageResult<WorkflowInstance>>({ url: '/workflow/instance/pageByCurrent', method: 'get', params: query }),
+    flowHistory: businessId =>
+      request<WorkflowHistory>({ url: '/workflow/instance/flowHisTaskList/' + segment(businessId), method: 'get' }),
+    cancelProcess: data => request({ url: '/workflow/instance/cancelProcessApply', method: 'put', data }),
+    instanceVariables: instanceId =>
+      request<Record<string, unknown>>({
+        url: '/workflow/instance/instanceVariable/' + segment(instanceId),
+        method: 'get'
+      }),
+    deleteInstances: instanceIds =>
+      request({ url: '/workflow/instance/deleteByInstanceIds/' + segment(instanceIds), method: 'delete' }),
+    deleteHistoricInstances: instanceIds =>
+      request({ url: '/workflow/instance/deleteHisByInstanceIds/' + segment(instanceIds), method: 'delete' }),
+    invalidateInstance: data => request({ url: '/workflow/instance/invalid', method: 'post', data }),
+    updateInstanceVariables: data => request({ url: '/workflow/instance/updateVariable', method: 'put', data }),
+    listLeaves: query =>
+      request<PageResult<LeaveRecord>>({ url: '/workflow/leave/list', method: 'get', params: query }),
+    getLeave: id => request<LeaveRecord>({ url: '/workflow/leave/' + segment(id), method: 'get' }),
+    addLeave: data => request<LeaveRecord>({ url: '/workflow/leave', method: 'post', data }),
+    submitLeave: data => request<LeaveRecord>({ url: '/workflow/leave/submitAndFlowStart', method: 'post', data }),
+    updateLeave: data => request<LeaveRecord>({ url: '/workflow/leave', method: 'put', data }),
+    deleteLeaves: ids => request({ url: '/workflow/leave/' + segment(ids), method: 'delete' })
   });
 }

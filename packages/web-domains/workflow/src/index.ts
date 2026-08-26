@@ -5,14 +5,16 @@ import { requireWorkflowWebRuntime } from './runtime';
 
 export { createLiveWorkflowDictRefs } from './runtime';
 export type { WorkflowDictOption, WorkflowDictSource, WorkflowWebRuntime } from './runtime';
+export { default as WorkflowUserSelect } from './components/UserSelect.vue';
 
 async function runtimeView(
   name: string,
   runtime: WorkflowWebRuntime,
-  load: () => Promise<{ default: Component }>
+  load: () => Promise<{ default: Component }>,
+  props: Record<string, unknown> = {}
 ): Promise<Component> {
   const page = (await load()).default;
-  return defineComponent({ name, setup: () => () => h(page, { runtime }) });
+  return defineComponent({ name, setup: () => () => h(page, { runtime, ...props }) });
 }
 
 export function createWorkflowWebDomain(runtimeInput: WorkflowWebRuntime | undefined): WebDomainManifest<Component> {
@@ -65,6 +67,30 @@ export function createWorkflowWebDomain(runtimeInput: WorkflowWebRuntime | undef
           'workflow:spel:edit',
           'workflow:spel:remove'
         ])
+      }),
+      Object.freeze({
+        id: 'workflow-task-runtime',
+        permissions: Object.freeze(['workflow:task:list', 'workflow:task:edit'])
+      }),
+      Object.freeze({
+        id: 'workflow-instance-runtime',
+        permissions: Object.freeze([
+          'workflow:instance:list',
+          'workflow:instance:currentList',
+          'workflow:instance:remove',
+          'workflow:instance:invalid'
+        ])
+      }),
+      Object.freeze({
+        id: 'workflow-leave-runtime',
+        permissions: Object.freeze([
+          'workflow:leave:list',
+          'workflow:leave:query',
+          'workflow:leave:add',
+          'workflow:leave:edit',
+          'workflow:leave:remove',
+          'workflow:leave:export'
+        ])
       })
     ]),
     registrations: Object.freeze([
@@ -91,6 +117,55 @@ export function createWorkflowWebDomain(runtimeInput: WorkflowWebRuntime | undef
         componentKey: 'workflow/spel/index',
         componentName: 'Spel',
         load: () => runtimeView('Spel', runtime, () => import('./views/SpelPage.vue'))
+      }),
+      Object.freeze({
+        id: 'workflow-task-waiting',
+        componentKey: 'workflow/task/taskWaiting',
+        componentName: 'taskWaiting',
+        load: () => runtimeView('taskWaiting', runtime, () => import('./views/TaskListPage.vue'), { mode: 'waiting' })
+      }),
+      Object.freeze({
+        id: 'workflow-task-finished',
+        componentKey: 'workflow/task/taskFinish',
+        componentName: 'taskFinish',
+        load: () => runtimeView('taskFinish', runtime, () => import('./views/TaskListPage.vue'), { mode: 'finished' })
+      }),
+      Object.freeze({
+        id: 'workflow-task-copy',
+        componentKey: 'workflow/task/taskCopyList',
+        componentName: 'taskCopyList',
+        load: () => runtimeView('taskCopyList', runtime, () => import('./views/TaskListPage.vue'), { mode: 'copy' })
+      }),
+      Object.freeze({
+        id: 'workflow-my-document',
+        componentKey: 'workflow/task/myDocument',
+        componentName: 'myDocument',
+        load: () => runtimeView('myDocument', runtime, () => import('./views/MyDocumentPage.vue'))
+      }),
+      Object.freeze({
+        id: 'workflow-all-task-waiting',
+        componentKey: 'workflow/task/allTaskWaiting',
+        componentName: 'allTaskWaiting',
+        load: () =>
+          runtimeView('allTaskWaiting', runtime, () => import('./views/TaskListPage.vue'), { mode: 'all-waiting' })
+      }),
+      Object.freeze({
+        id: 'workflow-process-instance',
+        componentKey: 'workflow/processInstance/index',
+        componentName: 'processInstance',
+        load: () => runtimeView('processInstance', runtime, () => import('./views/InstancePage.vue'))
+      }),
+      Object.freeze({
+        id: 'workflow-leave',
+        componentKey: 'workflow/leave/index',
+        componentName: 'leave',
+        load: () => runtimeView('leave', runtime, () => import('./views/LeaveListPage.vue'))
+      }),
+      Object.freeze({
+        id: 'workflow-leave-edit',
+        componentKey: 'workflow/leave/leaveEdit',
+        componentName: 'leaveEdit',
+        load: () => runtimeView('leaveEdit', runtime, () => import('./views/LeaveEditPage.vue'))
       })
     ])
   });

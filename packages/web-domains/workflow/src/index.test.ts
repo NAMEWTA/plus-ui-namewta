@@ -19,12 +19,23 @@ describe('workflow web-domain manifest', () => {
       { componentKey: 'workflow/category/index', componentName: 'Category' },
       { componentKey: 'workflow/processDefinition/index', componentName: 'processDefinition' },
       { componentKey: 'workflow/processDefinition/design', componentName: 'WarmFlow' },
-      { componentKey: 'workflow/spel/index', componentName: 'Spel' }
+      { componentKey: 'workflow/spel/index', componentName: 'Spel' },
+      { componentKey: 'workflow/task/taskWaiting', componentName: 'taskWaiting' },
+      { componentKey: 'workflow/task/taskFinish', componentName: 'taskFinish' },
+      { componentKey: 'workflow/task/taskCopyList', componentName: 'taskCopyList' },
+      { componentKey: 'workflow/task/myDocument', componentName: 'myDocument' },
+      { componentKey: 'workflow/task/allTaskWaiting', componentName: 'allTaskWaiting' },
+      { componentKey: 'workflow/processInstance/index', componentName: 'processInstance' },
+      { componentKey: 'workflow/leave/index', componentName: 'leave' },
+      { componentKey: 'workflow/leave/leaveEdit', componentName: 'leaveEdit' }
     ]);
     expect(manifest.permissions.map(item => item.id)).toEqual([
       'workflow-category',
       'workflow-definition',
-      'workflow-spel'
+      'workflow-spel',
+      'workflow-task-runtime',
+      'workflow-instance-runtime',
+      'workflow-leave-runtime'
     ]);
     expect(manifest.permissions.flatMap(item => item.permissions)).toContain('workflow:definition:publish');
     expect(manifest.permissions.flatMap(item => item.permissions)).toContain('workflow:category:query');
@@ -42,9 +53,17 @@ describe('workflow web-domain manifest', () => {
     });
     expect(selected.componentKeys()).toEqual([
       'workflow/category/index',
+      'workflow/leave/index',
+      'workflow/leave/leaveEdit',
       'workflow/processDefinition/design',
       'workflow/processDefinition/index',
-      'workflow/spel/index'
+      'workflow/processInstance/index',
+      'workflow/spel/index',
+      'workflow/task/allTaskWaiting',
+      'workflow/task/myDocument',
+      'workflow/task/taskCopyList',
+      'workflow/task/taskFinish',
+      'workflow/task/taskWaiting'
     ]);
     const unselected = composeAppRuntime({
       appId: 'client-web',

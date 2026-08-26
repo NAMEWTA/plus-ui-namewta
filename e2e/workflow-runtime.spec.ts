@@ -426,6 +426,11 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
     }
     if (path === '/resource/oss/uploads/workflow-upload/complete' && method === 'POST')
       return json(route, { code: 200, data: 'oss-workflow' });
+    if (path === '/resource/oss/listByIds/oss-workflow' && method === 'GET')
+      return json(route, {
+        code: 200,
+        data: [{ ossId: 'oss-workflow', originalName: 'approval.txt', fileName: 'approval.txt', url: '' }]
+      });
     if (path === '/resource/oss/oss-workflow/download-url' && method === 'GET')
       return json(route, {
         code: 200,

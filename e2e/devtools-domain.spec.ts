@@ -327,30 +327,25 @@ test('edit uses public metadata ports and preserves the complete generator paylo
   await expect(page.getByText('必填', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: '生成信息' }).click();
   await expect(page.getByRole('tabpanel', { name: '生成信息' }).getByText('系统工具', { exact: true })).toBeVisible();
+  const chooseOption = async (testId: string, optionName: RegExp) => {
+    const combobox = page.getByTestId(testId).getByRole('combobox');
+    await combobox.click();
+    const listboxId = await combobox.getAttribute('aria-controls');
+    expect(listboxId).toBeTruthy();
+    const listbox = page.locator(`[id="${listboxId}"]`);
+    await expect(listbox).toBeVisible();
+    await listbox.getByRole('option', { name: optionName }).click();
+    await page.keyboard.press('Escape');
+    await expect(listbox).toBeHidden();
+  };
   await page.getByTestId('enable-unique').click();
-  await page.getByTestId('unique-fields').click();
-  await page
-    .locator('.el-select-dropdown:visible')
-    .getByRole('option', { name: /name：名称/ })
-    .click();
+  await chooseOption('unique-fields', /name：名称/);
   await page.getByTestId('enable-sort').click();
-  await page.getByTestId('sort-field').click();
-  await page
-    .locator('.el-select-dropdown:visible')
-    .getByRole('option', { name: /sort_num：排序/ })
-    .click();
+  await chooseOption('sort-field', /sort_num：排序/);
   await page.getByRole('radio', { name: '树表' }).click();
   await page.getByTestId('tree-root-value').locator('input').fill('ROOT');
-  await page.getByTestId('tree-name').click();
-  await page
-    .locator('.el-select-dropdown:visible')
-    .getByRole('option', { name: /name：名称/ })
-    .click();
-  await page.getByTestId('tree-order').click();
-  await page
-    .locator('.el-select-dropdown:visible')
-    .getByRole('option', { name: /sort_num：排序/ })
-    .click();
+  await chooseOption('tree-name', /name：名称/);
+  await chooseOption('tree-order', /sort_num：排序/);
   await page.getByRole('button', { name: '提交', exact: true }).click();
 
   await expect.poll(() => state.updates.length).toBe(1);

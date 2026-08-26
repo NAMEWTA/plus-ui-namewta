@@ -296,7 +296,9 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
     mimeType: 'text/plain',
     buffer: Buffer.from('system resource proof')
   });
-  await expect(uploadDialog.getByText('system-resource-proof.txt', { exact: true })).toBeVisible();
+  await expect(
+    uploadDialog.getByRole('link', { name: 'system-resource-proof.txt', exact: true }).first()
+  ).toBeVisible();
   const ossListRequestsBeforeConfirm = state.requests.filter(item => item.path === '/resource/oss/list').length;
   await uploadDialog.getByRole('button', { name: '确 定' }).click();
   await expect(uploadDialog).toBeHidden();

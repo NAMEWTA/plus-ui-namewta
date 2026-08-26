@@ -1,5 +1,7 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
+test.use({ viewport: { width: 1440, height: 900 } });
+
 type State = {
   categories: Record<string, unknown>[];
   publishedDefinitions: Record<string, unknown>[];
@@ -157,6 +159,32 @@ async function installApi(page: Page, state: State, permissions: string[]) {
   });
 }
 
+async function expectDefinitionGrid(page: Page, panelSpan: 1 | 4, contentSpan: 20 | 23) {
+  const panel = page.locator('.workflow-process-definition-page .tree-panel-col');
+  const content = page.locator('.workflow-process-definition-page .tree-content-col');
+  const grid = page.locator('.workflow-process-definition-page .content-grid');
+  await expect(panel).toHaveClass(new RegExp(`el-col-lg-${panelSpan}`));
+  await expect(content).toHaveClass(new RegExp(`el-col-lg-${contentSpan}`));
+  const boxes = await Promise.all([panel.boundingBox(), content.boundingBox(), grid.boundingBox()]);
+  expect(boxes.every(Boolean)).toBe(true);
+  const [panelBox, contentBox, gridBox] = boxes as [
+    NonNullable<(typeof boxes)[0]>,
+    NonNullable<(typeof boxes)[0]>,
+    NonNullable<(typeof boxes)[0]>
+  ];
+  expect(Math.abs(panelBox.y - contentBox.y)).toBeLessThan(2);
+  expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(contentBox.x + 1);
+  expect(contentBox.x + contentBox.width).toBeLessThanOrEqual(gridBox.x + gridBox.width + 1);
+  if (panelSpan === 4) {
+    expect(panelBox.width / gridBox.width).toBeGreaterThan(0.14);
+    expect(panelBox.width / gridBox.width).toBeLessThan(0.2);
+  } else {
+    expect(panelBox.width).toBeGreaterThanOrEqual(54);
+    expect(panelBox.width).toBeLessThanOrEqual(58);
+    expect(contentBox.width / gridBox.width).toBeGreaterThan(0.9);
+  }
+}
+
 test('selected workflow manifest completes category, definition, designer and SpEL mutations', async ({ page }) => {
   const state = createState();
   await installApi(page, state, ['*:*:*']);
@@ -173,6 +201,12 @@ test('selected workflow manifest completes category, definition, designer and Sp
 
   await page.locator('.sidebar-container').getByText('流程定义', { exact: true }).click();
   await expect(page.getByText('既有已发布流程', { exact: true })).toBeVisible();
+  await expectDefinitionGrid(page, 4, 20);
+  await page.locator('.workflow-process-definition-page .tree-panel-header').click();
+  await expect(page.locator('.workflow-process-definition-page .tree-panel-col')).toHaveClass(/is-collapsed/);
+  await expectDefinitionGrid(page, 1, 23);
+  await page.locator('.workflow-process-definition-page .tree-panel-header').click();
+  await expectDefinitionGrid(page, 4, 20);
   const publishedRow = page.getByRole('row').filter({ hasText: '既有已发布流程' });
   await publishedRow.getByRole('checkbox').check();
   const downloadPromise = page.waitForEvent('download');

@@ -77,6 +77,26 @@ async function installApi(page: Page, state: State, permissions: string[]) {
     }
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
     if (path.startsWith('/system/dict/data/type/')) return json(route, { code: 200, data: [] });
+    if (path === '/system/dict/data/list' && method === 'GET') {
+      state.requests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
+      return json(route, {
+        code: 200,
+        data: {
+          rows: [
+            {
+              dictCode: 1,
+              dictLabel: '启用',
+              dictValue: '0',
+              cssClass: '',
+              listClass: 'primary',
+              dictSort: 1,
+              remark: ''
+            }
+          ],
+          total: 1
+        }
+      });
+    }
     if (path === '/system/user/profile') {
       return json(route, {
         code: 200,
@@ -121,6 +141,27 @@ async function installApi(page: Page, state: State, permissions: string[]) {
       state.requests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
       state.uploaded = true;
       return json(route, { code: 200, data: '8' });
+    }
+    if (path === '/resource/oss/listByIds/8' && method === 'GET') {
+      state.requests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
+      return json(route, {
+        code: 200,
+        data: [
+          {
+            ossId: 8,
+            fileName: 'system-resource-proof.txt',
+            originalName: 'system-resource-proof.txt',
+            fileSuffix: '.txt',
+            url: '',
+            createByName: 'resource-admin',
+            service: 'proof',
+            isTemp: 'N',
+            deleteState: 'ACTIVE',
+            referenceCount: 0,
+            references: []
+          }
+        ]
+      });
     }
 
     const resourcePaths = new Set([
@@ -264,11 +305,13 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
     expect.arrayContaining([
       'GET /resource/message/box',
       'GET /system/dict/type/list',
+      'GET /system/dict/data/list',
       'GET /system/config/list',
       'GET /resource/oss/list',
       'GET /resource/oss/7/download-url',
       'POST /resource/oss/uploads',
-      'POST /resource/oss/uploads/system-resource-upload/complete'
+      'POST /resource/oss/uploads/system-resource-upload/complete',
+      'GET /resource/oss/listByIds/8'
     ])
   );
   expect(state.unknown).toEqual([]);

@@ -4,6 +4,7 @@ type RuntimeState = {
   backBodies?: unknown[];
   cancelBodies?: unknown[];
   completeBodies: unknown[];
+  failBack?: boolean;
   failComplete: boolean;
   failUsers: boolean;
   invalidBodies: unknown[];
@@ -71,19 +72,24 @@ const menus = [
 ];
 
 async function installRuntimeApi(page: Page, state: RuntimeState) {
-  await page.route('**/workflow-runtime-upload', route =>
-    route.fulfill({ status: 200, headers: { ETag: 'workflow-etag', 'access-control-expose-headers': 'ETag' } })
-  );
+  await page.route('**/workflow-runtime-upload', route => {
+    if (!['GET', 'PUT'].includes(route.request().method())) return route.abort('failed');
+    return route.fulfill({
+      status: 200,
+      headers: { ETag: 'workflow-etag', 'access-control-expose-headers': 'ETag' }
+    });
+  });
   await page.route('**/prod-api/**', async route => {
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/prod-api', '');
     const method = request.method();
     state.network.push(`${method} ${path}`);
-    if (path === '/auth/client/context')
+    if (path === '/auth/client/context' && method === 'GET')
       return json(route, { code: 200, data: { clientEnabled: true, registerEnabled: true } });
-    if (path === '/auth/code') return json(route, { code: 200, data: { captchaEnabled: false } });
-    if (path === '/auth/login') return json(route, { code: 200, data: { access_token: 'workflow-runtime-token' } });
-    if (path === '/system/user/getInfo')
+    if (path === '/auth/code' && method === 'GET') return json(route, { code: 200, data: { captchaEnabled: false } });
+    if (path === '/auth/login' && method === 'POST')
+      return json(route, { code: 200, data: { access_token: 'workflow-runtime-token' } });
+    if (path === '/system/user/getInfo' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -92,8 +98,8 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           permissions: state.permissions
         }
       });
-    if (path === '/system/menu/getRouters') return json(route, { code: 200, data: menus });
-    if (path === '/workflow/task/pageByTaskWait')
+    if (path === '/system/menu/getRouters' && method === 'GET') return json(route, { code: 200, data: menus });
+    if (path === '/workflow/task/pageByTaskWait' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -118,7 +124,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           total: 1
         }
       });
-    if (path === '/workflow/task/pageByAllTaskWait')
+    if (path === '/workflow/task/pageByAllTaskWait' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -143,7 +149,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           total: 1
         }
       });
-    if (path === '/workflow/task/pageByAllTaskFinish')
+    if (path === '/workflow/task/pageByAllTaskFinish' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -168,7 +174,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           total: 1
         }
       });
-    if (path.startsWith('/workflow/task/getTask/')) {
+    if (path.startsWith('/workflow/task/getTask/') && method === 'GET') {
       const id = decodeURIComponent(path.slice(path.lastIndexOf('/') + 1));
       return json(route, {
         code: 200,
@@ -209,7 +215,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
         code: 200,
         data: [{ nodeCode: 'review', nodeName: '部门复核', permissionFlag: '7' }]
       });
-    if (path.startsWith('/workflow/task/currentTaskAllUser/'))
+    if (path.startsWith('/workflow/task/currentTaskAllUser/') && method === 'GET')
       return json(route, {
         code: 200,
         data: [{ userId: '7', nickName: '流程负责人', email: 'private@example.test', phoneNumber: '13800000000' }]
@@ -222,15 +228,16 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
       state.operationBodies.push({ operation: path.slice(path.lastIndexOf('/') + 1), body: request.postDataJSON() });
       return json(route, { code: 200 });
     }
-    if (path.startsWith('/workflow/task/getBackTaskNode/'))
+    if (path.startsWith('/workflow/task/getBackTaskNode/') && method === 'GET')
       return json(route, { code: 200, data: [{ nodeCode: 'start', nodeName: '申请人' }] });
     if (path === '/workflow/task/backProcess' && method === 'POST') {
+      if (state.failBack) return json(route, { code: 500, msg: '退回任务失败' });
       state.backBodies?.push(request.postDataJSON());
       return json(route, { code: 200 });
     }
-    if (path === '/workflow/category/categoryTree')
+    if (path === '/workflow/category/categoryTree' && method === 'GET')
       return json(route, { code: 200, data: [{ id: '0', parentId: '0', label: '全部流程', weight: 0, children: [] }] });
-    if (path === '/workflow/instance/pageByRunning')
+    if (path === '/workflow/instance/pageByRunning' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -257,13 +264,13 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
       state.invalidBodies.push(request.postDataJSON());
       return json(route, { code: 200 });
     }
-    if (path === '/workflow/instance/instanceVariable/instance-1')
+    if (path === '/workflow/instance/instanceVariable/instance-1' && method === 'GET')
       return json(route, { code: 200, data: { variable: { amount: '100' } } });
     if (path === '/workflow/instance/updateVariable' && method === 'PUT') {
       state.variableBodies?.push(request.postDataJSON());
       return json(route, { code: 200 });
     }
-    if (path === '/workflow/instance/pageByCurrent')
+    if (path === '/workflow/instance/pageByCurrent' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -294,7 +301,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
       state.urgeBodies.push(request.postDataJSON());
       return json(route, { code: 200 });
     }
-    if (path === '/workflow/leave/list')
+    if (path === '/workflow/leave/list' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -333,7 +340,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
       state.workflowStartBodies?.push(request.postDataJSON());
       return json(route, { code: 200, data: { taskId: 'task-1' } });
     }
-    if (path === '/workflow/leave/leave-1')
+    if (path === '/workflow/leave/leave-1' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -347,12 +354,12 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           status: 'waiting'
         }
       });
-    if (path === '/workflow/instance/flowHisTaskList/leave-1')
+    if (path === '/workflow/instance/flowHisTaskList/leave-1' && method === 'GET')
       return json(route, {
         code: 200,
         data: { instanceId: 'instance-1', list: [{ id: 'history-1', nodeName: '提交申请', createTime: '2026-08-26' }] }
       });
-    if (path === '/system/user/list') {
+    if (path === '/system/user/list' && method === 'GET') {
       state.userListUrls?.push(request.url());
       if (state.failUsers) return json(route, { code: 500, msg: '用户查询失败' });
       const candidateLimited = new URL(request.url()).searchParams.get('userIds') === '7';
@@ -377,9 +384,9 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
         }
       });
     }
-    if (path === '/system/user/deptTree')
+    if (path === '/system/user/deptTree' && method === 'GET')
       return json(route, { code: 200, data: [{ id: '10', label: '研发部', children: [] }] });
-    if (path.startsWith('/system/user/optionselect'))
+    if (path.startsWith('/system/user/optionselect') && method === 'GET')
       return json(route, {
         code: 200,
         data: [
@@ -419,7 +426,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
     }
     if (path === '/resource/oss/uploads/workflow-upload/complete' && method === 'POST')
       return json(route, { code: 200, data: 'oss-workflow' });
-    if (path === '/resource/oss/oss-workflow/download-url')
+    if (path === '/resource/oss/oss-workflow/download-url' && method === 'GET')
       return json(route, {
         code: 200,
         data: {
@@ -428,11 +435,12 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           expiresAt: '2099-01-01'
         }
       });
-    if (path === '/resource/message/box')
+    if (path === '/resource/message/box' && method === 'GET')
       return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
-    if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
+    if (path === '/resource/message' && method === 'GET')
+      return route.fulfill({ contentType: 'text/event-stream', body: '' });
     state.unknown.push(`${method} ${path}`);
-    return json(route, { code: 200, data: null });
+    return route.abort('failed');
   });
 }
 
@@ -696,6 +704,7 @@ test('task back uploads a real attachment and preserves the exact payload', asyn
   const state: RuntimeState = {
     backBodies: [],
     completeBodies: [],
+    failBack: true,
     failComplete: false,
     failUsers: false,
     invalidBodies: [],
@@ -717,6 +726,14 @@ test('task back uploads a real attachment and preserves the exact payload', asyn
     buffer: Buffer.from('back attachment')
   });
   await expect(backDialog.getByText('approval.txt', { exact: true })).toBeVisible();
+  await backDialog.getByRole('button', { name: '确认退回', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
+  await expect(backDialog.getByText('退回任务失败', { exact: true })).toBeVisible();
+  await expect(backDialog.getByPlaceholder('请输入退回意见')).toHaveValue('请补充附件');
+  await expect(backDialog.getByText('approval.txt', { exact: true })).toBeVisible();
+  expect(state.backBodies).toEqual([]);
+
+  state.failBack = false;
   await backDialog.getByRole('button', { name: '确认退回', exact: true }).click();
   await page.getByRole('button', { name: '确定', exact: true }).click();
   await expect

@@ -90,6 +90,7 @@
   </el-dialog>
 
   <el-dialog v-model="backVisible" title="退回任务" width="560px" append-to-body>
+    <el-alert v-if="backFailure" :title="backFailure" type="error" show-icon :closable="false" />
     <el-select v-model="backNodeCode" placeholder="请选择退回节点">
       <el-option v-for="node in backNodes" :key="node.nodeCode" :label="node.nodeName" :value="node.nodeCode" />
     </el-select>
@@ -164,6 +165,7 @@ const backNodes = ref<NodeOption[]>([]);
 const backNodeCode = ref('');
 const backMessage = ref('');
 const backFileId = ref('');
+const backFailure = ref('');
 
 function can(code: string) {
   return task.value?.flowStatus === 'waiting' && enabled.value.has(code);
@@ -303,23 +305,36 @@ async function openBack() {
   backNodeCode.value = backNodes.value[0]?.nodeCode ?? '';
   backMessage.value = '';
   backFileId.value = '';
+  backFailure.value = '';
   backVisible.value = true;
 }
 async function back() {
   if (!task.value || !backNodeCode.value) return;
-  backVisible.value = false;
-  await execute(() =>
-    props.runtime.service.backProcess(
+  const currentTask = task.value;
+  submitting.value = true;
+  backFailure.value = '';
+  try {
+    await props.runtime.confirm('是否确认提交？');
+    await props.runtime.service.backProcess(
       createBackPayload({
-        taskId: task.value!.id,
+        taskId: currentTask.id,
         nodeCode: backNodeCode.value,
         message: backMessage.value.trim(),
         messageType: [...messageType.value],
         variables: { ...props.taskVariables },
         fileId: backFileId.value || undefined
       })
-    )
-  );
+    );
+    props.runtime.success('操作成功');
+    actionCompleted.value = true;
+    backVisible.value = false;
+    visible.value = false;
+    emit('completed');
+  } catch (error: unknown) {
+    backFailure.value = error instanceof Error ? error.message : '退回失败';
+  } finally {
+    submitting.value = false;
+  }
 }
 
 defineExpose({ open, close: () => (visible.value = false) });

@@ -81,6 +81,22 @@ async function installApi(page: Page, state: State, permissions: string[]) {
         }
       });
     if (path === '/system/menu/getRouters') return json(route, { code: 200, data: menus });
+    if (path === '/system/dict/data/type/sys_show_hide')
+      return json(route, {
+        code: 200,
+        data: [
+          { dictLabel: '显示', dictValue: '0', listClass: 'primary', cssClass: '' },
+          { dictLabel: '隐藏', dictValue: '1', listClass: 'info', cssClass: '' }
+        ]
+      });
+    if (path === '/system/dict/data/type/sys_normal_disable')
+      return json(route, {
+        code: 200,
+        data: [
+          { dictLabel: '正常', dictValue: '0', listClass: 'success', cssClass: '' },
+          { dictLabel: '停用', dictValue: '1', listClass: 'danger', cssClass: '' }
+        ]
+      });
     if (path === '/workflow/category/list') return json(route, { code: 200, data: state.categories });
     if (path === '/workflow/category/categoryTree')
       return json(route, {

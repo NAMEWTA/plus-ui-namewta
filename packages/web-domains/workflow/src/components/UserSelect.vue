@@ -88,7 +88,7 @@ const query = reactive({
   phoneNumber: '',
   status: '',
   deptId: undefined as string | number | undefined,
-  userIds: undefined as readonly (string | number)[] | undefined
+  userIds: undefined as string | undefined
 });
 
 watch(departmentFilter, value => departmentTreeRef.value?.filter(value));

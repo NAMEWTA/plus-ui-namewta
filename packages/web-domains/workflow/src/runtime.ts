@@ -6,13 +6,23 @@ export interface WorkflowDictOption {
   value: string;
 }
 
+export interface WorkflowAttachment {
+  originalName: string;
+  ossId: string | number;
+}
+
 export interface WorkflowWebRuntime {
+  chartUrl(instanceId: string | number): Promise<string> | string;
+  closeCurrentPage(): Promise<void> | void;
   confirm(message: string): Promise<void>;
   closeDesigner(activeName: string | undefined): Promise<void> | void;
   designUrl(definitionId: string, disabled: boolean): Promise<string> | string;
   dicts(...types: string[]): Record<string, Readonly<Ref<readonly WorkflowDictOption[]>>>;
   download(url: string, params: unknown, fileName: string): Promise<void> | void;
+  downloadAttachment(ossId: string | number): Promise<void> | void;
   error(message: string): void;
+  fileUpload: Component;
+  resolveAttachments(ids: string | number): Promise<readonly WorkflowAttachment[]>;
   service: WorkflowDefinitionService;
   success(message: string): void;
   treePanel: Component;

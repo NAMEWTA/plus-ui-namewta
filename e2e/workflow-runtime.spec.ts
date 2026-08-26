@@ -1,16 +1,22 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
 type RuntimeState = {
+  backBodies?: unknown[];
+  cancelBodies?: unknown[];
   completeBodies: unknown[];
   failComplete: boolean;
   failUsers: boolean;
   invalidBodies: unknown[];
+  leaveBodies?: unknown[];
   network: string[];
   operationBodies: { operation: string; body: unknown }[];
   permissions: string[];
   terminationBodies: unknown[];
+  workflowStartBodies?: unknown[];
   unknown: string[];
   urgeBodies: unknown[];
+  userListUrls?: string[];
+  variableBodies?: unknown[];
 };
 
 const json = (route: Route, body: unknown) =>
@@ -48,6 +54,12 @@ const menus = [
         meta: { title: '待办任务' }
       },
       {
+        path: 'task/myDocument',
+        name: 'myDocument',
+        component: 'workflow/task/myDocument',
+        meta: { title: '我的单据' }
+      },
+      {
         path: 'leaveEdit/index',
         name: 'leaveEdit',
         component: 'workflow/leave/leaveEdit',
@@ -59,6 +71,9 @@ const menus = [
 ];
 
 async function installRuntimeApi(page: Page, state: RuntimeState) {
+  await page.route('**/workflow-runtime-upload', route =>
+    route.fulfill({ status: 200, headers: { ETag: 'workflow-etag', 'access-control-expose-headers': 'ETag' } })
+  );
   await page.route('**/prod-api/**', async route => {
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/prod-api', '');
@@ -173,24 +188,28 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           formCustom: 'N',
           formPath: '/workflow/leaveEdit/index',
           copyList: [],
-          buttonList: [
-            { code: 'pop', show: true },
-            { code: 'copy', show: true },
-            { code: 'transfer', show: true },
-            { code: 'addSign', show: true },
-            { code: 'subSign', show: true },
-            { code: 'termination', show: true },
-            { code: 'back', show: true }
-          ]
+          buttonList:
+            id === 'task-2'
+              ? []
+              : [
+                  { code: 'pop', show: true },
+                  { code: 'copy', show: true },
+                  { code: 'file', show: true },
+                  { code: 'transfer', show: true },
+                  { code: 'addSign', show: true },
+                  { code: 'subSign', show: true },
+                  { code: 'termination', show: true },
+                  { code: 'back', show: true }
+                ]
         }
       });
     }
     if (path === '/workflow/task/getNextNodeList' && method === 'POST')
       return json(route, {
         code: 200,
-        data: [{ nodeCode: 'review', nodeName: '部门复核', permissionFlag: ['7'] }]
+        data: [{ nodeCode: 'review', nodeName: '部门复核', permissionFlag: '7' }]
       });
-    if (path === '/workflow/task/currentTaskAllUser/task-2')
+    if (path.startsWith('/workflow/task/currentTaskAllUser/'))
       return json(route, {
         code: 200,
         data: [{ userId: '7', nickName: '流程负责人', email: 'private@example.test', phoneNumber: '13800000000' }]
@@ -205,6 +224,10 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
     }
     if (path.startsWith('/workflow/task/getBackTaskNode/'))
       return json(route, { code: 200, data: [{ nodeCode: 'start', nodeName: '申请人' }] });
+    if (path === '/workflow/task/backProcess' && method === 'POST') {
+      state.backBodies?.push(request.postDataJSON());
+      return json(route, { code: 200 });
+    }
     if (path === '/workflow/category/categoryTree')
       return json(route, { code: 200, data: [{ id: '0', parentId: '0', label: '全部流程', weight: 0, children: [] }] });
     if (path === '/workflow/instance/pageByRunning')
@@ -232,6 +255,39 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
       });
     if (path === '/workflow/instance/invalid' && method === 'POST') {
       state.invalidBodies.push(request.postDataJSON());
+      return json(route, { code: 200 });
+    }
+    if (path === '/workflow/instance/instanceVariable/instance-1')
+      return json(route, { code: 200, data: { variable: { amount: '100' } } });
+    if (path === '/workflow/instance/updateVariable' && method === 'PUT') {
+      state.variableBodies?.push(request.postDataJSON());
+      return json(route, { code: 200 });
+    }
+    if (path === '/workflow/instance/pageByCurrent')
+      return json(route, {
+        code: 200,
+        data: {
+          rows: [
+            {
+              id: 'instance-1',
+              businessId: 'leave-1',
+              businessCode: 'LEAVE-1',
+              businessTitle: '我的请假单',
+              definitionId: 'definition-1',
+              flowCode: 'leave1',
+              flowName: '请假审批',
+              flowStatus: 'waiting',
+              flowStatusName: '审批中',
+              flowTaskList: [],
+              activityStatus: 1,
+              version: '1'
+            }
+          ],
+          total: 1
+        }
+      });
+    if (path === '/workflow/instance/cancelProcessApply' && method === 'PUT') {
+      state.cancelBodies?.push(request.postDataJSON());
       return json(route, { code: 200 });
     }
     if (path === '/workflow/task/urgeTask' && method === 'POST') {
@@ -265,6 +321,18 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           total: 2
         }
       });
+    if (path === '/workflow/leave' && method === 'POST') {
+      const body = request.postDataJSON() as Record<string, unknown>;
+      state.leaveBodies?.push(body);
+      return json(route, {
+        code: 200,
+        data: { id: 'leave-created', applyCode: 'LEAVE-CREATED', status: 'draft', ...body }
+      });
+    }
+    if (path === '/workflow/task/startWorkFlow' && method === 'POST') {
+      state.workflowStartBodies?.push(request.postDataJSON());
+      return json(route, { code: 200, data: { taskId: 'task-1' } });
+    }
     if (path === '/workflow/leave/leave-1')
       return json(route, {
         code: 200,
@@ -285,7 +353,9 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
         data: { instanceId: 'instance-1', list: [{ id: 'history-1', nodeName: '提交申请', createTime: '2026-08-26' }] }
       });
     if (path === '/system/user/list') {
+      state.userListUrls?.push(request.url());
       if (state.failUsers) return json(route, { code: 500, msg: '用户查询失败' });
+      const candidateLimited = new URL(request.url()).searchParams.get('userIds') === '7';
       return json(route, {
         code: 200,
         data: {
@@ -298,9 +368,12 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
               status: '0',
               email: 'private@example.test',
               phoneNumber: '13800000000'
-            }
+            },
+            ...(candidateLimited
+              ? []
+              : [{ userId: '8', userName: 'forbidden', nickName: '越权候选人', deptName: '研发部', status: '0' }])
           ],
-          total: 1
+          total: candidateLimited ? 1 : 2
         }
       });
     }
@@ -325,6 +398,36 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
       state.completeBodies.push(request.postDataJSON());
       return json(route, { code: 200, data: null });
     }
+    if (path === '/resource/oss/uploads' && method === 'POST') {
+      const input = request.postDataJSON() as { fileName: string; fileSize: number };
+      return json(route, {
+        code: 200,
+        data: {
+          uploadToken: 'workflow-upload',
+          mode: 'SINGLE',
+          expiresAt: '2099-01-01T00:00:00Z',
+          fileName: input.fileName,
+          fileSize: input.fileSize,
+          presignedRequest: {
+            method: 'PUT',
+            url: 'http://127.0.0.1:4173/workflow-runtime-upload',
+            requiredHeaders: {},
+            expiresAt: '2099-01-01T00:00:00Z'
+          }
+        }
+      });
+    }
+    if (path === '/resource/oss/uploads/workflow-upload/complete' && method === 'POST')
+      return json(route, { code: 200, data: 'oss-workflow' });
+    if (path === '/resource/oss/oss-workflow/download-url')
+      return json(route, {
+        code: 200,
+        data: {
+          url: 'http://127.0.0.1:4173/workflow-runtime-upload',
+          fileName: 'approval.txt',
+          expiresAt: '2099-01-01'
+        }
+      });
     if (path === '/resource/message/box')
       return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
@@ -361,20 +464,29 @@ test('admin selected workflow completes a task through the public user seam', as
     permissions: ['workflow:task:list', 'workflow:leave:query', 'workflow:task:edit'],
     terminationBodies: [],
     unknown: [],
-    urgeBodies: []
+    urgeBodies: [],
+    userListUrls: []
   };
   await loginToTask(page, state);
   const processDialog = page.getByRole('dialog', { name: '流程办理' });
   await processDialog.getByLabel('审批意见').fill('同意办理');
+  await processDialog.locator('input[type="file"]').setInputFiles({
+    name: 'approval.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('workflow attachment')
+  });
+  await expect(processDialog.getByText('approval.txt', { exact: true })).toBeVisible();
   await processDialog.getByRole('button', { name: '选择', exact: true }).click();
   const selector = page.getByRole('dialog', { name: '选择用户' });
   await expect(selector.getByRole('cell', { name: '流程负责人' })).toBeVisible();
   await expect(selector.getByText('private@example.test', { exact: true })).toHaveCount(0);
   await expect(selector.getByText('13800000000', { exact: true })).toHaveCount(0);
+  await expect(selector.getByText('越权候选人', { exact: true })).toHaveCount(0);
   await selector.locator('label.el-checkbox').first().click();
   await selector.getByRole('button', { name: '确定', exact: true }).click();
   await processDialog.getByRole('button', { name: '提交', exact: true }).click();
   await page.getByRole('button', { name: '确定', exact: true }).click();
+  await expect(page).toHaveURL(/\/workflow\/task\/taskWaiting$/);
   await expect
     .poll(() => state.completeBodies)
     .toEqual([
@@ -384,10 +496,13 @@ test('admin selected workflow completes a task through the public user seam', as
         messageType: ['1'],
         variables: { leaveDays: 2, userList: ['1', '3', '4'] },
         assigneeMap: { review: '7' },
-        flowCopyList: []
+        flowCopyList: [],
+        fileId: 'oss-workflow'
       }
     ]);
   expect(state.network).toContain('GET /system/user/list');
+  expect(state.userListUrls?.some(url => new URL(url).searchParams.get('userIds') === '7')).toBe(true);
+  expect(state.userListUrls?.some(url => url.includes('userIds%5B0%5D'))).toBe(false);
   expect(state.unknown).toEqual([]);
 });
 
@@ -419,6 +534,66 @@ test('user and task failures remain visible without clearing approval input', as
   await expect(page.getByText('任务办理失败', { exact: true })).toBeVisible();
   await expect(processDialog.getByLabel('审批意见')).toHaveValue('保留这段审批意见');
   expect(state.completeBodies).toEqual([]);
+  expect(state.unknown).toEqual([]);
+});
+
+test('participant actions execute delegate transfer add-sign and reduce-sign contracts', async ({ page }) => {
+  const state: RuntimeState = {
+    completeBodies: [],
+    failComplete: false,
+    failUsers: false,
+    invalidBodies: [],
+    network: [],
+    operationBodies: [],
+    permissions: ['workflow:task:list', 'workflow:leave:query'],
+    terminationBodies: [],
+    unknown: [],
+    urgeBodies: []
+  };
+  await loginToTask(page, state);
+
+  const chooseFirstUser = async () => {
+    const selector = page.getByRole('dialog', { name: '选择用户' });
+    await expect(selector.getByRole('cell', { name: '流程负责人' })).toBeVisible();
+    await selector.getByRole('row').filter({ hasText: '流程负责人' }).locator('label.el-checkbox').click();
+    await selector.getByRole('button', { name: '确定', exact: true }).click();
+    await page.getByRole('button', { name: '确定', exact: true }).click();
+  };
+  const reopen = async () => {
+    await page.getByRole('button', { name: '办理任务', exact: true }).click();
+    await expect(page.getByRole('dialog', { name: '流程办理' })).toBeVisible();
+  };
+
+  let processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await processDialog.getByRole('button', { name: '委托', exact: true }).click();
+  await chooseFirstUser();
+  await reopen();
+  processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await processDialog.getByRole('button', { name: '转办', exact: true }).click();
+  await chooseFirstUser();
+  await reopen();
+  processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await processDialog.getByRole('button', { name: '加签', exact: true }).click();
+  await chooseFirstUser();
+  await reopen();
+  processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await processDialog.getByRole('button', { name: '减签', exact: true }).click();
+  const reduction = page.getByRole('dialog', { name: '选择减签人员' });
+  await reduction.getByRole('button', { name: '减签', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
+
+  await expect
+    .poll(() => state.operationBodies.map(item => item.operation))
+    .toEqual(['delegateTask', 'transferTask', 'addSignature', 'reductionSignature']);
+  expect(state.operationBodies).toEqual([
+    { operation: 'delegateTask', body: { taskId: 'task-1', userId: '7', message: '', messageType: ['1'] } },
+    { operation: 'transferTask', body: { taskId: 'task-1', userId: '7', message: '', messageType: ['1'] } },
+    { operation: 'addSignature', body: { taskId: 'task-1', userIds: ['7'], message: '', messageType: ['1'] } },
+    {
+      operation: 'reductionSignature',
+      body: { taskId: 'task-1', userIds: ['7'], message: '', messageType: ['1'] }
+    }
+  ]);
   expect(state.unknown).toEqual([]);
 });
 
@@ -472,6 +647,9 @@ test('all-task runtime separates finished work and sends exact urge payload', as
   await page.getByRole('row').filter({ hasText: '受限任务' }).locator('label.el-checkbox').click();
   await page.getByRole('button', { name: '流程干预', exact: true }).click();
   const processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await expect(processDialog.getByRole('button', { name: '转办', exact: true })).toBeVisible();
+  await expect(processDialog.getByRole('button', { name: '加签', exact: true })).toBeVisible();
+  await expect(processDialog.getByRole('button', { name: '减签', exact: true })).toBeVisible();
   await processDialog.getByLabel('审批意见').fill('任务已不再需要');
   await processDialog.getByRole('button', { name: '终止', exact: true }).click();
   await page.getByRole('button', { name: '确定', exact: true }).click();
@@ -511,6 +689,100 @@ test('instance invalidation requires a reason and posts exact FlowInvalidBo', as
   expect(state.unknown).toEqual([]);
 });
 
+test('task back uploads a real attachment and preserves the exact payload', async ({ page }) => {
+  const state: RuntimeState = {
+    backBodies: [],
+    completeBodies: [],
+    failComplete: false,
+    failUsers: false,
+    invalidBodies: [],
+    network: [],
+    operationBodies: [],
+    permissions: ['workflow:task:list', 'workflow:leave:query'],
+    terminationBodies: [],
+    unknown: [],
+    urgeBodies: []
+  };
+  await loginToTask(page, state);
+  const processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await processDialog.getByRole('button', { name: '退回', exact: true }).click();
+  const backDialog = page.getByRole('dialog', { name: '退回任务' });
+  await backDialog.getByPlaceholder('请输入退回意见').fill('请补充附件');
+  await backDialog.locator('input[type="file"]').setInputFiles({
+    name: 'approval.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('back attachment')
+  });
+  await expect(backDialog.getByText('approval.txt', { exact: true })).toBeVisible();
+  await backDialog.getByRole('button', { name: '确认退回', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
+  await expect
+    .poll(() => state.backBodies)
+    .toEqual([
+      {
+        taskId: 'task-1',
+        nodeCode: 'start',
+        message: '请补充附件',
+        messageType: ['1'],
+        variables: { leaveDays: 2, userList: ['1', '3', '4'] },
+        fileId: 'oss-workflow'
+      }
+    ]);
+  expect(state.unknown).toEqual([]);
+});
+
+test('instance variables can be updated under the exact permission and payload', async ({ page }) => {
+  const state: RuntimeState = {
+    completeBodies: [],
+    failComplete: false,
+    failUsers: false,
+    invalidBodies: [],
+    network: [],
+    operationBodies: [],
+    permissions: ['workflow:instance:list', 'workflow:instance:variableQuery', 'workflow:instance:variable'],
+    terminationBodies: [],
+    unknown: [],
+    urgeBodies: [],
+    variableBodies: []
+  };
+  await installRuntimeApi(page, state);
+  await page.goto('/login?redirect=%2Fworkflow%2FprocessInstance%2Findex');
+  await page.locator('.submit-button').click();
+  await page.getByRole('button', { name: '变量', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '流程变量 - 请假审批' });
+  await expect(dialog.getByText('amount', { exact: false })).toBeVisible();
+  await dialog.getByPlaceholder('请输入变量 KEY').fill('amount');
+  await dialog.getByPlaceholder('请输入变量值').fill('200');
+  await dialog.getByRole('button', { name: '更新变量', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
+  await expect.poll(() => state.variableBodies).toEqual([{ instanceId: 'instance-1', key: 'amount', value: '200' }]);
+  expect(state.unknown).toEqual([]);
+});
+
+test('my document cancellation keeps the backend cancellation reason', async ({ page }) => {
+  const state: RuntimeState = {
+    cancelBodies: [],
+    completeBodies: [],
+    failComplete: false,
+    failUsers: false,
+    invalidBodies: [],
+    network: [],
+    operationBodies: [],
+    permissions: ['workflow:instance:currentList', 'workflow:instance:cancel'],
+    terminationBodies: [],
+    unknown: [],
+    urgeBodies: []
+  };
+  await installRuntimeApi(page, state);
+  await page.goto('/login?redirect=%2Fworkflow%2Ftask%2FmyDocument');
+  await page.locator('.submit-button').click();
+  await expect(page.getByRole('cell', { name: '我的请假单' })).toBeVisible();
+  await page.getByRole('button', { name: '撤销', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
+  await expect.poll(() => state.cancelBodies).toEqual([{ businessId: 'leave-1', message: '申请人撤销流程！' }]);
+  expect(state.unknown).toEqual([]);
+});
+
 test('leave controls follow exact state and permission gates', async ({ page }) => {
   const state: RuntimeState = {
     completeBodies: [],
@@ -534,5 +806,68 @@ test('leave controls follow exact state and permission gates', async ({ page }) 
   await expect(waiting.getByRole('button', { name: '撤销', exact: true })).toHaveCount(0);
   await expect(waiting.getByRole('button', { name: '修改', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '导出', exact: true })).toHaveCount(0);
+  expect(state.unknown).toEqual([]);
+});
+
+test('leave add calculates days, starts workflow and closes after task completion', async ({ page }) => {
+  const state: RuntimeState = {
+    completeBodies: [],
+    failComplete: false,
+    failUsers: false,
+    invalidBodies: [],
+    leaveBodies: [],
+    network: [],
+    operationBodies: [],
+    permissions: ['workflow:leave:add'],
+    terminationBodies: [],
+    unknown: [],
+    urgeBodies: [],
+    workflowStartBodies: []
+  };
+  await installRuntimeApi(page, state);
+  await page.goto('/login?redirect=%2Fworkflow%2FleaveEdit%2Findex%3Ftype%3Dadd');
+  await page.locator('.submit-button').click();
+  await expect(page).toHaveURL(/\/workflow\/leaveEdit\/index\?type=add$/);
+
+  const leaveType = page.locator('.el-form-item').filter({ hasText: '请假类型' });
+  await leaveType.getByRole('combobox').click();
+  await page.getByRole('option', { name: '事假', exact: true }).click();
+  await page.getByPlaceholder('开始时间').fill('2026-09-01 09:00:00');
+  await page.getByPlaceholder('开始时间').press('Tab');
+  await page.getByPlaceholder('结束时间').fill('2026-09-02 18:00:00');
+  await page.getByPlaceholder('结束时间').press('Enter');
+  await page.locator('.el-form-item').filter({ hasText: '请假原因' }).getByRole('textbox').fill('前端架构评审');
+  await expect(page.locator('.el-form-item').filter({ hasText: '请假天数' }).getByRole('textbox')).toHaveValue('2');
+
+  await page.getByRole('button', { name: '提交审批', exact: true }).click();
+  const processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await expect(processDialog).toBeVisible();
+  await processDialog.getByLabel('审批意见').fill('同意请假');
+  await processDialog.getByRole('button', { name: '选择', exact: true }).click();
+  const selector = page.getByRole('dialog', { name: '选择用户' });
+  await selector.getByRole('row').filter({ hasText: '流程负责人' }).locator('label.el-checkbox').click();
+  await selector.getByRole('button', { name: '确定', exact: true }).click();
+  await processDialog.getByRole('button', { name: '提交', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
+
+  await expect(page).not.toHaveURL(/\/workflow\/leaveEdit\/index/);
+  expect(state.leaveBodies).toEqual([
+    {
+      leaveType: '1',
+      startDate: '2026-09-01 09:00:00',
+      endDate: '2026-09-02 18:00:00',
+      leaveDays: 2,
+      remark: '前端架构评审'
+    }
+  ]);
+  expect(state.workflowStartBodies).toEqual([
+    {
+      businessId: 'leave-created',
+      flowCode: 'leave1',
+      variables: { leaveDays: 2, userList: ['1', '3', '4'] },
+      bizExt: { businessTitle: '请假申请', businessCode: 'LEAVE-CREATED' }
+    }
+  ]);
+  expect(state.completeBodies).toHaveLength(1);
   expect(state.unknown).toEqual([]);
 });

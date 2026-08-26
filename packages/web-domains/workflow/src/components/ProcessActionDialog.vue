@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="visible" title="流程办理" width="720px" :close-on-click-modal="false">
+  <el-dialog v-model="visible" title="流程办理" :width="width" :close-on-click-modal="false" @closed="handleClosed">
     <el-alert v-if="failure" :title="failure" type="error" show-icon :closable="false" />
     <div v-loading="loading">
       <el-descriptions v-if="task" :column="2" border>
@@ -19,8 +19,12 @@
             <el-checkbox value="3">短信</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item v-if="enabled.has('file')" label="附件 ID">
-          <el-input v-model="fileId" placeholder="请输入已上传附件 ID" />
+        <el-form-item v-if="enabled.has('file')" label="附件">
+          <FileUpload
+            v-model="fileId"
+            :file-type="['png', 'jpg', 'jpeg', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'txt', 'pdf']"
+            :file-size="20"
+          />
         </el-form-item>
         <el-form-item v-if="enabled.has('copy')" label="抄送人">
           <el-tag v-for="user in copyUsers" :key="String(user.userId)" closable @close="removeCopy(user.userId)">
@@ -53,7 +57,7 @@
         提交
       </el-button>
       <el-button v-if="can('trust')" :loading="submitting" @click="openSelector('delegateTask', false)">委托</el-button>
-      <el-button v-if="can('transfer')" :loading="submitting" @click="openSelector('transferTask', false)">
+      <el-button v-if="canAction('transfer')" :loading="submitting" @click="openSelector('transferTask', false)">
         转办
       </el-button>
       <el-button v-if="canRatio('addSign')" :loading="submitting" @click="openSelector('addSignature', true)">
@@ -61,7 +65,7 @@
       </el-button>
       <el-button v-if="canRatio('subSign')" :loading="submitting" @click="openReduction">减签</el-button>
       <el-button v-if="can('back')" type="danger" :loading="submitting" @click="openBack">退回</el-button>
-      <el-button v-if="can('termination')" type="danger" :loading="submitting" @click="terminate">终止</el-button>
+      <el-button v-if="canAction('termination')" type="danger" :loading="submitting" @click="terminate">终止</el-button>
     </template>
   </el-dialog>
 
@@ -90,6 +94,13 @@
       <el-option v-for="node in backNodes" :key="node.nodeCode" :label="node.nodeName" :value="node.nodeCode" />
     </el-select>
     <el-input v-model="backMessage" type="textarea" :rows="3" placeholder="请输入退回意见" />
+    <el-form-item label="附件">
+      <FileUpload
+        v-model="backFileId"
+        :file-type="['png', 'jpg', 'jpeg', 'doc', 'docx', 'xlsx', 'xls', 'ppt', 'txt', 'pdf']"
+        :file-size="20"
+      />
+    </el-form-item>
     <template #footer><el-button type="primary" @click="back">确认退回</el-button></template>
   </el-dialog>
 </template>
@@ -98,7 +109,12 @@
 import type { UserSummary, WorkflowTask } from '@namewta/domain-workflow';
 import { computed, reactive, ref } from 'vue';
 import type { WorkflowWebRuntime } from '../runtime';
-import { createCompletePayload, createTaskOperationPayload, enabledProcessButtons } from '../process-actions';
+import {
+  createBackPayload,
+  createCompletePayload,
+  createTaskOperationPayload,
+  enabledProcessButtons
+} from '../process-actions';
 import UserSelect from './UserSelect.vue';
 
 type NodeOption = {
@@ -112,25 +128,29 @@ type TaskOperation = 'addSignature' | 'delegateTask' | 'reductionSignature' | 't
 const props = withDefaults(
   defineProps<{
     allowComplete?: boolean;
+    mode?: 'intervention' | 'participant';
     runtime: WorkflowWebRuntime;
     taskVariables?: Readonly<Record<string, unknown>>;
+    width?: string;
   }>(),
-  { allowComplete: true, taskVariables: () => ({}) }
+  { allowComplete: true, mode: 'participant', taskVariables: () => ({}), width: '720px' }
 );
-const emit = defineEmits<{ completed: [] }>();
+const emit = defineEmits<{ cancelled: []; completed: [] }>();
 const visible = ref(false);
 const loading = ref(false);
 const submitting = ref(false);
 const failure = ref('');
+const actionCompleted = ref(false);
 const task = ref<WorkflowTask>();
 const message = ref('');
 const messageType = ref(['1']);
 const fileId = ref('');
+const FileUpload = props.runtime.fileUpload;
 const nextNodes = ref<NodeOption[]>([]);
 const copyUsers = ref<UserSummary[]>([]);
 const assigneeMap = reactive<Record<string, string>>({});
 const assigneeNames = reactive<Record<string, string>>({});
-const enabled = computed(() => (task.value ? enabledProcessButtons(task.value) : new Set<string>()));
+const enabled = computed(() => (task.value ? enabledProcessButtons(task.value, props.mode) : new Set<string>()));
 const selector = ref<InstanceType<typeof UserSelect>>();
 const selectorAction = ref<SelectorAction>('copy');
 const selectorMultiple = ref(true);
@@ -143,17 +163,22 @@ const backVisible = ref(false);
 const backNodes = ref<NodeOption[]>([]);
 const backNodeCode = ref('');
 const backMessage = ref('');
+const backFileId = ref('');
 
 function can(code: string) {
   return task.value?.flowStatus === 'waiting' && enabled.value.has(code);
 }
+function canAction(code: string) {
+  return task.value?.flowStatus === 'waiting' && enabled.value.has(code);
+}
 function canRatio(code: string) {
-  return can(code) && Number(task.value?.nodeRatio ?? 0) > 0;
+  return canAction(code) && Number(task.value?.nodeRatio ?? 0) > 0;
 }
 async function open(taskId: string | number) {
   visible.value = true;
   loading.value = true;
   failure.value = '';
+  actionCompleted.value = false;
   message.value = '';
   messageType.value = ['1'];
   fileId.value = '';
@@ -212,6 +237,7 @@ async function execute(action: () => Promise<unknown>, success = '操作成功')
     await props.runtime.confirm('是否确认提交？');
     await action();
     props.runtime.success(success);
+    actionCompleted.value = true;
     visible.value = false;
     emit('completed');
   } catch (error: unknown) {
@@ -219,6 +245,9 @@ async function execute(action: () => Promise<unknown>, success = '操作成功')
   } finally {
     submitting.value = false;
   }
+}
+function handleClosed() {
+  if (!actionCompleted.value) emit('cancelled');
 }
 async function complete() {
   if (!task.value) return;
@@ -273,19 +302,23 @@ async function openBack() {
   backNodes.value = (response.data ?? []) as NodeOption[];
   backNodeCode.value = backNodes.value[0]?.nodeCode ?? '';
   backMessage.value = '';
+  backFileId.value = '';
   backVisible.value = true;
 }
 async function back() {
   if (!task.value || !backNodeCode.value) return;
   backVisible.value = false;
   await execute(() =>
-    props.runtime.service.backProcess({
-      taskId: task.value!.id,
-      nodeCode: backNodeCode.value,
-      message: backMessage.value.trim(),
-      messageType: [...messageType.value],
-      variables: { ...props.taskVariables }
-    })
+    props.runtime.service.backProcess(
+      createBackPayload({
+        taskId: task.value!.id,
+        nodeCode: backNodeCode.value,
+        message: backMessage.value.trim(),
+        messageType: [...messageType.value],
+        variables: { ...props.taskVariables },
+        fileId: backFileId.value || undefined
+      })
+    )
   );
 }
 

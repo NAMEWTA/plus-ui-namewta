@@ -5,6 +5,13 @@ type IdInput = string | number | readonly (string | number)[] | undefined;
 export const normalizeUserIds = (input: IdInput): (string | number)[] =>
   input === undefined ? [] : Array.isArray(input) ? [...input] : [input as string | number];
 
+export const serializeCandidateUserIds = (input: IdInput): string | undefined => {
+  const values = normalizeUserIds(input)
+    .flatMap(value => String(value).split(','))
+    .filter(Boolean);
+  return values.length ? values.join(',') : undefined;
+};
+
 export const mergeUserSelection = (
   retained: readonly UserSummary[],
   page: readonly UserSummary[],
@@ -27,7 +34,7 @@ export async function prepareUserSelection(
     modelValue?: UserSummary | UserSummary[];
     userIds?: IdInput;
   }
-): Promise<{ listUserIds: (string | number)[] | undefined; selected: UserSummary[] }> {
+): Promise<{ listUserIds: string | undefined; selected: UserSummary[] }> {
   const model = input.modelValue
     ? Array.isArray(input.modelValue)
       ? [...input.modelValue]
@@ -35,6 +42,5 @@ export async function prepareUserSelection(
     : [];
   const preselectedIds = normalizeUserIds(input.data);
   const selected = model.length || !preselectedIds.length ? model : (await service.users.options(preselectedIds)).data;
-  const listUserIds = normalizeUserIds(input.userIds);
-  return { selected, listUserIds: listUserIds.length ? listUserIds : undefined };
+  return { selected, listUserIds: serializeCandidateUserIds(input.userIds) };
 }

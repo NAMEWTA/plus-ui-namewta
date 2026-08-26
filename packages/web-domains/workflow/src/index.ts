@@ -4,17 +4,36 @@ import type { WorkflowWebRuntime } from './runtime';
 import { requireWorkflowWebRuntime } from './runtime';
 
 export { createLiveWorkflowDictRefs } from './runtime';
-export type { WorkflowDictOption, WorkflowDictSource, WorkflowWebRuntime } from './runtime';
+export type { WorkflowAttachment, WorkflowDictOption, WorkflowDictSource, WorkflowWebRuntime } from './runtime';
 export { default as WorkflowUserSelect } from './components/UserSelect.vue';
 export { default as WorkflowProcessActionDialog } from './components/ProcessActionDialog.vue';
+export { default as WorkflowApprovalButton } from './components/ApprovalButton.vue';
+export { default as WorkflowApprovalRecord } from './components/ApprovalRecord.vue';
+export { default as WorkflowFlowChart } from './components/FlowChart.vue';
+export { default as WorkflowFlowChartImg } from './components/FlowChartImg.vue';
+export { default as WorkflowMessageType } from './components/MessageType.vue';
+export { default as WorkflowUserNameDisplay } from './components/UserNameDisplay.vue';
 export {
   createFlowInvalidPayload,
+  calculateLeaveDays,
+  createCancelProcessPayload,
+  createInstanceVariablePayload,
   createUrgePayload,
   isCancellableLeaveStatus,
   isEditableLeaveStatus
 } from './runtime-actions';
-export { mergeUserSelection, normalizeUserIds, prepareUserSelection } from './user-selection';
-export { createCompletePayload, createTaskOperationPayload, enabledProcessButtons } from './process-actions';
+export {
+  mergeUserSelection,
+  normalizeUserIds,
+  prepareUserSelection,
+  serializeCandidateUserIds
+} from './user-selection';
+export {
+  createBackPayload,
+  createCompletePayload,
+  createTaskOperationPayload,
+  enabledProcessButtons
+} from './process-actions';
 
 async function runtimeView(
   name: string,

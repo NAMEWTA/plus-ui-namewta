@@ -69,6 +69,7 @@ import type { CategoryTreeVO, InstanceQuery, WorkflowInstance } from '@namewta/d
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { WorkflowWebRuntime } from '../runtime';
+import { createCancelProcessPayload } from '../runtime-actions';
 
 const props = defineProps<{ runtime: WorkflowWebRuntime }>();
 const router = useRouter();
@@ -142,7 +143,7 @@ async function cancel(row: unknown) {
   const instance = row as WorkflowInstance;
   try {
     await props.runtime.confirm(`确认撤销“${instance.businessTitle}”吗？`);
-    await props.runtime.service.cancelProcess({ businessId: instance.businessId });
+    await props.runtime.service.cancelProcess(createCancelProcessPayload(instance.businessId));
     props.runtime.success('撤销成功');
     await load();
   } catch (error: unknown) {

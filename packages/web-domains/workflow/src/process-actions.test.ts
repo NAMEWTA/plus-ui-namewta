@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createCompletePayload, createTaskOperationPayload, enabledProcessButtons } from './index';
+import { createBackPayload, createCompletePayload, createTaskOperationPayload, enabledProcessButtons } from './index';
 
 describe('workflow process action contracts', () => {
   it('enables only backend-supplied visible actions', () => {
@@ -10,6 +10,19 @@ describe('workflow process action contracts', () => {
       ]
     });
     expect([...enabled]).toEqual(['transfer']);
+  });
+
+  it('keeps admin intervention independent from participant button visibility', () => {
+    const task = {
+      flowStatus: 'waiting',
+      nodeRatio: 1,
+      buttonList: [
+        { code: 'transfer', show: false },
+        { code: 'termination', show: false }
+      ]
+    };
+    expect([...enabledProcessButtons(task, 'intervention')]).toEqual(['transfer', 'termination', 'addSign', 'subSign']);
+    expect([...enabledProcessButtons({ ...task, flowStatus: 'finish' }, 'intervention')]).toEqual([]);
   });
 
   it('builds exact complete and operation payloads', () => {
@@ -37,6 +50,23 @@ describe('workflow process action contracts', () => {
       userId: '7',
       message: '转办',
       messageType: ['1']
+    });
+    expect(
+      createBackPayload({
+        taskId: 'task-1',
+        nodeCode: 'start',
+        message: ' 退回补充材料 ',
+        messageType: ['1', '2'],
+        variables: { leaveDays: 2 },
+        fileId: 'oss-2'
+      })
+    ).toEqual({
+      taskId: 'task-1',
+      nodeCode: 'start',
+      message: '退回补充材料',
+      messageType: ['1', '2'],
+      variables: { leaveDays: 2 },
+      fileId: 'oss-2'
     });
   });
 });

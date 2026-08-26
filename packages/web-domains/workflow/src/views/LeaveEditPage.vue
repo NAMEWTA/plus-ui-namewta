@@ -17,14 +17,21 @@
             <el-option label="婚假" value="4" />
           </el-select>
         </el-form-item>
-        <el-form-item label="开始日期" prop="startDate">
-          <el-date-picker v-model="form.startDate" type="date" value-format="YYYY-MM-DD" :disabled="readonly" />
-        </el-form-item>
-        <el-form-item label="结束日期" prop="endDate">
-          <el-date-picker v-model="form.endDate" type="date" value-format="YYYY-MM-DD" :disabled="readonly" />
+        <el-form-item label="请假时间" required>
+          <el-date-picker
+            v-model="leaveRange"
+            type="datetimerange"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始时间"
+            end-placeholder="结束时间"
+            :default-time="[new Date(2000, 0, 1, 0, 0, 0), new Date(2000, 0, 1, 23, 59, 59)]"
+            :disabled="readonly"
+            @change="syncLeaveRange"
+          />
         </el-form-item>
         <el-form-item label="请假天数" prop="leaveDays">
-          <el-input-number v-model="form.leaveDays" :min="1" :disabled="readonly" />
+          <el-input :model-value="form.leaveDays" disabled />
         </el-form-item>
         <el-form-item label="请假原因" prop="remark">
           <el-input v-model="form.remark" type="textarea" :disabled="readonly" />
@@ -44,7 +51,12 @@
       <template v-if="effectiveTaskId && (routeType === 'approval' || startedTaskId)">
         <el-divider content-position="left">审批办理</el-divider>
         <el-button type="primary" @click="processActions?.open(effectiveTaskId)">办理任务</el-button>
-        <ProcessActionDialog ref="processActions" :runtime="runtime" :task-variables="taskVariables" />
+        <ProcessActionDialog
+          ref="processActions"
+          :runtime="runtime"
+          :task-variables="taskVariables"
+          @completed="closeCompletedPage"
+        />
       </template>
       <el-divider v-if="id" content-position="left">流程记录</el-divider>
       <el-timeline v-if="id">
@@ -62,10 +74,11 @@
 
 <script setup lang="ts">
 import type { LeaveForm } from '@namewta/domain-workflow';
-import { computed, reactive, ref } from 'vue';
+import { computed, nextTick, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { WorkflowWebRuntime } from '../runtime';
 import ProcessActionDialog from '../components/ProcessActionDialog.vue';
+import { calculateLeaveDays } from '../runtime-actions';
 
 const props = defineProps<{ runtime: WorkflowWebRuntime }>();
 const route = useRoute();
@@ -86,10 +99,9 @@ const flowCodes = [
 ];
 const formRef = ref<{ validate: () => Promise<boolean> }>();
 const form = reactive<LeaveForm>({ leaveType: '', startDate: '', endDate: '', leaveDays: 1, remark: '' });
+const leaveRange = ref<string[]>([]);
 const rules = {
   leaveType: [{ required: true, message: '请选择请假类型', trigger: 'change' }],
-  startDate: [{ required: true, message: '请选择开始日期', trigger: 'change' }],
-  endDate: [{ required: true, message: '请选择结束日期', trigger: 'change' }],
   remark: [{ required: true, message: '请输入请假原因', trigger: 'blur' }]
 };
 const saving = ref(false);
@@ -106,12 +118,18 @@ async function load() {
       props.runtime.service.flowHistory(id.value)
     ]);
     Object.assign(form, leave.data);
+    leaveRange.value = form.startDate && form.endDate ? [form.startDate, form.endDate] : [];
     history.value = records.data?.list ?? [];
   } catch (error: unknown) {
     failure.value = error instanceof Error ? error.message : '请假详情加载失败';
   }
 }
 async function persist(action: 'draft' | 'start' | 'direct') {
+  syncLeaveRange();
+  if (leaveRange.value.length !== 2 || form.leaveDays === undefined) {
+    failure.value = '请选择有效的请假时间';
+    return;
+  }
   await formRef.value?.validate();
   saving.value = true;
   failure.value = '';
@@ -133,13 +151,26 @@ async function persist(action: 'draft' | 'start' | 'direct') {
       });
       const startedTask = (started.data as { taskId?: string | number } | undefined)?.taskId;
       startedTaskId.value = startedTask === undefined ? '' : String(startedTask);
+      if (startedTaskId.value) {
+        await nextTick();
+        await processActions.value?.open(startedTaskId.value);
+      }
     }
     props.runtime.success(action === 'draft' ? '保存成功' : '提交成功');
+    if (action !== 'start') await props.runtime.closeCurrentPage();
   } catch (error: unknown) {
     failure.value = error instanceof Error ? error.message : action === 'draft' ? '保存失败' : '提交失败';
   } finally {
     saving.value = false;
   }
+}
+function syncLeaveRange() {
+  form.startDate = leaveRange.value[0] ?? '';
+  form.endDate = leaveRange.value[1] ?? '';
+  form.leaveDays = calculateLeaveDays(leaveRange.value);
+}
+async function closeCompletedPage() {
+  await props.runtime.closeCurrentPage();
 }
 function save() {
   return persist('draft');

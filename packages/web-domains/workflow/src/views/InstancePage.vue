@@ -102,6 +102,25 @@
     </el-dialog>
     <el-dialog v-model="detailVisible" :title="detailTitle" width="680px">
       <pre class="instance-detail">{{ detail }}</pre>
+      <el-form v-if="detailKind === 'variables'" :inline="true" label-width="88px">
+        <el-form-item label="变量 KEY">
+          <el-input v-model="variableKey" placeholder="请输入变量 KEY" />
+        </el-form-item>
+        <el-form-item label="变量值">
+          <el-input v-model="variableValue" placeholder="请输入变量值" />
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            v-hasPermi="['workflow:instance:variable']"
+            type="primary"
+            :loading="variableUpdating"
+            :disabled="!variableKey.trim() || !variableValue.trim()"
+            @click="updateVariable"
+          >
+            更新变量
+          </el-button>
+        </el-form-item>
+      </el-form>
     </el-dialog>
   </div>
 </template>
@@ -112,7 +131,7 @@ import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { WorkflowWebRuntime } from '../runtime';
 import UserSelect from '../components/UserSelect.vue';
-import { createFlowInvalidPayload } from '../runtime-actions';
+import { createFlowInvalidPayload, createInstanceVariablePayload } from '../runtime-actions';
 
 const props = defineProps<{ runtime: WorkflowWebRuntime }>();
 const router = useRouter();
@@ -133,6 +152,11 @@ const invalidTarget = ref<WorkflowInstance>();
 const detailVisible = ref(false);
 const detailTitle = ref('');
 const detail = ref<Record<string, unknown> | Record<string, unknown>[]>({});
+const detailKind = ref<'history' | 'variables'>('history');
+const variableTarget = ref<WorkflowInstance>();
+const variableKey = ref('');
+const variableValue = ref('');
+const variableUpdating = ref(false);
 
 async function load() {
   loading.value = true;
@@ -212,6 +236,10 @@ async function showVariables(input: unknown) {
   const row = input as WorkflowInstance;
   try {
     const response = await props.runtime.service.instanceVariables(row.id);
+    variableTarget.value = row;
+    variableKey.value = '';
+    variableValue.value = '';
+    detailKind.value = 'variables';
     detailTitle.value = `流程变量 - ${row.flowName}`;
     detail.value = response.data ?? {};
     detailVisible.value = true;
@@ -223,11 +251,32 @@ async function showHistory(input: unknown) {
   const row = input as WorkflowInstance;
   try {
     const response = await props.runtime.service.flowHistory(row.businessId);
+    detailKind.value = 'history';
     detailTitle.value = `流程历史 - ${row.flowName}`;
     detail.value = response.data?.list ?? [];
     detailVisible.value = true;
   } catch (error: unknown) {
     props.runtime.error(error instanceof Error ? error.message : '流程历史查询失败');
+  }
+}
+async function updateVariable() {
+  const row = variableTarget.value;
+  if (!row || !variableKey.value.trim() || !variableValue.value.trim()) return;
+  variableUpdating.value = true;
+  try {
+    await props.runtime.confirm('是否确认提交？');
+    await props.runtime.service.updateInstanceVariables(
+      createInstanceVariablePayload(row.id, variableKey.value, variableValue.value)
+    );
+    const response = await props.runtime.service.instanceVariables(row.id);
+    detail.value = response.data ?? {};
+    variableKey.value = '';
+    variableValue.value = '';
+    props.runtime.success('流程变量已更新');
+  } catch (error: unknown) {
+    if (error instanceof Error) props.runtime.error(error.message);
+  } finally {
+    variableUpdating.value = false;
   }
 }
 async function toggleActive(input: unknown) {

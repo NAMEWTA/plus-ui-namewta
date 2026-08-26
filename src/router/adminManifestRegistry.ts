@@ -1,4 +1,3 @@
-import type { Component } from 'vue';
 import { demoDomainModule } from '@namewta/domain-demo';
 import { identityAccessDomainModule, type IdentityAccessService } from '@namewta/domain-identity-access';
 import { createWorkflowDefinitionService, workflowDomainModule } from '@namewta/domain-workflow';
@@ -6,7 +5,10 @@ import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } fro
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
 import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
+import { defineAsyncComponent, type Component } from 'vue';
 import WorkflowTreePanel from '@/components/TreePanel/index.vue';
+
+const WorkflowFileUpload = defineAsyncComponent(() => import('@/components/FileUpload/index.vue'));
 
 const identityService: IdentityAccessService = {
   client: Object.freeze({ clientId: import.meta.env.VITE_APP_CLIENT_ID }),
@@ -45,8 +47,27 @@ const workflowService = createWorkflowDefinitionService({
     return request(config) as Promise<T>;
   }
 });
-const workflowManifest = createWorkflowWebDomain({
+export const adminWorkflowWebRuntime = {
   service: workflowService,
+  fileUpload: WorkflowFileUpload,
+  closeCurrentPage: () => import('@/plugins/tab').then(({ default: tab }) => tab.closePage()),
+  chartUrl: async instanceId => {
+    const { getToken } = await import('@/utils/auth');
+    return (
+      import.meta.env.VITE_APP_BASE_API +
+      `/warm-flow-ui/index.html?id=${encodeURIComponent(instanceId)}&type=FlowChart&t=${Date.now()}` +
+      '&Authorization=Bearer ' +
+      encodeURIComponent(getToken() ?? '') +
+      '&clientid=' +
+      encodeURIComponent(import.meta.env.VITE_APP_CLIENT_ID)
+    );
+  },
+  resolveAttachments: async ids => {
+    const { listByIds } = await import('@/api/system/oss');
+    const response = await listByIds(ids);
+    return response.data.map(item => ({ ossId: item.ossId, originalName: item.originalName }));
+  },
+  downloadAttachment: ossId => import('@/plugins/download').then(({ default: download }) => download.oss(ossId)),
   confirm: async message => {
     const { default: modal } = await import('@/plugins/modal');
     await modal.confirm(message);
@@ -83,7 +104,8 @@ const workflowManifest = createWorkflowWebDomain({
       encodeURIComponent(import.meta.env.VITE_APP_CLIENT_ID)
     );
   }
-});
+};
+const workflowManifest = createWorkflowWebDomain(adminWorkflowWebRuntime);
 
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',

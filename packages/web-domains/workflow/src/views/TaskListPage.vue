@@ -80,7 +80,13 @@
         <el-button type="primary" :disabled="!urgeMessage.trim()" @click="urge">确定</el-button>
       </template>
     </el-dialog>
-    <ProcessActionDialog ref="processActions" :runtime="runtime" :allow-complete="false" @completed="load" />
+    <ProcessActionDialog
+      ref="processActions"
+      :runtime="runtime"
+      :allow-complete="false"
+      mode="intervention"
+      @completed="load"
+    />
   </div>
 </template>
 

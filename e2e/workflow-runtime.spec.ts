@@ -560,6 +560,9 @@ test('participant actions execute delegate transfer add-sign and reduce-sign con
     await page.getByRole('button', { name: '确定', exact: true }).click();
   };
   const reopen = async () => {
+    await expect(page).toHaveURL(/\/workflow\/task\/taskWaiting$/);
+    await page.getByRole('button', { name: '办理', exact: true }).click();
+    await expect(page).toHaveURL(/\/workflow\/leaveEdit\/index\?.*taskId=task-1/);
     await page.getByRole('button', { name: '办理任务', exact: true }).click();
     await expect(page.getByRole('dialog', { name: '流程办理' })).toBeVisible();
   };

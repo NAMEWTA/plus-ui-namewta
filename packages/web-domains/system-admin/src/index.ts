@@ -35,12 +35,18 @@ export function createSystemAdminWebDomain(runtime: SystemAdminWebRuntime): WebD
       })
     ]),
     permissions: Object.freeze(
-      ['client', 'user', 'userType', 'role', 'menu', 'dept', 'post'].map(slice =>
+      Object.entries({
+        client: ['list', 'query', 'add', 'edit', 'remove', 'export'],
+        user: ['list', 'query', 'add', 'edit', 'remove', 'export', 'import', 'resetPwd'],
+        userType: ['list', 'query', 'add', 'edit', 'remove', 'export'],
+        role: ['list', 'query', 'add', 'edit', 'remove', 'export'],
+        menu: ['list', 'query', 'add', 'edit', 'remove'],
+        dept: ['list', 'query', 'add', 'edit', 'remove'],
+        post: ['list', 'query', 'add', 'edit', 'remove', 'export']
+      }).map(([slice, actions]) =>
         Object.freeze({
           id: `system-${slice}`,
-          permissions: Object.freeze(
-            ['list', 'query', 'add', 'edit', 'remove', 'export'].map(action => `system:${slice}:${action}`)
-          )
+          permissions: Object.freeze(actions.map(action => `system:${slice}:${action}`))
         })
       )
     ),

@@ -1,6 +1,27 @@
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
-import { describe, expect, it, vi } from 'vitest';
-import { createSystemAdminService, systemAdminDomainModule } from './index';
+import { describe, expect, expectTypeOf, it, vi } from 'vitest';
+import {
+  createSystemAdminService,
+  systemAdminDomainModule,
+  type ApiResponse,
+  type ClientForm,
+  type ClientQuery,
+  type ClientVO,
+  type DeptQuery,
+  type DeptVO,
+  type MenuQuery,
+  type MenuVO,
+  type PageResult,
+  type PostQuery,
+  type PostVO,
+  type RoleForm,
+  type RoleQuery,
+  type RoleVO,
+  type UserQuery,
+  type UserTypeQuery,
+  type UserTypeVO,
+  type UserVO
+} from './index';
 
 describe('system-admin transport contracts', () => {
   it('preserves every migrated endpoint and method for all seven slices', async () => {
@@ -13,8 +34,8 @@ describe('system-admin transport contracts', () => {
     };
     const service = createSystemAdminService(http);
 
-    const input = { marker: 'preserved' };
-    const query = { pageNum: 1, pageSize: 10 };
+    const input = { marker: 'preserved' } as never;
+    const query = { pageNum: 1, pageSize: 10 } as never;
     const cases: Array<[HttpRequest, () => Promise<unknown>]> = [
       [{ url: '/system/client/list', method: 'get', params: query }, () => service.clients.list(query)],
       [{ url: '/system/client/client%2F1', method: 'get' }, () => service.clients.get('client/1')],
@@ -178,6 +199,23 @@ describe('system-admin transport contracts', () => {
     const error = new Error('client scoped query failed');
     const service = createSystemAdminService({ request: vi.fn(async () => Promise.reject(error)) });
     await expect(service.users.list({ pageNum: 1, pageSize: 10 })).rejects.toBe(error);
+  });
+
+  it('retains concrete DTO and VO contracts for every governance slice', () => {
+    const service = createSystemAdminService({ request: vi.fn() });
+    expectTypeOf(service.clients.list).toEqualTypeOf<
+      (query?: ClientQuery) => Promise<ApiResponse<PageResult<ClientVO>>>
+    >();
+    expectTypeOf(service.clients.add).toEqualTypeOf<(data: ClientForm) => Promise<ApiResponse>>();
+    expectTypeOf(service.users.list).toEqualTypeOf<(query: UserQuery) => Promise<ApiResponse<PageResult<UserVO>>>>();
+    expectTypeOf(service.userTypes.list).toEqualTypeOf<
+      (query?: UserTypeQuery) => Promise<ApiResponse<PageResult<UserTypeVO>>>
+    >();
+    expectTypeOf(service.roles.list).toEqualTypeOf<(query: RoleQuery) => Promise<ApiResponse<PageResult<RoleVO>>>>();
+    expectTypeOf(service.roles.updatePermission).toEqualTypeOf<(data: RoleForm) => Promise<ApiResponse>>();
+    expectTypeOf(service.menus.list).toEqualTypeOf<(query?: MenuQuery) => Promise<ApiResponse<MenuVO[]>>>();
+    expectTypeOf(service.departments.list).toEqualTypeOf<(query?: DeptQuery) => Promise<ApiResponse<DeptVO[]>>>();
+    expectTypeOf(service.posts.list).toEqualTypeOf<(query: PostQuery) => Promise<ApiResponse<PageResult<PostVO>>>>();
   });
 
   it('publishes the exact system capability identity', () => {

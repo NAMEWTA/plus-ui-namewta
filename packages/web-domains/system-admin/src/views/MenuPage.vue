@@ -389,27 +389,36 @@
 <script setup name="Menu" lang="ts">
 import type { ClientVO, MenuForm, MenuQuery, MenuVO } from '@namewta/domain-system-admin';
 import type { FormInstance as ElFormInstance } from 'element-plus';
-import { onMounted, reactive, ref, toRefs } from 'vue';
 import type { ElTree } from 'element-plus';
+import { onMounted, reactive, ref, toRefs } from 'vue';
 type ElTableInstance = any;
 type ElTreeInstance = InstanceType<typeof ElTree>;
-import { useDialogState, useLoading, useSearchReset, useSearchToggle } from '../composables';
 import type { SystemAdminWebRuntime } from '../runtime';
+import { useDialogState, useLoading, useSearchReset, useSearchToggle } from '../composables';
 import { handleTree, MenuTypeEnum } from '../utils';
 
 const { runtime } = defineProps<{ runtime: SystemAdminWebRuntime }>();
 const listClientOptions = runtime.service.clients.options;
-const { add: addMenu, cascadeDelete: cascadeDelMenu, delete: delMenu, get: getMenu, list: listMenu, update: updateMenu } = runtime.service.menus;
+const {
+  add: addMenu,
+  cascadeDelete: cascadeDelMenu,
+  delete: delMenu,
+  get: getMenu,
+  list: listMenu,
+  update: updateMenu
+} = runtime.service.menus;
 const modal = { confirm: runtime.confirm, msgSuccess: runtime.success, msgWarning: runtime.warning };
 
 interface MenuOptionsType {
-  menuId: number;
+  menuId: string | number;
   menuName: string;
   children: MenuOptionsType[] | undefined;
 }
 
 const { sys_show_hide, sys_normal_disable, sys_yes_no } = runtime.dicts(
-  'sys_show_hide', 'sys_normal_disable', 'sys_yes_no'
+  'sys_show_hide',
+  'sys_normal_disable',
+  'sys_yes_no'
 );
 
 const menuList = ref<MenuVO[]>([]);
@@ -692,7 +701,9 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.system-menu-page { min-height: 0; }
+.system-menu-page {
+  min-height: 0;
+}
 
 .client-filter {
   width: 280px;

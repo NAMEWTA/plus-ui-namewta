@@ -24,6 +24,8 @@ describe('system-admin web manifest', () => {
       expect.arrayContaining([
         'system:client:list',
         'system:user:list',
+        'system:user:import',
+        'system:user:resetPwd',
         'system:userType:list',
         'system:role:list',
         'system:menu:list',

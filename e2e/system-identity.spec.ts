@@ -12,7 +12,13 @@ const routes = [
 
 type AdminState = {
   failUserList: boolean;
-  governanceRequests: Array<{ clientId: string; method: string; path: string }>;
+  governanceRequests: Array<{
+    body?: Record<string, unknown>;
+    clientId: string;
+    method: string;
+    path: string;
+    query: Record<string, string>;
+  }>;
   unknownRequests: string[];
 };
 
@@ -30,7 +36,7 @@ async function installAdminApi(page: Page, state: AdminState) {
         data: {
           user: { userId: 7, userName: 'governance-reader', nickName: 'Governance Reader', avatarUrl: '' },
           roles: ['operator'],
-          permissions: ['system:user:list', 'system:role:list', 'system:menu:list']
+          permissions: ['system:user:list', 'system:role:list', 'system:role:edit', 'system:menu:list']
         }
       });
     }
@@ -47,10 +53,20 @@ async function installAdminApi(page: Page, state: AdminState) {
       '/system/user/list',
       '/system/userType/options',
       '/system/client/list',
-      '/system/config/configKey/sys.user.initPassword'
+      '/system/config/configKey/sys.user.initPassword',
+      '/system/role/list',
+      '/system/role/changeStatus',
+      '/system/menu/list'
     ]);
     if (governancePaths.has(path)) {
-      state.governanceRequests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
+      const url = new URL(request.url());
+      state.governanceRequests.push({
+        body: request.postData() ? (request.postDataJSON() as Record<string, unknown>) : undefined,
+        clientId: request.headers()['clientid'] ?? '',
+        method,
+        path,
+        query: Object.fromEntries(url.searchParams)
+      });
       if (path === '/system/user/list') {
         if (state.failUserList) return json(route, { code: 500, msg: '跨 Client 用户查询被拒绝' });
         return json(route, {
@@ -67,6 +83,40 @@ async function installAdminApi(page: Page, state: AdminState) {
           data: { rows: [{ id: 1, clientId: 'proof-client', clientKey: 'proof-client', status: '0' }], total: 1 }
         });
       }
+      if (path === '/system/role/list') {
+        return json(route, {
+          code: 200,
+          data: {
+            rows: [
+              {
+                roleId: 77,
+                roleName: 'Client Scoped Operator',
+                roleKey: 'scoped_operator',
+                roleSort: 1,
+                status: '0'
+              }
+            ],
+            total: 1
+          }
+        });
+      }
+      if (path === '/system/role/changeStatus') return json(route, { code: 200, data: null });
+      if (path === '/system/menu/list') {
+        return json(route, {
+          code: 200,
+          data: [
+            {
+              menuId: 88,
+              parentId: 0,
+              menuName: 'Client Scoped Menu',
+              menuType: 'C',
+              orderNum: 1,
+              status: '0',
+              children: []
+            }
+          ]
+        });
+      }
       if (path === '/system/config/configKey/sys.user.initPassword') return json(route, { code: 200, data: '123456' });
       return json(route, { code: 200, data: [] });
     }
@@ -76,7 +126,9 @@ async function installAdminApi(page: Page, state: AdminState) {
   });
 }
 
-test('admin selects system governance pages while read-only permissions fail closed', async ({ page }) => {
+test('admin runs Client-scoped governance queries and an authorized role mutation while unrelated controls fail closed', async ({
+  page
+}) => {
   const state: AdminState = { failUserList: false, governanceRequests: [], unknownRequests: [] };
   await installAdminApi(page, state);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'system-governance-proof'));
@@ -88,12 +140,41 @@ test('admin selects system governance pages while read-only permissions fail clo
 
   await page.goto(`${adminUrl}/system-role`);
   await expect(page.getByRole('heading', { name: '角色列表' })).toBeVisible();
+  await page.locator('.system-role-page .client-filter').click();
+  await page.getByRole('option', { name: 'proof-client（proof-client）' }).click();
+  await expect(page.getByText('Client Scoped Operator', { exact: true })).toBeVisible();
+  await page.locator('.system-role-page .el-switch').click();
+  await page.getByRole('dialog', { name: '系统提示' }).getByRole('button', { name: '确定' }).click();
+  await expect
+    .poll(() => state.governanceRequests.filter(item => item.path === '/system/role/changeStatus').length)
+    .toBe(1);
+
   await page.goto(`${adminUrl}/system-menu`);
   await expect(page.getByRole('heading', { name: '菜单列表' })).toBeVisible();
+  await page.locator('.system-menu-page .client-filter').click();
+  await page.getByRole('option', { name: 'proof-client（proof-client）' }).click();
+  await expect(page.getByText('Client Scoped Menu', { exact: true })).toBeVisible();
 
-  expect(state.governanceRequests.length).toBeGreaterThanOrEqual(5);
-  expect(state.governanceRequests.every(item => item.method === 'GET')).toBe(true);
   expect(state.governanceRequests.every(item => item.clientId === adminClientId)).toBe(true);
+  expect(state.governanceRequests).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        method: 'GET',
+        path: '/system/role/list',
+        query: expect.objectContaining({ clientId: '1' })
+      }),
+      expect.objectContaining({
+        method: 'GET',
+        path: '/system/menu/list',
+        query: expect.objectContaining({ clientId: '1' })
+      }),
+      expect.objectContaining({
+        body: { roleId: 77, status: '1' },
+        method: 'PUT',
+        path: '/system/role/changeStatus'
+      })
+    ])
+  );
   expect(state.unknownRequests).toEqual([]);
 });
 

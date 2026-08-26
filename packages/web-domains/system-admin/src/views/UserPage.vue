@@ -817,7 +817,7 @@ const pruneIneligibleRoles = () => {
   refreshDefaultRoles();
 };
 
-watch(() => [...(form.value.userTypeIds ?? [])].map(String).toSorted().join(','), pruneIneligibleRoles);
+watch(() => [...(form.value.userTypeIds ?? [])].map(String).join(','), pruneIneligibleRoles);
 
 const handleRoleClientChange = async (clientId?: string | number) => {
   const requestId = ++roleClientRequestId;
@@ -909,12 +909,12 @@ const handleDelete = async (row?: Partial<UserVO>) => {
   const userIds = row?.userId || ids.value;
   try {
     await modal.confirm('是否确认删除用户编号为"' + userIds + '"的数据项？');
-    await api.delUser(userIds);
-    await getList();
-    modal.msgSuccess('删除成功');
   } catch {
-    /* 用户取消删除。 */
+    return;
   }
+  await api.delUser(userIds);
+  await getList();
+  modal.msgSuccess('删除成功');
 };
 
 /** 解锁按钮操作 */
@@ -922,11 +922,11 @@ const handleUnlock = async () => {
   const userId = ids.value[0];
   try {
     await modal.confirm('是否确认解锁用户编号为"' + userId + '"的数据项?');
-    await api.unlockUser(userId);
-    modal.msgSuccess('用户编号"' + userId + '"解锁成功');
   } catch {
-    /* 用户取消解锁。 */
+    return;
   }
+  await api.unlockUser(userId);
+  modal.msgSuccess('用户编号"' + userId + '"解锁成功');
 };
 
 /** 用户状态修改  */
@@ -948,6 +948,7 @@ const handleAuthRole = (row: Partial<UserVO>) => {
 
 /** 重置密码按钮操作 */
 const handleResetPwd = async (row: Partial<UserVO>) => {
+  let password: string;
   try {
     const res = await ElMessageBox.prompt('请输入"' + row.userName + '"的新密码', '提示', {
       confirmButtonText: '确定',
@@ -961,11 +962,12 @@ const handleResetPwd = async (row: Partial<UserVO>) => {
         }
       }
     });
-    await api.resetUserPwd(row.userId, res.value);
-    modal.msgSuccess('修改成功，新密码是：' + res.value);
+    password = res.value;
   } catch {
-    /* 用户取消密码重置。 */
+    return;
   }
+  await api.resetUserPwd(row.userId, password);
+  modal.msgSuccess('修改成功，新密码是：' + password);
 };
 
 /** 详情按钮操作 */

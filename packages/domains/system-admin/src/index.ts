@@ -1,5 +1,19 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
+import type { ClientForm, ClientQuery, ClientVO } from './identity/client/types';
+import type { RoleDeptTree, RoleForm, RoleQuery, RoleVO } from './identity/role/types';
+import type { UserTypeForm, UserTypeQuery, UserTypeVO } from './identity/user-type/types';
+import type {
+  UserForm,
+  UserInfoVO,
+  UserProfileForm,
+  UserProfileInfoVO,
+  UserQuery,
+  UserVO
+} from './identity/user/types';
+import type { MenuForm, MenuQuery, MenuTreeOption, MenuVO, RoleMenuTree } from './menu/types';
+import type { DeptForm, DeptQuery, DeptTreeVO, DeptVO } from './organization/department/types';
+import type { PostForm, PostQuery, PostVO } from './organization/post/types';
 import { createUserQueryPort, type UserQueryPort } from '../public/user/index';
 
 export type { ClientForm, ClientQuery, ClientVO } from './identity/client/types';
@@ -29,16 +43,30 @@ export type { PostForm, PostQuery, PostVO } from './organization/post/types';
 
 export type Identifier = string | number;
 export type IdentifierList = Identifier | readonly Identifier[];
-export type Query = object;
-export type Payload = object;
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   code?: number;
   data: T;
   msg?: string;
 }
-export interface PageResult<T = any> {
+export interface PageResult<T = unknown> {
   rows: T[];
   total: number;
+}
+
+export interface UserRoleAssignment {
+  clientId: Identifier;
+  roleIds: string;
+  userId: string;
+}
+
+export interface RoleUserAssignment {
+  roleId: Identifier;
+  userIds: string;
+}
+
+export interface RoleUserCancellation {
+  roleId: Identifier;
+  userId: Identifier;
 }
 
 const segment = (value: IdentifierList) =>
@@ -47,71 +75,73 @@ const segment = (value: IdentifierList) =>
 export interface SystemAdminService {
   readonly publicUsers: UserQueryPort;
   readonly users: {
-    list(query: Query): Promise<ApiResponse<PageResult>>;
-    options(userIds: readonly Identifier[]): Promise<ApiResponse>;
-    add(data: Payload): Promise<ApiResponse>;
-    authRoles(userId: Identifier, clientId: Identifier): Promise<ApiResponse>;
+    list(query: UserQuery): Promise<ApiResponse<PageResult<UserVO>>>;
+    options(userIds: readonly Identifier[]): Promise<ApiResponse<UserVO[]>>;
+    add(data: UserForm): Promise<ApiResponse>;
+    authRoles(userId: Identifier, clientId: Identifier): Promise<ApiResponse<{ roles: RoleVO[]; user: UserVO }>>;
     changeStatus(userId: Identifier, status: string): Promise<ApiResponse>;
     delete(ids: IdentifierList): Promise<ApiResponse>;
-    departmentTree(): Promise<ApiResponse>;
-    get(userId?: Identifier, clientId?: Identifier): Promise<ApiResponse>;
-    listByDepartment(deptId: Identifier): Promise<ApiResponse>;
-    profile(): Promise<ApiResponse>;
+    departmentTree(): Promise<ApiResponse<DeptTreeVO[]>>;
+    get(userId?: Identifier, clientId?: Identifier): Promise<ApiResponse<UserInfoVO>>;
+    listByDepartment(deptId: Identifier): Promise<ApiResponse<UserVO[]>>;
+    profile(): Promise<ApiResponse<UserProfileInfoVO>>;
     resetPassword(userId: Identifier, password: string): Promise<ApiResponse>;
     unlock(userId: Identifier): Promise<ApiResponse>;
-    update(data: Payload): Promise<ApiResponse>;
-    updateAuthRoles(data: Query): Promise<ApiResponse>;
+    update(data: UserForm): Promise<ApiResponse>;
+    updateAuthRoles(data: UserRoleAssignment): Promise<ApiResponse>;
     updatePassword(oldPassword: string, newPassword: string): Promise<ApiResponse>;
-    updateProfile(data: Payload): Promise<ApiResponse>;
+    updateProfile(data: UserProfileForm): Promise<ApiResponse>;
   };
-  readonly clients: CrudService & {
+  readonly clients: CrudService<ClientQuery, ClientForm, ClientVO, [query?: ClientQuery]> & {
     changeStatus(clientId: string, status: string): Promise<ApiResponse>;
-    options(): Promise<any[]>;
+    options(): Promise<ClientVO[]>;
   };
-  readonly userTypes: CrudService & { options(): Promise<ApiResponse> };
-  readonly roles: CrudService & {
-    allocatedUsers(query: Query): Promise<ApiResponse>;
-    cancelUser(data: Payload): Promise<ApiResponse>;
-    cancelUsers(data: Query): Promise<ApiResponse>;
+  readonly userTypes: CrudService<UserTypeQuery, UserTypeForm, UserTypeVO, [query?: UserTypeQuery]> & {
+    options(): Promise<ApiResponse<UserTypeVO[]>>;
+  };
+  readonly roles: CrudService<RoleQuery, RoleForm, RoleVO, [query: RoleQuery]> & {
+    allocatedUsers(query: UserQuery): Promise<ApiResponse<PageResult<UserVO>>>;
+    cancelUser(data: RoleUserCancellation): Promise<ApiResponse>;
+    cancelUsers(data: RoleUserAssignment): Promise<ApiResponse>;
     changeStatus(roleId: Identifier, status: string): Promise<ApiResponse>;
-    departmentTree(roleId: Identifier): Promise<ApiResponse>;
-    options(roleIds: readonly Identifier[]): Promise<ApiResponse>;
-    selectUsers(data: Query): Promise<ApiResponse>;
-    unallocatedUsers(query: Query): Promise<ApiResponse>;
-    updatePermission(data: Payload): Promise<ApiResponse>;
+    departmentTree(roleId: Identifier): Promise<ApiResponse<RoleDeptTree>>;
+    options(roleIds: readonly Identifier[]): Promise<ApiResponse<RoleVO[]>>;
+    selectUsers(data: RoleUserAssignment): Promise<ApiResponse>;
+    unallocatedUsers(query: UserQuery): Promise<ApiResponse<PageResult<UserVO>>>;
+    updatePermission(data: RoleForm): Promise<ApiResponse>;
   };
   readonly menus: {
-    add(data: Payload): Promise<ApiResponse>;
+    add(data: MenuForm): Promise<ApiResponse>;
     cascadeDelete(ids: readonly Identifier[]): Promise<ApiResponse>;
     delete(id: Identifier): Promise<ApiResponse>;
-    get(id: Identifier): Promise<ApiResponse>;
-    list(query?: Query): Promise<ApiResponse>;
-    roleTree(roleId: Identifier): Promise<ApiResponse>;
-    tree(clientId?: Identifier): Promise<ApiResponse>;
-    update(data: Payload): Promise<ApiResponse>;
+    get(id: Identifier): Promise<ApiResponse<MenuVO>>;
+    list(query?: MenuQuery): Promise<ApiResponse<MenuVO[]>>;
+    roleTree(roleId: Identifier): Promise<ApiResponse<RoleMenuTree>>;
+    tree(clientId?: Identifier): Promise<ApiResponse<MenuTreeOption[]>>;
+    update(data: MenuForm): Promise<ApiResponse>;
   };
   readonly departments: {
-    add(data: Payload): Promise<ApiResponse>;
+    add(data: DeptForm): Promise<ApiResponse>;
     delete(id: Identifier): Promise<ApiResponse>;
-    excludeChildren(id: Identifier): Promise<ApiResponse>;
-    get(id: Identifier): Promise<ApiResponse>;
-    list(query?: Query): Promise<ApiResponse>;
-    options(ids: readonly Identifier[]): Promise<ApiResponse>;
-    update(data: Payload): Promise<ApiResponse>;
+    excludeChildren(id: Identifier): Promise<ApiResponse<DeptVO[]>>;
+    get(id: Identifier): Promise<ApiResponse<DeptVO>>;
+    list(query?: DeptQuery): Promise<ApiResponse<DeptVO[]>>;
+    options(ids: readonly Identifier[]): Promise<ApiResponse<DeptVO[]>>;
+    update(data: DeptForm): Promise<ApiResponse>;
   };
-  readonly posts: CrudService & {
-    departmentTree(): Promise<ApiResponse>;
-    options(deptId?: Identifier, postIds?: readonly Identifier[]): Promise<ApiResponse>;
+  readonly posts: CrudService<PostQuery, PostForm, PostVO, [query: PostQuery]> & {
+    departmentTree(): Promise<ApiResponse<DeptTreeVO[]>>;
+    options(deptId?: Identifier, postIds?: readonly Identifier[]): Promise<ApiResponse<PostVO[]>>;
   };
 }
 
-interface CrudService {
-  add(data: Payload): Promise<ApiResponse>;
+interface CrudService<Query, Form, View, ListArgs extends [query?: Query] | [query: Query]> {
+  add(data: Form): Promise<ApiResponse>;
   changeStatus?(id: Identifier, status: string): Promise<ApiResponse>;
   delete(ids: IdentifierList): Promise<ApiResponse>;
-  get(id: Identifier): Promise<ApiResponse>;
-  list(query?: Query): Promise<ApiResponse>;
-  update(data: Payload): Promise<ApiResponse>;
+  get(id: Identifier): Promise<ApiResponse<View>>;
+  list(...args: ListArgs): Promise<ApiResponse<PageResult<View>>>;
+  update(data: Form): Promise<ApiResponse>;
 }
 
 export const systemAdminDomainModule: DomainModule = Object.freeze({
@@ -124,42 +154,47 @@ export function createSystemAdminService(http: HttpClient): SystemAdminService {
   const request = <T = unknown>(config: HttpRequest) => http.request<ApiResponse<T>>(config);
   const publicUsers = createUserQueryPort(http);
   const clients = Object.freeze({
-    list: (params?: Query) => request<PageResult>({ url: '/system/client/list', method: 'get', params }),
-    get: (id: Identifier) => request({ url: '/system/client/' + segment(id), method: 'get' }),
-    add: (data: Payload) => request({ url: '/system/client', method: 'post', data }),
-    update: (data: Payload) => request({ url: '/system/client', method: 'put', data }),
+    list: (params?: ClientQuery) =>
+      request<PageResult<ClientVO>>({ url: '/system/client/list', method: 'get', params }),
+    get: (id: Identifier) => request<ClientVO>({ url: '/system/client/' + segment(id), method: 'get' }),
+    add: (data: ClientForm) => request({ url: '/system/client', method: 'post', data }),
+    update: (data: ClientForm) => request({ url: '/system/client', method: 'put', data }),
     delete: (ids: IdentifierList) => request({ url: '/system/client/' + segment(ids), method: 'delete' }),
     changeStatus: (clientId: string, status: string) =>
       request({ url: '/system/client/changeStatus', method: 'put', data: { clientId, status } }),
     options: async () => (await clients.list({ pageNum: 1, pageSize: 1000 })).data?.rows ?? []
   });
   const userTypes = Object.freeze({
-    list: (params?: Query) => request<PageResult>({ url: '/system/userType/list', method: 'get', params }),
-    get: (id: Identifier) => request({ url: '/system/userType/' + segment(id), method: 'get' }),
-    options: () => request({ url: '/system/userType/options', method: 'get' }),
-    add: (data: Payload) => request({ url: '/system/userType', method: 'post', data }),
-    update: (data: Payload) => request({ url: '/system/userType', method: 'put', data }),
+    list: (params?: UserTypeQuery) =>
+      request<PageResult<UserTypeVO>>({ url: '/system/userType/list', method: 'get', params }),
+    get: (id: Identifier) => request<UserTypeVO>({ url: '/system/userType/' + segment(id), method: 'get' }),
+    options: () => request<UserTypeVO[]>({ url: '/system/userType/options', method: 'get' }),
+    add: (data: UserTypeForm) => request({ url: '/system/userType', method: 'post', data }),
+    update: (data: UserTypeForm) => request({ url: '/system/userType', method: 'put', data }),
     delete: (ids: IdentifierList) => request({ url: '/system/userType/' + segment(ids), method: 'delete' })
   });
   const roles = Object.freeze({
-    list: (params?: Query) => request<PageResult>({ url: '/system/role/list', method: 'get', params }),
+    list: (params: RoleQuery) => request<PageResult<RoleVO>>({ url: '/system/role/list', method: 'get', params }),
     options: (ids: readonly Identifier[]) =>
-      request({ url: '/system/role/optionselect?roleIds=' + segment(ids), method: 'get' }),
-    get: (id: Identifier) => request({ url: '/system/role/' + segment(id), method: 'get' }),
-    add: (data: Payload) => request({ url: '/system/role', method: 'post', data }),
-    update: (data: Payload) => request({ url: '/system/role', method: 'put', data }),
-    updatePermission: (data: Payload) => request({ url: '/system/role/permission', method: 'put', data }),
+      request<RoleVO[]>({ url: '/system/role/optionselect?roleIds=' + segment(ids), method: 'get' }),
+    get: (id: Identifier) => request<RoleVO>({ url: '/system/role/' + segment(id), method: 'get' }),
+    add: (data: RoleForm) => request({ url: '/system/role', method: 'post', data }),
+    update: (data: RoleForm) => request({ url: '/system/role', method: 'put', data }),
+    updatePermission: (data: RoleForm) => request({ url: '/system/role/permission', method: 'put', data }),
     changeStatus: (roleId: Identifier, status: string) =>
       request({ url: '/system/role/changeStatus', method: 'put', data: { roleId, status } }),
     delete: (ids: IdentifierList) => request({ url: '/system/role/' + segment(ids), method: 'delete' }),
-    allocatedUsers: (params: Query) =>
-      request<PageResult>({ url: '/system/role/authUser/allocatedList', method: 'get', params }),
-    unallocatedUsers: (params: Query) =>
-      request<PageResult>({ url: '/system/role/authUser/unallocatedList', method: 'get', params }),
-    cancelUser: (data: Payload) => request({ url: '/system/role/authUser/cancel', method: 'put', data }),
-    cancelUsers: (params: Query) => request({ url: '/system/role/authUser/cancelAll', method: 'put', params }),
-    selectUsers: (params: Query) => request({ url: '/system/role/authUser/selectAll', method: 'put', params }),
-    departmentTree: (id: Identifier) => request({ url: '/system/role/deptTree/' + segment(id), method: 'get' })
+    allocatedUsers: (params: UserQuery) =>
+      request<PageResult<UserVO>>({ url: '/system/role/authUser/allocatedList', method: 'get', params }),
+    unallocatedUsers: (params: UserQuery) =>
+      request<PageResult<UserVO>>({ url: '/system/role/authUser/unallocatedList', method: 'get', params }),
+    cancelUser: (data: RoleUserCancellation) => request({ url: '/system/role/authUser/cancel', method: 'put', data }),
+    cancelUsers: (params: RoleUserAssignment) =>
+      request({ url: '/system/role/authUser/cancelAll', method: 'put', params }),
+    selectUsers: (params: RoleUserAssignment) =>
+      request({ url: '/system/role/authUser/selectAll', method: 'put', params }),
+    departmentTree: (id: Identifier) =>
+      request<RoleDeptTree>({ url: '/system/role/deptTree/' + segment(id), method: 'get' })
   });
   return Object.freeze({
     clients,
@@ -167,17 +202,17 @@ export function createSystemAdminService(http: HttpClient): SystemAdminService {
     userTypes,
     roles,
     users: Object.freeze({
-      list: (params: Query) => request<PageResult>({ url: '/system/user/list', method: 'get', params }),
+      list: (params: UserQuery) => request<PageResult<UserVO>>({ url: '/system/user/list', method: 'get', params }),
       options: (ids: readonly Identifier[]) =>
-        request({ url: '/system/user/optionselect?userIds=' + segment(ids), method: 'get' }),
+        request<UserVO[]>({ url: '/system/user/optionselect?userIds=' + segment(ids), method: 'get' }),
       get: (id?: Identifier, clientId?: Identifier) =>
-        request({
+        request<UserInfoVO>({
           url: '/system/user/' + (id === undefined ? '' : segment(id)),
           method: 'get',
           params: clientId === undefined ? undefined : { clientId }
         }),
-      add: (data: Payload) => request({ url: '/system/user', method: 'post', data }),
-      update: (data: Payload) => request({ url: '/system/user', method: 'put', data }),
+      add: (data: UserForm) => request({ url: '/system/user', method: 'post', data }),
+      update: (data: UserForm) => request({ url: '/system/user', method: 'put', data }),
       delete: (ids: IdentifierList) => request({ url: '/system/user/' + segment(ids), method: 'delete' }),
       resetPassword: (userId: Identifier, password: string) =>
         request({
@@ -189,8 +224,8 @@ export function createSystemAdminService(http: HttpClient): SystemAdminService {
       changeStatus: (userId: Identifier, status: string) =>
         request({ url: '/system/user/changeStatus', method: 'put', data: { userId, status } }),
       unlock: (id: Identifier) => request({ url: '/system/user/unlock/' + segment(id), method: 'get' }),
-      profile: () => request({ url: '/system/user/profile', method: 'get' }),
-      updateProfile: (data: Payload) => request({ url: '/system/user/profile', method: 'put', data }),
+      profile: () => request<UserProfileInfoVO>({ url: '/system/user/profile', method: 'get' }),
+      updateProfile: (data: UserProfileForm) => request({ url: '/system/user/profile', method: 'put', data }),
       updatePassword: (oldPassword: string, newPassword: string) =>
         request({
           url: '/system/user/profile/updatePwd',
@@ -199,41 +234,49 @@ export function createSystemAdminService(http: HttpClient): SystemAdminService {
           data: { oldPassword, newPassword }
         }),
       authRoles: (id: Identifier, clientId: Identifier) =>
-        request({ url: '/system/user/authRole/' + segment(id), method: 'get', params: { clientId } }),
-      updateAuthRoles: (params: Query) => request({ url: '/system/user/authRole', method: 'put', params }),
-      listByDepartment: (id: Identifier) => request({ url: '/system/user/list/dept/' + segment(id), method: 'get' }),
-      departmentTree: () => request({ url: '/system/user/deptTree', method: 'get' })
+        request<{ roles: RoleVO[]; user: UserVO }>({
+          url: '/system/user/authRole/' + segment(id),
+          method: 'get',
+          params: { clientId }
+        }),
+      updateAuthRoles: (params: UserRoleAssignment) => request({ url: '/system/user/authRole', method: 'put', params }),
+      listByDepartment: (id: Identifier) =>
+        request<UserVO[]>({ url: '/system/user/list/dept/' + segment(id), method: 'get' }),
+      departmentTree: () => request<DeptTreeVO[]>({ url: '/system/user/deptTree', method: 'get' })
     }),
     menus: Object.freeze({
-      list: (params?: Query) => request({ url: '/system/menu/list', method: 'get', params }),
-      get: (id: Identifier) => request({ url: '/system/menu/' + segment(id), method: 'get' }),
-      tree: (clientId?: Identifier) => request({ url: '/system/menu/treeselect', method: 'get', params: { clientId } }),
-      roleTree: (id: Identifier) => request({ url: '/system/menu/roleMenuTreeselect/' + segment(id), method: 'get' }),
-      add: (data: Payload) => request({ url: '/system/menu', method: 'post', data }),
-      update: (data: Payload) => request({ url: '/system/menu', method: 'put', data }),
+      list: (params?: MenuQuery) => request<MenuVO[]>({ url: '/system/menu/list', method: 'get', params }),
+      get: (id: Identifier) => request<MenuVO>({ url: '/system/menu/' + segment(id), method: 'get' }),
+      tree: (clientId?: Identifier) =>
+        request<MenuTreeOption[]>({ url: '/system/menu/treeselect', method: 'get', params: { clientId } }),
+      roleTree: (id: Identifier) =>
+        request<RoleMenuTree>({ url: '/system/menu/roleMenuTreeselect/' + segment(id), method: 'get' }),
+      add: (data: MenuForm) => request({ url: '/system/menu', method: 'post', data }),
+      update: (data: MenuForm) => request({ url: '/system/menu', method: 'put', data }),
       delete: (id: Identifier) => request({ url: '/system/menu/' + segment(id), method: 'delete' }),
       cascadeDelete: (ids: readonly Identifier[]) =>
         request({ url: '/system/menu/cascade/' + segment(ids), method: 'delete' })
     }),
     departments: Object.freeze({
-      list: (params?: Query) => request({ url: '/system/dept/list', method: 'get', params }),
+      list: (params?: DeptQuery) => request<DeptVO[]>({ url: '/system/dept/list', method: 'get', params }),
       options: (ids: readonly Identifier[]) =>
-        request({ url: '/system/dept/optionselect?deptIds=' + segment(ids), method: 'get' }),
-      excludeChildren: (id: Identifier) => request({ url: '/system/dept/list/exclude/' + segment(id), method: 'get' }),
-      get: (id: Identifier) => request({ url: '/system/dept/' + segment(id), method: 'get' }),
-      add: (data: Payload) => request({ url: '/system/dept', method: 'post', data }),
-      update: (data: Payload) => request({ url: '/system/dept', method: 'put', data }),
+        request<DeptVO[]>({ url: '/system/dept/optionselect?deptIds=' + segment(ids), method: 'get' }),
+      excludeChildren: (id: Identifier) =>
+        request<DeptVO[]>({ url: '/system/dept/list/exclude/' + segment(id), method: 'get' }),
+      get: (id: Identifier) => request<DeptVO>({ url: '/system/dept/' + segment(id), method: 'get' }),
+      add: (data: DeptForm) => request({ url: '/system/dept', method: 'post', data }),
+      update: (data: DeptForm) => request({ url: '/system/dept', method: 'put', data }),
       delete: (id: Identifier) => request({ url: '/system/dept/' + segment(id), method: 'delete' })
     }),
     posts: Object.freeze({
-      list: (params?: Query) => request<PageResult>({ url: '/system/post/list', method: 'get', params }),
-      get: (id: Identifier) => request({ url: '/system/post/' + segment(id), method: 'get' }),
+      list: (params: PostQuery) => request<PageResult<PostVO>>({ url: '/system/post/list', method: 'get', params }),
+      get: (id: Identifier) => request<PostVO>({ url: '/system/post/' + segment(id), method: 'get' }),
       options: (deptId?: Identifier, postIds?: readonly Identifier[]) =>
-        request({ url: '/system/post/optionselect', method: 'get', params: { deptId, postIds } }),
-      add: (data: Payload) => request({ url: '/system/post', method: 'post', data }),
-      update: (data: Payload) => request({ url: '/system/post', method: 'put', data }),
+        request<PostVO[]>({ url: '/system/post/optionselect', method: 'get', params: { deptId, postIds } }),
+      add: (data: PostForm) => request({ url: '/system/post', method: 'post', data }),
+      update: (data: PostForm) => request({ url: '/system/post', method: 'put', data }),
       delete: (ids: IdentifierList) => request({ url: '/system/post/' + segment(ids), method: 'delete' }),
-      departmentTree: () => request({ url: '/system/post/deptTree', method: 'get' })
+      departmentTree: () => request<DeptTreeVO[]>({ url: '/system/post/deptTree', method: 'get' })
     })
   });
 }

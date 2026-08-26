@@ -15,7 +15,7 @@
 
 ## Allowed dependencies
 
-- Public system-admin domain, platform contracts, and selected web-kit UI/file/form capabilities.
+- Public system-admin domain, platform app-runtime, Vue, Vue Router, and Element Plus.
 
 ## Forbidden dependencies
 
@@ -27,7 +27,7 @@
 
 ## Backend modules
 
-- `backendModules: [ruoyi-system]`, inherited from governance and resource-service capabilities.
+- `backendModules: [ruoyi-system]`, inherited from the seven active governance capabilities.
 
 ## Activation conditions
 

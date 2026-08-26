@@ -51,13 +51,39 @@ describe('operations transport and security contracts', () => {
     ]);
   });
 
-  it.each(['javascript:alert(1)', 'data:text/html,x', '//evil.example/x', 'https://user@evil.example/x', '/ok\\bad'])(
-    'rejects unsafe URL %s',
-    value => {
-      const service = createOperationsService({ request: vi.fn() });
-      expect(() => service.externalIntent('monitor-admin', value, true)).toThrow(OperationsSecurityError);
-    }
-  );
+  it.each([
+    'javascript:alert(1)',
+    'data:text/html,x',
+    '//evil.example/x',
+    'https://user@evil.example/x',
+    'https://exa%mple.example/x',
+    'https://example.test:99999/x',
+    'https://[2001:db8::1/x',
+    'https://example.test/%',
+    'https://example.test/%GG',
+    '/relative/%2',
+    '/ok\\bad'
+  ])('rejects malformed or unsafe URL %s for embeds and downloads', value => {
+    const service = createOperationsService({ request: vi.fn() });
+    expect(() => service.externalIntent('monitor-admin', value, true)).toThrow(OperationsSecurityError);
+    expect(() => service.attachmentIntent(value, true, 'proof.txt')).toThrow(OperationsSecurityError);
+  });
+
+  it('accepts and normalizes browser-valid root-relative, IPv6 and HTTP(S) URLs', () => {
+    const service = createOperationsService({ request: vi.fn() });
+    expect(service.externalIntent('monitor-admin', '/admin/../applications?view=all#health', true).url).toBe(
+      '/applications?view=all#health'
+    );
+    expect(service.externalIntent('snail-job', 'https://[2001:db8::1]:8443/jobs', true).url).toBe(
+      'https://[2001:db8::1]:8443/jobs'
+    );
+    expect(service.attachmentIntent('http://files.example.test/report', true, 'report.txt')).toEqual({
+      target: 'notify-attachment',
+      url: 'http://files.example.test/report',
+      mode: 'download',
+      downloadName: 'report.txt'
+    });
+  });
 
   it('fails closed before exposing a URL when permission is absent', () => {
     const service = createOperationsService({ request: vi.fn() });

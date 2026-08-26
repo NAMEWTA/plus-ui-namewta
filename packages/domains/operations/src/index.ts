@@ -45,17 +45,36 @@ const targetPermissions: Readonly<Record<ExternalOperationTarget, string>> = Obj
 });
 const segment = (value: IdentifierList) =>
   (Array.isArray(value) ? value : [value]).map(item => encodeURIComponent(String(item))).join(',');
+const relativeUrlBase = 'https://operations.invalid';
+const invalidPercentEncoding = /%(?![\dA-Fa-f]{2})/;
 const safeUrl = (rawUrl: string | undefined) => {
   if (!rawUrl) throw new OperationsSecurityError('missing-url', '未配置运维入口地址');
   const hasControlCharacter = [...rawUrl].some(
     character => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127
   );
-  if (rawUrl !== rawUrl.trim() || rawUrl.includes('\\') || hasControlCharacter)
+  if (
+    rawUrl !== rawUrl.trim() ||
+    rawUrl.includes('\\') ||
+    hasControlCharacter ||
+    invalidPercentEncoding.test(rawUrl)
+  )
     throw new OperationsSecurityError('unsafe-url', '运维入口地址不安全');
-  if (rawUrl.startsWith('/') && !rawUrl.startsWith('//')) return rawUrl;
-  const match = /^(https?):\/\/([^/?#]+)(?:[/?#].*)?$/i.exec(rawUrl);
-  if (!match || match[2].includes('@')) throw new OperationsSecurityError('unsafe-url', '运维入口地址不安全');
-  return rawUrl;
+  try {
+    if (rawUrl.startsWith('/')) {
+      if (rawUrl.startsWith('//')) throw new OperationsSecurityError('unsafe-url', '运维入口地址不安全');
+      const parsed = new URL(rawUrl, relativeUrlBase);
+      if (parsed.origin !== relativeUrlBase) throw new OperationsSecurityError('unsafe-url', '运维入口地址不安全');
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
+    const parsed = new URL(rawUrl);
+    if (!['http:', 'https:'].includes(parsed.protocol) || !parsed.hostname || parsed.username || parsed.password) {
+      throw new OperationsSecurityError('unsafe-url', '运维入口地址不安全');
+    }
+    return parsed.href;
+  } catch (error) {
+    if (error instanceof OperationsSecurityError) throw error;
+    throw new OperationsSecurityError('unsafe-url', '运维入口地址不安全');
+  }
 };
 
 export interface OperationsService {

@@ -227,7 +227,9 @@ test('selected workflow manifest completes category, definition, designer and Sp
   await page.locator('.workflow-process-definition-page .tree-panel-header').click();
   await expectDefinitionGrid(page, 4, 20);
   const publishedRow = page.getByRole('row').filter({ hasText: '既有已发布流程' });
-  await publishedRow.getByRole('checkbox').check();
+  const publishedSelection = publishedRow.locator('label.el-checkbox');
+  await publishedSelection.click();
+  await expect(publishedSelection).toHaveClass(/is-checked/);
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: '导出' }).click();
   const download = await downloadPromise;

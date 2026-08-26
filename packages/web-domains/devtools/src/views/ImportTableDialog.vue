@@ -74,14 +74,18 @@ const tableError = ref(false);
 const tableRef = ref<ElTableInstance>();
 const queryFormRef = ref<ElFormInstance>();
 const query = reactive<DbTableQuery>({ pageNum: 1, pageSize: 10, dataName: '', tableName: '', tableComment: '' });
+let loadRequestId = 0;
 
 async function load() {
+  const requestId = ++loadRequestId;
   try {
     const response = await props.runtime.service.listDatabaseTables({ ...query });
+    if (requestId !== loadRequestId) return;
     rows.value = response.data?.rows ?? [];
     total.value = response.data?.total ?? 0;
     tableError.value = false;
   } catch {
+    if (requestId !== loadRequestId) return;
     tableError.value = true;
     props.runtime.error('待导入表加载失败，可点击重新加载');
   }
@@ -111,6 +115,8 @@ function reset() {
 function show(dataName: string) {
   query.dataName = dataName;
   selected.value = [];
+  rows.value = [];
+  total.value = 0;
   visible.value = true;
   void load();
   void loadDataSources();

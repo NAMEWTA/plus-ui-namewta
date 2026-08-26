@@ -12,6 +12,7 @@ let downloadLoadingInstance: LoadingInstance | undefined;
 const ZIP_LOCAL_FILE = 0x04034b50;
 const ZIP_CENTRAL_FILE = 0x02014b50;
 const ZIP_EOCD = 0x06054b50;
+const ZIP_DATA_DESCRIPTOR = 0x08074b50;
 const EOCD_MIN_SIZE = 22;
 const MAX_EOCD_SEARCH = EOCD_MIN_SIZE + 0xffff;
 const sanitizedMessage = (value: unknown) =>
@@ -73,10 +74,24 @@ export async function isZipPayload(data: unknown): Promise<boolean> {
     const localHeaderSize = 30 + u16(localOffset + 26) + u16(localOffset + 28);
     if (localOffset + localHeaderSize > centralOffset) return false;
     const compressedSize = u32(cursor + 20);
+    const uncompressedSize = u32(cursor + 24);
+    const crc = u32(cursor + 16);
     const localCompressedSize = u32(localOffset + 18);
-    const usesDataDescriptor = (u16(localOffset + 6) & 0x0008) !== 0;
+    const localFlags = u16(localOffset + 6);
+    const usesDataDescriptor = (localFlags & 0x0008) !== 0;
+    if ((u16(cursor + 8) & 0x0008) !== (localFlags & 0x0008)) return false;
     if (!usesDataDescriptor && localCompressedSize !== compressedSize) return false;
-    const localEnd = localOffset + localHeaderSize + compressedSize;
+    const fileDataEnd = localOffset + localHeaderSize + compressedSize;
+    let localEnd = fileDataEnd;
+    if (usesDataDescriptor) {
+      const hasSignature = fileDataEnd + 4 <= centralOffset && u32(fileDataEnd) === ZIP_DATA_DESCRIPTOR;
+      const descriptorOffset = fileDataEnd + (hasSignature ? 4 : 0);
+      localEnd = descriptorOffset + 12;
+      if (localEnd > centralOffset) return false;
+      if (u32(descriptorOffset) !== crc) return false;
+      if (u32(descriptorOffset + 4) !== compressedSize) return false;
+      if (u32(descriptorOffset + 8) !== uncompressedSize) return false;
+    }
     if (localEnd > centralOffset) return false;
     localSpans.push({ start: localOffset, end: localEnd });
     cursor += centralEntrySize;

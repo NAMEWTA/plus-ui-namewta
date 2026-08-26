@@ -65,6 +65,59 @@ const overlappingEntriesZip = () => {
   writeU32(view, 138, 30);
   return bytes;
 };
+const dataDescriptorZip = () => {
+  const bytes = new Uint8Array(114);
+  const view = new DataView(bytes.buffer);
+  writeU32(view, 0, 0x04034b50);
+  writeU16(view, 6, 0x0008);
+  writeU32(view, 30, 0x08074b50);
+  writeU32(view, 46, 0x02014b50);
+  writeU16(view, 54, 0x0008);
+  writeU32(view, 88, 0);
+  writeU32(view, 92, 0x06054b50);
+  writeU16(view, 100, 1);
+  writeU16(view, 102, 1);
+  writeU32(view, 104, 46);
+  writeU32(view, 108, 46);
+  return bytes;
+};
+const missingDataDescriptorZip = () => {
+  const bytes = singleEntryZip();
+  const view = new DataView(bytes.buffer);
+  writeU16(view, 6, 0x0008);
+  writeU16(view, 38, 0x0008);
+  return bytes;
+};
+const signaturelessDataDescriptorZip = () => {
+  const bytes = new Uint8Array(110);
+  const view = new DataView(bytes.buffer);
+  writeU32(view, 0, 0x04034b50);
+  writeU16(view, 6, 0x0008);
+  writeU32(view, 42, 0x02014b50);
+  writeU16(view, 50, 0x0008);
+  writeU32(view, 84, 0);
+  writeU32(view, 88, 0x06054b50);
+  writeU16(view, 96, 1);
+  writeU16(view, 98, 1);
+  writeU32(view, 100, 46);
+  writeU32(view, 104, 42);
+  return bytes;
+};
+const truncatedDataDescriptorZip = () => {
+  const bytes = new Uint8Array(106);
+  const view = new DataView(bytes.buffer);
+  writeU32(view, 0, 0x04034b50);
+  writeU16(view, 6, 0x0008);
+  writeU32(view, 38, 0x02014b50);
+  writeU16(view, 46, 0x0008);
+  writeU32(view, 80, 0);
+  writeU32(view, 84, 0x06054b50);
+  writeU16(view, 92, 1);
+  writeU16(view, 94, 1);
+  writeU32(view, 96, 46);
+  writeU32(view, 100, 38);
+  return bytes;
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -86,7 +139,9 @@ describe('ZIP download safety', () => {
     ['data descriptor only', new Blob([new Uint8Array([0x50, 0x4b, 0x07, 0x08, 0, 0, 0, 0])])],
     ['truncated EOCD', new Blob([emptyZip().slice(0, 21)])],
     ['truncated file data', new Blob([truncatedEntryDataZip()])],
-    ['overlapping local entries', new Blob([overlappingEntriesZip()])]
+    ['overlapping local entries', new Blob([overlappingEntriesZip()])],
+    ['missing data descriptor', new Blob([missingDataDescriptorZip()])],
+    ['truncated data descriptor', new Blob([truncatedDataDescriptorZip()])]
   ])('rejects %s without saving a corrupt file', async (_label, payload) => {
     harness.axios.mockResolvedValue({ data: payload });
 
@@ -126,11 +181,15 @@ describe('ZIP download safety', () => {
   it('validates complete empty and non-empty ZIP structures and rejects arbitrary bytes', async () => {
     await expect(isZipPayload(emptyZip())).resolves.toBe(true);
     await expect(isZipPayload(singleEntryZip())).resolves.toBe(true);
+    await expect(isZipPayload(dataDescriptorZip())).resolves.toBe(true);
+    await expect(isZipPayload(signaturelessDataDescriptorZip())).resolves.toBe(true);
     await expect(isZipPayload(new Uint8Array([0x7b, 0x22, 0x78, 0x22]))).resolves.toBe(false);
     const brokenCentralDirectory = singleEntryZip();
     brokenCentralDirectory[30] = 0;
     await expect(isZipPayload(brokenCentralDirectory)).resolves.toBe(false);
     await expect(isZipPayload(truncatedEntryDataZip())).resolves.toBe(false);
     await expect(isZipPayload(overlappingEntriesZip())).resolves.toBe(false);
+    await expect(isZipPayload(missingDataDescriptorZip())).resolves.toBe(false);
+    await expect(isZipPayload(truncatedDataDescriptorZip())).resolves.toBe(false);
   });
 });

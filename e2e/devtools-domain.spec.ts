@@ -19,7 +19,10 @@ type ApiState = {
   auxiliaryMode: 'success' | 'failure';
   downloadMode: 'valid' | 'invalid';
   downloadRequests: number;
+  importDataNames: string[];
+  importResponseOrder: string[];
   metadataClientIds: string[];
+  reverseImportResponses: boolean;
   unknown: string[];
   updates: Array<Record<string, unknown>>;
 };
@@ -27,16 +30,19 @@ const createState = (): ApiState => ({
   auxiliaryMode: 'success',
   downloadMode: 'valid',
   downloadRequests: 0,
+  importDataNames: [],
+  importResponseOrder: [],
   metadataClientIds: [],
+  reverseImportResponses: false,
   unknown: [],
   updates: []
 });
-const truncatedEntryDataZip = () => {
+const missingDataDescriptorZip = () => {
   const bytes = Buffer.alloc(98);
   bytes.writeUInt32LE(0x04034b50, 0);
-  bytes.writeUInt32LE(1, 18);
+  bytes.writeUInt16LE(0x0008, 6);
   bytes.writeUInt32LE(0x02014b50, 30);
-  bytes.writeUInt32LE(1, 50);
+  bytes.writeUInt16LE(0x0008, 38);
   bytes.writeUInt32LE(0, 72);
   bytes.writeUInt32LE(0x06054b50, 76);
   bytes.writeUInt16LE(1, 84);
@@ -47,7 +53,7 @@ const truncatedEntryDataZip = () => {
 };
 
 async function installApi(page: Page, state: ApiState) {
-  await page.route('**/prod-api/**', route => {
+  await page.route('**/prod-api/**', async route => {
     const request = route.request();
     const url = new URL(request.url());
     const path = url.pathname.replace('/prod-api', '');
@@ -100,14 +106,17 @@ async function installApi(page: Page, state: ApiState) {
           total: 1
         }
       });
-    if (path === '/tool/gen/db/list')
-      return json(route, {
+    if (path === '/tool/gen/db/list') {
+      const dataName = url.searchParams.get('dataName') ?? '';
+      state.importDataNames.push(dataName);
+      if (state.reverseImportResponses && !dataName) await new Promise(resolve => setTimeout(resolve, 200));
+      await json(route, {
         code: 200,
         data: {
           rows: [
             {
-              tableName: 'candidate_table',
-              tableComment: '可导入候选表',
+              tableName: state.reverseImportResponses && !dataName ? 'stale_table' : 'candidate_table',
+              tableComment: dataName ? '默认数据源候选表' : '可导入候选表',
               createTime: '2026-08-26 22:00:00',
               updateTime: '2026-08-26 23:00:00'
             }
@@ -115,6 +124,9 @@ async function installApi(page: Page, state: ApiState) {
           total: 1
         }
       });
+      state.importResponseOrder.push(dataName);
+      return;
+    }
     if (path === '/tool/gen/preview/41')
       return json(route, { code: 200, data: { 'vm/java/domain.java.ftl': 'public class ProofTable {}' } });
     if (path === '/tool/gen/41' && request.method() === 'GET')
@@ -258,7 +270,7 @@ async function installApi(page: Page, state: ApiState) {
     if (path === '/tool/gen/batchGenCode' && request.method() === 'GET') {
       state.downloadRequests += 1;
       if (state.downloadMode === 'invalid')
-        return route.fulfill({ contentType: 'application/zip', body: truncatedEntryDataZip() });
+        return route.fulfill({ contentType: 'application/zip', body: missingDataDescriptorZip() });
       return route.fulfill({
         contentType: 'application/zip',
         body: Buffer.from([0x50, 0x4b, 0x05, 0x06, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -388,6 +400,26 @@ test('auxiliary metadata failures do not hide primary list or edit data and can 
   state.auxiliaryMode = 'success';
   await page.getByText('菜单目录加载失败，其他生成配置仍可编辑。').locator('..').getByRole('button').click();
   await expect(page.getByText('菜单目录加载失败，其他生成配置仍可编辑。')).toHaveCount(0);
+  expect(state.unknown).toEqual([]);
+});
+
+test('import table ignores a stale empty-source response after resolving the default source', async ({ page }) => {
+  const state = createState();
+  state.reverseImportResponses = true;
+  await installApi(page, state);
+  await page.addInitScript(() => localStorage.setItem('Admin-Token', 'devtools-import-race-proof'));
+  await page.goto(`${adminUrl}/tool-gen`);
+  await expect(
+    page.locator('.devtools-generator-page .el-table__body tr').filter({ hasText: 'proof_table' })
+  ).toBeVisible();
+  await page.getByRole('button', { name: '导入' }).click();
+
+  const importDialog = page.getByRole('dialog', { name: '导入表' });
+  await expect(importDialog.getByText('candidate_table', { exact: true })).toBeVisible();
+  await expect.poll(() => state.importDataNames).toEqual(['', 'master']);
+  await expect.poll(() => state.importResponseOrder).toEqual(['master', '']);
+  await expect(importDialog.getByText('candidate_table', { exact: true })).toBeVisible();
+  await expect(importDialog.getByText('stale_table', { exact: true })).toHaveCount(0);
   expect(state.unknown).toEqual([]);
 });
 

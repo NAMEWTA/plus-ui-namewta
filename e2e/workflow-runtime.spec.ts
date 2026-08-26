@@ -201,6 +201,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
                   { code: 'pop', show: true },
                   { code: 'copy', show: true },
                   { code: 'file', show: true },
+                  { code: 'trust', show: true },
                   { code: 'transfer', show: true },
                   { code: 'addSign', show: true },
                   { code: 'subSign', show: true },
@@ -490,7 +491,7 @@ test('admin selected workflow completes a task through the public user seam', as
     mimeType: 'text/plain',
     buffer: Buffer.from('workflow attachment')
   });
-  await expect(processDialog.getByText('approval.txt', { exact: true })).toBeVisible();
+  await expect(processDialog.getByRole('link', { name: 'approval.txt' }).first()).toBeVisible();
   await processDialog.getByRole('button', { name: '选择', exact: true }).click();
   const selector = page.getByRole('dialog', { name: '选择用户' });
   await expect(selector.getByRole('cell', { name: '流程负责人' })).toBeVisible();
@@ -538,9 +539,9 @@ test('user and task failures remain visible without clearing approval input', as
   const processDialog = page.getByRole('dialog', { name: '流程办理' });
   await processDialog.getByLabel('审批意见').fill('保留这段审批意见');
   await processDialog.getByRole('button', { name: '选择', exact: true }).click();
-  await expect(page.getByText('用户查询失败', { exact: true })).toBeVisible();
-  state.failUsers = false;
   const selector = page.getByRole('dialog', { name: '选择用户' });
+  await expect(selector.getByText('用户查询失败', { exact: true })).toBeVisible();
+  state.failUsers = false;
   await selector.getByRole('button', { name: '搜索', exact: true }).click();
   await selector.locator('label.el-checkbox').first().click();
   await selector.getByRole('button', { name: '确定', exact: true }).click();
@@ -732,12 +733,12 @@ test('task back uploads a real attachment and preserves the exact payload', asyn
     mimeType: 'text/plain',
     buffer: Buffer.from('back attachment')
   });
-  await expect(backDialog.getByText('approval.txt', { exact: true })).toBeVisible();
+  await expect(backDialog.getByRole('link', { name: 'approval.txt' }).first()).toBeVisible();
   await backDialog.getByRole('button', { name: '确认退回', exact: true }).click();
   await page.getByRole('button', { name: '确定', exact: true }).click();
   await expect(backDialog.getByText('退回任务失败', { exact: true })).toBeVisible();
   await expect(backDialog.getByPlaceholder('请输入退回意见')).toHaveValue('请补充附件');
-  await expect(backDialog.getByText('approval.txt', { exact: true })).toBeVisible();
+  await expect(backDialog.getByRole('link', { name: 'approval.txt' }).first()).toBeVisible();
   expect(state.backBodies).toEqual([]);
 
   state.failBack = false;
@@ -859,10 +860,11 @@ test('leave add calculates days, starts workflow and closes after task completio
   const leaveType = page.locator('.el-form-item').filter({ hasText: '请假类型' });
   await leaveType.locator('.el-select__wrapper').click();
   await page.getByRole('option', { name: '事假', exact: true }).click();
-  await page.getByPlaceholder('开始时间').fill('2026-09-01 09:00:00');
-  await page.getByPlaceholder('开始时间').press('Tab');
-  await page.getByPlaceholder('结束时间').fill('2026-09-02 18:00:00');
-  await page.getByPlaceholder('结束时间').press('Enter');
+  const leaveTime = page.locator('.el-form-item').filter({ hasText: '请假时间' }).locator('.el-range-input');
+  await leaveTime.first().fill('2026-09-01 09:00:00');
+  await leaveTime.first().press('Tab');
+  await leaveTime.nth(1).fill('2026-09-02 18:00:00');
+  await leaveTime.nth(1).press('Enter');
   await page.locator('.el-form-item').filter({ hasText: '请假原因' }).getByRole('textbox').fill('前端架构评审');
   await expect(page.locator('.el-form-item').filter({ hasText: '请假天数' }).getByRole('textbox')).toHaveValue('2');
 

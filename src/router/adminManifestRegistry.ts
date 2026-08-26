@@ -1,11 +1,17 @@
 import { demoDomainModule } from '@namewta/domain-demo';
 import { identityAccessDomainModule, type IdentityAccessService } from '@namewta/domain-identity-access';
+import { createOperationsService, operationsDomainModule } from '@namewta/domain-operations';
 import { createSystemAdminService, systemAdminDomainModule } from '@namewta/domain-system-admin';
 import { createWorkflowDefinitionService, workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } from '@namewta/platform-app-runtime';
 import { createAccessEvaluator } from '@namewta/platform-permission';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
 import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
+import {
+  createLiveOperationsDictRefs,
+  createOperationsWebDomain,
+  type OperationsWebRuntime
+} from '@namewta/web-domain-operations';
 import {
   createLiveSystemDictRefs,
   createSystemAdminWebDomain,
@@ -14,6 +20,7 @@ import {
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
 import { getActivePinia } from 'pinia';
 import { defineAsyncComponent, type Component } from 'vue';
+import IFrame from '@/components/iFrame/index.vue';
 import WorkflowTreePanel from '@/components/TreePanel/index.vue';
 import { getToken } from '@/utils/auth';
 
@@ -163,9 +170,68 @@ export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
 };
 const systemAdminManifest = createSystemAdminWebDomain(adminSystemAdminWebRuntime);
 
+const operationsService = createOperationsService({
+  async request<T>(config) {
+    const { default: request } = await import('@/utils/request');
+    return request(config) as Promise<T>;
+  }
+});
+export const adminOperationsWebRuntime: OperationsWebRuntime = {
+  service: operationsService,
+  iframe: IFrame,
+  externalUrls: Object.freeze({
+    'monitor-admin': import.meta.env.VITE_APP_MONITOR_ADMIN,
+    'snail-job': import.meta.env.VITE_APP_SNAILJOB_ADMIN,
+    'snail-ai': import.meta.env.VITE_APP_SNAILAI_ADMIN
+  }),
+  confirm: async message => {
+    const { default: modal } = await import('@/plugins/modal');
+    await modal.confirm(message);
+  },
+  success: message => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.msgSuccess(message));
+  },
+  error: message => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
+  },
+  loading: message => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.loading(message));
+  },
+  closeLoading: () => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.closeLoading());
+  },
+  download: (url, params, fileName) =>
+    import('@/utils/request').then(({ download }) => download(url, params, fileName)),
+  openDownload: intent => {
+    const link = document.createElement('a');
+    link.href = intent.url;
+    link.rel = 'noopener noreferrer';
+    link.download = intent.downloadName ?? '';
+    link.style.display = 'none';
+    document.body.append(link);
+    link.click();
+    link.remove();
+  },
+  dicts: (...types) =>
+    createLiveOperationsDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
+  hasPermission: permission => {
+    const user = getActivePinia()?.state.value.user as { permissions?: string[]; roles?: string[] } | undefined;
+    return createAccessEvaluator({ permissions: user?.permissions ?? [], roles: user?.roles ?? [] }).hasAnyPermission([
+      permission
+    ]);
+  }
+};
+const operationsManifest = createOperationsWebDomain(adminOperationsWebRuntime);
+
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
-  domainModules: [identityAccessDomainModule, demoDomainModule, workflowDomainModule, systemAdminDomainModule],
+  domainModules: [
+    identityAccessDomainModule,
+    demoDomainModule,
+    workflowDomainModule,
+    systemAdminDomainModule,
+    operationsDomainModule
+  ],
   manifests: [
     createIdentityAccessWebDomain({
       service: identityService,
@@ -175,14 +241,16 @@ const runtime = composeAppRuntime<Component>({
     }),
     createDemoWebDomain(demoRuntime),
     workflowManifest,
-    systemAdminManifest
+    systemAdminManifest,
+    operationsManifest
   ],
-  selectedDomainIds: ['identity-access', 'demo', 'workflow', 'system-admin'],
+  selectedDomainIds: ['identity-access', 'demo', 'workflow', 'system-admin', 'operations'],
   selectedManifestIds: [
     'web-domain-identity-access',
     'web-domain-demo',
     'web-domain-workflow',
-    'web-domain-system-admin'
+    'web-domain-system-admin',
+    'web-domain-operations'
   ]
 });
 

@@ -1,23 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const readSibling = (fileName: string) => readFileSync(new URL(fileName, import.meta.url), 'utf8');
-
-describe('notification monitor security contract', () => {
-  it('never injects stored notification HTML into the application DOM', () => {
-    const detail = readSibling('./detailDrawer.vue');
-
-    expect(detail).not.toContain('v-html');
-    expect(detail).not.toContain('innerHTML');
-    expect(detail).toContain('contentSnapshot');
-  });
-
-  it('keeps query and removal controls behind their dynamic permissions', () => {
-    const page = readSibling('./index.vue');
-
-    expect(page).toContain('system:notify:query');
-    expect(page).toContain('system:notify:remove');
-    expect(page).toContain('PARTIAL_FAILURE');
-    expect(page).not.toContain('PARTIAL_FAILED');
+describe('notification legacy facade security', () => {
+  it('delegates rendering without introducing raw HTML sinks', () => {
+    const page = readFileSync(new URL('./index.vue', import.meta.url), 'utf8');
+    const detail = readFileSync(new URL('./detailDrawer.vue', import.meta.url), 'utf8');
+    expect(page).toContain('OperationsNotificationPage');
+    expect(detail).toContain('OperationsNotificationDetailDrawer');
+    expect(page + detail).not.toMatch(/v-html|innerHTML|document\.createElement/);
   });
 });

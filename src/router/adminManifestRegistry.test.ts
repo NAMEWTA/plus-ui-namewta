@@ -24,5 +24,12 @@ describe('admin selected manifest registry', () => {
       componentName: 'AuthUser'
     });
     expect(resolveAdminWebRegistration('system/oss/index', 'system-admin')).toBeUndefined();
+    expect(resolveAdminWebRegistration('monitor/online/index', 'operations')).toMatchObject({
+      componentName: 'Online'
+    });
+    expect(resolveAdminWebRegistration('monitor/notify/index', 'operations')).toMatchObject({
+      componentName: 'NotifyMonitor'
+    });
+    expect(resolveAdminWebRegistration('operations/report/index', 'operations')).toBeUndefined();
   });
 });

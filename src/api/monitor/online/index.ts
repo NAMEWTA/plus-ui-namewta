@@ -1,37 +1,14 @@
-import type { PageResult } from '@/api/types';
-import type { AxiosPromise } from '@/utils/api-types';
-import request from '@/utils/request';
-import type { OnlineQuery, OnlineVO } from './types';
+import type { OnlineQuery } from './types';
+import { operationsService } from '../runtime';
 
 // 查询在线用户列表
-export function list(query: OnlineQuery): AxiosPromise<PageResult<OnlineVO>> {
-  return request({
-    url: '/monitor/online/list',
-    method: 'get',
-    params: query
-  });
-}
+export const list = (query: OnlineQuery) => operationsService.online.list(query);
 
 // 强退用户
-export function forceLogout(tokenId: string) {
-  return request({
-    url: '/monitor/online/' + tokenId,
-    method: 'delete'
-  });
-}
+export const forceLogout = (tokenId: string) => operationsService.online.forceLogout(tokenId);
 
 // 获取当前用户登录在线设备
-export function getOnline() {
-  return request({
-    url: '/monitor/online',
-    method: 'get'
-  });
-}
+export const getOnline = () => operationsService.online.current();
 
 // 删除当前在线设备
-export function delOnline(tokenId: string) {
-  return request({
-    url: '/monitor/online/myself/' + tokenId,
-    method: 'delete'
-  });
-}
+export const delOnline = (tokenId: string) => operationsService.online.removeCurrent(tokenId);

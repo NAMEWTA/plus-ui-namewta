@@ -343,7 +343,9 @@ test('edit uses public metadata ports and preserves the complete generator paylo
   await chooseOption('unique-fields', /name：名称/);
   await page.getByTestId('enable-sort').click();
   await chooseOption('sort-field', /sort_num：排序/);
-  await page.getByRole('radio', { name: '树表' }).click();
+  const treeRadio = page.getByRole('radio', { name: '树表' });
+  await page.locator('label.el-radio').filter({ has: treeRadio }).click();
+  await expect(treeRadio).toBeChecked();
   await page.getByTestId('tree-root-value').locator('input').fill('ROOT');
   await chooseOption('tree-name', /name：名称/);
   await chooseOption('tree-order', /sort_num：排序/);

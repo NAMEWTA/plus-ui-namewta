@@ -84,7 +84,7 @@ async function installApi(page: Page, state: State, permissions: string[]) {
         data: {
           rows: [
             {
-              dictCode: 1,
+              dictCode: '1',
               dictLabel: '启用',
               dictValue: '0',
               cssClass: '',

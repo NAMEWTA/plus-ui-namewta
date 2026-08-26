@@ -84,13 +84,18 @@ export async function isZipPayload(data: unknown): Promise<boolean> {
     const fileDataEnd = localOffset + localHeaderSize + compressedSize;
     let localEnd = fileDataEnd;
     if (usesDataDescriptor) {
-      const hasSignature = fileDataEnd + 4 <= centralOffset && u32(fileDataEnd) === ZIP_DATA_DESCRIPTOR;
-      const descriptorOffset = fileDataEnd + (hasSignature ? 4 : 0);
-      localEnd = descriptorOffset + 12;
-      if (localEnd > centralOffset) return false;
-      if (u32(descriptorOffset) !== crc) return false;
-      if (u32(descriptorOffset + 4) !== compressedSize) return false;
-      if (u32(descriptorOffset + 8) !== uncompressedSize) return false;
+      const descriptorMatches = (offset: number) =>
+        offset + 12 <= centralOffset &&
+        u32(offset) === crc &&
+        u32(offset + 4) === compressedSize &&
+        u32(offset + 8) === uncompressedSize;
+      const signaturelessMatches = descriptorMatches(fileDataEnd);
+      const signedMatches =
+        fileDataEnd + 4 <= centralOffset &&
+        u32(fileDataEnd) === ZIP_DATA_DESCRIPTOR &&
+        descriptorMatches(fileDataEnd + 4);
+      if (!signaturelessMatches && !signedMatches) return false;
+      localEnd = fileDataEnd + (signaturelessMatches ? 12 : 16);
     }
     if (localEnd > centralOffset) return false;
     localSpans.push({ start: localOffset, end: localEnd });

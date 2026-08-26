@@ -88,13 +88,15 @@ const missingDataDescriptorZip = () => {
   writeU16(view, 38, 0x0008);
   return bytes;
 };
-const signaturelessDataDescriptorZip = () => {
+const signaturelessDataDescriptorZip = (crc = 0) => {
   const bytes = new Uint8Array(110);
   const view = new DataView(bytes.buffer);
   writeU32(view, 0, 0x04034b50);
   writeU16(view, 6, 0x0008);
+  writeU32(view, 30, crc);
   writeU32(view, 42, 0x02014b50);
   writeU16(view, 50, 0x0008);
+  writeU32(view, 58, crc);
   writeU32(view, 84, 0);
   writeU32(view, 88, 0x06054b50);
   writeU16(view, 96, 1);
@@ -183,6 +185,7 @@ describe('ZIP download safety', () => {
     await expect(isZipPayload(singleEntryZip())).resolves.toBe(true);
     await expect(isZipPayload(dataDescriptorZip())).resolves.toBe(true);
     await expect(isZipPayload(signaturelessDataDescriptorZip())).resolves.toBe(true);
+    await expect(isZipPayload(signaturelessDataDescriptorZip(0x08074b50))).resolves.toBe(true);
     await expect(isZipPayload(new Uint8Array([0x7b, 0x22, 0x78, 0x22]))).resolves.toBe(false);
     const brokenCentralDirectory = singleEntryZip();
     brokenCentralDirectory[30] = 0;

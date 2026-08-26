@@ -57,12 +57,14 @@ describe('operations transport and security contracts', () => {
     '//evil.example/x',
     'https://user@evil.example/x',
     'https://bad host/path',
+    'https://example.test/report name',
     'https://exa%mple.example/x',
     'https://example.test:99999/x',
     'https://[2001:db8::1/x',
     'https://example.test/%',
     'https://example.test/%GG',
     '/relative/%2',
+    '/reports/report name',
     '/ok\\bad'
   ])('rejects malformed or unsafe URL %s for embeds and downloads', value => {
     const service = createOperationsService({ request: vi.fn() });
@@ -78,6 +80,7 @@ describe('operations transport and security contracts', () => {
     expect(service.externalIntent('snail-job', 'https://[2001:db8::1]:8443/jobs', true).url).toBe(
       'https://[2001:db8::1]:8443/jobs'
     );
+    expect(service.externalIntent('monitor-admin', '/reports/report%20name', true).url).toBe('/reports/report%20name');
     expect(service.attachmentIntent('http://files.example.test/report', true, 'report.txt')).toEqual({
       target: 'notify-attachment',
       url: 'http://files.example.test/report',

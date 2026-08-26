@@ -3,12 +3,36 @@ import axiosModule from 'axios';
 import { getOssDownloadUrl } from '@/api/system/oss';
 import errorCode from '@/utils/errorCode';
 import { extractErrorMessage, globalHeaders } from '@/utils/request';
-import { blobValidate } from '@/utils/ruoyi';
 import { saveBlob } from '@/utils/save';
 
 const axios = axiosModule as any;
 const baseURL = import.meta.env.VITE_APP_BASE_API;
 let downloadLoadingInstance: LoadingInstance | undefined;
+
+const zipSignatures = new Set(['80,75,3,4', '80,75,5,6', '80,75,7,8']);
+const sanitizedMessage = (value: unknown) =>
+  [...String(value ?? '')]
+    .map(character => {
+      const code = character.charCodeAt(0);
+      return code < 32 || code === 127 ? ' ' : character;
+    })
+    .join('')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
+
+export async function isZipPayload(data: unknown): Promise<boolean> {
+  const bytes =
+    data instanceof Blob
+      ? new Uint8Array(await data.slice(0, 4).arrayBuffer())
+      : data instanceof ArrayBuffer
+        ? new Uint8Array(data.slice(0, 4))
+        : ArrayBuffer.isView(data)
+          ? new Uint8Array(data.buffer, data.byteOffset, Math.min(data.byteLength, 4))
+          : new Uint8Array();
+  return bytes.byteLength >= 4 && zipSignatures.has(Array.from(bytes).join(','));
+}
 export default {
   async oss(ossId: string | number) {
     downloadLoadingInstance = ElLoading.service({
@@ -47,25 +71,28 @@ export default {
         responseType: 'blob',
         headers: globalHeaders()
       });
-      const isBlob = blobValidate(res.data);
-      if (isBlob) {
+      if (await isZipPayload(res.data)) {
         const blob = new Blob([res.data], { type: 'application/zip' });
         saveBlob(blob, name);
       } else {
-        this.printErrMsg(res.data);
+        await this.printErrMsg(res.data);
       }
-      downloadLoadingInstance?.close();
     } catch (r) {
-      console.error(r);
       const errMsg = await extractErrorMessage(r);
-      ElMessage.error(errMsg || '下载文件出现错误，请联系管理员！');
+      ElMessage.error(sanitizedMessage(errMsg) || '下载文件出现错误，请联系管理员！');
+    } finally {
       downloadLoadingInstance?.close();
     }
   },
   async printErrMsg(data: any) {
-    const resText = await data.text();
-    const rspObj = JSON.parse(resText);
-    const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
-    ElMessage.error(errMsg);
+    let message = '';
+    try {
+      const text = data instanceof Blob ? await data.text() : String(data ?? '');
+      const response = JSON.parse(text) as { code?: keyof typeof errorCode; msg?: unknown };
+      message = errorCode[response.code ?? 'default'] || sanitizedMessage(response.msg);
+    } catch {
+      message = '';
+    }
+    ElMessage.error(sanitizedMessage(message) || '下载文件出现错误，请联系管理员！');
   }
 };

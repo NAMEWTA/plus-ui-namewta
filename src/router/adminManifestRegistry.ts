@@ -1,13 +1,17 @@
 import { aiDomainModule, createAiService } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
+import { createDevtoolsService, devtoolsDomainModule } from '@namewta/domain-devtools';
 import { identityAccessDomainModule, type IdentityAccessService } from '@namewta/domain-identity-access';
 import { createOperationsService, operationsDomainModule } from '@namewta/domain-operations';
 import { createSystemAdminService, systemAdminDomainModule } from '@namewta/domain-system-admin';
+import { createDictTypeCatalogPort } from '@namewta/domain-system-admin/public/dict';
+import { createMenuQueryPort } from '@namewta/domain-system-admin/public/menu';
 import { createWorkflowDefinitionService, workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } from '@namewta/platform-app-runtime';
 import { createAccessEvaluator } from '@namewta/platform-permission';
 import { createAiWebDomain, type AiWebRuntime } from '@namewta/web-domain-ai';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
+import { createDevtoolsWebDomain, type DevtoolsWebRuntime } from '@namewta/web-domain-devtools';
 import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
 import {
   createLiveOperationsDictRefs,
@@ -278,11 +282,46 @@ export const adminOperationsWebRuntime: OperationsWebRuntime = {
 };
 const operationsManifest = createOperationsWebDomain(adminOperationsWebRuntime);
 
+const devtoolsHttp: Parameters<typeof createDevtoolsService>[0] = {
+  async request<T>(config) {
+    const { default: request } = await import('@/utils/request');
+    return request(config) as Promise<T>;
+  }
+};
+const devtoolsService = createDevtoolsService(devtoolsHttp, {
+  dictTypes: createDictTypeCatalogPort(devtoolsHttp),
+  menus: createMenuQueryPort(devtoolsHttp)
+});
+
+export const adminDevtoolsWebRuntime: DevtoolsWebRuntime = {
+  service: devtoolsService,
+  clientId: () => import.meta.env.VITE_APP_CLIENT_ID,
+  confirm: async message => {
+    const { default: modal } = await import('@/plugins/modal');
+    await modal.confirm(message);
+  },
+  success: message => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.msgSuccess(message));
+  },
+  error: message => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
+  },
+  navigate: async location => {
+    const { default: appRouter } = await import('@/router');
+    await appRouter.push(location);
+  },
+  closeAndOpenPage: location => import('@/plugins/tab').then(({ default: tab }) => tab.closeOpenPage(location)),
+  downloadZip: (url, fileName) =>
+    import('@/plugins/download').then(({ default: download }) => download.zip(url, fileName))
+};
+const devtoolsManifest = createDevtoolsWebDomain(adminDevtoolsWebRuntime);
+
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
   domainModules: [
     identityAccessDomainModule,
     demoDomainModule,
+    devtoolsDomainModule,
     workflowDomainModule,
     systemAdminDomainModule,
     aiDomainModule,
@@ -296,15 +335,17 @@ const runtime = composeAppRuntime<Component>({
       }
     }),
     createDemoWebDomain(demoRuntime),
+    devtoolsManifest,
     workflowManifest,
     systemAdminManifest,
     aiManifest,
     operationsManifest
   ],
-  selectedDomainIds: ['identity-access', 'demo', 'workflow', 'system-admin', 'ai', 'operations'],
+  selectedDomainIds: ['identity-access', 'demo', 'devtools', 'workflow', 'system-admin', 'ai', 'operations'],
   selectedManifestIds: [
     'web-domain-identity-access',
     'web-domain-demo',
+    'web-domain-devtools',
     'web-domain-workflow',
     'web-domain-system-admin',
     'web-domain-ai',

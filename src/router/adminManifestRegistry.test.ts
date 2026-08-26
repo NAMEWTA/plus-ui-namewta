@@ -12,6 +12,9 @@ describe('admin selected manifest registry', () => {
       componentName: 'IdentityLogin'
     });
     expect(resolveAdminWebRegistration('demo/demo/index', 'demo')).toMatchObject({ componentName: 'Demo' });
+    expect(resolveAdminWebRegistration('tool/gen/index', 'devtools')).toMatchObject({ componentName: 'Gen' });
+    expect(resolveAdminWebRegistration('tool/gen-edit/index', 'devtools')).toMatchObject({ componentName: 'GenEdit' });
+    expect(resolveAdminWebRegistration('tool/openapi/index', 'devtools')).toBeUndefined();
     expect(resolveAdminWebRegistration('workflow/category/index', 'workflow')).toMatchObject({
       componentName: 'Category'
     });

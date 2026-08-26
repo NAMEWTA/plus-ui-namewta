@@ -81,6 +81,13 @@ export interface MessageBoxVO {
   noticeList: MessageVO[];
   workflowList: MessageVO[];
 }
+export type SocialBindingUrl = string;
+export interface SocialAuthVO extends BaseEntity {
+  id: ResourceIdentifier;
+  source: string;
+  avatar: string;
+  userName: string;
+}
 export interface NoticeVO extends BaseEntity {
   noticeId: number;
   noticeTitle: string;

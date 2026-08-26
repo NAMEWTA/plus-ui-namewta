@@ -9,7 +9,7 @@
 - Own Client/user/user-type/role/menu/department/post governance and resource/content services and models.
 - Validate backend-issued OSS and presigned upload URLs at the domain boundary before browser code can consume them.
 - Preserve the T-09 workflow-safe public user-query seam without widening its projected user data.
-- Provide minimal public dictionary and menu query ports with projected stable fields and explicit Client scope.
+- Provide minimal public dictionary and recursively projected menu query ports with stable fields and explicit Client scope.
 
 ## Non-responsibilities
 
@@ -41,4 +41,4 @@
 
 ## Validation
 
-- Transport matrix tests lock all existing paths and methods; public seams prove projection and Client-scoped failure propagation; security tests reject unsafe OSS URLs without retaining secrets.
+- Transport matrix tests lock all existing paths and methods; social binding/list results have concrete public models; public seams prove projection and Client-scoped failure propagation. OSS list resolution never falls back after authorization failure, and OSS/notice attachment security tests reject unsafe URLs without retaining secrets.

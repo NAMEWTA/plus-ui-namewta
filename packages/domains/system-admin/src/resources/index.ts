@@ -26,7 +26,9 @@ import type {
   OssUploadResumeResponse,
   OssVO,
   ResourceIdentifier,
-  ResourceIdentifierList
+  ResourceIdentifierList,
+  SocialAuthVO,
+  SocialBindingUrl
 } from './types';
 
 export * from './types';
@@ -67,9 +69,9 @@ export interface SystemAdminResourceService {
   ossConfigs: ReturnType<typeof createOssConfigService>;
   messages: { box(): Promise<ApiResponse<MessageBoxVO>> };
   social: {
-    bindingUrl(source: string): Promise<ApiResponse>;
+    bindingUrl(source: string): Promise<ApiResponse<SocialBindingUrl>>;
     unlock(authId: ResourceIdentifier): Promise<ApiResponse>;
-    list(): Promise<ApiResponse>;
+    list(): Promise<ApiResponse<SocialAuthVO[]>>;
   };
 }
 
@@ -118,11 +120,14 @@ function createNoticeService(request: Request) {
   return Object.freeze({
     list: (params: NoticeQuery) => request<PageResult<NoticeVO>>({ url: '/system/notice/list', method: 'get', params }),
     get: (id: ResourceIdentifier) => request<NoticeVO>({ url: '/system/notice/' + segment(id), method: 'get' }),
-    attachmentUrls: (id: ResourceIdentifier) =>
-      request<Record<string, OssDownloadUrl>>({
+    attachmentUrls: async (id: ResourceIdentifier) => {
+      const response = await request<Record<string, OssDownloadUrl>>({
         url: `/system/notice/${segment(id)}/attachments/download-urls`,
         method: 'get'
-      }),
+      });
+      Object.values(response.data).forEach(item => requireSafeUrl(item.url));
+      return response;
+    },
     add: (data: NoticeForm) => request({ url: '/system/notice', method: 'post', data }),
     update: (data: NoticeForm) => request({ url: '/system/notice', method: 'put', data }),
     delete: (ids: ResourceIdentifierList) => request({ url: '/system/notice/' + segment(ids), method: 'delete' })
@@ -139,15 +144,13 @@ function createOssService(request: Request) {
     list: (params: OssQuery) => request<PageResult<OssVO>>({ url: '/resource/oss/list', method: 'get', params }),
     listByIds: async (ids: ResourceIdentifierList) => {
       const response = await request<OssVO[]>({ url: '/resource/oss/listByIds/' + segment(ids), method: 'get' });
-      response.data = await Promise.all(
+      const data = await Promise.all(
         response.data.map(async item => {
-          const resolved = await downloadUrl(item.ossId).catch(() => undefined);
-          const url = resolved?.data.url ?? item.url ?? '';
-          if (url) requireSafeUrl(url);
-          return { ...item, url };
+          const resolved = await downloadUrl(item.ossId);
+          return { ...item, url: resolved.data.url };
         })
       );
-      return response;
+      return { ...response, data };
     },
     initUpload: async (data: OssUploadInitRequest) => {
       const response = await request<OssUploadInitResponse>({ url: '/resource/oss/uploads', method: 'post', data });
@@ -205,9 +208,10 @@ export function createSystemAdminResourceService(http: HttpClient): SystemAdminR
     ossConfigs: createOssConfigService(request),
     messages: Object.freeze({ box: () => request<MessageBoxVO>({ url: '/resource/message/box', method: 'get' }) }),
     social: Object.freeze({
-      bindingUrl: (source: string) => request({ url: '/auth/binding/' + segment(source), method: 'get' }),
+      bindingUrl: (source: string) =>
+        request<SocialBindingUrl>({ url: '/auth/binding/' + segment(source), method: 'get' }),
       unlock: (authId: ResourceIdentifier) => request({ url: '/auth/unlock/' + segment(authId), method: 'delete' }),
-      list: () => request({ url: '/system/social/list', method: 'get' })
+      list: () => request<SocialAuthVO[]>({ url: '/system/social/list', method: 'get' })
     })
   });
 }

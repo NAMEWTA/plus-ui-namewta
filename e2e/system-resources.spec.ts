@@ -14,11 +14,20 @@ const menus = [
     name: 'SystemOssConfigProof',
     component: 'system/oss/config',
     meta: { title: 'OSS配置' }
+  },
+  {
+    path: '/system-profile',
+    name: 'SystemProfileProof',
+    component: 'system/user/profile/index',
+    meta: { title: '个人中心' }
   }
 ];
 
 type State = {
   configFailure: boolean;
+  socialFailure: boolean;
+  uploaded: boolean;
+  uploadTransfers: string[];
   requests: Array<{ clientId: string; method: string; path: string }>;
   unknown: string[];
 };
@@ -27,6 +36,17 @@ const json = (route: Route, body: unknown) =>
   route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
 
 async function installApi(page: Page, state: State, permissions: string[]) {
+  await page.route('https://uploads.example.test/system-resource-proof.txt', async route => {
+    state.uploadTransfers.push(`${route.request().method()} ${new URL(route.request().url()).pathname}`);
+    await route.fulfill({ status: 200, headers: { ETag: 'proof-etag' }, body: '' });
+  });
+  await page.route('https://files.example.test/system-resource-proof.txt', route =>
+    route.fulfill({
+      status: 200,
+      headers: { 'Content-Disposition': 'attachment; filename="system-resource-proof.txt"' },
+      body: 'system resource proof'
+    })
+  );
   await page.route('**/prod-api/**', route => {
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/prod-api', '');
@@ -55,6 +75,51 @@ async function installApi(page: Page, state: State, permissions: string[]) {
     }
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
     if (path.startsWith('/system/dict/data/type/')) return json(route, { code: 200, data: [] });
+    if (path === '/system/user/profile') {
+      return json(route, {
+        code: 200,
+        data: {
+          user: { userId: 11, userName: 'resource-admin', nickName: 'Resource Admin' },
+          roleGroup: 'operator',
+          postGroup: '运维'
+        }
+      });
+    }
+    if (path === '/monitor/online') return json(route, { code: 200, data: { rows: [], total: 0 } });
+    if (path === '/system/social/list') {
+      state.requests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
+      return json(route, {
+        code: 200,
+        data: [{ id: 42, source: 'github', avatar: '', userName: 'resource-admin', createTime: '2026-08-26' }]
+      });
+    }
+    if (path === '/auth/binding/github' || path === '/auth/unlock/42') {
+      state.requests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
+      if (state.socialFailure) return json(route, { code: 500, msg: '当前 Client 社交账号服务不可用' });
+      return json(route, { code: 200, data: path.startsWith('/auth/binding/') ? '/social-callback' : null });
+    }
+    if (path === '/resource/oss/uploads' && method === 'POST') {
+      state.requests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
+      return json(route, {
+        code: 200,
+        data: {
+          uploadToken: 'system-resource-upload',
+          mode: 'SINGLE',
+          expiresAt: '2099-01-01T00:00:00Z',
+          presignedRequest: {
+            method: 'PUT',
+            url: 'https://uploads.example.test/system-resource-proof.txt',
+            requiredHeaders: { 'Content-Type': 'text/plain' },
+            expiresAt: '2099-01-01T00:00:00Z'
+          }
+        }
+      });
+    }
+    if (path === '/resource/oss/uploads/system-resource-upload/complete' && method === 'POST') {
+      state.requests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
+      state.uploaded = true;
+      return json(route, { code: 200, data: '8' });
+    }
 
     const resourcePaths = new Set([
       '/system/dict/type/list',
@@ -62,6 +127,7 @@ async function installApi(page: Page, state: State, permissions: string[]) {
       '/system/notice/list',
       '/resource/oss/list',
       '/resource/oss/7/download-url',
+      '/resource/oss/8/download-url',
       '/resource/oss/config/list',
       '/system/config/configKey/sys.oss.previewListResource'
     ]);
@@ -88,6 +154,18 @@ async function installApi(page: Page, state: State, permissions: string[]) {
       if (path === '/system/config/configKey/sys.oss.previewListResource')
         return json(route, { code: 200, data: 'true' });
       if (path === '/resource/oss/list') {
+        const uploadedRow = state.uploaded
+          ? [
+              {
+                ossId: 8,
+                fileName: 'system-resource-proof.txt',
+                originalName: 'system-resource-proof.txt',
+                fileSuffix: '.txt',
+                url: '',
+                service: 'proof'
+              }
+            ]
+          : [];
         return json(route, {
           code: 200,
           data: {
@@ -99,16 +177,31 @@ async function installApi(page: Page, state: State, permissions: string[]) {
                 fileSuffix: '.txt',
                 url: '',
                 service: 'proof'
-              }
+              },
+              ...uploadedRow
             ],
-            total: 1
+            total: 1 + uploadedRow.length
           }
         });
       }
       if (path === '/resource/oss/7/download-url') {
         return json(route, {
           code: 200,
-          data: { url: 'javascript:alert(1)', fileName: 'proof.txt', expiresAt: 'later' }
+          data: {
+            url: 'https://files.example.test/system-resource-proof.txt',
+            fileName: 'system-resource-proof.txt',
+            expiresAt: 'later'
+          }
+        });
+      }
+      if (path === '/resource/oss/8/download-url') {
+        return json(route, {
+          code: 200,
+          data: {
+            url: 'https://files.example.test/system-resource-proof.txt',
+            fileName: 'system-resource-proof.txt',
+            expiresAt: 'later'
+          }
         });
       }
     }
@@ -119,13 +212,28 @@ async function installApi(page: Page, state: State, permissions: string[]) {
 }
 
 test('admin selects resource manifests and keeps message/config/dict/OSS requests Client scoped', async ({ page }) => {
-  const state: State = { configFailure: false, requests: [], unknown: [] };
-  await installApi(page, state, ['system:dict:list', 'system:config:list', 'system:oss:list', 'system:oss:download']);
+  const state: State = {
+    configFailure: false,
+    socialFailure: false,
+    uploaded: false,
+    uploadTransfers: [],
+    requests: [],
+    unknown: []
+  };
+  await installApi(page, state, [
+    'system:dict:list',
+    'system:config:list',
+    'system:oss:list',
+    'system:oss:upload',
+    'system:oss:download'
+  ]);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'system-resource-proof'));
 
   await page.goto(`${adminUrl}/system-dict`);
   await expect(page.getByRole('heading', { name: '字典管理' })).toBeVisible();
   await expect(page.getByText('资源状态', { exact: true })).toBeVisible();
+  await page.locator('.message-trigger').click();
+  await expect(page.getByText('系统资源消息', { exact: true })).toBeVisible();
 
   await page.goto(`${adminUrl}/system-config`);
   await expect(page.getByRole('heading', { name: '参数列表' })).toBeVisible();
@@ -134,8 +242,20 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
   await page.goto(`${adminUrl}/system-oss`);
   await expect(page.getByRole('heading', { name: '文件列表' })).toBeVisible();
   await expect(page.getByText('proof.txt', { exact: true }).first()).toBeVisible();
-  await page.getByRole('button', { name: '下载' }).click();
-  await expect(page.getByText('资源地址不可用', { exact: true })).toBeVisible();
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: '下载' }).first().click();
+  expect((await download).suggestedFilename()).toBe('system-resource-proof.txt');
+
+  await page.getByRole('button', { name: '上传文件' }).click();
+  await page.locator('input[type="file"]').setInputFiles({
+    name: 'system-resource-proof.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('system resource proof')
+  });
+  await expect(page.getByText('system-resource-proof.txt', { exact: true })).toBeVisible();
+  await page.getByRole('dialog', { name: '上传文件' }).getByRole('button', { name: '确 定' }).click();
+  await expect(page.getByText('system-resource-proof.txt', { exact: true }).first()).toBeVisible();
+  expect(state.uploadTransfers).toEqual(['PUT /system-resource-proof.txt']);
 
   expect(state.requests.every(item => item.clientId === adminClientId)).toBe(true);
   expect(state.requests.map(item => `${item.method} ${item.path}`)).toEqual(
@@ -144,7 +264,9 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
       'GET /system/dict/type/list',
       'GET /system/config/list',
       'GET /resource/oss/list',
-      'GET /resource/oss/7/download-url'
+      'GET /resource/oss/7/download-url',
+      'POST /resource/oss/uploads',
+      'POST /resource/oss/uploads/system-resource-upload/complete'
     ])
   );
   expect(state.unknown).toEqual([]);
@@ -153,7 +275,14 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
 test('resource permission denial hides mutations and a Client query failure never invents fallback data', async ({
   page
 }) => {
-  const state: State = { configFailure: true, requests: [], unknown: [] };
+  const state: State = {
+    configFailure: true,
+    socialFailure: false,
+    uploaded: false,
+    uploadTransfers: [],
+    requests: [],
+    unknown: []
+  };
   await installApi(page, state, ['system:config:list']);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'system-resource-denied'));
 
@@ -163,6 +292,39 @@ test('resource permission denial hides mutations and a Client query failure neve
   await expect(page.getByRole('button', { name: '新增' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '导出' })).toHaveCount(0);
   expect(state.requests.filter(item => item.path === '/system/config/list')).toHaveLength(1);
+  expect(state.unknown).toEqual([]);
+});
+
+test('social list is rendered and binding/unlock failures remain Client scoped and visible', async ({ page }) => {
+  const state: State = {
+    configFailure: false,
+    socialFailure: true,
+    uploaded: false,
+    uploadTransfers: [],
+    requests: [],
+    unknown: []
+  };
+  await installApi(page, state, []);
+  await page.addInitScript(() => localStorage.setItem('Admin-Token', 'system-social-proof'));
+
+  await page.goto(`${adminUrl}/system-profile`);
+  await page.getByRole('tab', { name: '第三方应用' }).click();
+  await expect(page.getByText('github', { exact: true })).toBeVisible();
+  await page.getByTitle('使用 GitHub 账号授权登录').click();
+  await expect(page.getByText('当前 Client 社交账号服务不可用', { exact: true })).toBeVisible();
+  await page.locator('.profile-auth-table tbody tr').filter({ hasText: 'github' }).getByRole('button').click();
+  await page.getByRole('dialog', { name: '提示' }).getByRole('button', { name: '确定' }).click();
+  await expect(page.getByText('当前 Client 社交账号服务不可用', { exact: true })).toBeVisible();
+
+  expect(
+    state.requests
+      .filter(item => ['/system/social/list', '/auth/binding/github', '/auth/unlock/42'].includes(item.path))
+      .map(item => `${item.clientId} ${item.method} ${item.path}`)
+  ).toEqual([
+    `${adminClientId} GET /system/social/list`,
+    `${adminClientId} GET /auth/binding/github`,
+    `${adminClientId} DELETE /auth/unlock/42`
+  ]);
   expect(state.unknown).toEqual([]);
 });
 

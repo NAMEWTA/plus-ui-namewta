@@ -3,6 +3,7 @@ import { composeAppRuntime } from '@namewta/platform-app-runtime';
 import { describe, expect, it, vi } from 'vitest';
 import { reactive } from 'vue';
 import { createLiveSystemDictRefs, createSystemAdminWebDomain } from './index';
+import dictPage from './views/DictPage.vue?raw';
 
 const runtime = { service: {} } as never;
 
@@ -75,5 +76,10 @@ describe('system-admin web manifest', () => {
     await vi.waitFor(() => expect(dicts.status.value).toEqual([{ label: '启用', value: '0' }]));
     source.status = [{ label: '停用', value: '1' }];
     expect(dicts.status.value).toEqual([{ label: '停用', value: '1' }]);
+  });
+
+  it('settles both dictionary loading states when a request rejects', () => {
+    expect(dictPage).toMatch(/const getTypeList = async \(\) =>[\s\S]*?finally[\s\S]*?typeLoading\.value = false/);
+    expect(dictPage).toMatch(/const getDataList = async \(\) =>[\s\S]*?finally[\s\S]*?dataLoading\.value = false/);
   });
 });

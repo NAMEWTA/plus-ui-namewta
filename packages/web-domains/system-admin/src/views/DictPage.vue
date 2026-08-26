@@ -538,14 +538,16 @@ const dataState = reactive<PageData<DictDataForm, DictDataQuery>>({
 
 const { queryParams: dataQueryParams, form: dataForm, rules: dataRules } = toRefs(dataState);
 
-const getTypeList = () => {
+const getTypeList = async () => {
   typeLoading.value = true;
-  listType(typeQueryParams.value).then(res => {
+  try {
+    const res = await listType(typeQueryParams.value);
     typeList.value = res.data?.rows;
     typeTotal.value = res.data?.total;
-    typeLoading.value = false;
     ensureCurrentType();
-  });
+  } finally {
+    typeLoading.value = false;
+  }
 };
 
 const ensureCurrentType = () => {
@@ -659,10 +661,13 @@ const getDataList = async () => {
     return;
   }
   dataLoading.value = true;
-  const res = await listData(dataQueryParams.value);
-  dataList.value = res.data?.rows;
-  dataTotal.value = res.data?.total;
-  dataLoading.value = false;
+  try {
+    const res = await listData(dataQueryParams.value);
+    dataList.value = res.data?.rows;
+    dataTotal.value = res.data?.total;
+  } finally {
+    dataLoading.value = false;
+  }
 };
 
 const cancelData = () => {

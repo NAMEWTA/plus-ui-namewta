@@ -10,11 +10,23 @@ describe('system-admin public menu seam', () => {
       request: async request => {
         requests.push(request);
         if ((request.params as { clientId?: string } | undefined)?.clientId === 'failed-client') throw failure;
-        return { data: [{ id: 1, label: '系统管理' }] } as never;
+        return {
+          data: [
+            {
+              id: 1,
+              label: '系统管理',
+              component: 'must-not-cross',
+              secret: 'must-not-cross',
+              children: [{ id: 2, label: '字典管理', path: '/system/dict', permissions: ['system:dict:list'] }]
+            }
+          ]
+        } as never;
       }
     });
 
-    await expect(port.options('client/admin')).resolves.toEqual([{ id: 1, label: '系统管理' }]);
+    await expect(port.options('client/admin')).resolves.toEqual([
+      { id: 1, label: '系统管理', children: [{ id: 2, label: '字典管理' }] }
+    ]);
     await expect(port.options('failed-client')).rejects.toBe(failure);
     expect(requests).toEqual([
       { url: '/system/menu/treeselect', method: 'get', params: { clientId: 'client/admin' } },

@@ -1,6 +1,6 @@
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
-import { describe, expect, it, vi } from 'vitest';
-import { createSystemAdminResourceService, ResourceSecurityError } from './index';
+import { describe, expect, expectTypeOf, it, vi } from 'vitest';
+import { createSystemAdminResourceService, ResourceSecurityError, type SocialAuthVO } from './index';
 
 describe('system-admin resource transports', () => {
   it('preserves the complete resource method and path matrix', async () => {
@@ -8,6 +8,12 @@ describe('system-admin resource transports', () => {
     const http: HttpClient = {
       request: vi.fn(async request => {
         requests.push(request);
+        if (request.url.includes('/attachments/download-urls')) {
+          return {
+            code: 200,
+            data: { attachment: { url: 'https://files.example.test/notice', fileName: 'notice', expiresAt: 'later' } }
+          } as never;
+        }
         if (request.url.includes('/download-url')) {
           return {
             code: 200,
@@ -180,15 +186,41 @@ describe('system-admin resource transports', () => {
     expect(JSON.stringify(error)).not.toMatch(/Authorization|must-not-escape|token:secret/);
   });
 
-  it('does not resurrect an unsafe stored OSS URL when authorization lookup fails', async () => {
+  it('does not resurrect a stored OSS URL when authorization lookup fails', async () => {
+    const failure = new Error('authorization unavailable');
     const request: HttpClient['request'] = async config => {
-      if (config.url.includes('/download-url')) throw new Error('authorization unavailable');
-      return { data: [{ ossId: 1, url: 'data:text/html,unsafe' }] } as never;
+      if (config.url.includes('/download-url')) throw failure;
+      return { data: [{ ossId: 1, url: 'https://legacy.example.test/file' }] } as never;
     };
     const service = createSystemAdminResourceService({ request });
 
-    await expect(service.oss.listByIds(1)).rejects.toEqual(
-      expect.objectContaining({ code: 'unsafe-resource-url', message: '资源地址不可用' })
-    );
+    await expect(service.oss.listByIds(1)).rejects.toBe(failure);
+  });
+
+  it.each(['javascript:alert(1)', 'https://user:secret@files.example.test/file', 'https://bad host/file'])(
+    'rejects unsafe notice attachment URL %s at the domain boundary',
+    async url => {
+      const request: HttpClient['request'] = async () =>
+        ({ data: { attachment: { url, fileName: 'notice.txt', expiresAt: 'later' } } }) as never;
+      const service = createSystemAdminResourceService({ request });
+
+      await expect(service.notices.attachmentUrls(1)).rejects.toEqual(
+        expect.objectContaining({ code: 'unsafe-resource-url', message: '资源地址不可用' })
+      );
+    }
+  );
+
+  it('exposes concrete social binding and list result types', () => {
+    const service = createSystemAdminResourceService({ request: vi.fn() });
+    expectTypeOf(service.social.bindingUrl).returns.resolves.toEqualTypeOf<{
+      code?: number;
+      data: string;
+      msg?: string;
+    }>();
+    expectTypeOf(service.social.list).returns.resolves.toEqualTypeOf<{
+      code?: number;
+      data: SocialAuthVO[];
+      msg?: string;
+    }>();
   });
 });

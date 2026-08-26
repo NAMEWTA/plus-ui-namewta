@@ -290,13 +290,14 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
   expect((await download).suggestedFilename()).toBe('system-resource-proof.txt');
 
   await page.getByRole('button', { name: '上传文件' }).click();
-  await page.locator('input[type="file"]').setInputFiles({
+  const uploadDialog = page.getByRole('dialog', { name: '上传文件' });
+  await uploadDialog.locator('input[type="file"]').setInputFiles({
     name: 'system-resource-proof.txt',
     mimeType: 'text/plain',
     buffer: Buffer.from('system resource proof')
   });
-  await expect(page.getByText('system-resource-proof.txt', { exact: true })).toBeVisible();
-  await page.getByRole('dialog', { name: '上传文件' }).getByRole('button', { name: '确 定' }).click();
+  await expect(uploadDialog.getByText('system-resource-proof.txt', { exact: true })).toBeVisible();
+  await uploadDialog.getByRole('button', { name: '确 定' }).click();
   await expect(page.getByText('system-resource-proof.txt', { exact: true }).first()).toBeVisible();
   expect(state.uploadTransfers).toEqual(['PUT /system-resource-proof.txt']);
 

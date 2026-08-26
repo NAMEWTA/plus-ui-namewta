@@ -5,21 +5,23 @@ const clientUrl = process.env.CLIENT_WEB_URL ?? 'http://127.0.0.1:4174';
 const adminClientId = 'e5cd7e4891bf95d1d19206ce24a7b32e';
 
 const menus = [
-  { path: '/system-dict', name: 'SystemDictProof', component: 'system/dict/index', meta: { title: '字典管理' } },
-  { path: '/system-config', name: 'SystemConfigProof', component: 'system/config/index', meta: { title: '参数设置' } },
-  { path: '/system-notice', name: 'SystemNoticeProof', component: 'system/notice/index', meta: { title: '通知公告' } },
-  { path: '/system-oss', name: 'SystemOssProof', component: 'system/oss/index', meta: { title: '文件管理' } },
   {
-    path: '/system-oss-config',
-    name: 'SystemOssConfigProof',
-    component: 'system/oss/config',
-    meta: { title: 'OSS配置' }
-  },
-  {
-    path: '/system-profile',
-    name: 'SystemProfileProof',
-    component: 'system/user/profile/index',
-    meta: { title: '个人中心' }
+    path: '/system',
+    name: 'SystemResourceProof',
+    component: 'Layout',
+    meta: { title: '系统管理' },
+    children: [
+      { path: 'dict', name: 'SystemDictProof', component: 'system/dict/index', meta: { title: '字典管理' } },
+      { path: 'config', name: 'SystemConfigProof', component: 'system/config/index', meta: { title: '参数设置' } },
+      { path: 'notice', name: 'SystemNoticeProof', component: 'system/notice/index', meta: { title: '通知公告' } },
+      { path: 'oss', name: 'SystemOssProof', component: 'system/oss/index', meta: { title: '文件管理' } },
+      {
+        path: 'oss-config/index',
+        name: 'SystemOssConfigProof',
+        component: 'system/oss/config',
+        meta: { title: 'OSS配置' }
+      }
+    ]
   }
 ];
 
@@ -229,17 +231,17 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
   ]);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'system-resource-proof'));
 
-  await page.goto(`${adminUrl}/system-dict`);
+  await page.goto(`${adminUrl}/system/dict`);
   await expect(page.getByRole('heading', { name: '字典管理' })).toBeVisible();
   await expect(page.getByText('资源状态', { exact: true })).toBeVisible();
   await page.locator('.message-trigger').click();
   await expect(page.getByText('系统资源消息', { exact: true })).toBeVisible();
 
-  await page.goto(`${adminUrl}/system-config`);
+  await page.goto(`${adminUrl}/system/config`);
   await expect(page.getByRole('heading', { name: '参数列表' })).toBeVisible();
   await expect(page.getByText('site.name', { exact: true })).toBeVisible();
 
-  await page.goto(`${adminUrl}/system-oss`);
+  await page.goto(`${adminUrl}/system/oss`);
   await expect(page.getByRole('heading', { name: '文件列表' })).toBeVisible();
   await expect(page.getByText('proof.txt', { exact: true }).first()).toBeVisible();
   const download = page.waitForEvent('download');
@@ -286,7 +288,7 @@ test('resource permission denial hides mutations and a Client query failure neve
   await installApi(page, state, ['system:config:list']);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'system-resource-denied'));
 
-  await page.goto(`${adminUrl}/system-config`);
+  await page.goto(`${adminUrl}/system/config`);
   await expect(page.getByText('当前 Client 参数查询失败', { exact: true })).toBeVisible();
   await expect(page.getByText('site.name', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '新增' })).toHaveCount(0);
@@ -307,13 +309,15 @@ test('social list is rendered and binding/unlock failures remain Client scoped a
   await installApi(page, state, []);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'system-social-proof'));
 
-  await page.goto(`${adminUrl}/system-profile`);
+  await page.goto(`${adminUrl}/user/profile`);
   await page.getByRole('tab', { name: '第三方应用' }).click();
   await expect(page.getByText('github', { exact: true })).toBeVisible();
   await page.getByTitle('使用 GitHub 账号授权登录').click();
   await expect(page.getByText('当前 Client 社交账号服务不可用', { exact: true })).toBeVisible();
   await page.locator('.profile-auth-table tbody tr').filter({ hasText: 'github' }).getByRole('button').click();
-  await page.getByRole('dialog', { name: '提示' }).getByRole('button', { name: '确定' }).click();
+  const unlockDialog = page.getByRole('dialog').filter({ hasText: '解除"github"的账号绑定' });
+  await expect(unlockDialog).toBeVisible();
+  await unlockDialog.getByRole('button', { name: '确定' }).click();
   await expect(page.getByText('当前 Client 社交账号服务不可用', { exact: true })).toBeVisible();
 
   expect(

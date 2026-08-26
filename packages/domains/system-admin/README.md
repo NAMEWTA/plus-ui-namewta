@@ -2,17 +2,19 @@
 
 ## Status
 
-- `active`: T-10 owns the Client, user, user-type, role, menu, department, and post governance slices.
+- `active`: T-10 activated governance; T-11 adds dictionary, configuration, notice, OSS, OSS configuration, message, and social-resource contracts.
 
 ## Responsibilities
 
-- Own Client/user/user-type/role/menu/department/post governance services and models.
+- Own Client/user/user-type/role/menu/department/post governance and resource/content services and models.
+- Validate backend-issued OSS and presigned upload URLs at the domain boundary before browser code can consume them.
 - Preserve the T-09 workflow-safe public user-query seam without widening its projected user data.
+- Provide minimal public dictionary and menu query ports with projected stable fields and explicit Client scope.
 
 ## Non-responsibilities
 
 - It does not own current-session authentication, global route guards, Vue administration pages, workflow rules, or code-generator behavior.
-- Dictionary, configuration, notice, OSS, message, and social-resource administration remain reserved for T-11.
+- It does not perform browser upload/download, render HTML, own OSS credentials, or log tokens, signed URLs, request headers, or response objects.
 
 ## Allowed dependencies
 
@@ -24,12 +26,13 @@
 
 ## Public entrypoints
 
-- `@namewta/domain-system-admin` exports the seven governance services/models and the domain capability descriptor.
+- `@namewta/domain-system-admin` exports governance/resource services and models plus the domain capability descriptor.
+- `@namewta/domain-system-admin/public/dict` and `/public/menu` expose projected cross-domain query ports without administration internals.
 - `@namewta/domain-system-admin/public/user` exports minimal workflow-safe user summaries and an injected `UserQueryPort`; list and option responses are projected at runtime so extra user/PII fields cannot cross the seam.
 
 ## Backend modules
 
-- `backendModules: [ruoyi-system]` for the active governance endpoints.
+- `backendModules: [ruoyi-system]` for `/system/**`, `/resource/**`, and the existing social-auth bindings.
 
 ## Activation conditions
 
@@ -38,4 +41,4 @@
 
 ## Validation
 
-- Transport matrix tests lock all existing paths and methods; public-seam tests prove projection; manifest/E2E tests cover selected-only registration, permissions, Client-scoped failures, and dual-App behavior.
+- Transport matrix tests lock all existing paths and methods; public seams prove projection and Client-scoped failure propagation; security tests reject unsafe OSS URLs without retaining secrets.

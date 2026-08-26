@@ -16,8 +16,11 @@ import { getActivePinia } from 'pinia';
 import { defineAsyncComponent, type Component } from 'vue';
 import WorkflowTreePanel from '@/components/TreePanel/index.vue';
 import { getToken } from '@/utils/auth';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 const WorkflowFileUpload = defineAsyncComponent(() => import('@/components/FileUpload/index.vue'));
+const SystemEditor = defineAsyncComponent(() => import('@/components/Editor/index.vue'));
+const SystemImagePreview = defineAsyncComponent(() => import('@/components/ImagePreview/index.vue'));
 
 const identityService: IdentityAccessService = {
   client: Object.freeze({ clientId: import.meta.env.VITE_APP_CLIENT_ID }),
@@ -125,6 +128,8 @@ const systemAdminService = createSystemAdminService({
 export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
   service: systemAdminService,
   treePanel: WorkflowTreePanel,
+  editor: SystemEditor,
+  imagePreview: SystemImagePreview,
   confirm: async message => {
     const { default: modal } = await import('@/plugins/modal');
     await modal.confirm(message);
@@ -140,6 +145,18 @@ export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
   },
   download: (url, params, fileName) =>
     import('@/utils/request').then(({ download }) => download(url, params, fileName)),
+  downloadOss: ossId => import('@/plugins/download').then(({ default: download }) => download.oss(ossId)),
+  dictCache: {
+    clean: () => {
+      void import('@/store/modules/dict').then(({ useDictStore }) => useDictStore().cleanDict());
+    },
+    remove: type => {
+      void import('@/store/modules/dict').then(({ useDictStore }) => useDictStore().removeDict(type));
+    }
+  },
+  sanitizeHtml,
+  replaceOssContentUrls: (html, urls) =>
+    import('@/utils/ossContent').then(({ replaceOssContentUrls }) => replaceOssContentUrls(html, urls)),
   dicts: (...types) =>
     createLiveSystemDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
   closeCurrentPage: () => import('@/plugins/tab').then(({ default: tab }) => tab.closePage()),

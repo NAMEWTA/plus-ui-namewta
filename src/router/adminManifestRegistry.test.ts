@@ -23,6 +23,8 @@ describe('admin selected manifest registry', () => {
     expect(resolveAdminWebRegistration('system/role/authUser', 'system-admin')).toMatchObject({
       componentName: 'AuthUser'
     });
-    expect(resolveAdminWebRegistration('system/oss/index', 'system-admin')).toBeUndefined();
+    expect(resolveAdminWebRegistration('system/oss/index', 'system-admin')).toMatchObject({ componentName: 'Oss' });
+    expect(resolveAdminWebRegistration('system/dict/index', 'system-admin')).toMatchObject({ componentName: 'Dict' });
+    expect(resolveAdminWebRegistration('system/devtools/index', 'system-admin')).toBeUndefined();
   });
 });

@@ -10,11 +10,17 @@ export interface SystemDictOption {
 export interface SystemAdminWebRuntime {
   service: SystemAdminService;
   treePanel: Component;
+  editor: Component;
+  imagePreview: Component;
   confirm(message: string): Promise<void>;
   success(message: string): void;
   error(message: string): void;
   warning(message: string): void;
   download(url: string, params: unknown, fileName: string): Promise<void> | void;
+  downloadOss(ossId: string | number): Promise<void> | void;
+  dictCache: { clean(): void; remove(type: string): void };
+  sanitizeHtml(value?: string): string;
+  replaceOssContentUrls(value: string, urls: Record<string, string>): Promise<string> | string;
   dicts(...types: string[]): Record<string, Readonly<Ref<SystemDictOption[]>>>;
   closeCurrentPage(): Promise<void> | void;
   closeAndOpenPage(location: RouteLocationRaw): Promise<void> | void;

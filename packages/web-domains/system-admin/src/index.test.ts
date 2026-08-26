@@ -18,7 +18,12 @@ describe('system-admin web manifest', () => {
       ['system/role/authUser', 'AuthUser'],
       ['system/menu/index', 'Menu'],
       ['system/dept/index', 'Dept'],
-      ['system/post/index', 'Post']
+      ['system/post/index', 'Post'],
+      ['system/dict/index', 'Dict'],
+      ['system/config/index', 'Config'],
+      ['system/notice/index', 'Notice'],
+      ['system/oss/index', 'Oss'],
+      ['system/oss/config', 'OssConfig']
     ]);
     expect(manifest.permissions.flatMap(item => item.permissions)).toEqual(
       expect.arrayContaining([
@@ -30,7 +35,12 @@ describe('system-admin web manifest', () => {
         'system:role:list',
         'system:menu:list',
         'system:dept:list',
-        'system:post:list'
+        'system:post:list',
+        'system:dict:list',
+        'system:config:list',
+        'system:notice:list',
+        'system:oss:download',
+        'system:ossConfig:list'
       ])
     );
   });

@@ -11,6 +11,9 @@ type TableRef<T> = {
 
 export function useLoading(initialValue = false) {
   const loading = ref(initialValue);
+  const setLoading = (value: boolean) => {
+    loading.value = value;
+  };
   const withLoading = async <T>(task: () => Promise<T>) => {
     loading.value = true;
     try {
@@ -19,7 +22,7 @@ export function useLoading(initialValue = false) {
       loading.value = false;
     }
   };
-  return { loading, withLoading };
+  return { loading, setLoading, withLoading };
 }
 
 export function useDialogState(initialTitle = '') {

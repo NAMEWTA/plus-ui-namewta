@@ -23,7 +23,12 @@ export function createSystemAdminWebDomain(runtime: SystemAdminWebRuntime): WebD
     ['system-role-auth-user', 'system/role/authUser', 'AuthUser', () => import('./views/RoleAuthUserPage.vue')],
     ['system-menu', 'system/menu/index', 'Menu', () => import('./views/MenuPage.vue')],
     ['system-dept', 'system/dept/index', 'Dept', () => import('./views/DepartmentPage.vue')],
-    ['system-post', 'system/post/index', 'Post', () => import('./views/PostPage.vue')]
+    ['system-post', 'system/post/index', 'Post', () => import('./views/PostPage.vue')],
+    ['system-dict', 'system/dict/index', 'Dict', () => import('./views/DictPage.vue')],
+    ['system-config', 'system/config/index', 'Config', () => import('./views/ConfigPage.vue')],
+    ['system-notice', 'system/notice/index', 'Notice', () => import('./views/NoticePage.vue')],
+    ['system-oss', 'system/oss/index', 'Oss', () => import('./views/OssPage.vue')],
+    ['system-oss-config', 'system/oss/config', 'OssConfig', () => import('./views/OssConfigPage.vue')]
   ] as const;
   return Object.freeze({
     id: 'web-domain-system-admin',
@@ -42,7 +47,12 @@ export function createSystemAdminWebDomain(runtime: SystemAdminWebRuntime): WebD
         role: ['list', 'query', 'add', 'edit', 'remove', 'export'],
         menu: ['list', 'query', 'add', 'edit', 'remove'],
         dept: ['list', 'query', 'add', 'edit', 'remove'],
-        post: ['list', 'query', 'add', 'edit', 'remove', 'export']
+        post: ['list', 'query', 'add', 'edit', 'remove', 'export'],
+        dict: ['list', 'query', 'add', 'edit', 'remove', 'export'],
+        config: ['list', 'query', 'add', 'edit', 'remove', 'export'],
+        notice: ['list', 'query', 'add', 'edit', 'remove'],
+        oss: ['list', 'query', 'upload', 'download', 'edit', 'remove'],
+        ossConfig: ['list', 'query', 'add', 'edit', 'remove']
       }).map(([slice, actions]) =>
         Object.freeze({
           id: `system-${slice}`,

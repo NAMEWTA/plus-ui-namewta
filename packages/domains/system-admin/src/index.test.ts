@@ -222,7 +222,22 @@ describe('system-admin transport contracts', () => {
     expect(systemAdminDomainModule).toEqual({
       id: 'system-admin',
       backendModules: ['ruoyi-system'],
-      capabilities: ['client', 'user', 'user-type', 'role', 'menu', 'department', 'post']
+      capabilities: [
+        'client',
+        'user',
+        'user-type',
+        'role',
+        'menu',
+        'department',
+        'post',
+        'dict',
+        'config',
+        'notice',
+        'oss',
+        'oss-config',
+        'message',
+        'social'
+      ]
     });
   });
 });

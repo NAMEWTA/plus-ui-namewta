@@ -9,3 +9,8 @@ export { default as SystemUserAuthRolePage } from './views/UserAuthRolePage.vue'
 export { default as SystemUserPage } from './views/UserPage.vue';
 export { default as SystemUserTypePage } from './views/UserTypePage.vue';
 export { default as SystemUserViewDrawer } from './views/UserViewDrawer.vue';
+export { default as SystemConfigPage } from './views/ConfigPage.vue';
+export { default as SystemDictPage } from './views/DictPage.vue';
+export { default as SystemNoticePage } from './views/NoticePage.vue';
+export { default as SystemOssConfigPage } from './views/OssConfigPage.vue';
+export { default as SystemOssPage } from './views/OssPage.vue';

@@ -1,56 +1,9 @@
-import type { OssDownloadUrl } from '@/api/system/oss/types';
-import type { PageResult } from '@/api/types';
-import type { AxiosPromise } from '@/utils/api-types';
-import request from '@/utils/request';
-import type { NoticeForm, NoticeQuery, NoticeVO } from './types';
-// 查询公告列表
-export function listNotice(query: NoticeQuery): AxiosPromise<PageResult<NoticeVO>> {
-  return request({
-    url: '/system/notice/list',
-    method: 'get',
-    params: query
-  });
-}
-
-// 查询公告详细
-export function getNotice(noticeId: string | number): AxiosPromise<NoticeVO> {
-  return request({
-    url: '/system/notice/' + noticeId,
-    method: 'get'
-  });
-}
-
-export function getNoticeAttachmentDownloadUrls(
-  noticeId: string | number
-): AxiosPromise<Record<string, OssDownloadUrl>> {
-  return request({
-    url: `/system/notice/${noticeId}/attachments/download-urls`,
-    method: 'get'
-  });
-}
-
-// 新增公告
-export function addNotice(data: NoticeForm) {
-  return request({
-    url: '/system/notice',
-    method: 'post',
-    data: data
-  });
-}
-
-// 修改公告
-export function updateNotice(data: NoticeForm) {
-  return request({
-    url: '/system/notice',
-    method: 'put',
-    data: data
-  });
-}
-
-// 删除公告
-export function delNotice(noticeId: string | number | Array<string | number>) {
-  return request({
-    url: '/system/notice/' + noticeId,
-    method: 'delete'
-  });
-}
+import type { NoticeForm, NoticeQuery } from './types';
+import { systemAdminService } from '../client/runtime';
+const service = systemAdminService.resources.notices;
+export const listNotice = (query: NoticeQuery) => service.list(query);
+export const getNotice = (id: string | number) => service.get(id);
+export const getNoticeAttachmentDownloadUrls = (id: string | number) => service.attachmentUrls(id);
+export const addNotice = (data: NoticeForm) => service.add(data);
+export const updateNotice = (data: NoticeForm) => service.update(data);
+export const delNotice = (ids: string | number | Array<string | number>) => service.delete(ids);

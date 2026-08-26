@@ -2,16 +2,17 @@
 
 ## Status
 
-- `active`: T-10 provides the Client, user, user-type, role, menu, department, and post administration pages.
+- `active`: T-10 provides governance pages; T-11 adds dictionary, configuration, notice, OSS, and OSS-configuration pages.
 
 ## Responsibilities
 
-- Provide Vue administration pages, local components/composables, and manifest entries for the seven active governance slices.
+- Provide Vue administration pages, local components/composables, and manifest entries for governance and resource/content slices.
+- Consume editor, image preview, dictionary cache, OSS download, and HTML sanitization only through typed host runtime ports.
 
 ## Non-responsibilities
 
 - It does not own system application services, global shell/layout, current-session authentication, workflow UI, or backend authorization.
-- The current-session profile remains a host-owned static route; configuration, content, OSS, messages, and social-resource pages remain reserved for T-11.
+- The current-session profile remains a host-owned static route. Message-box and social-binding transports have no standalone backend menu page and therefore remain domain services rather than invented registrations.
 
 ## Allowed dependencies
 
@@ -27,7 +28,7 @@
 
 ## Backend modules
 
-- `backendModules: [ruoyi-system]`, inherited from the seven active governance capabilities.
+- `backendModules: [ruoyi-system]`, including existing `/system/**` and `/resource/**` administration controllers.
 
 ## Activation conditions
 
@@ -35,4 +36,4 @@
 
 ## Validation
 
-- Require page/manifest governance paths, permission and Client failure cases, selected-only registration, lint, typecheck, architecture checks, and dual-App builds.
+- Require exact component-key/permission manifest tests, selected-only registration, resource transport/security tests, lint, typecheck, architecture checks, and Lead-run browser evidence. Legacy root API/view paths remain compatibility facades until T-15.

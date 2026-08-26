@@ -15,6 +15,7 @@ import type { MenuForm, MenuQuery, MenuTreeOption, MenuVO, RoleMenuTree } from '
 import type { DeptForm, DeptQuery, DeptTreeVO, DeptVO } from './organization/department/types';
 import type { PostForm, PostQuery, PostVO } from './organization/post/types';
 import { createUserQueryPort, type UserQueryPort } from '../public/user/index';
+import { createSystemAdminResourceService, type SystemAdminResourceService } from './resources/index';
 
 export type { ClientForm, ClientQuery, ClientVO } from './identity/client/types';
 export type { DeptTreeOption, RoleDeptTree, RoleForm, RoleQuery, RoleVO } from './identity/role/types';
@@ -40,6 +41,7 @@ export type {
 } from './menu/types';
 export type { DeptForm, DeptQuery, DeptTreeVO, DeptVO } from './organization/department/types';
 export type { PostForm, PostQuery, PostVO } from './organization/post/types';
+export * from './resources/index';
 
 export type Identifier = string | number;
 export type IdentifierList = Identifier | readonly Identifier[];
@@ -73,6 +75,7 @@ const segment = (value: IdentifierList) =>
   (Array.isArray(value) ? value : [value]).map(item => encodeURIComponent(String(item))).join(',');
 
 export interface SystemAdminService {
+  readonly resources: SystemAdminResourceService;
   readonly publicUsers: UserQueryPort;
   readonly users: {
     list(query: UserQuery): Promise<ApiResponse<PageResult<UserVO>>>;
@@ -147,7 +150,22 @@ interface CrudService<Query, Form, View, ListArgs extends [query?: Query] | [que
 export const systemAdminDomainModule: DomainModule = Object.freeze({
   id: 'system-admin',
   backendModules: Object.freeze(['ruoyi-system']),
-  capabilities: Object.freeze(['client', 'user', 'user-type', 'role', 'menu', 'department', 'post'])
+  capabilities: Object.freeze([
+    'client',
+    'user',
+    'user-type',
+    'role',
+    'menu',
+    'department',
+    'post',
+    'dict',
+    'config',
+    'notice',
+    'oss',
+    'oss-config',
+    'message',
+    'social'
+  ])
 });
 
 export function createSystemAdminService(http: HttpClient): SystemAdminService {
@@ -197,6 +215,7 @@ export function createSystemAdminService(http: HttpClient): SystemAdminService {
       request<RoleDeptTree>({ url: '/system/role/deptTree/' + segment(id), method: 'get' })
   });
   return Object.freeze({
+    resources: createSystemAdminResourceService(http),
     clients,
     publicUsers,
     userTypes,

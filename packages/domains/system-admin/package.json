@@ -5,6 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./public/dict": "./public/dict/index.ts",
+    "./public/menu": "./public/menu/index.ts",
     "./public/user": "./public/user/index.ts"
   },
   "scripts": {

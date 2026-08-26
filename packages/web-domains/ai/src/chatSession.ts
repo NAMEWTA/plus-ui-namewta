@@ -28,13 +28,7 @@ function parseSameOriginBasePath(input: unknown): string | undefined {
   if (!candidate.startsWith('/') || candidate.startsWith('//')) return undefined;
   try {
     const parsed = new URL(candidate, parserOrigin);
-    if (
-      parsed.origin !== parserOrigin ||
-      parsed.username ||
-      parsed.password ||
-      parsed.search ||
-      parsed.hash
-    ) {
+    if (parsed.origin !== parserOrigin || parsed.username || parsed.password || parsed.search || parsed.hash) {
       return undefined;
     }
     const normalized = parsed.pathname.replace(/\/+$/, '');
@@ -57,6 +51,7 @@ export function createAiChatSession(
   const runtime = requireAiWebRuntime(runtimeInput);
   let attempt = 0;
   let activeProbe: AbortController | undefined;
+  let cancelProbeWait: (() => void) | undefined;
   let disposed = false;
   let frameTimer: ReturnType<typeof setTimeout> | undefined;
   let state: AiChatSnapshot = { error: '', frameUrl: '', loading: false };
@@ -75,6 +70,8 @@ export function createAiChatSession(
   const cancelPending = () => {
     activeProbe?.abort();
     activeProbe = undefined;
+    cancelProbeWait?.();
+    cancelProbeWait = undefined;
     clearFrameTimer();
   };
 
@@ -115,22 +112,50 @@ export function createAiChatSession(
         const frameUrl = createFrameUrl(basePath, openId, credential);
         const probe = new AbortController();
         activeProbe = probe;
-        try {
-          await runtime.probeFrame({ signal: probe.signal, url: frameUrl });
-        } catch {
-          if (disposed || currentAttempt !== attempt) return;
-          replaceState({ error: frameFailureMessage, frameUrl: '', loading: false });
-          return;
-        } finally {
-          if (activeProbe === probe) activeProbe = undefined;
-        }
-        if (disposed || currentAttempt !== attempt) return;
+        let settleProbeWait!: (outcome: 'cancelled' | 'timeout') => void;
+        const lifecycleTimeout = new Promise<'cancelled' | 'timeout'>(resolve => {
+          settleProbeWait = resolve;
+        });
+        const cancelCurrentProbeWait = () => settleProbeWait('cancelled');
+        cancelProbeWait = cancelCurrentProbeWait;
         frameTimer = setTimeout(() => {
-          if (disposed || currentAttempt !== attempt || !state.frameUrl) return;
+          if (disposed || currentAttempt !== attempt) {
+            settleProbeWait('cancelled');
+            return;
+          }
+          if (activeProbe === probe) {
+            probe.abort();
+            activeProbe = undefined;
+          }
+          if (cancelProbeWait === cancelCurrentProbeWait) cancelProbeWait = undefined;
           ++attempt;
           replaceState({ error: frameFailureMessage, frameUrl: '', loading: false });
           frameTimer = undefined;
+          settleProbeWait('timeout');
         }, frameLoadTimeoutMs);
+
+        const probeOutcome = await Promise.race([
+          Promise.resolve()
+            .then(() => runtime.probeFrame({ signal: probe.signal, url: frameUrl }))
+            .then(
+              () => 'success' as const,
+              () => 'failure' as const
+            ),
+          lifecycleTimeout
+        ]);
+        if (cancelProbeWait === cancelCurrentProbeWait) cancelProbeWait = undefined;
+        if (activeProbe === probe) activeProbe = undefined;
+        if (probeOutcome === 'cancelled' || probeOutcome === 'timeout') return;
+        if (probeOutcome === 'failure') {
+          clearFrameTimer();
+          if (disposed || currentAttempt !== attempt) return;
+          replaceState({ error: frameFailureMessage, frameUrl: '', loading: false });
+          return;
+        }
+        if (disposed || currentAttempt !== attempt) {
+          clearFrameTimer();
+          return;
+        }
         replaceState({ error: '', frameUrl, loading: true });
       } catch {
         if (disposed || currentAttempt !== attempt) return;

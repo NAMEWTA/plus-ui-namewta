@@ -57,10 +57,59 @@ describe('admin selected manifest registry', () => {
     new Response('down', { status: 503, headers: { 'content-type': 'text/html' } }),
     new Response('{}', { headers: { 'content-type': 'application/json' } })
   ])('fails closed when the chat probe is not a successful HTML document', async response => {
-    vi.stubGlobal('fetch', vi.fn(async () => response));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => response)
+    );
 
     await expect(
       adminAiWebRuntime.probeFrame({ signal: new AbortController().signal, url: '/prod-api/snail-chat/' })
     ).rejects.toThrow('AI chat probe failed');
+  });
+
+  it.each([
+    { bodyUsed: false, locked: false, outcome: 'success' as const, shouldCancel: true },
+    { bodyUsed: false, locked: false, outcome: 'failure' as const, shouldCancel: true },
+    { bodyUsed: false, locked: true, outcome: 'success' as const, shouldCancel: false },
+    { bodyUsed: true, locked: false, outcome: 'success' as const, shouldCancel: false }
+  ])('releases only unread and unlocked probe bodies: $outcome/$bodyUsed/$locked', async entry => {
+    const cancel = vi.fn(async () => undefined);
+    const response = {
+      body: { cancel, locked: entry.locked },
+      bodyUsed: entry.bodyUsed,
+      headers: new Headers({ 'content-type': 'text/html' }),
+      ok: entry.outcome === 'success'
+    } as unknown as Response;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => response)
+    );
+
+    const result = adminAiWebRuntime.probeFrame({
+      signal: new AbortController().signal,
+      url: '/prod-api/snail-chat/'
+    });
+    if (entry.outcome === 'success') await expect(result).resolves.toBeUndefined();
+    else await expect(result).rejects.toThrow('AI chat probe failed');
+    expect(cancel).toHaveBeenCalledTimes(entry.shouldCancel ? 1 : 0);
+  });
+
+  it('accepts a successful probe without a response body', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          ({
+            body: null,
+            bodyUsed: false,
+            headers: new Headers({ 'content-type': 'text/html' }),
+            ok: true
+          }) as Response
+      )
+    );
+
+    await expect(
+      adminAiWebRuntime.probeFrame({ signal: new AbortController().signal, url: '/prod-api/snail-chat/' })
+    ).resolves.toBeUndefined();
   });
 });

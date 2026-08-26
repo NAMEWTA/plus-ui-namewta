@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createAiChatSession, type AiChatSnapshot } from './chatSession';
 import type { AiWebRuntime } from './runtime';
+import { createAiChatSession, type AiChatSnapshot } from './chatSession';
 
 const runtime = (overrides: Partial<AiWebRuntime> = {}): AiWebRuntime => ({
   baseUrl: () => '/prod-api',
@@ -55,28 +55,30 @@ describe('AI embedded chat lifecycle', () => {
     });
   });
 
-  it.each(['https://attacker.example/prod-api', '//attacker.example/prod-api', '/prod-api?target=other', 'javascript:alert(1)'])(
-    'fails closed before registration for an untrusted base URL: %s',
-    async baseUrl => {
-      const snapshots: AiChatSnapshot[] = [];
-      const register = vi.fn();
-      const probeFrame = vi.fn();
-      const session = createAiChatSession(
-        runtime({ baseUrl: () => baseUrl, probeFrame, service: { registerCurrentSnailUser: register } }),
-        snapshot => snapshots.push(snapshot)
-      );
+  it.each([
+    'https://attacker.example/prod-api',
+    '//attacker.example/prod-api',
+    '/prod-api?target=other',
+    'javascript:alert(1)'
+  ])('fails closed before registration for an untrusted base URL: %s', async baseUrl => {
+    const snapshots: AiChatSnapshot[] = [];
+    const register = vi.fn();
+    const probeFrame = vi.fn();
+    const session = createAiChatSession(
+      runtime({ baseUrl: () => baseUrl, probeFrame, service: { registerCurrentSnailUser: register } }),
+      snapshot => snapshots.push(snapshot)
+    );
 
-      await session.load();
+    await session.load();
 
-      expect(register).not.toHaveBeenCalled();
-      expect(probeFrame).not.toHaveBeenCalled();
-      expect(snapshots.at(-1)).toEqual({
-        error: 'AI 服务地址不存在，请联系管理员',
-        frameUrl: '',
-        loading: false
-      });
-    }
-  );
+    expect(register).not.toHaveBeenCalled();
+    expect(probeFrame).not.toHaveBeenCalled();
+    expect(snapshots.at(-1)).toEqual({
+      error: 'AI 服务地址不存在，请联系管理员',
+      frameUrl: '',
+      loading: false
+    });
+  });
 
   it('fails closed before registration when the trusted credential is missing', async () => {
     const snapshots: AiChatSnapshot[] = [];
@@ -101,10 +103,7 @@ describe('AI embedded chat lifecycle', () => {
       .fn()
       .mockRejectedValueOnce(new Error('registration transport with sensitive context'))
       .mockResolvedValueOnce({ code: 200, data: {} });
-    const session = createAiChatSession(
-      runtime({ service: { registerCurrentSnailUser: register } }),
-      vi.fn()
-    );
+    const session = createAiChatSession(runtime({ service: { registerCurrentSnailUser: register } }), vi.fn());
 
     await session.load();
     expect(session.snapshot()).toEqual({
@@ -197,6 +196,41 @@ describe('AI embedded chat lifecycle', () => {
       frameUrl: '',
       loading: false
     });
+  });
+
+  it('aborts a hanging probe on timeout and allows an immediate successful retry', async () => {
+    vi.useFakeTimers();
+    let hangingSignal!: AbortSignal;
+    const probeFrame = vi
+      .fn<AiWebRuntime['probeFrame']>()
+      .mockImplementationOnce(({ signal }) => {
+        hangingSignal = signal;
+        return new Promise<void>(() => undefined);
+      })
+      .mockResolvedValueOnce(undefined);
+    const register = vi.fn(async () => ({ code: 200, data: { openId: 'retry-user' } }));
+    const session = createAiChatSession(
+      runtime({ probeFrame, service: { registerCurrentSnailUser: register } }),
+      vi.fn()
+    );
+
+    const timedOutLoad = session.load();
+    await vi.advanceTimersByTimeAsync(15000);
+    await timedOutLoad;
+
+    expect(hangingSignal.aborted).toBe(true);
+    expect(session.snapshot()).toEqual({
+      error: 'AI 聊天连接中断，请重新加载',
+      frameUrl: '',
+      loading: false
+    });
+
+    await session.load();
+    expect(register).toHaveBeenCalledTimes(2);
+    expect(probeFrame).toHaveBeenCalledTimes(2);
+    expect(session.snapshot().frameUrl).not.toBe('');
+    session.frameLoaded();
+    expect(session.snapshot().loading).toBe(false);
   });
 
   it('does not let a stale registration overwrite a newer retry', async () => {

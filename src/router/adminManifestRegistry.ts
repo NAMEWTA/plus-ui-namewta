@@ -27,13 +27,29 @@ const aiService = createAiService({
     return request(config) as Promise<T>;
   }
 });
+
+async function cancelUnreadResponseBody(response: Response | undefined): Promise<void> {
+  const body = response?.body;
+  if (!body || response.bodyUsed || body.locked) return;
+  try {
+    await body.cancel();
+  } catch {
+    // Probe outcome must not be replaced by a best-effort transport cleanup failure.
+  }
+}
+
 export const adminAiWebRuntime: AiWebRuntime = {
   baseUrl: () => import.meta.env.VITE_APP_BASE_API,
   probeFrame: async ({ signal, url }) => {
-    const response = await fetch(url, { credentials: 'same-origin', method: 'GET', redirect: 'error', signal });
-    const contentType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
-    if (!response.ok || (contentType !== 'text/html' && contentType !== 'application/xhtml+xml')) {
-      throw new Error('AI chat probe failed');
+    let response: Response | undefined;
+    try {
+      response = await fetch(url, { credentials: 'same-origin', method: 'GET', redirect: 'error', signal });
+      const contentType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
+      if (!response.ok || (contentType !== 'text/html' && contentType !== 'application/xhtml+xml')) {
+        throw new Error('AI chat probe failed');
+      }
+    } finally {
+      await cancelUnreadResponseBody(response);
     }
   },
   service: aiService,

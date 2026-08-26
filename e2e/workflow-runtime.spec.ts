@@ -458,7 +458,9 @@ async function loginToTask(page: Page, state: RuntimeState) {
   await page.getByRole('button', { name: '办理', exact: true }).click();
   await expect(page).toHaveURL(/\/workflow\/leaveEdit\/index\?.*taskId=task-1/);
   await expect(page).toHaveURL(/type=approval/);
-  await expect(page.getByText('原始请假原因', { exact: true })).toBeVisible();
+  await expect(page.locator('.el-form-item').filter({ hasText: '请假原因' }).getByRole('textbox')).toHaveValue(
+    '原始请假原因'
+  );
   await expect(page.getByRole('button', { name: '保存', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '提交审批', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '后端发起', exact: true })).toHaveCount(0);
@@ -654,7 +656,7 @@ test('all-task runtime separates finished work and sends exact urge payload', as
   await page.locator('.submit-button').click();
   await expect(page.getByRole('cell', { name: '受限任务' })).toBeVisible();
   await page.getByRole('button', { name: '催办', exact: true }).click();
-  await page.getByRole('dialog', { name: '任务催办' }).getByRole('checkbox', { name: '邮件' }).check();
+  await page.getByRole('dialog', { name: '任务催办' }).locator('label.el-checkbox').filter({ hasText: '邮件' }).click();
   await page.getByPlaceholder('请输入催办消息').fill('请在今天完成');
   await page.getByRole('dialog', { name: '任务催办' }).getByRole('button', { name: '确定', exact: true }).click();
   await expect
@@ -855,7 +857,7 @@ test('leave add calculates days, starts workflow and closes after task completio
   await expect(page).toHaveURL(/\/workflow\/leaveEdit\/index\?type=add$/);
 
   const leaveType = page.locator('.el-form-item').filter({ hasText: '请假类型' });
-  await leaveType.getByRole('combobox').click();
+  await leaveType.locator('.el-select__wrapper').click();
   await page.getByRole('option', { name: '事假', exact: true }).click();
   await page.getByPlaceholder('开始时间').fill('2026-09-01 09:00:00');
   await page.getByPlaceholder('开始时间').press('Tab');

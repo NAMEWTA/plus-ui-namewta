@@ -22,7 +22,7 @@
 
 ## Public entrypoints
 
-- `@namewta/domain-system-admin/public/user` exports minimal workflow-safe user summaries and an injected `UserQueryPort`.
+- `@namewta/domain-system-admin/public/user` exports minimal workflow-safe user summaries and an injected `UserQueryPort`; list and option responses are projected at runtime so extra user/PII fields cannot cross the seam.
 
 ## Backend modules
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Require domain/API tests, public-seam contract tests, no-cycle/deep-import checks, OSS/security regressions, lint, typecheck, and dual-App builds.
+- Public-seam tests feed wider backend user objects and prove list/options retain only UserSummary fields; architecture, lint, typecheck, and dual-App builds retain the headless boundary.

@@ -6,6 +6,13 @@ import { requireWorkflowWebRuntime } from './runtime';
 export { createLiveWorkflowDictRefs } from './runtime';
 export type { WorkflowDictOption, WorkflowDictSource, WorkflowWebRuntime } from './runtime';
 export { default as WorkflowUserSelect } from './components/UserSelect.vue';
+export {
+  createFlowInvalidPayload,
+  createUrgePayload,
+  isCancellableLeaveStatus,
+  isEditableLeaveStatus
+} from './runtime-actions';
+export { mergeUserSelection, normalizeUserIds } from './user-selection';
 
 async function runtimeView(
   name: string,
@@ -78,7 +85,11 @@ export function createWorkflowWebDomain(runtimeInput: WorkflowWebRuntime | undef
           'workflow:instance:list',
           'workflow:instance:currentList',
           'workflow:instance:remove',
-          'workflow:instance:invalid'
+          'workflow:instance:invalid',
+          'workflow:instance:active',
+          'workflow:instance:query',
+          'workflow:instance:variable',
+          'workflow:instance:variableQuery'
         ])
       }),
       Object.freeze({

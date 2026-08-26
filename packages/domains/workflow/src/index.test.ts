@@ -119,7 +119,8 @@ describe('workflow definition transport contract', () => {
     await service.operateTask(data, 'transferTask');
     await service.currentTaskUsers('task/1');
     await service.getNextNodes(data);
-    await service.urgeTask(data);
+    const urge = { taskIdList: ['task/1'], message: '请尽快办理' };
+    await service.urgeTask(urge);
     await service.pageRunningInstances(query);
     await service.pageFinishedInstances(query);
     await service.pageCurrentInstances(query);
@@ -128,7 +129,9 @@ describe('workflow definition transport contract', () => {
     await service.instanceVariables('instance/1');
     await service.deleteInstances(['instance/1', 'instance 2']);
     await service.deleteHistoricInstances('instance/1');
-    await service.invalidateInstance(data);
+    const invalid = { id: 'instance/1', comment: '业务撤回' };
+    await service.invalidateInstance(invalid);
+    await service.setInstanceActive('instance/1', false);
     await service.updateInstanceVariables(data);
     await service.listLeaves(query);
     await service.getLeave('leave/1');
@@ -163,6 +166,7 @@ describe('workflow definition transport contract', () => {
       'delete /workflow/instance/deleteByInstanceIds/instance%2F1,instance%202',
       'delete /workflow/instance/deleteHisByInstanceIds/instance%2F1',
       'post /workflow/instance/invalid',
+      'put /workflow/instance/active/instance%2F1',
       'put /workflow/instance/updateVariable',
       'get /workflow/leave/list',
       'get /workflow/leave/leave%2F1',
@@ -171,5 +175,7 @@ describe('workflow definition transport contract', () => {
       'put /workflow/leave',
       'delete /workflow/leave/leave%2F1,leave%202'
     ]);
+    expect(requests.find(request => request.url === '/workflow/task/urgeTask')?.data).toEqual(urge);
+    expect(requests.find(request => request.url === '/workflow/instance/invalid')?.data).toEqual(invalid);
   });
 });

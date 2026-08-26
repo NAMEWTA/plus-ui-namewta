@@ -165,6 +165,8 @@ export interface WorkflowInstance extends BaseEntity {
   flowName: string;
   flowStatus: string;
   flowStatusName: string;
+  formCustom?: string;
+  formPath?: string;
   flowTaskList: WorkflowTask[];
   id: string | number;
   version: string;
@@ -206,6 +208,14 @@ export interface LeaveQuery extends PageQuery {
 }
 
 export type WorkflowPayload = Record<string, unknown>;
+export interface FlowInvalidPayload {
+  comment: string;
+  id: string | number;
+}
+export interface UrgeTaskPayload {
+  message: string;
+  taskIdList: (string | number)[];
+}
 
 type Identifier = string | number;
 type IdentifierList = Identifier | readonly Identifier[];
@@ -253,7 +263,7 @@ export interface WorkflowDefinitionService {
   operateTask(data: WorkflowPayload, operation: string): Promise<ApiResponse>;
   currentTaskUsers(taskId: Identifier): Promise<ApiResponse<UserSummary[]>>;
   getNextNodes(data: WorkflowPayload): Promise<ApiResponse<Record<string, unknown>[]>>;
-  urgeTask(data: WorkflowPayload): Promise<ApiResponse>;
+  urgeTask(data: UrgeTaskPayload): Promise<ApiResponse>;
   pageRunningInstances(query: InstanceQuery): Promise<ApiResponse<PageResult<WorkflowInstance>>>;
   pageFinishedInstances(query: InstanceQuery): Promise<ApiResponse<PageResult<WorkflowInstance>>>;
   pageCurrentInstances(query: InstanceQuery): Promise<ApiResponse<PageResult<WorkflowInstance>>>;
@@ -262,7 +272,8 @@ export interface WorkflowDefinitionService {
   instanceVariables(instanceId: Identifier): Promise<ApiResponse<Record<string, unknown>>>;
   deleteInstances(instanceIds: IdentifierList): Promise<ApiResponse>;
   deleteHistoricInstances(instanceIds: IdentifierList): Promise<ApiResponse>;
-  invalidateInstance(data: WorkflowPayload): Promise<ApiResponse>;
+  invalidateInstance(data: FlowInvalidPayload): Promise<ApiResponse>;
+  setInstanceActive(id: Identifier, active: boolean): Promise<ApiResponse>;
   updateInstanceVariables(data: WorkflowPayload): Promise<ApiResponse>;
   listLeaves(query?: LeaveQuery): Promise<ApiResponse<PageResult<LeaveRecord>>>;
   getLeave(id: Identifier): Promise<ApiResponse<LeaveRecord>>;
@@ -373,6 +384,8 @@ export function createWorkflowDefinitionService(http: HttpClient): WorkflowDefin
     deleteHistoricInstances: instanceIds =>
       request({ url: '/workflow/instance/deleteHisByInstanceIds/' + segment(instanceIds), method: 'delete' }),
     invalidateInstance: data => request({ url: '/workflow/instance/invalid', method: 'post', data }),
+    setInstanceActive: (id, active) =>
+      request({ url: '/workflow/instance/active/' + segment(id), method: 'put', params: { active } }),
     updateInstanceVariables: data => request({ url: '/workflow/instance/updateVariable', method: 'put', data }),
     listLeaves: query =>
       request<PageResult<LeaveRecord>>({ url: '/workflow/leave/list', method: 'get', params: query }),

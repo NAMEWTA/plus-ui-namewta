@@ -1,3 +1,4 @@
+import type { FlowInvalidPayload } from '@namewta/domain-workflow';
 import type { FlowInstanceQuery } from './types';
 import { workflowService } from '../runtime';
 
@@ -11,5 +12,5 @@ export const deleteByInstanceIds = (ids: string | number | readonly (string | nu
   workflowService.deleteInstances(ids);
 export const deleteHisByInstanceIds = (ids: string | number | readonly (string | number)[]) =>
   workflowService.deleteHistoricInstances(ids);
-export const invalid = (data: Record<string, unknown>) => workflowService.invalidateInstance(data);
+export const invalid = (data: FlowInvalidPayload) => workflowService.invalidateInstance(data);
 export const updateVariable = (data: Record<string, unknown>) => workflowService.updateInstanceVariables(data);

@@ -4,10 +4,17 @@
       <template #header>请假申请</template>
       <el-alert v-if="failure" :title="failure" type="error" show-icon :closable="false" />
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+        <el-form-item v-if="routeType === 'add'" label="流程定义">
+          <el-select v-model="flowCode">
+            <el-option v-for="item in flowCodes" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="请假类型" prop="leaveType">
           <el-select v-model="form.leaveType" :disabled="readonly">
             <el-option label="事假" value="1" />
-            <el-option label="病假" value="2" />
+            <el-option label="调休" value="2" />
+            <el-option label="病假" value="3" />
+            <el-option label="婚假" value="4" />
           </el-select>
         </el-form-item>
         <el-form-item label="开始日期" prop="startDate">
@@ -26,8 +33,11 @@
       <div v-if="!readonly" class="actions">
         <el-button :loading="saving" @click="save">保存</el-button>
         <el-button type="primary" :loading="saving" @click="submit">提交审批</el-button>
+        <el-button v-if="routeType === 'add'" type="success" :loading="saving" @click="submitDirect">
+          后端发起
+        </el-button>
       </div>
-      <template v-if="taskId && !readonly">
+      <template v-if="effectiveTaskId && (routeType === 'approval' || startedTaskId)">
         <el-divider content-position="left">审批办理</el-divider>
         <el-form label-width="100px">
           <el-form-item label="审批意见"><el-input v-model="approvalMessage" type="textarea" /></el-form-item>
@@ -67,7 +77,19 @@ const props = defineProps<{ runtime: WorkflowWebRuntime }>();
 const route = useRoute();
 const id = computed(() => String(route.query.id ?? ''));
 const taskId = computed(() => String(route.query.taskId ?? ''));
+const startedTaskId = ref('');
+const effectiveTaskId = computed(() => taskId.value || startedTaskId.value);
+const routeType = computed(() => String(route.query.type ?? 'add'));
 const readonly = computed(() => route.query.type === 'view');
+const flowCode = ref('leave1');
+const flowCodes = [
+  { value: 'leave1', label: '请假申请-普通' },
+  { value: 'leave2', label: '请假申请-条件' },
+  { value: 'leave3', label: '请假申请-会签' },
+  { value: 'leave4', label: '请假申请-票签' },
+  { value: 'leave5', label: '请假申请-并行会签' },
+  { value: 'leave6', label: '请假申请-排他并行会签' }
+];
 const formRef = ref<{ validate: () => Promise<boolean> }>();
 const form = reactive<LeaveForm>({ leaveType: '', startDate: '', endDate: '', leaveDays: 1, remark: '' });
 const rules = {
@@ -97,35 +119,50 @@ async function load() {
     failure.value = error instanceof Error ? error.message : '请假详情加载失败';
   }
 }
-async function persist(submitFlow: boolean) {
+async function persist(action: 'draft' | 'start' | 'direct') {
   await formRef.value?.validate();
   saving.value = true;
   failure.value = '';
   try {
-    const response = submitFlow
-      ? await props.runtime.service.submitLeave({ ...form })
-      : form.id
-        ? await props.runtime.service.updateLeave({ ...form })
-        : await props.runtime.service.addLeave({ ...form });
+    const response =
+      action === 'direct'
+        ? await props.runtime.service.submitLeave({ ...form })
+        : form.id
+          ? await props.runtime.service.updateLeave({ ...form })
+          : await props.runtime.service.addLeave({ ...form });
     Object.assign(form, response.data);
-    props.runtime.success(submitFlow ? '提交成功' : '保存成功');
+    if (action === 'start') {
+      if (!form.id) throw new Error('请假申请未返回业务 ID');
+      const started = await props.runtime.service.startWorkflow({
+        businessId: form.id,
+        flowCode: flowCode.value,
+        variables: { leaveDays: form.leaveDays, userList: ['1', '3', '4'] },
+        bizExt: { businessTitle: '请假申请', businessCode: form.applyCode }
+      });
+      const startedTask = (started.data as { taskId?: string | number } | undefined)?.taskId;
+      startedTaskId.value = startedTask === undefined ? '' : String(startedTask);
+    }
+    props.runtime.success(action === 'draft' ? '保存成功' : '提交成功');
   } catch (error: unknown) {
-    failure.value = error instanceof Error ? error.message : submitFlow ? '提交失败' : '保存失败';
+    failure.value = error instanceof Error ? error.message : action === 'draft' ? '保存失败' : '提交失败';
   } finally {
     saving.value = false;
   }
 }
 function save() {
-  return persist(false);
+  return persist('draft');
 }
 function submit() {
-  return persist(true);
+  return persist('start');
+}
+function submitDirect() {
+  return persist('direct');
 }
 async function handleTask(action: 'approve' | 'reject') {
   approving.value = true;
   failure.value = '';
   const payload = {
-    taskId: taskId.value,
+    taskId: effectiveTaskId.value,
     message: approvalMessage.value,
     flowCopyList: copyUsers.value.map(({ userId, nickName }) => ({ userId, nickName }))
   };

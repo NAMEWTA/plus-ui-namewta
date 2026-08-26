@@ -1,3 +1,4 @@
+import type { UrgeTaskPayload } from '@namewta/domain-workflow';
 import type { TaskOperationBo, TaskQuery } from './types';
 import { workflowService } from '../runtime';
 
@@ -19,4 +20,4 @@ export const taskOperation = (data: TaskOperationBo, operation: string) =>
   workflowService.operateTask(data as unknown as Record<string, unknown>, operation);
 export const currentTaskAllUser = (taskId: string | number) => workflowService.currentTaskUsers(taskId);
 export const getNextNodeList = (data: Record<string, unknown>) => workflowService.getNextNodes(data);
-export const urgeTask = (data: Record<string, unknown>) => workflowService.urgeTask(data);
+export const urgeTask = (data: UrgeTaskPayload) => workflowService.urgeTask(data);

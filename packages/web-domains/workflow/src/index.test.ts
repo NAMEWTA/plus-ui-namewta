@@ -40,6 +40,17 @@ describe('workflow web-domain manifest', () => {
     expect(manifest.permissions.flatMap(item => item.permissions)).toContain('workflow:definition:publish');
     expect(manifest.permissions.flatMap(item => item.permissions)).toContain('workflow:category:query');
     expect(manifest.permissions.flatMap(item => item.permissions)).toContain('workflow:spel:query');
+    expect(manifest.permissions.flatMap(item => item.permissions)).toEqual(
+      expect.arrayContaining([
+        'workflow:task:edit',
+        'workflow:instance:invalid',
+        'workflow:instance:active',
+        'workflow:instance:variableQuery',
+        'workflow:leave:edit',
+        'workflow:leave:remove',
+        'workflow:leave:export'
+      ])
+    );
   });
 
   it('registers workflow only when selected and rejects duplicate component keys', () => {

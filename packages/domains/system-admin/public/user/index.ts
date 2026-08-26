@@ -46,15 +46,34 @@ export interface UserQueryPort {
 const identifiers = (values: readonly (string | number)[]) =>
   values.map(value => encodeURIComponent(String(value))).join(',');
 
+const projectUser = (value: unknown): UserSummary => {
+  const source = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+  return {
+    userId: source.userId as string | number,
+    userName: typeof source.userName === 'string' ? source.userName : undefined,
+    nickName: typeof source.nickName === 'string' ? source.nickName : '',
+    deptName: typeof source.deptName === 'string' ? source.deptName : undefined,
+    status: typeof source.status === 'string' ? source.status : undefined
+  };
+};
+
 export function createUserQueryPort(http: HttpClient): UserQueryPort {
   return Object.freeze({
-    list: query =>
-      http.request<UserQueryResponse<UserPage>>({ url: '/system/user/list', method: 'get', params: query }),
-    options: userIds =>
-      http.request<UserQueryResponse<UserSummary[]>>({
+    list: async query => {
+      const response = await http.request<UserQueryResponse<UserPage>>({
+        url: '/system/user/list',
+        method: 'get',
+        params: query
+      });
+      return { ...response, data: { ...response.data, rows: response.data.rows.map(projectUser) } };
+    },
+    options: async userIds => {
+      const response = await http.request<UserQueryResponse<UserSummary[]>>({
         url: '/system/user/optionselect?userIds=' + identifiers(userIds),
         method: 'get'
-      }),
+      });
+      return { ...response, data: response.data.map(projectUser) };
+    },
     departmentTree: () =>
       http.request<UserQueryResponse<DepartmentSummary[]>>({ url: '/system/user/deptTree', method: 'get' })
   });

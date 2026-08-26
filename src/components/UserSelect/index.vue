@@ -1,5 +1,13 @@
 <template>
-  <WorkflowUserSelect ref="selector" :service="workflowService" :multiple="multiple" @confirm="confirm" />
+  <WorkflowUserSelect
+    ref="selector"
+    :service="workflowService"
+    :multiple="multiple"
+    :data="data"
+    :model-value="modelValue"
+    :user-ids="userIds"
+    @confirm="confirm"
+  />
 </template>
 
 <script setup lang="ts">
@@ -8,7 +16,7 @@ import { WorkflowUserSelect } from '@namewta/web-domain-workflow';
 import { ref } from 'vue';
 import { workflowService } from '@/api/workflow/runtime';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     data?: string | number | readonly (string | number)[];
     modelValue?: UserSummary | UserSummary[];
@@ -17,6 +25,7 @@ withDefaults(
   }>(),
   { data: undefined, modelValue: undefined, multiple: true, userIds: undefined }
 );
+const { data, modelValue, multiple, userIds } = toRefs(props);
 const emit = defineEmits<{
   'confirm-call-back': [users: UserSummary[]];
   confirmCallBack: [users: UserSummary[]];
@@ -31,5 +40,8 @@ function confirm(users: UserSummary[]) {
 function open() {
   return selector.value?.open();
 }
-defineExpose({ open });
+function close() {
+  return selector.value?.close();
+}
+defineExpose({ open, close });
 </script>

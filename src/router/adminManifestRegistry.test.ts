@@ -5,7 +5,7 @@ vi.mock('@/api/login', () => ({ identityAccessService: {} }));
 vi.mock('@/views/demo/runtime', () => ({ demoWebRuntime: {} }));
 
 describe('admin selected manifest registry', () => {
-  it('selects identity-access and demo registrations only', () => {
+  it('selects the active admin manifests and excludes unregistered system slices', () => {
     expect(resolveAdminWebRegistration('identity-access/login/index', 'identity-access')).toMatchObject({
       componentName: 'IdentityLogin'
     });
@@ -17,5 +17,12 @@ describe('admin selected manifest registry', () => {
       componentName: 'processDefinition'
     });
     expect(resolveAdminWebRegistration('workflow/task/index', 'workflow')).toBeUndefined();
+    expect(resolveAdminWebRegistration('system/user/index', 'system-admin')).toMatchObject({
+      componentName: 'User'
+    });
+    expect(resolveAdminWebRegistration('system/role/authUser', 'system-admin')).toMatchObject({
+      componentName: 'AuthUser'
+    });
+    expect(resolveAdminWebRegistration('system/oss/index', 'system-admin')).toBeUndefined();
   });
 });

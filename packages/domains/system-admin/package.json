@@ -4,15 +4,17 @@
   "private": true,
   "type": "module",
   "exports": {
+    ".": "./src/index.ts",
     "./public/user": "./public/user/index.ts"
   },
   "scripts": {
     "build": "tsc --noEmit -p tsconfig.json",
-    "lint": "oxlint public",
-    "test": "vitest run public",
+    "lint": "oxlint public src",
+    "test": "vitest run public src",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@namewta/platform-app-runtime": "workspace:*",
     "@namewta/platform-contracts": "workspace:*"
   },
   "devDependencies": {

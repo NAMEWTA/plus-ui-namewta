@@ -1,160 +1,21 @@
-import type { UserQuery, UserVO } from '@/api/system/user/types';
-import type { PageResult } from '@/api/types';
-import type { AxiosPromise } from '@/utils/api-types';
-import request from '@/utils/request';
-import type { RoleDeptTree, RoleQuery, RoleVO } from './types';
+import type { UserQuery } from '../user/types';
+import type { RoleQuery } from './types';
+import { systemAdminService } from '../client/runtime';
 
-export const listRole = (query: RoleQuery): AxiosPromise<PageResult<RoleVO>> => {
-  return request({
-    url: '/system/role/list',
-    method: 'get',
-    params: query
-  });
-};
+export const listRole = (query: RoleQuery) => systemAdminService.roles.list(query as never);
+export const optionSelect = (ids: (number | string)[]) => systemAdminService.roles.options(ids);
+export const getRole = (id: string | number) => systemAdminService.roles.get(id);
+export const addRole = (data: Record<string, unknown>) => systemAdminService.roles.add(data);
+export const updateRole = (data: Record<string, unknown>) => systemAdminService.roles.update(data);
+export const updateRolePermission = (data: Record<string, unknown>) => systemAdminService.roles.updatePermission(data);
+export const changeRoleStatus = (id: string | number, status: string) =>
+  systemAdminService.roles.changeStatus?.(id, status);
+export const delRole = (id: Array<string | number> | string | number) => systemAdminService.roles.delete(id);
+export const allocatedUserList = (query: UserQuery) => systemAdminService.roles.allocatedUsers(query as never);
+export const unallocatedUserList = (query: UserQuery) => systemAdminService.roles.unallocatedUsers(query as never);
+export const authUserCancel = (data: Record<string, unknown>) => systemAdminService.roles.cancelUser(data);
+export const authUserCancelAll = (data: Record<string, unknown>) => systemAdminService.roles.cancelUsers(data);
+export const authUserSelectAll = (data: Record<string, unknown>) => systemAdminService.roles.selectUsers(data);
+export const deptTreeSelect = (id: string | number) => systemAdminService.roles.departmentTree(id);
 
-/**
- * 通过roleIds查询角色
- * @param roleIds
- */
-export const optionSelect = (roleIds: (number | string)[]): AxiosPromise<RoleVO[]> => {
-  return request({
-    url: '/system/role/optionselect?roleIds=' + roleIds,
-    method: 'get'
-  });
-};
-
-/**
- * 查询角色详细
- */
-export const getRole = (roleId: string | number): AxiosPromise<RoleVO> => {
-  return request({
-    url: '/system/role/' + roleId,
-    method: 'get'
-  });
-};
-
-/**
- * 新增角色
- */
-export const addRole = (data: any) => {
-  return request({
-    url: '/system/role',
-    method: 'post',
-    data: data
-  });
-};
-
-/**
- * 修改角色基础信息
- * @param data
- */
-export const updateRole = (data: any) => {
-  return request({
-    url: '/system/role',
-    method: 'put',
-    data: data
-  });
-};
-
-/**
- * 修改角色权限（菜单权限 + 数据权限）
- */
-export const updateRolePermission = (data: any) => {
-  return request({
-    url: '/system/role/permission',
-    method: 'put',
-    data: data
-  });
-};
-
-/**
- * 角色状态修改
- */
-export const changeRoleStatus = (roleId: string | number, status: string) => {
-  const data = {
-    roleId,
-    status
-  };
-  return request({
-    url: '/system/role/changeStatus',
-    method: 'put',
-    data: data
-  });
-};
-
-/**
- * 删除角色
- */
-export const delRole = (roleId: Array<string | number> | string | number) => {
-  return request({
-    url: '/system/role/' + roleId,
-    method: 'delete'
-  });
-};
-
-/**
- * 查询角色已授权用户列表
- */
-export const allocatedUserList = (query: UserQuery): AxiosPromise<PageResult<UserVO>> => {
-  return request({
-    url: '/system/role/authUser/allocatedList',
-    method: 'get',
-    params: query
-  });
-};
-
-/**
- * 查询角色未授权用户列表
- */
-export const unallocatedUserList = (query: UserQuery): AxiosPromise<PageResult<UserVO>> => {
-  return request({
-    url: '/system/role/authUser/unallocatedList',
-    method: 'get',
-    params: query
-  });
-};
-
-/**
- * 取消用户授权角色
- */
-export const authUserCancel = (data: any) => {
-  return request({
-    url: '/system/role/authUser/cancel',
-    method: 'put',
-    data: data
-  });
-};
-
-/**
- * 批量取消用户授权角色
- */
-export const authUserCancelAll = (data: any) => {
-  return request({
-    url: '/system/role/authUser/cancelAll',
-    method: 'put',
-    params: data
-  });
-};
-
-/**
- * 授权用户选择
- */
-export const authUserSelectAll = (data: any) => {
-  return request({
-    url: '/system/role/authUser/selectAll',
-    method: 'put',
-    params: data
-  });
-};
-// 根据角色ID查询部门树结构
-export const deptTreeSelect = (roleId: string | number): AxiosPromise<RoleDeptTree> => {
-  return request({
-    url: '/system/role/deptTree/' + roleId,
-    method: 'get'
-  });
-};
-
-export default {
-  optionSelect,
-  listRole
-};
+export default { optionSelect, listRole };

@@ -1,12 +1,21 @@
 import { demoDomainModule } from '@namewta/domain-demo';
 import { identityAccessDomainModule, type IdentityAccessService } from '@namewta/domain-identity-access';
+import { createSystemAdminService, systemAdminDomainModule } from '@namewta/domain-system-admin';
 import { createWorkflowDefinitionService, workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } from '@namewta/platform-app-runtime';
+import { createAccessEvaluator } from '@namewta/platform-permission';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
 import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
+import {
+  createLiveSystemDictRefs,
+  createSystemAdminWebDomain,
+  type SystemAdminWebRuntime
+} from '@namewta/web-domain-system-admin';
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
+import { getActivePinia } from 'pinia';
 import { defineAsyncComponent, type Component } from 'vue';
 import WorkflowTreePanel from '@/components/TreePanel/index.vue';
+import { getToken } from '@/utils/auth';
 
 const WorkflowFileUpload = defineAsyncComponent(() => import('@/components/FileUpload/index.vue'));
 
@@ -107,9 +116,56 @@ export const adminWorkflowWebRuntime = {
 };
 const workflowManifest = createWorkflowWebDomain(adminWorkflowWebRuntime);
 
+const systemAdminService = createSystemAdminService({
+  async request<T>(config) {
+    const { default: request } = await import('@/utils/request');
+    return request(config) as Promise<T>;
+  }
+});
+export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
+  service: systemAdminService,
+  treePanel: WorkflowTreePanel,
+  confirm: async message => {
+    const { default: modal } = await import('@/plugins/modal');
+    await modal.confirm(message);
+  },
+  success: message => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.msgSuccess(message));
+  },
+  error: message => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
+  },
+  warning: message => {
+    void import('@/plugins/modal').then(({ default: modal }) => modal.msgWarning(message));
+  },
+  download: (url, params, fileName) =>
+    import('@/utils/request').then(({ download }) => download(url, params, fileName)),
+  dicts: (...types) =>
+    createLiveSystemDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
+  closeCurrentPage: () => import('@/plugins/tab').then(({ default: tab }) => tab.closePage()),
+  closeAndOpenPage: location => import('@/plugins/tab').then(({ default: tab }) => tab.closeOpenPage(location)),
+  config: key =>
+    import('@/api/system/config').then(({ getConfigKey }) => getConfigKey(key).then(response => response.data)),
+  hasPermission: permission => {
+    const user = getActivePinia()?.state.value.user as { permissions?: string[]; roles?: string[] } | undefined;
+    return createAccessEvaluator({ permissions: user?.permissions ?? [], roles: user?.roles ?? [] }).hasAnyPermission([
+      permission
+    ]);
+  },
+  currentUserId: () => {
+    const user = getActivePinia()?.state.value.user as { userId?: string | number } | undefined;
+    return user?.userId;
+  },
+  uploadHeaders: () => ({
+    Authorization: `Bearer ${getToken()}`,
+    clientid: import.meta.env.VITE_APP_CLIENT_ID
+  })
+};
+const systemAdminManifest = createSystemAdminWebDomain(adminSystemAdminWebRuntime);
+
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
-  domainModules: [identityAccessDomainModule, demoDomainModule, workflowDomainModule],
+  domainModules: [identityAccessDomainModule, demoDomainModule, workflowDomainModule, systemAdminDomainModule],
   manifests: [
     createIdentityAccessWebDomain({
       service: identityService,
@@ -118,10 +174,16 @@ const runtime = composeAppRuntime<Component>({
       }
     }),
     createDemoWebDomain(demoRuntime),
-    workflowManifest
+    workflowManifest,
+    systemAdminManifest
   ],
-  selectedDomainIds: ['identity-access', 'demo', 'workflow'],
-  selectedManifestIds: ['web-domain-identity-access', 'web-domain-demo', 'web-domain-workflow']
+  selectedDomainIds: ['identity-access', 'demo', 'workflow', 'system-admin'],
+  selectedManifestIds: [
+    'web-domain-identity-access',
+    'web-domain-demo',
+    'web-domain-workflow',
+    'web-domain-system-admin'
+  ]
 });
 
 export function resolveAdminWebRegistration(

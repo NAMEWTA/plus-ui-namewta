@@ -2,19 +2,21 @@
 
 ## Status
 
-- `active-minimal`: T-09 activates only the public user-query seam; broader system administration remains a T-10 placeholder.
+- `active`: T-10 owns the Client, user, user-type, role, menu, department, and post governance slices.
 
 ## Responsibilities
 
-- Own Client/user/user-type/role/menu/department/post governance plus dictionary, configuration, notice, OSS, message, and social-resource application services.
+- Own Client/user/user-type/role/menu/department/post governance services and models.
+- Preserve the T-09 workflow-safe public user-query seam without widening its projected user data.
 
 ## Non-responsibilities
 
 - It does not own current-session authentication, global route guards, Vue administration pages, workflow rules, or code-generator behavior.
+- Dictionary, configuration, notice, OSS, message, and social-resource administration remain reserved for T-11.
 
 ## Allowed dependencies
 
-- Public platform contracts/http and explicit transport contracts; expose minimal user, dictionary, and menu ports to authorized peer domains.
+- Public platform contracts/runtime and explicit transport contracts; expose only explicit cross-domain ports.
 
 ## Forbidden dependencies
 
@@ -22,16 +24,18 @@
 
 ## Public entrypoints
 
+- `@namewta/domain-system-admin` exports the seven governance services/models and the domain capability descriptor.
 - `@namewta/domain-system-admin/public/user` exports minimal workflow-safe user summaries and an injected `UserQueryPort`; list and option responses are projected at runtime so extra user/PII fields cannot cross the seam.
 
 ## Backend modules
 
-- `backendModules: [ruoyi-system]` for governance, configuration, content, resource, message, and social administration endpoints.
+- `backendModules: [ruoyi-system]` for the active governance endpoints.
 
 ## Activation conditions
 
-- The user seam is active for workflow; T-10 may expand the package without widening or breaking this public contract.
+- Admin-web selects the domain and its web manifest. Other Apps receive no governance registrations unless they explicitly select both.
+- The current-session profile transport is exposed for the existing host profile page, but that static host route is not a T-10 manifest registration.
 
 ## Validation
 
-- Public-seam tests feed wider backend user objects and prove list/options retain only UserSummary fields; architecture, lint, typecheck, and dual-App builds retain the headless boundary.
+- Transport matrix tests lock all existing paths and methods; public-seam tests prove projection; manifest/E2E tests cover selected-only registration, permissions, Client-scoped failures, and dual-App behavior.

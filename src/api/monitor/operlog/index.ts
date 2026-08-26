@@ -1,29 +1,6 @@
-import type { PageResult } from '@/api/types';
-import type { AxiosPromise } from '@/utils/api-types';
-import request from '@/utils/request';
-import type { OperLogQuery, OperLogVO } from './types';
-
-// 查询操作日志列表
-export function list(query: OperLogQuery): AxiosPromise<PageResult<OperLogVO>> {
-  return request({
-    url: '/monitor/operlog/list',
-    method: 'get',
-    params: query
-  });
-}
-
-// 删除操作日志
-export function delOperlog(operId: string | number | Array<string | number>) {
-  return request({
-    url: '/monitor/operlog/' + operId,
-    method: 'delete'
-  });
-}
-
-// 清空操作日志
-export function cleanOperlog() {
-  return request({
-    url: '/monitor/operlog/clean',
-    method: 'delete'
-  });
-}
+import type { OperLogQuery } from './types';
+import { operationsService } from '../runtime';
+export const list = (query: OperLogQuery) => operationsService.operationLogs.list(query);
+export const delOperlog = (ids: string | number | Array<string | number>) =>
+  operationsService.operationLogs.delete(ids);
+export const cleanOperlog = () => operationsService.operationLogs.clean();

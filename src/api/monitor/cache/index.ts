@@ -1,12 +1,6 @@
 import type { AxiosPromise } from '@/utils/api-types';
-import request from '@/utils/request';
 import type { CacheVO } from './types';
+import { operationsService } from '../runtime';
 
 // 查询缓存详细
-export function getCache(): AxiosPromise<CacheVO> {
-  return request({
-    url: '/monitor/cache',
-    method: 'get'
-  });
-}
-
+export const getCache = () => operationsService.cache.get() as AxiosPromise<CacheVO>;

@@ -1,20 +1,41 @@
 # Operations Web Domain
 
 ## Status
-- `placeholder`: monitoring pages remain under root `src/views/monitor`.
+
+- `active`: T-14 owns the Vue presentation and manifest registrations for the operations domain.
+
 ## Responsibilities
-- Provide Vue views for online sessions, cache, logs, notifications, jobs, service monitoring, safe external links, and operations manifest entries.
+
+- Provide online-session, cache, operation-log, login-info, notification-log, and three external-monitor pages under the legacy component keys.
+- Accept request, permission, dictionary, modal, export, attachment-download, iframe, and configured external URL capabilities through `OperationsWebRuntime`.
+- Render permission/configuration failures visibly and invoke iframe/download effects only with an approved domain navigation intent.
+
 ## Non-responsibilities
-- It does not own operations services, infrastructure deployment, App shell, backend authorization, or raw URL trust decisions.
+
+- It does not own monitor transports/models, URL trust decisions, backend authorization, global routing, the application shell, or concrete root adapters.
+- It does not copy root iframe/download/security implementations or select itself for an App.
+
 ## Allowed dependencies
-- Public operations domain, identity-access permission presentation, platform navigation/error contracts, and selected web-kit entries.
+
+- Public operations domain, platform app-runtime, Vue, Element Plus, ECharts, and Vue JSON Pretty.
+
 ## Forbidden dependencies
-- Apps, other web-domain internals, concrete adapters, unsafe URL bypasses, and direct domain/internal transport paths.
+
+- Apps, other web-domain internals, concrete adapters, root compatibility internals, domain deep imports, global router/request modules, and browser effects outside injected runtime ports.
+
 ## Public entrypoints
-- Future `@namewta/web-domain-operations` root export for monitoring views/messages and `WebDomainManifest`.
+
+- `@namewta/web-domain-operations` exports the typed runtime contract, live dictionary adapter, and `createOperationsWebDomain`; `@namewta/web-domain-operations/pages` exports compatibility-safe page components.
+
 ## Backend modules
-- `backendModules: [ruoyi-system, ruoyi-job]`, matching monitor/log/session/notification and task-operation sources.
+
+- `backendModules: [ruoyi-system]`, inherited from the operations domain; external monitor deployments remain host configuration rather than package dependencies.
+
 ## Activation conditions
-- Activate in T-14 only for Apps explicitly selecting operations after security and permission behavior is fixed.
+
+- An App must explicitly select both `operations` and `web-domain-operations`; admin-web does so and client-web does not.
+- External pages require their target-specific permission and safe configured URL. Notification attachment download additionally requires query permission and a successful safe URL authorization response.
+
 ## Validation
-- Require permission/unsafe-URL/API failure E2E, selected-only route checks, manifest tests, lint, typecheck, architecture checks, and dual-App builds.
+
+- Require manifest key/permission inventory tests, visible permission/unsafe URL/API failure behavior with zero downstream effect, strict unknown-request E2E, client unselected diagnostics, architecture checks, lint, typecheck, unit tests, and production builds.

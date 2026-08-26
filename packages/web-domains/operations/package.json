@@ -1,0 +1,31 @@
+{
+  "name": "@namewta/web-domain-operations",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./pages": "./src/pages.ts"
+  },
+  "scripts": {
+    "build": "vue-tsc --noEmit -p tsconfig.json",
+    "lint": "oxlint src",
+    "test": "vitest run src",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@namewta/domain-operations": "workspace:*",
+    "@namewta/platform-app-runtime": "workspace:*",
+    "echarts": "6.1.0",
+    "element-plus": "catalog:",
+    "vue": "catalog:",
+    "vue-json-pretty": "2.6.0"
+  },
+  "devDependencies": {
+    "@vue/compiler-sfc": "catalog:",
+    "oxlint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "4.1.10",
+    "vue-tsc": "3.3.8"
+  }
+}

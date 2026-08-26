@@ -32,6 +32,13 @@ describe('admin selected manifest registry', () => {
       componentName: 'AiChatPage'
     });
     expect(resolveAdminWebRegistration('ai/model/index', 'ai')).toBeUndefined();
+    expect(resolveAdminWebRegistration('monitor/online/index', 'operations')).toMatchObject({
+      componentName: 'Online'
+    });
+    expect(resolveAdminWebRegistration('monitor/notify/index', 'operations')).toMatchObject({
+      componentName: 'NotifyMonitor'
+    });
+    expect(resolveAdminWebRegistration('operations/report/index', 'operations')).toBeUndefined();
   });
 
   it('probes the same-origin chat document with an abortable HTML request', async () => {

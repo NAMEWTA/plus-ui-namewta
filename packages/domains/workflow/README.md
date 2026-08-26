@@ -6,7 +6,7 @@
 
 ## Responsibilities
 
-- Own category, definition, SpEL, task, instance and leave transport models/services plus domain metadata.
+- Own category, definition, SpEL, task, instance and leave transport models/services plus domain metadata, including exact task-operation, termination and three-field urge contracts.
 - Consume the minimal `@namewta/domain-system-admin/public/user` query port; no system implementation or private user model crosses the boundary.
 
 ## Non-responsibilities
@@ -35,7 +35,7 @@
 
 ## Validation
 
-- Exhaustive transport tests lock definition and runtime methods/paths/encoding; user failures propagate; architecture checks prove the headless dependency boundary.
+- Exhaustive transport tests lock definition and runtime methods/paths/encoding, project current-task users to UserSummary, and prove user failures propagate; architecture checks prove the headless dependency boundary.
 
 ## Compatibility
 

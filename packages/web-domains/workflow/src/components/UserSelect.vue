@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import type { DepartmentSummary, UserSummary, WorkflowDefinitionService } from '@namewta/domain-workflow';
 import { nextTick, reactive, ref, watch } from 'vue';
-import { mergeUserSelection, normalizeUserIds } from '../user-selection';
+import { mergeUserSelection, prepareUserSelection } from '../user-selection';
 
 const props = withDefaults(
   defineProps<{
@@ -93,10 +93,6 @@ const query = reactive({
 
 watch(departmentFilter, value => departmentTreeRef.value?.filter(value));
 
-function initialUsers() {
-  const value = props.modelValue;
-  return value ? (Array.isArray(value) ? [...value] : [value as UserSummary]) : [];
-}
 async function load() {
   loading.value = true;
   failure.value = '';
@@ -162,14 +158,10 @@ function resetDialog() {
 async function open() {
   visible.value = true;
   failure.value = '';
-  selected.value = initialUsers();
-  const ids = [...normalizeUserIds(props.data), ...normalizeUserIds(props.userIds)];
-  query.userIds = ids.length ? ids : undefined;
   try {
-    if (!selected.value.length && ids.length) {
-      const response = await props.service.users.options(ids);
-      selected.value = response.data;
-    }
+    const prepared = await prepareUserSelection(props.service, props);
+    selected.value = prepared.selected;
+    query.userIds = prepared.listUserIds;
     const tree = await props.service.users.departmentTree();
     departments.value = tree.data;
     await load();

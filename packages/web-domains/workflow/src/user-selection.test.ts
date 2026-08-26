@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { mergeUserSelection, normalizeUserIds } from './index';
+import { vi } from 'vitest';
+import { mergeUserSelection, normalizeUserIds, prepareUserSelection } from './index';
 
 const user = (userId: string) => ({ userId, nickName: `用户${userId}` });
 
@@ -16,5 +17,25 @@ describe('workflow user selection compatibility', () => {
       user('2')
     ]);
     expect(mergeUserSelection([user('1')], [user('2')], [user('2')], false)).toEqual([user('2')]);
+  });
+
+  it('keeps preselection and list limiting independent', async () => {
+    const options = vi.fn(async () => ({ data: [user('7')] }));
+    const prepared = await prepareUserSelection({ users: { options } } as never, {
+      data: ['7'],
+      userIds: ['8'],
+      modelValue: undefined
+    });
+    expect(options).toHaveBeenCalledWith(['7']);
+    expect(prepared).toEqual({ selected: [user('7')], listUserIds: ['8'] });
+
+    const model = user('9');
+    await expect(
+      prepareUserSelection({ users: { options } } as never, { modelValue: model, userIds: ['8'] })
+    ).resolves.toEqual({
+      selected: [model],
+      listUserIds: ['8']
+    });
+    expect(options).toHaveBeenCalledTimes(1);
   });
 });

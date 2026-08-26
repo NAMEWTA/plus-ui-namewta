@@ -6,7 +6,9 @@ type RuntimeState = {
   failUsers: boolean;
   invalidBodies: unknown[];
   network: string[];
+  operationBodies: { operation: string; body: unknown }[];
   permissions: string[];
+  terminationBodies: unknown[];
   unknown: string[];
   urgeBodies: unknown[];
 };
@@ -151,6 +153,58 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           total: 1
         }
       });
+    if (path.startsWith('/workflow/task/getTask/')) {
+      const id = decodeURIComponent(path.slice(path.lastIndexOf('/') + 1));
+      return json(route, {
+        code: 200,
+        data: {
+          id,
+          instanceId: `instance-${id}`,
+          businessId: id === 'task-1' ? 'leave-1' : 'leave-2',
+          businessCode: 'LEAVE-1',
+          businessTitle: '请假审批',
+          flowCode: 'leave1',
+          flowName: '请假审批',
+          flowStatus: 'waiting',
+          nodeCode: 'approve',
+          nodeName: '部门审批',
+          nodeType: 1,
+          nodeRatio: 1,
+          formCustom: 'N',
+          formPath: '/workflow/leaveEdit/index',
+          copyList: [],
+          buttonList: [
+            { code: 'pop', show: true },
+            { code: 'copy', show: true },
+            { code: 'transfer', show: true },
+            { code: 'addSign', show: true },
+            { code: 'subSign', show: true },
+            { code: 'termination', show: true },
+            { code: 'back', show: true }
+          ]
+        }
+      });
+    }
+    if (path === '/workflow/task/getNextNodeList' && method === 'POST')
+      return json(route, {
+        code: 200,
+        data: [{ nodeCode: 'review', nodeName: '部门复核', permissionFlag: ['7'] }]
+      });
+    if (path === '/workflow/task/currentTaskAllUser/task-2')
+      return json(route, {
+        code: 200,
+        data: [{ userId: '7', nickName: '流程负责人', email: 'private@example.test', phoneNumber: '13800000000' }]
+      });
+    if (path === '/workflow/task/terminationTask' && method === 'POST') {
+      state.terminationBodies.push(request.postDataJSON());
+      return json(route, { code: 200 });
+    }
+    if (path.startsWith('/workflow/task/taskOperation/') && method === 'POST') {
+      state.operationBodies.push({ operation: path.slice(path.lastIndexOf('/') + 1), body: request.postDataJSON() });
+      return json(route, { code: 200 });
+    }
+    if (path.startsWith('/workflow/task/getBackTaskNode/'))
+      return json(route, { code: 200, data: [{ nodeCode: 'start', nodeName: '申请人' }] });
     if (path === '/workflow/category/categoryTree')
       return json(route, { code: 200, data: [{ id: '0', parentId: '0', label: '全部流程', weight: 0, children: [] }] });
     if (path === '/workflow/instance/pageByRunning')
@@ -289,6 +343,11 @@ async function loginToTask(page: Page, state: RuntimeState) {
   await expect(page).toHaveURL(/\/workflow\/leaveEdit\/index\?.*taskId=task-1/);
   await expect(page).toHaveURL(/type=approval/);
   await expect(page.getByText('原始请假原因', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '保存', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '提交审批', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '后端发起', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: '办理任务', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: '流程办理' })).toBeVisible();
 }
 
 test('admin selected workflow completes a task through the public user seam', async ({ page }) => {
@@ -298,27 +357,34 @@ test('admin selected workflow completes a task through the public user seam', as
     failUsers: false,
     invalidBodies: [],
     network: [],
+    operationBodies: [],
     permissions: ['workflow:task:list', 'workflow:leave:query', 'workflow:task:edit'],
+    terminationBodies: [],
     unknown: [],
     urgeBodies: []
   };
   await loginToTask(page, state);
-  await page.getByLabel('审批意见').fill('同意办理');
-  await page.getByRole('button', { name: '+', exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: '选择用户' });
-  await expect(dialog.getByRole('cell', { name: '流程负责人' })).toBeVisible();
-  await expect(dialog.getByText('private@example.test', { exact: true })).toHaveCount(0);
-  await expect(dialog.getByText('13800000000', { exact: true })).toHaveCount(0);
-  await dialog.locator('label.el-checkbox').first().click();
-  await dialog.getByRole('button', { name: '确定', exact: true }).click();
-  await page.getByRole('button', { name: '同意', exact: true }).click();
+  const processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await processDialog.getByLabel('审批意见').fill('同意办理');
+  await processDialog.getByRole('button', { name: '选择', exact: true }).click();
+  const selector = page.getByRole('dialog', { name: '选择用户' });
+  await expect(selector.getByRole('cell', { name: '流程负责人' })).toBeVisible();
+  await expect(selector.getByText('private@example.test', { exact: true })).toHaveCount(0);
+  await expect(selector.getByText('13800000000', { exact: true })).toHaveCount(0);
+  await selector.locator('label.el-checkbox').first().click();
+  await selector.getByRole('button', { name: '确定', exact: true }).click();
+  await processDialog.getByRole('button', { name: '提交', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
   await expect
     .poll(() => state.completeBodies)
     .toEqual([
       {
         taskId: 'task-1',
         message: '同意办理',
-        flowCopyList: [{ userId: '7', nickName: '流程负责人' }]
+        messageType: ['1'],
+        variables: { leaveDays: 2, userList: ['1', '3', '4'] },
+        assigneeMap: { review: '7' },
+        flowCopyList: []
       }
     ]);
   expect(state.network).toContain('GET /system/user/list');
@@ -332,18 +398,26 @@ test('user and task failures remain visible without clearing approval input', as
     failUsers: true,
     invalidBodies: [],
     network: [],
+    operationBodies: [],
     permissions: ['workflow:task:list', 'workflow:leave:query', 'workflow:task:edit'],
+    terminationBodies: [],
     unknown: [],
     urgeBodies: []
   };
   await loginToTask(page, state);
-  await page.getByLabel('审批意见').fill('保留这段审批意见');
-  await page.getByRole('button', { name: '+', exact: true }).click();
+  const processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await processDialog.getByLabel('审批意见').fill('保留这段审批意见');
+  await processDialog.getByRole('button', { name: '选择', exact: true }).click();
   await expect(page.getByText('用户查询失败', { exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: '同意', exact: true }).click();
+  state.failUsers = false;
+  const selector = page.getByRole('dialog', { name: '选择用户' });
+  await selector.getByRole('button', { name: '搜索', exact: true }).click();
+  await selector.locator('label.el-checkbox').first().click();
+  await selector.getByRole('button', { name: '确定', exact: true }).click();
+  await processDialog.getByRole('button', { name: '提交', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
   await expect(page.getByText('任务办理失败', { exact: true })).toBeVisible();
-  await expect(page.getByLabel('审批意见')).toHaveValue('保留这段审批意见');
+  await expect(processDialog.getByLabel('审批意见')).toHaveValue('保留这段审批意见');
   expect(state.completeBodies).toEqual([]);
   expect(state.unknown).toEqual([]);
 });
@@ -355,7 +429,9 @@ test('task edit controls fail closed when the permission contribution is absent'
     failUsers: false,
     invalidBodies: [],
     network: [],
+    operationBodies: [],
     permissions: ['workflow:task:list'],
+    terminationBodies: [],
     unknown: [],
     urgeBodies: []
   };
@@ -376,7 +452,9 @@ test('all-task runtime separates finished work and sends exact urge payload', as
     failUsers: false,
     invalidBodies: [],
     network: [],
+    operationBodies: [],
     permissions: ['workflow:task:list', 'workflow:task:edit'],
+    terminationBodies: [],
     unknown: [],
     urgeBodies: []
   };
@@ -385,12 +463,25 @@ test('all-task runtime separates finished work and sends exact urge payload', as
   await page.locator('.submit-button').click();
   await expect(page.getByRole('cell', { name: '受限任务' })).toBeVisible();
   await page.getByRole('button', { name: '催办', exact: true }).click();
+  await page.getByRole('dialog', { name: '任务催办' }).getByRole('checkbox', { name: '邮件' }).check();
   await page.getByPlaceholder('请输入催办消息').fill('请在今天完成');
   await page.getByRole('dialog', { name: '任务催办' }).getByRole('button', { name: '确定', exact: true }).click();
-  await expect.poll(() => state.urgeBodies).toEqual([{ taskIdList: ['task-2'], message: '请在今天完成' }]);
+  await expect
+    .poll(() => state.urgeBodies)
+    .toEqual([{ taskIdList: ['task-2'], message: '请在今天完成', messageType: ['1', '2'] }]);
+  await page.getByRole('row').filter({ hasText: '受限任务' }).locator('label.el-checkbox').click();
+  await page.getByRole('button', { name: '流程干预', exact: true }).click();
+  const processDialog = page.getByRole('dialog', { name: '流程办理' });
+  await processDialog.getByLabel('审批意见').fill('任务已不再需要');
+  await processDialog.getByRole('button', { name: '终止', exact: true }).click();
+  await page.getByRole('button', { name: '确定', exact: true }).click();
+  await expect.poll(() => state.terminationBodies).toEqual([{ taskId: 'task-2', comment: '任务已不再需要' }]);
   await page.getByRole('tab', { name: '已办任务' }).click();
   await expect(page.getByRole('cell', { name: '已完成任务' })).toBeVisible();
   await expect(page.getByRole('button', { name: '催办', exact: true })).toHaveCount(0);
+  await page.getByRole('tab', { name: '待办任务' }).click();
+  await page.getByRole('button', { name: '查看', exact: true }).click();
+  await expect(page).toHaveURL(/type=view/);
   expect(state.network).toContain('GET /workflow/task/pageByAllTaskFinish');
   expect(state.unknown).toEqual([]);
 });
@@ -402,7 +493,9 @@ test('instance invalidation requires a reason and posts exact FlowInvalidBo', as
     failUsers: false,
     invalidBodies: [],
     network: [],
+    operationBodies: [],
     permissions: ['workflow:instance:list', 'workflow:instance:invalid'],
+    terminationBodies: [],
     unknown: [],
     urgeBodies: []
   };
@@ -425,7 +518,9 @@ test('leave controls follow exact state and permission gates', async ({ page }) 
     failUsers: false,
     invalidBodies: [],
     network: [],
+    operationBodies: [],
     permissions: ['workflow:leave:list'],
+    terminationBodies: [],
     unknown: [],
     urgeBodies: []
   };
@@ -436,7 +531,7 @@ test('leave controls follow exact state and permission gates', async ({ page }) 
   const waiting = page.getByRole('row').filter({ hasText: '审批中' });
   await expect(draft.getByRole('button', { name: '修改', exact: true })).toHaveCount(0);
   await expect(draft.getByRole('button', { name: '删除', exact: true })).toHaveCount(0);
-  await expect(waiting.getByRole('button', { name: '撤销', exact: true })).toBeVisible();
+  await expect(waiting.getByRole('button', { name: '撤销', exact: true })).toHaveCount(0);
   await expect(waiting.getByRole('button', { name: '修改', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: '导出', exact: true })).toHaveCount(0);
   expect(state.unknown).toEqual([]);

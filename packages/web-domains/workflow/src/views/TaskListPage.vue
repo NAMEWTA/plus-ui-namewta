@@ -69,19 +69,18 @@
     <UserSelect v-if="canFilterUsers" ref="userSelect" :service="runtime.service" @confirm="filterUsers" />
     <UserSelect ref="assigneeSelect" :service="runtime.service" :multiple="false" @confirm="assign" />
     <el-dialog v-model="urgeVisible" title="任务催办" width="480px">
+      <el-checkbox-group v-model="urgeMessageType">
+        <el-checkbox value="1" disabled>站内信</el-checkbox>
+        <el-checkbox value="2">邮件</el-checkbox>
+        <el-checkbox value="3">短信</el-checkbox>
+      </el-checkbox-group>
       <el-input v-model="urgeMessage" type="textarea" :rows="4" placeholder="请输入催办消息" />
       <template #footer>
         <el-button @click="urgeVisible = false">取消</el-button>
         <el-button type="primary" :disabled="!urgeMessage.trim()" @click="urge">确定</el-button>
       </template>
     </el-dialog>
-    <el-dialog v-model="interventionVisible" title="流程干预" width="480px">
-      <el-input v-model="interventionMessage" type="textarea" :rows="4" placeholder="请输入终止原因" />
-      <template #footer>
-        <el-button @click="interventionVisible = false">取消</el-button>
-        <el-button type="danger" :disabled="!interventionMessage.trim()" @click="terminate">终止任务</el-button>
-      </template>
-    </el-dialog>
+    <ProcessActionDialog ref="processActions" :runtime="runtime" :allow-complete="false" @completed="load" />
   </div>
 </template>
 
@@ -90,6 +89,7 @@ import type { TaskQuery, UserSummary, WorkflowTask } from '@namewta/domain-workf
 import { computed, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { WorkflowWebRuntime } from '../runtime';
+import ProcessActionDialog from '../components/ProcessActionDialog.vue';
 import UserSelect from '../components/UserSelect.vue';
 import { createUrgePayload } from '../runtime-actions';
 
@@ -105,15 +105,13 @@ const selection = ref<WorkflowTask[]>([]);
 const allTab = ref<'waiting' | 'finished'>('waiting');
 const urgeVisible = ref(false);
 const urgeMessage = ref('');
+const urgeMessageType = ref(['1']);
 const urgeTasks = ref<WorkflowTask[]>([]);
-const interventionVisible = ref(false);
-const interventionMessage = ref('');
+const processActions = ref<InstanceType<typeof ProcessActionDialog>>();
 const userSelect = ref<InstanceType<typeof UserSelect>>();
 const assigneeSelect = ref<InstanceType<typeof UserSelect>>();
 const canFilterUsers = computed(() => props.mode !== 'copy');
-const isActionable = computed(
-  () => props.mode === 'waiting' || (props.mode === 'all-waiting' && allTab.value === 'waiting')
-);
+const isActionable = computed(() => props.mode === 'waiting');
 
 const loaders = {
   waiting: props.runtime.service.pageTaskWaiting,
@@ -162,6 +160,7 @@ function openTask(row: unknown) {
 function openUrge(tasks: readonly unknown[]) {
   urgeTasks.value = tasks as WorkflowTask[];
   urgeMessage.value = '';
+  urgeMessageType.value = ['1'];
   urgeVisible.value = true;
 }
 async function urge() {
@@ -169,7 +168,8 @@ async function urge() {
     await props.runtime.service.urgeTask(
       createUrgePayload(
         urgeTasks.value.map(task => task.id),
-        urgeMessage.value
+        urgeMessage.value,
+        urgeMessageType.value
       )
     );
     props.runtime.success('催办成功');
@@ -179,20 +179,8 @@ async function urge() {
   }
 }
 function openIntervention() {
-  interventionMessage.value = '';
-  interventionVisible.value = true;
-}
-async function terminate() {
   const task = selection.value[0];
-  if (!task) return;
-  try {
-    await props.runtime.service.terminateTask({ taskId: task.id, message: interventionMessage.value.trim() });
-    props.runtime.success('任务已终止');
-    interventionVisible.value = false;
-    await load();
-  } catch (error: unknown) {
-    props.runtime.error(error instanceof Error ? error.message : '任务终止失败');
-  }
+  if (task) void processActions.value?.open(task.id);
 }
 async function assign(users: UserSummary[]) {
   const user = users[0];

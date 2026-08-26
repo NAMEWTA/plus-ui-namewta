@@ -43,6 +43,7 @@ describe('workflow web-domain manifest', () => {
     expect(manifest.permissions.flatMap(item => item.permissions)).toEqual(
       expect.arrayContaining([
         'workflow:task:edit',
+        'workflow:instance:cancel',
         'workflow:instance:invalid',
         'workflow:instance:active',
         'workflow:instance:variableQuery',

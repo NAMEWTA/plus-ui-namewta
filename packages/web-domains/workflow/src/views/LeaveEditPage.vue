@@ -30,7 +30,11 @@
           <el-input v-model="form.remark" type="textarea" :disabled="readonly" />
         </el-form-item>
       </el-form>
-      <div v-if="!readonly" class="actions">
+      <div
+        v-if="!readonly && (routeType === 'add' || routeType === 'update')"
+        v-hasPermi="routeType === 'add' ? ['workflow:leave:add'] : ['workflow:leave:edit']"
+        class="actions"
+      >
         <el-button :loading="saving" @click="save">保存</el-button>
         <el-button type="primary" :loading="saving" @click="submit">提交审批</el-button>
         <el-button v-if="routeType === 'add'" type="success" :loading="saving" @click="submitDirect">
@@ -39,18 +43,8 @@
       </div>
       <template v-if="effectiveTaskId && (routeType === 'approval' || startedTaskId)">
         <el-divider content-position="left">审批办理</el-divider>
-        <el-form label-width="100px">
-          <el-form-item label="审批意见"><el-input v-model="approvalMessage" type="textarea" /></el-form-item>
-          <el-form-item label="抄送人">
-            <el-tag v-for="user in copyUsers" :key="String(user.userId)">{{ user.nickName }}</el-tag>
-            <el-button circle @click="userSelect?.open()">+</el-button>
-          </el-form-item>
-        </el-form>
-        <div class="actions">
-          <el-button :loading="approving" type="danger" @click="rejectTask">驳回</el-button>
-          <el-button :loading="approving" type="primary" @click="approveTask">同意</el-button>
-        </div>
-        <UserSelect ref="userSelect" :service="runtime.service" @confirm="copyUsers = $event" />
+        <el-button type="primary" @click="processActions?.open(effectiveTaskId)">办理任务</el-button>
+        <ProcessActionDialog ref="processActions" :runtime="runtime" :task-variables="taskVariables" />
       </template>
       <el-divider v-if="id" content-position="left">流程记录</el-divider>
       <el-timeline v-if="id">
@@ -67,11 +61,11 @@
 </template>
 
 <script setup lang="ts">
-import type { LeaveForm, UserSummary } from '@namewta/domain-workflow';
+import type { LeaveForm } from '@namewta/domain-workflow';
 import { computed, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import type { WorkflowWebRuntime } from '../runtime';
-import UserSelect from '../components/UserSelect.vue';
+import ProcessActionDialog from '../components/ProcessActionDialog.vue';
 
 const props = defineProps<{ runtime: WorkflowWebRuntime }>();
 const route = useRoute();
@@ -80,7 +74,7 @@ const taskId = computed(() => String(route.query.taskId ?? ''));
 const startedTaskId = ref('');
 const effectiveTaskId = computed(() => taskId.value || startedTaskId.value);
 const routeType = computed(() => String(route.query.type ?? 'add'));
-const readonly = computed(() => route.query.type === 'view');
+const readonly = computed(() => route.query.type === 'view' || route.query.type === 'approval');
 const flowCode = ref('leave1');
 const flowCodes = [
   { value: 'leave1', label: '请假申请-普通' },
@@ -101,10 +95,8 @@ const rules = {
 const saving = ref(false);
 const failure = ref('');
 const history = ref<Record<string, unknown>[]>([]);
-const approvalMessage = ref('');
-const approving = ref(false);
-const copyUsers = ref<UserSummary[]>([]);
-const userSelect = ref<InstanceType<typeof UserSelect>>();
+const processActions = ref<InstanceType<typeof ProcessActionDialog>>();
+const taskVariables = computed(() => ({ leaveDays: form.leaveDays, userList: ['1', '3', '4'] }));
 
 async function load() {
   if (!id.value) return;
@@ -157,30 +149,6 @@ function submit() {
 }
 function submitDirect() {
   return persist('direct');
-}
-async function handleTask(action: 'approve' | 'reject') {
-  approving.value = true;
-  failure.value = '';
-  const payload = {
-    taskId: effectiveTaskId.value,
-    message: approvalMessage.value,
-    flowCopyList: copyUsers.value.map(({ userId, nickName }) => ({ userId, nickName }))
-  };
-  try {
-    if (action === 'approve') await props.runtime.service.completeTask(payload);
-    else await props.runtime.service.backProcess(payload);
-    props.runtime.success(action === 'approve' ? '办理成功' : '驳回成功');
-  } catch (error: unknown) {
-    failure.value = error instanceof Error ? error.message : '任务办理失败';
-  } finally {
-    approving.value = false;
-  }
-}
-function approveTask() {
-  return handleTask('approve');
-}
-function rejectTask() {
-  return handleTask('reject');
 }
 void load();
 </script>

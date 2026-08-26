@@ -99,6 +99,21 @@ describe('workflow definition transport contract', () => {
     const service = createWorkflowDefinitionService({
       request: async request => {
         requests.push(request);
+        if (request.url.includes('currentTaskAllUser'))
+          return {
+            code: 200,
+            data: [
+              {
+                userId: '7',
+                userName: 'owner',
+                nickName: '流程负责人',
+                deptName: '研发部',
+                status: '0',
+                email: 'must-not-cross@example.test',
+                phoneNumber: '13800000000'
+              }
+            ]
+          } as never;
         return { code: 200 } as never;
       }
     });
@@ -114,12 +129,12 @@ describe('workflow definition transport contract', () => {
     await service.backProcess(data);
     await service.getTask('task/1');
     await service.updateAssignee(['task/1'], 'user/1');
-    await service.terminateTask(data);
+    await service.terminateTask({ taskId: 'task/1', comment: '终止原因' });
     await service.getBackTaskNodes('task/1', 'node/a');
     await service.operateTask(data, 'transferTask');
-    await service.currentTaskUsers('task/1');
+    const currentUsers = await service.currentTaskUsers('task/1');
     await service.getNextNodes(data);
-    const urge = { taskIdList: ['task/1'], message: '请尽快办理' };
+    const urge = { taskIdList: ['task/1'], message: '请尽快办理', messageType: ['1'] };
     await service.urgeTask(urge);
     await service.pageRunningInstances(query);
     await service.pageFinishedInstances(query);
@@ -176,6 +191,14 @@ describe('workflow definition transport contract', () => {
       'delete /workflow/leave/leave%2F1,leave%202'
     ]);
     expect(requests.find(request => request.url === '/workflow/task/urgeTask')?.data).toEqual(urge);
+    expect(requests.find(request => request.url === '/workflow/task/terminationTask')?.data).toEqual({
+      taskId: 'task/1',
+      comment: '终止原因'
+    });
     expect(requests.find(request => request.url === '/workflow/instance/invalid')?.data).toEqual(invalid);
+    expect(currentUsers.data).toEqual([
+      { userId: '7', userName: 'owner', nickName: '流程负责人', deptName: '研发部', status: '0' }
+    ]);
+    expect(JSON.stringify(currentUsers)).not.toMatch(/must-not-cross|phoneNumber/);
   });
 });

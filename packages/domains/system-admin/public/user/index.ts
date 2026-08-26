@@ -46,7 +46,7 @@ export interface UserQueryPort {
 const identifiers = (values: readonly (string | number)[]) =>
   values.map(value => encodeURIComponent(String(value))).join(',');
 
-const projectUser = (value: unknown): UserSummary => {
+export const projectUserSummary = (value: unknown): UserSummary => {
   const source = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
   return {
     userId: source.userId as string | number,
@@ -65,14 +65,14 @@ export function createUserQueryPort(http: HttpClient): UserQueryPort {
         method: 'get',
         params: query
       });
-      return { ...response, data: { ...response.data, rows: response.data.rows.map(projectUser) } };
+      return { ...response, data: { ...response.data, rows: response.data.rows.map(projectUserSummary) } };
     },
     options: async userIds => {
       const response = await http.request<UserQueryResponse<UserSummary[]>>({
         url: '/system/user/optionselect?userIds=' + identifiers(userIds),
         method: 'get'
       });
-      return { ...response, data: response.data.map(projectUser) };
+      return { ...response, data: response.data.map(projectUserSummary) };
     },
     departmentTree: () =>
       http.request<UserQueryResponse<DepartmentSummary[]>>({ url: '/system/user/deptTree', method: 'get' })

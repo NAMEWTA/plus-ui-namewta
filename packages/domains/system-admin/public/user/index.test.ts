@@ -35,6 +35,7 @@ describe('system-admin public user seam', () => {
         total: 1
       }
     });
+    await port.list({ pageNum: 1, pageSize: 10, userIds: ['8'] });
     const projectedOptions = await port.options(['7', 'a/b']);
     expect(projectedOptions).toEqual({
       code: 200,
@@ -43,6 +44,7 @@ describe('system-admin public user seam', () => {
     await port.departmentTree();
     expect(requests).toEqual([
       { url: '/system/user/list', method: 'get', params: { pageNum: 1, pageSize: 10, userName: 'owner' } },
+      { url: '/system/user/list', method: 'get', params: { pageNum: 1, pageSize: 10, userIds: ['8'] } },
       { url: '/system/user/optionselect?userIds=7,a%2Fb', method: 'get' },
       { url: '/system/user/deptTree', method: 'get' }
     ]);

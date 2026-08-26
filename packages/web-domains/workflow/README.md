@@ -8,6 +8,7 @@
 
 - Own the complete category, process-definition, design, and SpEL administration behavior and exact server component-key registrations.
 - Own task, instance, leave, approval and user-selection Vue behavior for the admin workflow manifest, including waiting/finished task separation, state-gated mutations, category filtering and exact urge/invalidation payloads.
+- Load each actionable task and its backend button list before presenting delegate, transfer, add-sign, reduce-sign, termination, back, copy, attachment, next-node and completion controls; admin all-task rows remain view-only.
 - Obtain confirmation, feedback, dictionaries, downloads, designer URLs, and tab navigation through explicit host runtime ports.
 
 ## Non-responsibilities
@@ -36,6 +37,6 @@
 
 ## Validation
 
-- Manifest and focused runtime tests cover selected/unselected composition, duplicate keys, exact component names and permissions, user preselection/pagination retention, fail-close state rules, exact action payloads, user failure handling, typecheck, and App builds.
+- Manifest and focused runtime tests cover selected/unselected composition, duplicate keys, exact component names and permissions, independent preselection/list limiting, pagination retention, backend-driven process actions, fail-close state rules, exact payloads, user failure handling, typecheck, and App builds.
 
 Root API/view/UserSelect facades remain until T-15. The compatibility UserSelect forwards data/modelValue/userIds/multiple and open/close. TreePanel stays an injected shared host component and is used by definition, instance, and current-document pages; no root implementation is imported by this package.

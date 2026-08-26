@@ -1,4 +1,4 @@
-import type { UrgeTaskPayload } from '@namewta/domain-workflow';
+import type { TaskOperationPayload, TerminateTaskPayload, UrgeTaskPayload } from '@namewta/domain-workflow';
 import type { TaskOperationBo, TaskQuery } from './types';
 import { workflowService } from '../runtime';
 
@@ -13,11 +13,11 @@ export const backProcess = (data: Record<string, unknown>) => workflowService.ba
 export const getTask = (taskId: string | number) => workflowService.getTask(taskId);
 export const updateAssignee = (taskIdList: string[], userId: string | number) =>
   workflowService.updateAssignee(taskIdList, userId);
-export const terminationTask = (data: Record<string, unknown>) => workflowService.terminateTask(data);
+export const terminationTask = (data: TerminateTaskPayload) => workflowService.terminateTask(data);
 export const getBackTaskNode = (taskId: string | number, nodeCode: string) =>
   workflowService.getBackTaskNodes(taskId, nodeCode);
 export const taskOperation = (data: TaskOperationBo, operation: string) =>
-  workflowService.operateTask(data as unknown as Record<string, unknown>, operation);
+  workflowService.operateTask(data as TaskOperationPayload, operation);
 export const currentTaskAllUser = (taskId: string | number) => workflowService.currentTaskUsers(taskId);
 export const getNextNodeList = (data: Record<string, unknown>) => workflowService.getNextNodes(data);
 export const urgeTask = (data: UrgeTaskPayload) => workflowService.urgeTask(data);

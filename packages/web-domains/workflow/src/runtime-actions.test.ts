@@ -6,7 +6,8 @@ describe('workflow runtime action contracts', () => {
     expect(createFlowInvalidPayload('instance/1', '  reason  ')).toEqual({ id: 'instance/1', comment: 'reason' });
     expect(createUrgePayload(['task/1', 'task,2'], '  please act  ')).toEqual({
       taskIdList: ['task/1', 'task,2'],
-      message: 'please act'
+      message: 'please act',
+      messageType: ['1']
     });
   });
 

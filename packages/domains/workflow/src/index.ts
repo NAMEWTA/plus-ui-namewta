@@ -1,6 +1,11 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient } from '@namewta/platform-contracts';
-import { createUserQueryPort, type UserQueryPort, type UserSummary } from '@namewta/domain-system-admin/public/user';
+import {
+  createUserQueryPort,
+  projectUserSummary,
+  type UserQueryPort,
+  type UserSummary
+} from '@namewta/domain-system-admin/public/user';
 
 export type {
   DepartmentSummary,
@@ -214,7 +219,19 @@ export interface FlowInvalidPayload {
 }
 export interface UrgeTaskPayload {
   message: string;
+  messageType: string[];
   taskIdList: (string | number)[];
+}
+export interface TerminateTaskPayload {
+  comment: string;
+  taskId: string | number;
+}
+export interface TaskOperationPayload {
+  message?: string;
+  messageType?: string[];
+  taskId: string | number;
+  userId?: string | number;
+  userIds?: (string | number)[];
 }
 
 type Identifier = string | number;
@@ -258,9 +275,9 @@ export interface WorkflowDefinitionService {
   backProcess(data: WorkflowPayload): Promise<ApiResponse>;
   getTask(taskId: Identifier): Promise<ApiResponse<WorkflowTask>>;
   updateAssignee(taskIds: readonly string[], userId: Identifier): Promise<ApiResponse>;
-  terminateTask(data: WorkflowPayload): Promise<ApiResponse>;
+  terminateTask(data: TerminateTaskPayload): Promise<ApiResponse>;
   getBackTaskNodes(taskId: Identifier, nodeCode: string): Promise<ApiResponse<Record<string, unknown>[]>>;
-  operateTask(data: WorkflowPayload, operation: string): Promise<ApiResponse>;
+  operateTask(data: TaskOperationPayload, operation: string): Promise<ApiResponse>;
   currentTaskUsers(taskId: Identifier): Promise<ApiResponse<UserSummary[]>>;
   getNextNodes(data: WorkflowPayload): Promise<ApiResponse<Record<string, unknown>[]>>;
   urgeTask(data: UrgeTaskPayload): Promise<ApiResponse>;
@@ -360,8 +377,13 @@ export function createWorkflowDefinitionService(http: HttpClient): WorkflowDefin
       }),
     operateTask: (data, operation) =>
       request({ url: '/workflow/task/taskOperation/' + segment(operation), method: 'post', data }),
-    currentTaskUsers: taskId =>
-      request<UserSummary[]>({ url: '/workflow/task/currentTaskAllUser/' + segment(taskId), method: 'get' }),
+    currentTaskUsers: async taskId => {
+      const response = await request<unknown[]>({
+        url: '/workflow/task/currentTaskAllUser/' + segment(taskId),
+        method: 'get'
+      });
+      return { ...response, data: response.data?.map(projectUserSummary) ?? [] };
+    },
     getNextNodes: data =>
       request<Record<string, unknown>[]>({ url: '/workflow/task/getNextNodeList', method: 'post', data }),
     urgeTask: data => request({ url: '/workflow/task/urgeTask', method: 'post', data }),

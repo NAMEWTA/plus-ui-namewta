@@ -5,9 +5,14 @@ export const createFlowInvalidPayload = (id: string | number, comment: string): 
   comment: comment.trim()
 });
 
-export const createUrgePayload = (taskIds: readonly (string | number)[], message: string): UrgeTaskPayload => ({
+export const createUrgePayload = (
+  taskIds: readonly (string | number)[],
+  message: string,
+  messageType: readonly string[] = ['1']
+): UrgeTaskPayload => ({
   taskIdList: [...taskIds],
-  message: message.trim()
+  message: message.trim(),
+  messageType: [...messageType]
 });
 
 export const isEditableLeaveStatus = (status: string | undefined) =>

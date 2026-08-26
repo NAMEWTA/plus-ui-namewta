@@ -31,7 +31,13 @@
             >
               修改
             </el-button>
-            <el-button v-if="scope.row.status === 'waiting'" link type="warning" @click="cancel(scope.row)">
+            <el-button
+              v-if="scope.row.status === 'waiting'"
+              v-hasPermi="['workflow:instance:cancel']"
+              link
+              type="warning"
+              @click="cancel(scope.row)"
+            >
               撤销
             </el-button>
             <el-button

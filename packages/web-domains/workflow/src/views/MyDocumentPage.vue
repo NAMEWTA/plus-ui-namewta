@@ -45,7 +45,13 @@
                 >
                   删除
                 </el-button>
-                <el-button v-if="scope.row.flowStatus === 'waiting'" link type="danger" @click="cancel(scope.row)">
+                <el-button
+                  v-if="scope.row.flowStatus === 'waiting'"
+                  v-hasPermi="['workflow:instance:cancel']"
+                  link
+                  type="danger"
+                  @click="cancel(scope.row)"
+                >
                   撤销
                 </el-button>
               </template>

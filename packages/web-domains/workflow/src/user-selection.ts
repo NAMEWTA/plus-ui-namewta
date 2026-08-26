@@ -1,4 +1,4 @@
-import type { UserSummary } from '@namewta/domain-workflow';
+import type { UserSummary, WorkflowDefinitionService } from '@namewta/domain-workflow';
 
 type IdInput = string | number | readonly (string | number)[] | undefined;
 
@@ -19,3 +19,22 @@ export const mergeUserSelection = (
   for (const user of pageSelection) merged.set(String(user.userId), user);
   return [...merged.values()];
 };
+
+export async function prepareUserSelection(
+  service: WorkflowDefinitionService,
+  input: {
+    data?: IdInput;
+    modelValue?: UserSummary | UserSummary[];
+    userIds?: IdInput;
+  }
+): Promise<{ listUserIds: (string | number)[] | undefined; selected: UserSummary[] }> {
+  const model = input.modelValue
+    ? Array.isArray(input.modelValue)
+      ? [...input.modelValue]
+      : [input.modelValue as UserSummary]
+    : [];
+  const preselectedIds = normalizeUserIds(input.data);
+  const selected = model.length || !preselectedIds.length ? model : (await service.users.options(preselectedIds)).data;
+  const listUserIds = normalizeUserIds(input.userIds);
+  return { selected, listUserIds: listUserIds.length ? listUserIds : undefined };
+}

@@ -149,11 +149,8 @@
 import { identityAccessWebMessages } from '@namewta/web-domain-identity-access';
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
-import { getClientAuthContext, getCodeImg } from '@/api/login';
-import { authRouterUrl } from '@/api/system/social/auth';
-import { LoginData } from '@/api/types';
-import { HttpStatus } from '@/enums/RespEnum';
-import { useUserStore } from '@/store/modules/user';
+import { identityAccessService, systemAdminService } from '@/application/services';
+import { type AdminLoginInput, useUserStore } from '@/store/modules/user';
 
 const title = import.meta.env.VITE_APP_TITLE;
 const currentYear = new Date().getFullYear();
@@ -167,13 +164,13 @@ const userStore = useUserStore();
 const router = useRouter();
 const { t } = useI18n();
 
-const loginForm = ref<LoginData>({
+const loginForm = ref<AdminLoginInput>({
   username: 'admin',
   password: 'admin123',
   rememberMe: false,
   code: '',
   uuid: ''
-} as LoginData);
+});
 
 const loginRules: ElFormRules = {
   username: [
@@ -249,13 +246,12 @@ const handleLogin = () => {
 };
 
 const getCode = async () => {
-  const res = await getCodeImg();
-  const { data } = res;
-  captchaEnabled.value = data.captchaEnabled === undefined ? true : data.captchaEnabled;
+  const verification = await identityAccessService.getVerification();
+  captchaEnabled.value = verification.captchaEnabled;
   if (captchaEnabled.value) {
     loginForm.value.code = '';
-    codeUrl.value = 'data:image/gif;base64,' + data.img;
-    loginForm.value.uuid = data.uuid;
+    codeUrl.value = 'data:image/gif;base64,' + verification.img;
+    loginForm.value.uuid = verification.uuid;
   }
 };
 
@@ -267,34 +263,29 @@ const getLoginData = () => {
     username: username === null ? String(loginForm.value.username) : username,
     password: username === null ? String(loginForm.value.password) : '',
     rememberMe: rememberMe === 'true'
-  } as LoginData;
+  } as AdminLoginInput;
 };
 
-const doSocialLogin = (type: string) => {
+const doSocialLogin = async (type: string) => {
   if (!loginEnabled.value) {
     return;
   }
-  authRouterUrl(type).then((res: any) => {
-    if (res.code === HttpStatus.SUCCESS) {
-      window.location.href = res.data;
-    } else {
-      ElMessage.error(res.msg);
-    }
-  });
+  const res = await systemAdminService.resources.social.bindingUrl(type);
+  window.location.href = res.data;
 };
 
 const loadClientAuthContext = async () => {
   authContextState.value = 'loading';
   register.value = false;
   try {
-    const res = await getClientAuthContext();
-    if (res.data?.clientEnabled !== true) {
+    const context = await identityAccessService.getClientContext();
+    if (!context.clientEnabled) {
       authContextState.value = 'unavailable';
       ElMessage.error('当前客户端已停用，无法登录');
       return;
     }
     authContextState.value = 'available';
-    register.value = res.data.registerEnabled === true;
+    register.value = context.registerEnabled;
   } catch {
     authContextState.value = 'unavailable';
     register.value = false;

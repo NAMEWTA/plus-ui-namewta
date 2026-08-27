@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import cache from '@/plugins/cache';
+import cache from '@/application/host/cache';
 import { propTypes } from '@/utils/propTypes';
 
 const props = defineProps({

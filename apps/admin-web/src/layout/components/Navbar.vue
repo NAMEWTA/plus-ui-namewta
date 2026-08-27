@@ -99,9 +99,9 @@
 <script setup lang="ts">
 import type { ElMessageBoxOptions } from 'element-plus';
 import { CaretBottom } from '@element-plus/icons-vue';
+import tab from '@/application/host/navigation';
 import appLogo from '@/assets/logo/logo.png';
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
-import tab from '@/plugins/tab';
 import router from '@/router';
 import { useAppStore } from '@/store/modules/app';
 import { useNoticeStore } from '@/store/modules/notice';

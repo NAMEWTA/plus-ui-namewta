@@ -1,12 +1,16 @@
-import { to } from 'await-to-js';
+import type { PasswordLoginInput } from '@namewta/domain-identity-access';
+import type { UserVO } from '@namewta/domain-system-admin';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { UserInfo } from '@/api/system/user/types';
-import type { LoginData, LoginResult } from '@/api/types';
-import type { RuoYiAjaxResult } from '@/utils/api-types';
-import { getInfo as getUserInfo, login as loginApi, logout as logoutApi } from '@/api/login';
+import { adminHttp } from '@/application/http';
+import { identityAccessService } from '@/application/services';
+import { getToken, removeToken } from '@/application/session';
 import defAva from '@/assets/images/profile.jpg';
-import { getToken, removeToken, setToken } from '@/utils/auth';
+import { closePush } from '@/utils/push';
+
+export interface AdminLoginInput extends PasswordLoginInput {
+  rememberMe?: boolean;
+}
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(getToken());
@@ -22,45 +26,37 @@ export const useUserStore = defineStore('user', () => {
    * @param userInfo
    * @returns
    */
-  const login = async (userInfo: LoginData): Promise<void> => {
-    const [err, res] = await to(loginApi(userInfo));
-    if (res) {
-      const data = (res as RuoYiAjaxResult<LoginResult>).data;
-      if (!data?.access_token) {
-        return Promise.reject(err);
-      }
-      setToken(data.access_token);
-      token.value = data.access_token;
-      return Promise.resolve();
-    }
-    return Promise.reject(err);
+  const login = async (userInfo: AdminLoginInput): Promise<void> => {
+    const session = await identityAccessService.login(userInfo);
+    token.value = session.accessToken;
   };
 
   // 获取用户信息
   const getInfo = async (): Promise<void> => {
-    const [err, res] = await to(getUserInfo());
-    if (res) {
-      const data = (res as RuoYiAjaxResult<UserInfo>).data;
-      if (!data?.user) {
-        return Promise.reject(err);
-      }
-      const user = data.user;
-      const profile = user.avatarUrl == '' || user.avatarUrl == null ? defAva : user.avatarUrl;
+    const data = await identityAccessService.getInfo();
+    const user = data.user as UserVO;
+    const profile = user.avatarUrl == '' || user.avatarUrl == null ? defAva : user.avatarUrl;
 
-      roles.value = data.roles?.length ? [...data.roles] : ['ROLE_DEFAULT'];
-      permissions.value = Array.isArray(data.permissions) ? [...data.permissions] : [];
-      name.value = user.userName;
-      nickname.value = user.nickName;
-      avatar.value = profile;
-      userId.value = user.userId;
-      return Promise.resolve();
-    }
-    return Promise.reject(err);
+    roles.value = data.roles.length ? [...data.roles] : ['ROLE_DEFAULT'];
+    permissions.value = [...data.permissions];
+    name.value = user.userName;
+    nickname.value = user.nickName;
+    avatar.value = profile;
+    userId.value = user.userId;
   };
 
   // 注销
   const logout = async (): Promise<void> => {
-    await logoutApi();
+    closePush();
+    if (
+      import.meta.env.VITE_APP_MESSAGE_ENABLED === 'true' &&
+      import.meta.env.VITE_APP_MESSAGE_TRANSPORT.toLowerCase() === 'sse'
+    ) {
+      void adminHttp
+        .request({ url: import.meta.env.VITE_APP_MESSAGE_PATH + '/close', method: 'get' })
+        .catch(() => undefined);
+    }
+    await identityAccessService.logout();
     token.value = '';
     roles.value = [];
     permissions.value = [];

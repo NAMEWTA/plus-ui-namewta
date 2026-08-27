@@ -17,7 +17,7 @@ const demoChildren = (mode: MenuMode) =>
         {
           path: 'manifest-diagnostic',
           name: 'DemoManifestDiagnostic',
-          component: 'demo/manifest-diagnostic/index',
+          component: 'demo/missing/index',
           meta: { title: '缺失组件诊断', icon: 'warning', noCache: true }
         }
       ]
@@ -123,7 +123,7 @@ test('selected demo registry routes survive a keep-alive menu round trip', async
   expect(state.unknownRequests).toEqual([]);
 });
 
-test('explicit demo manifest diagnostic harness renders a stable missing-key error', async ({ page }) => {
+test('shared manifest diagnostic renders a stable missing-key error', async ({ page }) => {
   const state = createState();
   await installApi(page, state, 'diagnostic');
 
@@ -133,7 +133,7 @@ test('explicit demo manifest diagnostic harness renders a stable missing-key err
 
   await expect(page).toHaveURL(/\/demo\/manifest-diagnostic$/);
   await expect(page.getByRole('heading', { name: '页面加载失败' })).toBeVisible();
-  await expect(page.getByTestId('demo-manifest-error')).toContainText(
+  await expect(page.getByTestId('manifest-route-diagnostic')).toContainText(
     '页面组件不可用 [missing-component-key] app=admin-web domain=demo key=demo/missing/index'
   );
   expect(state.demoListRequests).toBe(0);

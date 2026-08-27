@@ -1,14 +1,11 @@
-import { aiDomainModule, createAiService } from '@namewta/domain-ai';
+import { aiDomainModule } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
-import { createDevtoolsService, devtoolsDomainModule } from '@namewta/domain-devtools';
-import { identityAccessDomainModule, type IdentityAccessService } from '@namewta/domain-identity-access';
-import { createOperationsService, operationsDomainModule } from '@namewta/domain-operations';
-import { createSystemAdminService, systemAdminDomainModule } from '@namewta/domain-system-admin';
-import { createDictTypeCatalogPort } from '@namewta/domain-system-admin/public/dict';
-import { createMenuQueryPort } from '@namewta/domain-system-admin/public/menu';
-import { createWorkflowDefinitionService, workflowDomainModule } from '@namewta/domain-workflow';
+import { devtoolsDomainModule } from '@namewta/domain-devtools';
+import { identityAccessDomainModule } from '@namewta/domain-identity-access';
+import { operationsDomainModule } from '@namewta/domain-operations';
+import { systemAdminDomainModule } from '@namewta/domain-system-admin';
+import { workflowDomainModule } from '@namewta/domain-workflow';
 import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } from '@namewta/platform-app-runtime';
-import { createAccessEvaluator } from '@namewta/platform-permission';
 import { createAiWebDomain, type AiWebRuntime } from '@namewta/web-domain-ai';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
 import { createDevtoolsWebDomain, type DevtoolsWebRuntime } from '@namewta/web-domain-devtools';
@@ -26,21 +23,24 @@ import {
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
 import { getActivePinia } from 'pinia';
 import { defineAsyncComponent, type Component } from 'vue';
+import { createAdminAccessEvaluator } from '@/application/access';
+import {
+  aiService,
+  demoService,
+  devtoolsService,
+  identityAccessService,
+  operationsService,
+  systemAdminService,
+  workflowService
+} from '@/application/services';
+import { getToken } from '@/application/session';
 import IFrame from '@/components/iFrame/index.vue';
 import WorkflowTreePanel from '@/components/TreePanel/index.vue';
-import { getToken } from '@/utils/auth';
 import { sanitizeHtml } from '@/utils/sanitize';
 
 const WorkflowFileUpload = defineAsyncComponent(() => import('@/components/FileUpload/index.vue'));
 const SystemEditor = defineAsyncComponent(() => import('@/components/Editor/index.vue'));
 const SystemImagePreview = defineAsyncComponent(() => import('@/components/ImagePreview/index.vue'));
-
-const aiService = createAiService({
-  async request<T>(config) {
-    const { default: request } = await import('@/utils/request');
-    return request(config) as Promise<T>;
-  }
-});
 
 async function cancelUnreadResponseBody(response: Response | undefined): Promise<void> {
   const body = response?.body;
@@ -71,49 +71,21 @@ export const adminAiWebRuntime: AiWebRuntime = {
 };
 const aiManifest = createAiWebDomain(adminAiWebRuntime);
 
-const identityService: IdentityAccessService = {
-  client: Object.freeze({ clientId: import.meta.env.VITE_APP_CLIENT_ID }),
-  async login(input) {
-    const { identityAccessService } = await import('@/api/login');
-    return identityAccessService.login(input);
-  },
-  async prepareLogin() {
-    const { identityAccessService } = await import('@/api/login');
-    return identityAccessService.prepareLogin();
-  }
-};
-
-const loadDemoRuntime = async () => (await import('@/views/demo/runtime')).demoWebRuntime;
-const demoService = new Proxy({} as DemoWebRuntime['service'], {
-  get:
-    (_target, property) =>
-    (...args: unknown[]) =>
-      loadDemoRuntime().then(runtime => {
-        const method = runtime.service[property as keyof DemoWebRuntime['service']] as (...input: unknown[]) => unknown;
-        return method(...args);
-      })
-});
 const demoRuntime: DemoWebRuntime = {
   service: demoService,
-  confirm: message => loadDemoRuntime().then(runtime => runtime.confirm(message)),
-  download: (...args) => loadDemoRuntime().then(runtime => runtime.download(...args)),
-  success: message => {
-    void loadDemoRuntime().then(runtime => runtime.success(message));
-  }
+  confirm: message =>
+    import('@/application/host/feedback').then(({ default: modal }) => modal.confirm(message).then(() => undefined)),
+  download: (url, params, fileName) =>
+    import('@/application/http').then(({ download }) => download(url, params, fileName)),
+  success: message => void import('@/application/host/feedback').then(({ default: modal }) => modal.msgSuccess(message))
 };
 
-const workflowService = createWorkflowDefinitionService({
-  async request<T>(config) {
-    const { default: request } = await import('@/utils/request');
-    return request(config) as Promise<T>;
-  }
-});
 export const adminWorkflowWebRuntime = {
   service: workflowService,
   fileUpload: WorkflowFileUpload,
-  closeCurrentPage: () => import('@/plugins/tab').then(({ default: tab }) => tab.closePage()),
+  closeCurrentPage: () => import('@/application/host/navigation').then(({ default: tab }) => tab.closePage()),
   chartUrl: async instanceId => {
-    const { getToken } = await import('@/utils/auth');
+    const { getToken } = await import('@/application/session');
     return (
       import.meta.env.VITE_APP_BASE_API +
       `/warm-flow-ui/index.html?id=${encodeURIComponent(instanceId)}&type=FlowChart&t=${Date.now()}` +
@@ -124,35 +96,35 @@ export const adminWorkflowWebRuntime = {
     );
   },
   resolveAttachments: async ids => {
-    const { listByIds } = await import('@/api/system/oss');
-    const response = await listByIds(ids);
+    const response = await systemAdminService.resources.oss.listByIds(ids);
     return response.data.map(item => ({ ossId: item.ossId, originalName: item.originalName }));
   },
-  downloadAttachment: ossId => import('@/plugins/download').then(({ default: download }) => download.oss(ossId)),
+  downloadAttachment: ossId =>
+    import('@/application/host/download').then(({ default: download }) => download.oss(ossId)),
   confirm: async message => {
-    const { default: modal } = await import('@/plugins/modal');
+    const { default: modal } = await import('@/application/host/feedback');
     await modal.confirm(message);
   },
   success: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgSuccess(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgSuccess(message));
   },
   treePanel: WorkflowTreePanel,
   error: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgError(message));
   },
   dicts: (...types) =>
     createLiveWorkflowDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
   download: (url, params, fileName) =>
-    import('@/utils/request').then(({ download }) => download(url, params, fileName)),
+    import('@/application/http').then(({ download }) => download(url, params, fileName)),
   closeDesigner: async activeName => {
-    const { default: tab } = await import('@/plugins/tab');
+    const { default: tab } = await import('@/application/host/navigation');
     await tab.closeOpenPage({
       path: '/workflow/processDefinition',
       query: { activeName }
     });
   },
   designUrl: async (definitionId, disabled) => {
-    const { getToken } = await import('@/utils/auth');
+    const { getToken } = await import('@/application/session');
     return (
       import.meta.env.VITE_APP_BASE_API +
       '/warm-flow-ui/index.html?id=' +
@@ -168,33 +140,27 @@ export const adminWorkflowWebRuntime = {
 };
 const workflowManifest = createWorkflowWebDomain(adminWorkflowWebRuntime);
 
-const systemAdminService = createSystemAdminService({
-  async request<T>(config) {
-    const { default: request } = await import('@/utils/request');
-    return request(config) as Promise<T>;
-  }
-});
 export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
   service: systemAdminService,
   treePanel: WorkflowTreePanel,
   editor: SystemEditor,
   imagePreview: SystemImagePreview,
   confirm: async message => {
-    const { default: modal } = await import('@/plugins/modal');
+    const { default: modal } = await import('@/application/host/feedback');
     await modal.confirm(message);
   },
   success: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgSuccess(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgSuccess(message));
   },
   error: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgError(message));
   },
   warning: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgWarning(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgWarning(message));
   },
   download: (url, params, fileName) =>
-    import('@/utils/request').then(({ download }) => download(url, params, fileName)),
-  downloadOss: ossId => import('@/plugins/download').then(({ default: download }) => download.oss(ossId)),
+    import('@/application/http').then(({ download }) => download(url, params, fileName)),
+  downloadOss: ossId => import('@/application/host/download').then(({ default: download }) => download.oss(ossId)),
   dictCache: {
     clean: () => {
       void import('@/store/modules/dict').then(({ useDictStore }) => useDictStore().cleanDict());
@@ -208,16 +174,11 @@ export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
     import('@/utils/ossContent').then(({ replaceOssContentUrls }) => replaceOssContentUrls(html, urls)),
   dicts: (...types) =>
     createLiveSystemDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
-  closeCurrentPage: () => import('@/plugins/tab').then(({ default: tab }) => tab.closePage()),
-  closeAndOpenPage: location => import('@/plugins/tab').then(({ default: tab }) => tab.closeOpenPage(location)),
-  config: key =>
-    import('@/api/system/config').then(({ getConfigKey }) => getConfigKey(key).then(response => response.data)),
-  hasPermission: permission => {
-    const user = getActivePinia()?.state.value.user as { permissions?: string[]; roles?: string[] } | undefined;
-    return createAccessEvaluator({ permissions: user?.permissions ?? [], roles: user?.roles ?? [] }).hasAnyPermission([
-      permission
-    ]);
-  },
+  closeCurrentPage: () => import('@/application/host/navigation').then(({ default: tab }) => tab.closePage()),
+  closeAndOpenPage: location =>
+    import('@/application/host/navigation').then(({ default: tab }) => tab.closeOpenPage(location)),
+  config: key => systemAdminService.resources.configs.byKey(key).then(response => response.data),
+  hasPermission: permission => createAdminAccessEvaluator().hasPermission(permission),
   currentUserId: () => {
     const user = getActivePinia()?.state.value.user as { userId?: string | number } | undefined;
     return user?.userId;
@@ -229,12 +190,6 @@ export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
 };
 const systemAdminManifest = createSystemAdminWebDomain(adminSystemAdminWebRuntime);
 
-const operationsService = createOperationsService({
-  async request<T>(config) {
-    const { default: request } = await import('@/utils/request');
-    return request(config) as Promise<T>;
-  }
-});
 export const adminOperationsWebRuntime: OperationsWebRuntime = {
   service: operationsService,
   iframe: IFrame,
@@ -244,23 +199,23 @@ export const adminOperationsWebRuntime: OperationsWebRuntime = {
     'snail-ai': import.meta.env.VITE_APP_SNAILAI_ADMIN
   }),
   confirm: async message => {
-    const { default: modal } = await import('@/plugins/modal');
+    const { default: modal } = await import('@/application/host/feedback');
     await modal.confirm(message);
   },
   success: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgSuccess(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgSuccess(message));
   },
   error: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgError(message));
   },
   loading: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.loading(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.loading(message));
   },
   closeLoading: () => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.closeLoading());
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.closeLoading());
   },
   download: (url, params, fileName) =>
-    import('@/utils/request').then(({ download }) => download(url, params, fileName)),
+    import('@/application/http').then(({ download }) => download(url, params, fileName)),
   openDownload: intent => {
     const link = document.createElement('a');
     link.href = intent.url;
@@ -273,46 +228,31 @@ export const adminOperationsWebRuntime: OperationsWebRuntime = {
   },
   dicts: (...types) =>
     createLiveOperationsDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
-  hasPermission: permission => {
-    const user = getActivePinia()?.state.value.user as { permissions?: string[]; roles?: string[] } | undefined;
-    return createAccessEvaluator({ permissions: user?.permissions ?? [], roles: user?.roles ?? [] }).hasAnyPermission([
-      permission
-    ]);
-  }
+  hasPermission: permission => createAdminAccessEvaluator().hasPermission(permission)
 };
 const operationsManifest = createOperationsWebDomain(adminOperationsWebRuntime);
-
-const devtoolsHttp: Parameters<typeof createDevtoolsService>[0] = {
-  async request<T>(config) {
-    const { default: request } = await import('@/utils/request');
-    return request(config) as Promise<T>;
-  }
-};
-const devtoolsService = createDevtoolsService(devtoolsHttp, {
-  dictTypes: createDictTypeCatalogPort(devtoolsHttp),
-  menus: createMenuQueryPort(devtoolsHttp)
-});
 
 export const adminDevtoolsWebRuntime: DevtoolsWebRuntime = {
   service: devtoolsService,
   clientId: () => import.meta.env.VITE_APP_CLIENT_ID,
   confirm: async message => {
-    const { default: modal } = await import('@/plugins/modal');
+    const { default: modal } = await import('@/application/host/feedback');
     await modal.confirm(message);
   },
   success: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgSuccess(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgSuccess(message));
   },
   error: message => {
-    void import('@/plugins/modal').then(({ default: modal }) => modal.msgError(message));
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgError(message));
   },
   navigate: async location => {
     const { default: appRouter } = await import('@/router');
     await appRouter.push(location);
   },
-  closeAndOpenPage: location => import('@/plugins/tab').then(({ default: tab }) => tab.closeOpenPage(location)),
+  closeAndOpenPage: location =>
+    import('@/application/host/navigation').then(({ default: tab }) => tab.closeOpenPage(location)),
   downloadZip: (url, fileName) =>
-    import('@/plugins/download').then(({ default: download }) => download.zip(url, fileName))
+    import('@/application/host/download').then(({ default: download }) => download.zip(url, fileName))
 };
 const devtoolsManifest = createDevtoolsWebDomain(adminDevtoolsWebRuntime);
 
@@ -329,7 +269,7 @@ const runtime = composeAppRuntime<Component>({
   ],
   manifests: [
     createIdentityAccessWebDomain({
-      service: identityService,
+      service: identityAccessService,
       onAuthenticated: () => {
         window.location.href = `${import.meta.env.VITE_APP_CONTEXT_PATH}index`;
       }

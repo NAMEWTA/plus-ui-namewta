@@ -8,6 +8,7 @@
 - 使用 TypeScript AST 和 Vue SFC 解析器识别真实导入，检查依赖方向、深层导入、跨包相对导入、循环和终端纯度。
 - 结构化解析 `pnpm-workspace.yaml` 与 lockfile，检查工作区 glob、catalog、importer 和依赖规格漂移。
 - 检查 domain/platform 中未经遮蔽的浏览器、DOM、存储、网络、Worker 与渲染全局。
+- 禁止已激活 App 重新创建 `src/api` 门面；App 必须通过 domain 公开服务完成后端能力组合。
 - 将当前发现与 `baseline.json` 的精确身份比较；新增、过期或扩大的基线都失败关闭。
 - 确保移动 Web、小程序和 Taro 适配器在激活前只含 README。
 

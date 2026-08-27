@@ -61,9 +61,9 @@
 </template>
 
 <script setup lang="ts">
-import { authUnlock, authRouterUrl } from '@/api/system/social/auth';
-import modal from '@/plugins/modal';
-import tab from '@/plugins/tab';
+import modal from '@/application/host/feedback';
+import tab from '@/application/host/navigation';
+import { systemAdminService } from '@/application/services';
 import { propTypes } from '@/utils/propTypes';
 
 const props = defineProps({
@@ -74,27 +74,18 @@ const auths = computed(() => props.auths);
 const unlockAuth = (row: any) => {
   ElMessageBox.confirm('您确定要解除"' + row.source + '"的账号绑定吗？')
     .then(() => {
-      return authUnlock(row.id);
+      return systemAdminService.resources.social.unlock(row.id);
     })
-    .then((res: any) => {
-      if (res.code === 200) {
-        modal.msgSuccess('解绑成功');
-        tab.refreshPage();
-      } else {
-        modal.msgError(res.msg);
-      }
+    .then(() => {
+      modal.msgSuccess('解绑成功');
+      tab.refreshPage();
     })
     .catch(() => {});
 };
 
-const authUrl = (source: string) => {
-  authRouterUrl(source).then((res: any) => {
-    if (res.code === 200) {
-      window.location.href = res.data;
-    } else {
-      modal.msgError(res.msg);
-    }
-  });
+const authUrl = async (source: string) => {
+  const res = await systemAdminService.resources.social.bindingUrl(source);
+  window.location.href = res.data;
 };
 </script>
 

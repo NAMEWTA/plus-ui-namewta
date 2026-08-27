@@ -259,16 +259,6 @@ describe('axios browser response boundary', () => {
     expect(onUnauthorized).toHaveBeenCalledOnce();
   });
 
-  it('supports an explicit legacy 401 rejection at the root compatibility boundary', async () => {
-    const onUnauthorized = vi.fn();
-    createAxiosBrowserAdapter(adapterOptions({ legacyUnauthorizedRejection: true, onUnauthorized }).options);
-    const intercept = getResponseInterceptor();
-    await expect(Promise.resolve(intercept(response({ code: 401 })))).rejects.toBe(
-      '无效的会话，或者会话已过期，请重新登录。'
-    );
-    expect(onUnauthorized).toHaveBeenCalledOnce();
-  });
-
   it('uses only response headers to decide response decryption', async () => {
     const crypto: CryptoPort = {
       decryptResponse: vi.fn(() => ({ code: 200, value: 'clear' })),

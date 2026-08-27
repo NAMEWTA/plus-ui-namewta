@@ -65,7 +65,6 @@ export interface AxiosBrowserOptions {
   errorPresenter: ErrorPresenter;
   getLanguage(): string;
   getToken(): string | null;
-  legacyUnauthorizedRejection?: boolean;
   now?: () => number;
   onUnauthorized(): Promise<void> | void;
   repeatSubmissions: RepeatSubmissionStore;
@@ -220,7 +219,6 @@ export function createAxiosBrowserAdapter(options: AxiosBrowserOptions): AxiosBr
       if (responseType === 'blob' || responseType === 'arraybuffer') return response.data;
       if (code === 401) {
         const handled = recoverUnauthorizedSafely(options.onUnauthorized);
-        if (options.legacyUnauthorizedRejection) return Promise.reject('无效的会话，或者会话已过期，请重新登录。');
         return Promise.reject(createTransportError({ kind: 'unauthorized', message, code, handled }));
       }
       if (code !== options.successCode) {

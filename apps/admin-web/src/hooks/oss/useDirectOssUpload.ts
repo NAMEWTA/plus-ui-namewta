@@ -1,20 +1,13 @@
-import type { UploadProgressEvent, UploadRequestOptions } from 'element-plus';
 import type {
   OssCompletedPart,
   OssSignedPart,
   OssUploadInitResponse,
   OssUploadResumeResponse,
   OssUploadVO
-} from '@/api/system/oss/types';
-import {
-  abortOssUpload,
-  completeOssUpload,
-  getOssDownloadUrl,
-  initOssUpload,
-  resumeOssUpload,
-  signOssUploadParts
-} from '@/api/system/oss';
-import { getToken } from '@/utils/auth';
+} from '@namewta/domain-system-admin';
+import type { UploadProgressEvent, UploadRequestOptions } from 'element-plus';
+import { systemAdminService } from '@/application/services';
+import { getToken } from '@/application/session';
 import { createOssFileFingerprint } from '@/utils/oss/fingerprint';
 import { getOssResumeRecord, putOssResumeRecord, removeOssResumeRecord } from '@/utils/oss/resumeStore';
 import { transferToOss } from '@/utils/oss/transport';
@@ -22,6 +15,7 @@ import { transferToOss } from '@/utils/oss/transport';
 const DEFAULT_POLICY = 'general';
 const SIGN_WINDOW = 8;
 const MAX_PART_ATTEMPTS = 3;
+const ossService = systemAdminService.resources.oss;
 
 export interface DirectUploadOptions {
   signal: AbortSignal;
@@ -63,7 +57,7 @@ async function safeRemoveResume(fingerprint: string) {
 }
 
 async function resolveUploadResult(file: File, ossId: string): Promise<OssUploadVO> {
-  const download = await getOssDownloadUrl(ossId).catch(() => undefined);
+  const download = await ossService.downloadUrl(ossId).catch(() => undefined);
   return {
     ossId,
     fileName: file.name,
@@ -83,7 +77,7 @@ async function findResume(file: File, fingerprint: string, storageKey: string) {
     return undefined;
   }
   try {
-    const response = await resumeOssUpload(record.uploadToken, fingerprint);
+    const response = await ossService.resumeUpload(record.uploadToken, fingerprint);
     const session = response.data;
     if (!session || session.fileName !== file.name || session.fileSize !== file.size) {
       await safeRemoveResume(storageKey);
@@ -108,7 +102,7 @@ async function findResume(file: File, fingerprint: string, storageKey: string) {
 }
 
 async function initialize(file: File, fingerprint: string, storageKey: string, policy: string) {
-  const response = await initOssUpload({
+  const response = await ossService.initUpload({
     policy,
     fileName: file.name,
     fileSize: file.size,
@@ -168,7 +162,7 @@ async function uploadSignedPart(
       lastError = error;
       loadedByPart.set(signed.partNumber, 0);
       if (attempt < MAX_PART_ATTEMPTS) {
-        const response = await signOssUploadParts(uploadToken, [signed.partNumber]);
+        const response = await ossService.signParts(uploadToken, [signed.partNumber]);
         request = requireData(response.data?.parts?.[0], 'Part 重新签名失败');
       }
     }
@@ -203,7 +197,7 @@ async function uploadMultipart(
 
   for (let offset = 0; offset < missing.length; offset += SIGN_WINDOW) {
     const numbers = missing.slice(offset, offset + SIGN_WINDOW);
-    const response = await signOssUploadParts(uploadToken, numbers);
+    const response = await ossService.signParts(uploadToken, numbers);
     const signedParts = requireData(response.data?.parts, 'Part 签名失败');
     const settled = await Promise.allSettled(
       signedParts.map(part => uploadSignedPart(file, uploadToken, partSize, part, loadedByPart, stableOptions))
@@ -235,13 +229,13 @@ export async function uploadDirectToOss(file: File, options: DirectUploadOptions
       session.mode === 'SINGLE'
         ? await uploadSingle(file, session as OssUploadInitResponse, options)
         : await uploadMultipart(file, session, options);
-    const complete = await completeOssUpload(session.uploadToken, parts);
+    const complete = await ossService.completeUpload(session.uploadToken, parts);
     const ossId = requireData(complete.data, '完成 OSS 上传失败');
     await safeRemoveResume(storageKey);
     return resolveUploadResult(file, ossId);
   } catch (error) {
     if (options.signal.aborted && uploadToken) {
-      await abortOssUpload(uploadToken).catch(() => undefined);
+      await ossService.abortUpload(uploadToken).catch(() => undefined);
       await safeRemoveResume(storageKey);
     }
     throw error;

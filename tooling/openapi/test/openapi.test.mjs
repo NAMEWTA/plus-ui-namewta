@@ -156,7 +156,9 @@ test('check detects source drift and manual generated-file edits without writing
 test('HTTP source errors redact credentials and query parameters for normalized schemes', async () => {
   for (const source of [
     'HTTPS://user:secret@127.0.0.1:1/contracts?token=sensitive#fragment',
-    'HTTPS:/user:secret@127.0.0.1:1/contracts?token=sensitive#fragment'
+    'HTTPS:/user:secret@127.0.0.1:1/contracts?token=sensitive#fragment',
+    ' HTTPS:/user:secret@127.0.0.1:1/contracts?token=sensitive#fragment',
+    '\tHTTPS:/user:secret@127.0.0.1:1/contracts?token=sensitive#fragment'
   ]) {
     await assert.rejects(
       fetchSnapshot({ backendCommit, source }),

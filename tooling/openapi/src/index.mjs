@@ -44,15 +44,18 @@ export function sha256(value) {
 }
 
 function classifySource(source) {
-  if (!/^https?:/i.test(source)) return { kind: 'file', path: source };
   try {
     const url = new URL(source);
     const protocol = url.protocol.toLowerCase();
-    if (protocol !== 'http:' && protocol !== 'https:') throw new Error('unsupported protocol');
-    return { kind: 'http', label: `${protocol}//${url.host}${url.pathname}`, url };
+    if (protocol === 'http:' || protocol === 'https:') {
+      return { kind: 'http', label: `${protocol}//${url.host}${url.pathname}`, url };
+    }
   } catch (error) {
-    throw new OpenApiContractError('OpenAPI HTTP source URL is invalid', error);
+    if (/^https?:/i.test(source.trimStart())) {
+      throw new OpenApiContractError('OpenAPI HTTP source URL is invalid', error);
+    }
   }
+  return { kind: 'file', path: source };
 }
 
 async function readSource(source) {

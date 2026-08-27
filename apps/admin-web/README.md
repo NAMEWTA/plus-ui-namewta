@@ -12,7 +12,7 @@
 
 ## 边界
 
-可复用领域服务、终端无关模型、浏览器适配器合同和后端授权不属于本 App。禁止导入其他 App、包内部路径、Taro 适配器，禁止恢复根级 `src/` 兼容入口。
+可复用领域服务、终端无关模型、浏览器适配器合同和后端授权不属于本 App。禁止导入其他 App、包内部路径或 Taro 适配器。
 
 ## 公开入口
 
@@ -27,7 +27,7 @@
 
 通过领域合同访问 `ruoyi-admin`、`ruoyi-system`、`ruoyi-workflow`、`ruoyi-ai`、`ruoyi-demo`、`ruoyi-gen`、`ruoyi-job`。
 
-App 内禁止建立 `src/api` 或包装 domain 返回值的兼容门面。页面、Store 与宿主组件按需使用 `src/application/services.ts` 中的正式服务；共享请求、数据模型和业务能力归 domain，共享 Web 页面归 web-domain，布局、导航和会话恢复等应用编排仍归本 App。
+页面、Store 与宿主组件按需使用 `src/application/services.ts` 中的正式服务；共享请求、数据模型和业务能力归 domain，共享 Web 页面归 web-domain，布局、导航和会话恢复等应用编排仍归本 App。
 
 ## 验证
 

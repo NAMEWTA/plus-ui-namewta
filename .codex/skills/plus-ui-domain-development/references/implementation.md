@@ -30,11 +30,9 @@ pnpm build:prod
 
 先运行受影响包的 `--filter` 命令以快速反馈，最终以根级聚合门禁为准。Playwright 需要真实浏览器流程时再运行，且应覆盖所涉及的 App，而不是只验证 Admin。
 
-## 禁止恢复的旧结构
+## 组合约束
 
-- 根级 `src/**`
-- 根级 `gen/*.ftl`
-- 假定所有 App 共享同一布局或同一会话键的实现
-- 从 `apps/admin-web` 深层导入来构建其他 App
-- 为尚未激活的移动端或小程序创建空包清单和虚假构建脚本
-- `identity-access`、`system-admin`、`devtools`、`operations` 等旧一级语义包或其兼容门面
+- 每个 App 独立拥有布局、ClientContext 和会话命名空间。
+- App 之间不互相导入，所有共享能力从工作区包公开入口组合。
+- 移动端和小程序在激活前只保留中文 README，不创建包清单和构建脚本。
+- domain 一级目录只使用后端模块名，二级资源目录只使用稳定 Controller base path。

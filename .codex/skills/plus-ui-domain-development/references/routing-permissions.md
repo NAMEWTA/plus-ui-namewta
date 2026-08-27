@@ -13,7 +13,7 @@ Client 的领域选择位于 `apps/client-web/src/composition.ts`。它不得继
 ## 按钮权限
 
 - `v-hasPermi` 与 `v-hasRoles` 位于 `apps/admin-web/src/directive/permission`。
-- 命令式检查位于 `apps/admin-web/src/plugins/auth.ts`。
+- 命令式检查位于 `apps/admin-web/src/application/access.ts`。
 - 两者都应调用统一的访问评估器，保证空值、缺少会话和不匹配权限失败关闭。
 - 菜单过滤、按钮隐藏都不是安全边界；后端接口必须独立鉴权。
 

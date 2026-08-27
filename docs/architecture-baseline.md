@@ -1,6 +1,6 @@
 # 多 App 领域架构基线
 
-本文描述当前已经落地的架构和必须保持的行为边界。迁移过程与阶段性证据由 Speculo 归档保存，不再作为产品 README 的长期事实。
+本文描述当前架构和必须保持的行为边界。
 
 ## 认证不变量
 
@@ -21,7 +21,7 @@
 - `apps/*` 只负责终端组合与交付；App 之间不得互相导入。
 - `domains/*` 保持无界面、无 DOM、无浏览器实现；`web-domains/*` 不拥有 App 布局和全局单例。
 - 所有工作区内部依赖必须显式声明并从公开 `exports` 导入。
-- 根级 `src/` 和旧 `gen/*.ftl` 已退役，不得作为兼容层恢复。
+- 产品源码必须位于明确的 App、domain、web-domain、platform、adapter、web-kit 或 tooling 所有权目录。
 - 移动 Web、小程序与 Taro 适配器在独立规格激活前保持 README-only。
 
 ## 验证基线

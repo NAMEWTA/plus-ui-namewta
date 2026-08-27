@@ -21,13 +21,12 @@ description: 为 NAMEWTA plus-ui 多 App 领域架构提供实现导航。处理
 
 ## 硬边界
 
-- 根目录不存在兼容性 `src/` 和旧模板 `gen/`；不要恢复它们。
 - `packages/domains/*` 不依赖 Vue、DOM、浏览器存储或具体请求实现。
 - `packages/web-domains/*` 不拥有 App 布局、全局路由器、请求单例或后端授权。
 - `apps/*` 拥有 ClientContext、布局、品牌、路由装配、运行时适配器和部署配置。
 - 后端仍是最终授权者；前端路由和按钮权限只负责可见性与交互失败关闭。
 - 移动 Web、小程序和 Taro 适配器在独立规格激活前保持仅含中文 README 的占位目录。
-- canonical domain 只允许 `admin/system/gen/workflow/demo/ai`；监控属于 `system/monitor/*`，不得恢复旧语义包或兼容门面。
+- domain 固定为 `admin/system/gen/workflow/demo/ai`；监控属于 `system/monitor/*`。
 
 ## 事实优先级
 

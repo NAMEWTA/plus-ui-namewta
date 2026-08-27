@@ -60,7 +60,7 @@ pnpm build:prod
 - 产品变更进入 `main`；`6.X-Vue` 只跟踪上游，不承载本地业务提交。
 - 评估上游时按能力映射到本地 owner boundary，记录 `adopt`、`adapt`、`reject` 或 `defer` 以及验证证据，详见 [上游跟踪](docs/upstream/README.md)。
 - 只从包的公开 `exports` 导入；禁止跨 App 导入、包深层导入和跨工作区相对导入。
-- 根级兼容 `src/` 与旧 `gen/*.ftl` 已删除，不得恢复。
+- 产品源码只存在于已激活 App 和工作区包的所有权目录中。
 - 前端可见性控制不是安全边界，后端始终负责最终认证和授权。
 
 ## 配套后端

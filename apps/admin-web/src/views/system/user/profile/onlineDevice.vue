@@ -27,9 +27,9 @@
 </template>
 
 <script setup name="Online" lang="ts">
-import { delOnline } from '@/api/monitor/online';
-import modal from '@/plugins/modal';
-import tab from '@/plugins/tab';
+import modal from '@/application/host/feedback';
+import tab from '@/application/host/navigation';
+import { operationsService } from '@/application/services';
 import { useDict } from '@/utils/dict';
 import { propTypes } from '@/utils/propTypes';
 import { parseTime } from '@/utils/ruoyi';
@@ -45,15 +45,11 @@ const devices = computed(() => props.devices);
 const handldDelOnline = (row: any) => {
   ElMessageBox.confirm('删除设备后，在该设备登录需要重新进行验证')
     .then(() => {
-      return delOnline(row.tokenId);
+      return operationsService.online.removeCurrent(row.tokenId);
     })
-    .then((res: any) => {
-      if (res.code === 200) {
-        modal.msgSuccess('删除成功');
-        tab.refreshPage();
-      } else {
-        modal.msgError(res.msg);
-      }
+    .then(() => {
+      modal.msgSuccess('删除成功');
+      tab.refreshPage();
     })
     .catch(() => {});
 };

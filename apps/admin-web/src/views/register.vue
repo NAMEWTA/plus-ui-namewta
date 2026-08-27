@@ -108,10 +108,10 @@
 </template>
 
 <script setup lang="ts">
+import type { RegistrationInput } from '@namewta/domain-identity-access';
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
-import { getClientAuthContext, getCodeImg, register } from '@/api/login';
-import { RegisterForm } from '@/api/types';
+import { identityAccessService } from '@/application/services';
 
 const title = import.meta.env.VITE_APP_TITLE;
 const currentYear = new Date().getFullYear();
@@ -125,7 +125,7 @@ const router = useRouter();
 
 const { t } = useI18n();
 
-const registerForm = ref<RegisterForm>({
+const registerForm = ref<RegistrationInput>({
   username: '',
   password: '',
   confirmPassword: '',
@@ -205,7 +205,7 @@ const handleRegister = () => {
   registerRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       loading.value = true;
-      const [err] = await to(register(registerForm.value));
+      const [err] = await to(identityAccessService.register(registerForm.value));
       if (!err) {
         const username = registerForm.value.username;
         await ElMessageBox.alert(t('register.registerSuccess', { username }), '系统提示', {
@@ -223,20 +223,19 @@ const handleRegister = () => {
 };
 
 const getCode = async () => {
-  const res = await getCodeImg();
-  const { data } = res;
-  captchaEnabled.value = data.captchaEnabled === undefined ? true : data.captchaEnabled;
+  const verification = await identityAccessService.getVerification();
+  captchaEnabled.value = verification.captchaEnabled;
   if (captchaEnabled.value) {
-    codeUrl.value = 'data:image/gif;base64,' + data.img;
-    registerForm.value.uuid = data.uuid;
+    codeUrl.value = 'data:image/gif;base64,' + verification.img;
+    registerForm.value.uuid = verification.uuid;
   }
 };
 
 const loadClientAuthContext = async () => {
   authContextState.value = 'loading';
   try {
-    const res = await getClientAuthContext();
-    if (res.data?.clientEnabled !== true || res.data.registerEnabled !== true) {
+    const context = await identityAccessService.getClientContext();
+    if (!context.clientEnabled || !context.registerEnabled) {
       authContextState.value = 'unavailable';
       ElMessage.warning('当前客户端未开放注册');
       await router.push('/login');

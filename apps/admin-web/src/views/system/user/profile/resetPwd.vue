@@ -17,10 +17,10 @@
 </template>
 
 <script setup lang="ts">
-import type { ResetPwdForm } from '@/api/system/user/types';
-import { updateUserPwd } from '@/api/system/user';
-import modal from '@/plugins/modal';
-import tab from '@/plugins/tab';
+import type { ResetPwdForm } from '@namewta/domain-system-admin';
+import modal from '@/application/host/feedback';
+import tab from '@/application/host/navigation';
+import { systemAdminService } from '@/application/services';
 
 const pwdRef = ref<ElFormInstance>();
 const user = ref<ResetPwdForm>({
@@ -66,7 +66,7 @@ const rules = ref({
 const submit = () => {
   pwdRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      await updateUserPwd(user.value.oldPassword, user.value.newPassword);
+      await systemAdminService.users.updatePassword(user.value.oldPassword, user.value.newPassword);
       modal.msgSuccess('修改成功');
     }
   });

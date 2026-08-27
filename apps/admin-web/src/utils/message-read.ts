@@ -1,4 +1,4 @@
-import cache from '@/plugins/cache';
+import cache from '@/application/host/cache';
 
 const MESSAGE_READ_KEY = 'message_read_ids';
 const MAX_READ_IDS = 300;

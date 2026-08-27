@@ -2,11 +2,11 @@ import { restoreProtectedNavigation } from '@namewta/platform-app-runtime';
 import { ElMessage } from 'element-plus/es';
 import * as NProgressModule from 'nprogress';
 import 'nprogress/nprogress.css';
+import { isHandledRequestError, isRelogin } from '@/application/http';
+import { getToken } from '@/application/session';
 import { usePermissionStore } from '@/store/modules/permission';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useUserStore } from '@/store/modules/user';
-import { getToken } from '@/utils/auth';
-import { isHandledRequestError, isRelogin } from '@/utils/request';
 import { isHttp, isPathMatch } from '@/utils/validate';
 import router from './router';
 

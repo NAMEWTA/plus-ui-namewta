@@ -1,9 +1,9 @@
+import type { MessageVO } from '@namewta/domain-system-admin';
 import { ElNotification } from 'element-plus';
-import type { MessageVO } from '@/api/system/message/types';
-import { getMessageBox } from '@/api/system/message';
+import { systemAdminService } from '@/application/services';
+import { getToken } from '@/application/session';
 import { useNoticeStore } from '@/store/modules/notice';
 import { useUserStore } from '@/store/modules/user';
-import { getToken } from '@/utils/auth';
 import { isMessageRead } from '@/utils/message-read';
 import { parsePushMessage, resolveNoticeGroup, resolveNoticeTitle, shouldAppendNotice } from '@/utils/push-message';
 
@@ -153,7 +153,7 @@ export const initMessageBox = async () => {
     useNoticeStore().clearNotice();
     return;
   }
-  const { data } = await getMessageBox();
+  const { data } = await systemAdminService.resources.messages.box();
   const notices = [...(data?.systemList ?? []), ...(data?.noticeList ?? []), ...(data?.workflowList ?? [])].map(
     toNoticeItem
   );

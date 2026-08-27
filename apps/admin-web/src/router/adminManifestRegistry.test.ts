@@ -1,8 +1,26 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { adminAiWebRuntime, resolveAdminWebRegistration } from './adminManifestRegistry';
 
-vi.mock('@/api/login', () => ({ identityAccessService: {} }));
-vi.mock('@/views/demo/runtime', () => ({ demoWebRuntime: {} }));
+vi.mock('@/application/services', () => {
+  const createService = () => {
+    const service = new Proxy(vi.fn(), {
+      get: (_target, property) => (property === 'then' ? undefined : service)
+    });
+    return service;
+  };
+  return {
+    aiService: createService(),
+    demoService: createService(),
+    devtoolsService: createService(),
+    identityAccessService: createService(),
+    operationsService: createService(),
+    systemAdminService: createService(),
+    workflowService: createService()
+  };
+});
+vi.mock('@/application/access', () => ({
+  createAdminAccessEvaluator: () => ({ hasPermission: vi.fn(() => false) })
+}));
 
 afterEach(() => vi.unstubAllGlobals());
 

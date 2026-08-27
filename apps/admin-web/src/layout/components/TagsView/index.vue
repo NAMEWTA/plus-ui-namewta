@@ -101,7 +101,7 @@ import {
   RefreshRight,
   Right
 } from '@element-plus/icons-vue';
-import tab from '@/plugins/tab';
+import tab from '@/application/host/navigation';
 import { usePermissionStore } from '@/store/modules/permission';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useTagsViewStore } from '@/store/modules/tagsView';

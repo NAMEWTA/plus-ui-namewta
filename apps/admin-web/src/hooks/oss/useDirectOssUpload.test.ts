@@ -1,23 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  completeOssUpload,
-  getOssDownloadUrl,
-  initOssUpload,
-  resumeOssUpload,
-  signOssUploadParts
-} from '@/api/system/oss';
+import { systemAdminService } from '@/application/services';
 import { createOssFileFingerprint } from '@/utils/oss/fingerprint';
 import { getOssResumeRecord, putOssResumeRecord, removeOssResumeRecord } from '@/utils/oss/resumeStore';
 import { transferToOss } from '@/utils/oss/transport';
 import { getDirectOssUploadErrorMessage, uploadDirectToOss } from './useDirectOssUpload';
 
-vi.mock('@/api/system/oss', () => ({
-  abortOssUpload: vi.fn(),
-  completeOssUpload: vi.fn(),
-  getOssDownloadUrl: vi.fn(),
-  initOssUpload: vi.fn(),
-  resumeOssUpload: vi.fn(),
-  signOssUploadParts: vi.fn()
+vi.mock('@/application/services', () => ({
+  systemAdminService: {
+    resources: {
+      oss: {
+        abortUpload: vi.fn(),
+        completeUpload: vi.fn(),
+        downloadUrl: vi.fn(),
+        initUpload: vi.fn(),
+        resumeUpload: vi.fn(),
+        signParts: vi.fn()
+      }
+    }
+  }
 }));
 vi.mock('@/utils/oss/fingerprint', () => ({ createOssFileFingerprint: vi.fn() }));
 vi.mock('@/utils/oss/resumeStore', () => ({
@@ -26,6 +26,13 @@ vi.mock('@/utils/oss/resumeStore', () => ({
   removeOssResumeRecord: vi.fn()
 }));
 vi.mock('@/utils/oss/transport', () => ({ transferToOss: vi.fn() }));
+
+const ossService = systemAdminService.resources.oss;
+const completeOssUpload = ossService.completeUpload;
+const getOssDownloadUrl = ossService.downloadUrl;
+const initOssUpload = ossService.initUpload;
+const resumeOssUpload = ossService.resumeUpload;
+const signOssUploadParts = ossService.signParts;
 
 const file = () =>
   new File([new Uint8Array([1, 2, 3, 4, 5, 6])], 'archive.bin', {

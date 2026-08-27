@@ -98,10 +98,10 @@
 </template>
 
 <script setup lang="ts">
+import type { RoleQuery, RoleVO } from '@namewta/domain-system-admin';
 import type { VxeTableInstance } from 'vxe-pc-ui/types/components/table';
 import animateConfig from '@/animate';
-import api from '@/api/system/role';
-import { RoleVO, RoleQuery } from '@/api/system/role/types';
+import { systemAdminService } from '@/application/services';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
 import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useDict } from '@/utils/dict';
@@ -175,7 +175,7 @@ const getList = () => {
     return;
   }
   loading.value = true;
-  api.listRole(applyDateRange(queryParams.value)).then(res => {
+  systemAdminService.roles.list(applyDateRange(queryParams.value)).then(res => {
     roleList.value = res.data?.rows;
     total.value = res.data?.total;
     loading.value = false;
@@ -245,7 +245,7 @@ const handleCloseTag = (user: RoleVO) => {
  */
 const initSelectRole = async () => {
   if (defaultSelectRoleIds.value.length > 0) {
-    const { data } = await api.optionSelect(defaultSelectRoleIds.value);
+    const { data } = await systemAdminService.roles.options(defaultSelectRoleIds.value);
     selectRoleList.value = data;
     const users = roleList.value.filter(item => {
       return defaultSelectRoleIds.value.includes(String(item.roleId));

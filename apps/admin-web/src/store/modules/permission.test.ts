@@ -1,20 +1,21 @@
 import type { RouteRecordRaw } from 'vue-router';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getRouters } from '@/api/menu';
-import auth from '@/plugins/auth';
+import { createAdminAccessEvaluator } from '@/application/access';
+import { identityAccessService } from '@/application/services';
 import router from '@/router';
 import { filterDynamicRoutes, usePermissionStore } from './permission';
 
-vi.mock('@/api/menu', () => ({ getRouters: vi.fn() }));
+vi.mock('@/application/services', () => ({ identityAccessService: { getMenus: vi.fn() } }));
+vi.mock('@/router/adminManifestRegistry', () => ({ resolveAdminWebRegistration: vi.fn() }));
 vi.mock('@/components/ParentView/index.vue', () => ({ default: { name: 'ParentView' } }));
 vi.mock('@/layout/components/InnerLink/index.vue', () => ({ default: { name: 'InnerLink' } }));
 vi.mock('@/layout/index.vue', () => ({ default: { name: 'Layout' } }));
-vi.mock('@/plugins/auth', () => ({
-  default: {
-    hasPermiOr: vi.fn(),
-    hasRoleOr: vi.fn()
-  }
+vi.mock('@/application/access', () => ({
+  createAdminAccessEvaluator: vi.fn(() => ({
+    hasAnyPermission: vi.fn(),
+    hasAnyRole: vi.fn()
+  }))
 }));
 vi.mock('@/router', () => ({
   constantRoutes: [{ path: '/constant', name: 'Constant' }],
@@ -34,8 +35,10 @@ describe('permission route baseline', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
-    vi.mocked(auth.hasPermiOr).mockImplementation(permissions => permissions.includes('local:allowed'));
-    vi.mocked(auth.hasRoleOr).mockReturnValue(false);
+    vi.mocked(createAdminAccessEvaluator).mockReturnValue({
+      hasAnyPermission: permissions => permissions.includes('local:allowed'),
+      hasAnyRole: () => false
+    } as never);
   });
 
   it('maps every server-filtered menu without applying local client permission checks', async () => {
@@ -55,7 +58,7 @@ describe('permission route baseline', () => {
         ]
       }
     ];
-    vi.mocked(getRouters).mockResolvedValue({ data: serverRoutes } as never);
+    vi.mocked(identityAccessService.getMenus).mockResolvedValue(serverRoutes as never);
 
     const store = usePermissionStore();
     const generated = await store.generateRoutes();
@@ -81,7 +84,10 @@ describe('permission route baseline', () => {
   });
 
   it('keeps local dynamic routes only when their permission or role evaluator allows them', () => {
-    vi.mocked(auth.hasRoleOr).mockImplementation(roles => roles.includes('role-allowed'));
+    vi.mocked(createAdminAccessEvaluator).mockReturnValue({
+      hasAnyPermission: permissions => permissions.includes('local:allowed'),
+      hasAnyRole: roles => roles.includes('role-allowed')
+    } as never);
     const routes: RouteRecordRaw[] = [
       { path: '/permission', component: 'index' as never, permissions: ['local:allowed'] },
       { path: '/role', component: 'index' as never, roles: ['role-allowed'] },

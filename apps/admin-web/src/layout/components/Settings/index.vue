@@ -169,9 +169,9 @@
 </template>
 
 <script setup lang="ts">
+import modal from '@/application/host/feedback';
 import { NavTypeEnum } from '@/enums/NavTypeEnum';
 import { SideThemeEnum } from '@/enums/SideThemeEnum';
-import modal from '@/plugins/modal';
 import defaultSettings from '@/settings';
 import { useAppStore } from '@/store/modules/app';
 import { usePermissionStore } from '@/store/modules/permission';

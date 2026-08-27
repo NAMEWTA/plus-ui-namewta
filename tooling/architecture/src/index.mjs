@@ -803,6 +803,23 @@ export async function inspectWorkspace({ root }) {
     }
   }
 
+  for (const item of packages) {
+    if (item.layer !== 'app' || item.relativeDirectory === '.') continue;
+    const apiDirectory = join(item.directory, 'src/api');
+    for (const file of await allFiles(apiDirectory)) {
+      const sourcePath = toPosix(relative(absoluteRoot, file));
+      detected.push(
+        violation(
+          'app-api-facade',
+          item.manifest.name ?? item.relativeDirectory,
+          'domain public service',
+          sourcePath,
+          'Activated Apps must compose domain services instead of owning a duplicated src/api facade'
+        )
+      );
+    }
+  }
+
   const graph = new Map();
   for (const item of packages) {
     const name = item.manifest.name ?? item.relativeDirectory;

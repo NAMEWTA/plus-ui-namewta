@@ -2,11 +2,11 @@ import type { RouteRecordRaw } from 'vue-router';
 import { assembleServerRoutes } from '@namewta/platform-app-runtime';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { getRouters } from '@/api/menu';
+import { createAdminAccessEvaluator } from '@/application/access';
+import { identityAccessService } from '@/application/services';
 import ParentView from '@/components/ParentView/index.vue';
 import InnerLink from '@/layout/components/InnerLink/index.vue';
 import Layout from '@/layout/index.vue';
-import auth from '@/plugins/auth';
 import router, { constantRoutes, dynamicRoutes } from '@/router';
 import { resolveAdminWebRegistration } from '@/router/adminManifestRegistry';
 import { createManifestRouteDiagnostic } from '@/router/manifestDiagnostic';
@@ -56,8 +56,8 @@ export const usePermissionStore = defineStore('permission', () => {
     sidebarRouters.value = routes;
   };
   const generateRoutes = async (): Promise<RouteRecordRaw[]> => {
-    const res = await getRouters();
-    const data = Array.isArray(res.data) ? res.data : [];
+    const menus = await identityAccessService.getMenus();
+    const data = menus as unknown as RouteRecordRaw[];
     const sdata = structuredClone(data);
     const rdata = structuredClone(data);
     const defaultData = structuredClone(data);
@@ -147,13 +147,14 @@ export const usePermissionStore = defineStore('permission', () => {
 // 动态路由遍历，验证是否具备权限
 export const filterDynamicRoutes = (routes: RouteRecordRaw[]) => {
   const res: RouteRecordRaw[] = [];
+  const access = createAdminAccessEvaluator();
   routes.forEach(route => {
     if (route.permissions) {
-      if (auth.hasPermiOr(route.permissions)) {
+      if (access.hasAnyPermission(route.permissions)) {
         res.push(route);
       }
     } else if (route.roles) {
-      if (auth.hasRoleOr(route.roles)) {
+      if (access.hasAnyRole(route.roles)) {
         res.push(route);
       }
     }

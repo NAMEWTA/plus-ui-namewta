@@ -298,6 +298,20 @@ test('rejects activation of an explicitly inactive placeholder', async () => {
   );
 });
 
+test('rejects duplicated API facades inside activated Apps', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'apps/admin-web', '@namewta/admin-web');
+  await writeFixtureFile(root, 'apps/admin-web/src/api/login.ts', 'export const login = () => undefined;\n');
+
+  assertFailure(
+    await check(root),
+    'app-api-facade',
+    '@namewta/admin-web',
+    'domain public service',
+    'apps/admin-web/src/api/login.ts'
+  );
+});
+
 test('rejects an activated manifest outside the supported package layout', async () => {
   const root = await createFixture();
   await addPackage(root, 'packages/misc', '@namewta/misc');

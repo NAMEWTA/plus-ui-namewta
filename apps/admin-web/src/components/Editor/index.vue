@@ -18,9 +18,9 @@ import '@wangeditor-next/editor/dist/css/style.css';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor-next/editor';
 import type { PropType } from 'vue';
 import { Editor as WangEditor, Toolbar as EditorToolbar } from '@wangeditor-next/editor-for-vue';
-import { listByIds } from '@/api/system/oss';
+import modal from '@/application/host/feedback';
+import { systemAdminService } from '@/application/services';
 import { uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
-import modal from '@/plugins/modal';
 import { propTypes } from '@/utils/propTypes';
 
 const OSS_MARKER_RE = /oss:\/\/([\w-]+)/g;
@@ -131,7 +131,7 @@ const decodeOssContent = async (html: string): Promise<string> => {
       }
       return result;
     }
-    const res = await listByIds(ossIds.join(','));
+    const res = await systemAdminService.resources.oss.listByIds(ossIds);
     let result = html;
     for (const oss of res.data) {
       const id = String(oss.ossId);

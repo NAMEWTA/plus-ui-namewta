@@ -53,12 +53,10 @@
     "animate.css": "4.1.1",
     "await-to-js": "3.0.0",
     "axios": "catalog:",
-    "crypto-js": "catalog:",
     "echarts": "6.1.0",
     "element-plus": "catalog:",
     "highlight.js": "11.11.1",
     "image-conversion": "2.1.1",
-    "jsencrypt": "catalog:",
     "nprogress": "0.2.0",
     "pinia": "catalog:",
     "vue": "catalog:",
@@ -71,7 +69,6 @@
     "vxe-table": "4.20.8"
   },
   "devDependencies": {
-    "@types/crypto-js": "4.2.2",
     "@types/node": "catalog:",
     "@types/nprogress": "0.2.3",
     "@unocss/preset-attributify": "66.7.5",

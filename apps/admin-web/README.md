@@ -17,6 +17,8 @@
 ## 公开入口
 
 - `src/main.ts`：浏览器入口。
+- `src/application/services.ts`：Admin 所选领域服务的唯一装配入口。
+- `src/application/http.ts`：Admin 浏览器 HTTP 适配器与 401 恢复编排。
 - `src/router/adminManifestRegistry.ts`：编译期领域与页面清单组合入口。
 - `src/permission.ts`：受保护导航与登录态恢复。
 - `src/store/modules/permission.ts`：后端菜单转换与动态路由注入。
@@ -24,6 +26,8 @@
 ## 后端映射
 
 通过领域合同访问 `ruoyi-admin`、`ruoyi-system`、`ruoyi-workflow`、`ruoyi-ai`、`ruoyi-demo`、`ruoyi-gen`、`ruoyi-job`。
+
+App 内禁止建立 `src/api` 或包装 domain 返回值的兼容门面。页面、Store 与宿主组件按需使用 `src/application/services.ts` 中的正式服务；共享请求、数据模型和业务能力归 domain，共享 Web 页面归 web-domain，布局、导航和会话恢复等应用编排仍归本 App。
 
 ## 验证
 

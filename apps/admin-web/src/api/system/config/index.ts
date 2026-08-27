@@ -1,0 +1,11 @@
+import type { ConfigForm, ConfigQuery } from './types';
+import { systemAdminService } from '../client/runtime';
+const service = systemAdminService.resources.configs;
+export const listConfig = (query: ConfigQuery) => service.list(query);
+export const getConfig = (id: string | number) => service.get(id);
+export const getConfigKey = (key: string) => service.byKey(key);
+export const addConfig = (data: ConfigForm) => service.add(data);
+export const updateConfig = (data: ConfigForm) => service.update(data);
+export const updateConfigByKey = (key: string, value: unknown) => service.updateByKey(key, value);
+export const delConfig = (ids: string | number | Array<string | number>) => service.delete(ids);
+export const refreshCache = () => service.refreshCache();

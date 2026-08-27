@@ -1,20 +1,43 @@
 # Admin Web Application
 
 ## Status
-- `placeholder`: the existing root `src/` remains the compatibility entry; this App is not buildable yet.
+
+- `active`: this package owns the production admin browser entry and explicitly composes all selected capabilities.
+
 ## Responsibilities
-- Eventually compose all seven Web domains, the Element shell, browser adapters, admin ClientContext, layout, theme, and deployment settings.
+
+- Own the admin ClientContext, browser bootstrap, shell, router/store adapters, layout, theme, static assets and deployment configuration.
+- Compose identity-access, system-admin, workflow, AI, demo, devtools and operations through their public domain/web-domain entries.
+
 ## Non-responsibilities
-- It will not own reusable domain services, shared adapter implementations, or backend authorization rules.
+
+- Reusable domain services, shared adapter implementations, backend authorization and terminal-neutral business models remain outside this App.
+
 ## Allowed dependencies
-- Public entries of selected platform, domain, web-domain, web-kit, and browser-adapter packages.
+
+- Public entries of selected platform, domain, web-domain, web-kit and browser-adapter packages.
+- App-local shell components, views, stores, browser plugins and presentation assets.
+
 ## Forbidden dependencies
-- Other Apps, package internals, Taro adapters, and direct imports from the legacy root once compatibility removal is approved.
+
+- Other Apps, package internals/deep imports, Taro adapters, backend implementation modules and the retired root `src/` entry.
+
 ## Public entrypoints
-- Future App-owned `src/main.ts` and App Composition Manifest; no entrypoint exists while placeholder.
+
+- `src/main.ts` is the browser entry.
+- `src/router/adminManifestRegistry.ts` is the compile-time capability composition boundary.
+- Package scripts expose independent `build`, `build:dev`, `build:prod`, `dev`, `preview`, `lint`, `test` and `typecheck` gates.
+
 ## Backend modules
-- `backendModules: [ruoyi-admin, ruoyi-system, ruoyi-workflow, ruoyi-ai, ruoyi-demo, ruoyi-gen, ruoyi-job]` through selected domains.
+
+- `backendModules: [ruoyi-admin, ruoyi-system, ruoyi-workflow, ruoyi-ai, ruoyi-demo, ruoyi-gen, ruoyi-job]` are reached only through selected domain contracts.
+
 ## Activation conditions
-- Activate only after workspace setup and verified domain manifests can preserve current admin behavior; remove the root compatibility entry only at Wave 10 Gate F.
+
+- The App is activated by T15 after every domain Gate through G6 is integrated.
+- The root compatibility entry may be removed only after this package passes its pre-contract architecture, lint, typecheck, unit and production build checks.
+
 ## Validation
-- When activated, run independent lint, typecheck, unit, Playwright, and production build gates plus composition and Client-menu checks.
+
+- Run frozen install, workspace/architecture checks, independent admin lint/typecheck/unit/build, both App builds and Lead-owned full Playwright.
+- Gate H also requires the root `src/` path and retired root App entry/config/static files to be absent after the contract commit.

@@ -169,12 +169,13 @@ export function createOperationsService(http: HttpClient): OperationsService {
           method: 'get',
           params
         });
-        if (!response.data || !Array.isArray(response.data.rows)) {
-          return response as unknown as ApiResponse<PageResult<OperLogVO>>;
-        }
+        const { data, ...metadata } = response;
         return {
-          ...response,
-          data: { ...response.data, rows: response.data.rows.map(projectOperationLogTransport) }
+          ...metadata,
+          data: {
+            rows: Array.isArray(data?.rows) ? data.rows.map(projectOperationLogTransport) : [],
+            total: typeof data?.total === 'number' ? data.total : 0
+          }
         };
       },
       delete: (ids: IdentifierList) => request({ url: '/monitor/operlog/' + segment(ids), method: 'delete' }),

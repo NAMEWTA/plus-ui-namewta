@@ -44,7 +44,7 @@ export function sha256(value) {
 }
 
 function classifySource(source) {
-  if (!/^https?:\/\//i.test(source)) return { kind: 'file', path: source };
+  if (!/^https?:/i.test(source)) return { kind: 'file', path: source };
   try {
     const url = new URL(source);
     const protocol = url.protocol.toLowerCase();
@@ -117,6 +117,7 @@ function createProvenance(bytes, spec, { backendCommit, backendRepository, runti
 }
 
 const jsonText = value => `${JSON.stringify(value, null, 2)}\n`;
+const createRevision = (bytes, provenance) => sha256(Buffer.concat([bytes, Buffer.from(jsonText(provenance))]));
 
 async function atomicWrite(path, content) {
   const temporary = `${path}.tmp-${process.pid}-${randomUUID()}`;
@@ -214,7 +215,7 @@ async function readAndValidateActiveRevision(store, pointer) {
     backendRepository: current.backendRepository,
     runtimeEndpoint: current.runtimeEndpoint
   });
-  if (revision !== expected.rawSha256 || active.provenance !== jsonText(expected)) {
+  if (revision !== createRevision(active.bytes, expected) || active.provenance !== jsonText(expected)) {
     throw new OpenApiContractError('OpenAPI provenance drift detected; run openapi:fetch and review the diff');
   }
   return { spec };
@@ -232,7 +233,7 @@ export async function fetchSnapshot({
   const bytes = await readSource(source);
   const spec = parseSource(bytes);
   const metadata = createProvenance(bytes, spec, { backendCommit, backendRepository, runtimeEndpoint });
-  const revision = metadata.rawSha256;
+  const revision = createRevision(bytes, metadata);
   await persistRevision(store, revision, bytes, metadata);
   await mkdir(dirname(pointer), { recursive: true });
   await atomicWrite(pointer, jsonText({ revision }));

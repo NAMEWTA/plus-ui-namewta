@@ -59,11 +59,28 @@ test('valid fetch persists an immutable revision before atomically activating it
   const provenance = JSON.parse(active.provenance);
   assert.equal(result.paths, 1);
   assert.equal(active.snapshot, await readFile(source, 'utf8'));
-  assert.equal(active.revision, result.sha256);
+  assert.match(active.revision, /^[\da-f]{64}$/);
+  assert.notEqual(active.revision, result.sha256);
   assert.equal(provenance.backendCommit, backendCommit);
   assert.equal(provenance.generator, 'openapi-typescript@7.13.0');
   assert.deepEqual(provenance.totals, { paths: 1, schemas: 1, tags: 0 });
   assert.equal(provenance.rawSha256, result.sha256);
+});
+
+test('identical snapshots with different provenance activate distinct immutable revisions', async t => {
+  const paths = await fixture(t);
+  const source = join(paths.directory, 'source.json');
+  await writeFile(source, validSpec({}));
+  await fetchFixture(paths, source);
+  const first = await activeRevision(paths);
+
+  await fetchSnapshot({ ...paths, backendCommit: 'b'.repeat(40), source });
+  const second = await activeRevision(paths);
+
+  assert.notEqual(second.revision, first.revision);
+  assert.equal(second.snapshot, first.snapshot);
+  assert.equal(JSON.parse(second.provenance).backendCommit, 'b'.repeat(40));
+  assert.equal(await readFile(join(first.directory, 'provenance.json'), 'utf8'), first.provenance);
 });
 
 test('an unactivated revision cannot change the last-known-good contract', async t => {
@@ -102,6 +119,16 @@ test('generation rejects stale or invalid provenance in the active immutable rev
   await assert.rejects(generateContracts(paths), /provenance drift detected/);
 
   await writeFile(join(active.directory, 'source.json'), baseline);
+  const provenance = JSON.parse(active.provenance);
+  for (const [field, value] of [
+    ['backendCommit', 'c'.repeat(40)],
+    ['backendRepository', 'different-backend'],
+    ['runtimeEndpoint', '/different-api-docs']
+  ]) {
+    await writeFile(join(active.directory, 'provenance.json'), `${JSON.stringify({ ...provenance, [field]: value }, null, 2)}\n`);
+    await assert.rejects(checkContracts(paths), /provenance drift detected/);
+  }
+
   await writeFile(join(active.directory, 'provenance.json'), 'null\n');
   await assert.rejects(checkContracts(paths), /provenance is invalid/);
 });
@@ -126,15 +153,19 @@ test('check detects source drift and manual generated-file edits without writing
   await assert.rejects(checkContracts(paths), /contract drift detected/);
 });
 
-test('HTTP source errors redact credentials and query parameters for mixed-case schemes', async () => {
-  const source = 'HTTPS://user:secret@127.0.0.1:1/contracts?token=sensitive#fragment';
-  await assert.rejects(
-    fetchSnapshot({ backendCommit, source }),
-    error =>
-      error instanceof OpenApiContractError &&
-      error.message.includes('https://127.0.0.1:1/contracts') &&
-      !error.message.includes('secret') &&
-      !error.message.includes('token') &&
-      !error.message.includes('sensitive')
-  );
+test('HTTP source errors redact credentials and query parameters for normalized schemes', async () => {
+  for (const source of [
+    'HTTPS://user:secret@127.0.0.1:1/contracts?token=sensitive#fragment',
+    'HTTPS:/user:secret@127.0.0.1:1/contracts?token=sensitive#fragment'
+  ]) {
+    await assert.rejects(
+      fetchSnapshot({ backendCommit, source }),
+      error =>
+        error instanceof OpenApiContractError &&
+        error.message.includes('https://127.0.0.1:1/contracts') &&
+        !error.message.includes('secret') &&
+        !error.message.includes('token') &&
+        !error.message.includes('sensitive')
+    );
+  }
 });

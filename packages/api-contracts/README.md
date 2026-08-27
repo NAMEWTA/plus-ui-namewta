@@ -24,4 +24,4 @@ pnpm openapi:generate
 pnpm openapi:check
 ```
 
-`openapi:fetch` validates the complete response, writes snapshot and machine provenance to an immutable digest revision, then activates both with one atomic `openapi/current.json` pointer replacement. `openapi:generate` first validates the active provenance against the active snapshot. `openapi:check` repeats that validation, generates in memory, and fails on provenance drift, contract drift, or manual edits without overwriting the committed output.
+`openapi:fetch` validates the complete response, writes snapshot and machine provenance to an immutable bundle-digest revision, then activates both with one atomic `openapi/current.json` pointer replacement. The revision identity binds the raw bytes and canonical provenance, so equal snapshots from different backend commits remain distinct auditable revisions. `openapi:generate` first validates the active provenance against the active snapshot. `openapi:check` repeats that validation, generates in memory, and fails on provenance drift, contract drift, or manual edits without overwriting the committed output.

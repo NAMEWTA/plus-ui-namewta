@@ -242,20 +242,24 @@ type IdentifierList = Identifier | readonly Identifier[];
 const segment = (value: IdentifierList) =>
   (Array.isArray(value) ? value : [value]).map(item => encodeURIComponent(String(item))).join(',');
 
-const projectTaskPage = (response: ApiResponse<PageResult<WorkflowTaskTransport>>) => {
-  if (!response.data || !Array.isArray(response.data.rows)) {
-    return response as unknown as ApiResponse<PageResult<WorkflowTask>>;
-  }
+const projectTaskPage = (
+  response: ApiResponse<PageResult<WorkflowTaskTransport>>
+): ApiResponse<PageResult<WorkflowTask>> => {
+  const { data, ...metadata } = response;
+  if (!data) return metadata;
   return {
-    ...response,
-    data: { ...response.data, rows: response.data.rows.map(projectWorkflowTaskTransport) }
+    ...metadata,
+    data: {
+      rows: Array.isArray(data.rows) ? data.rows.map(projectWorkflowTaskTransport) : [],
+      total: typeof data.total === 'number' ? data.total : 0
+    }
   };
 };
 
-const projectTask = (response: ApiResponse<WorkflowTaskTransport>) =>
-  response.data
-    ? { ...response, data: projectWorkflowTaskTransport(response.data) }
-    : (response as unknown as ApiResponse<WorkflowTask>);
+const projectTask = (response: ApiResponse<WorkflowTaskTransport>): ApiResponse<WorkflowTask> => {
+  const { data, ...metadata } = response;
+  return data ? { ...metadata, data: projectWorkflowTaskTransport(data) } : metadata;
+};
 
 export interface WorkflowDefinitionService {
   addCategory(data: CategoryForm): Promise<ApiResponse>;

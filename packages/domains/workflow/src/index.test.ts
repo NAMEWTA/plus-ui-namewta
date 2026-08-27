@@ -217,4 +217,15 @@ describe('workflow definition transport contract', () => {
       data: { id: 3, instanceId: '4', nodeCode: 'approve', nodeType: 0 }
     });
   });
+
+  it('normalizes generated task pages without rows and preserves absent task data', async () => {
+    const service = createWorkflowDefinitionService({
+      request: async request => (request.url.includes('pageByTaskWait') ? { data: { total: 2 } } : { code: 204 }) as never
+    });
+
+    await expect(service.pageTaskWaiting({ pageNum: 1, pageSize: 10 })).resolves.toEqual({
+      data: { rows: [], total: 2 }
+    });
+    await expect(service.getTask(3)).resolves.toEqual({ code: 204 });
+  });
 });

@@ -111,4 +111,17 @@ describe('operations transport and security contracts', () => {
       }
     });
   });
+
+  it('normalizes generated operation-log pages without data or rows', async () => {
+    const responses = [{ data: { total: 2 } }, { code: 204 }];
+    const service = createOperationsService({ request: async () => responses.shift() as never });
+
+    await expect(service.operationLogs.list({ pageNum: 1, pageSize: 10 } as never)).resolves.toEqual({
+      data: { rows: [], total: 2 }
+    });
+    await expect(service.operationLogs.list({ pageNum: 1, pageSize: 10 } as never)).resolves.toEqual({
+      code: 204,
+      data: { rows: [], total: 0 }
+    });
+  });
 });

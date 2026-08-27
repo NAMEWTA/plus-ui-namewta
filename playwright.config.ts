@@ -20,7 +20,7 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: 'pnpm build:prod && pnpm exec vite preview --host 127.0.0.1 --port 4173',
+    command: 'pnpm build:prod && pnpm --filter @namewta/admin-web preview',
     url: 'http://127.0.0.1:4173/login',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000

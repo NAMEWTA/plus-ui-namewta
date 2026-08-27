@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import type { VxeTableInstance } from 'vxe-table';
+import type { VxeTableInstance } from 'vxe-pc-ui/types/components/table';
 import animateConfig from '@/animate';
 import api from '@/api/system/role';
 import { RoleVO, RoleQuery } from '@/api/system/role/types';

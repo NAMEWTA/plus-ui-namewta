@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@namewta/api-contracts": "workspace:*",
     "@namewta/domain-system-admin": "workspace:*",
     "@namewta/platform-app-runtime": "workspace:*",
     "@namewta/platform-contracts": "workspace:*"

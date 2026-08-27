@@ -35,3 +35,7 @@
 ## Validation
 
 - Require CRUD/tree unit tests including single and comma-preserving batch ID encoding, headless import checks, public-entry-only consumption, lint, typecheck, manifest routes, and App build.
+
+## OpenAPI boundary
+
+- `TestDemoVo` is imported as generated transport only; `projectDemoTransport` maps it into the domain-owned `DemoVO`.

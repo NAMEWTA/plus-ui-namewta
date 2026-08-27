@@ -35,3 +35,7 @@
 ## Validation
 
 - Require metadata-port contracts, preview/download negative tests, no deep imports/cycles, sensitive metadata review, lint, typecheck, and selected-App E2E/build.
+
+## OpenAPI boundary
+
+- `GenTable` is generated transport; `projectGeneratorTableTransport` supplies domain defaults and returns the existing `TableVO`.

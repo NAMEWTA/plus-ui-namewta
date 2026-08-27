@@ -42,3 +42,7 @@
 Mutation methods intentionally retain existing PUT/DELETE contracts under DEV-T08-002. legacyDefinitionXml retains the
 old frontend path although the current backend has no matching controller and no production caller. T-15 retired the root
 facades; both transport contracts remain until a separately coordinated backend migration.
+
+## OpenAPI boundary
+
+- `FlowTaskVo` is generated transport; `projectWorkflowTaskTransport` projects its stable workflow fields into a domain-owned view.

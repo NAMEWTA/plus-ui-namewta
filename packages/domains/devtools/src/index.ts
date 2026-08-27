@@ -2,6 +2,8 @@ import type { DictTypeCatalogPort } from '@namewta/domain-system-admin/public/di
 import type { MenuQueryPort } from '@namewta/domain-system-admin/public/menu';
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
+
+export * from './transport';
 import type {
   ApiResponse,
   DbTableForm,

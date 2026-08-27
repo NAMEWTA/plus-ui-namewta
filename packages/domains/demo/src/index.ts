@@ -1,6 +1,8 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient } from '@namewta/platform-contracts';
 
+export * from './transport';
+
 export interface AuditFields {
   createBy?: unknown;
   createDept?: unknown;

@@ -1,5 +1,5 @@
 {
-  "name": "@namewta/domain-identity-access",
+  "name": "@namewta/api-contracts",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,17 +9,11 @@
   "scripts": {
     "build": "tsc --noEmit -p tsconfig.json",
     "lint": "oxlint src",
-    "test": "vitest run src",
+    "test": "tsc --noEmit -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json"
-  },
-  "dependencies": {
-    "@namewta/api-contracts": "workspace:*",
-    "@namewta/platform-app-runtime": "workspace:*",
-    "@namewta/platform-contracts": "workspace:*"
   },
   "devDependencies": {
     "oxlint": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "4.1.10"
+    "typescript": "catalog:"
   }
 }

@@ -39,3 +39,7 @@
 ## Validation
 
 - Require the complete endpoint/method matrix, per-segment encoding, malformed host/port/percent/IPv6 and credential URL rejection, iframe/download boundary parity, architecture checks, lint, typecheck, unit tests, and selected/unselected E2E evidence.
+
+## OpenAPI boundary
+
+- `SysOperLogVo` is generated transport; `projectOperationLogTransport` projects the stable audit fields into a domain-owned view.

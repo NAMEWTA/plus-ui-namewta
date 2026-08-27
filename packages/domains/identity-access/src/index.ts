@@ -2,6 +2,8 @@ import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { ClientContext, HttpClient, SessionStore } from '@namewta/platform-contracts';
 import { requireClientContext } from '@namewta/platform-contracts';
 
+export * from './transport';
+
 export interface ApiResponse<T> {
   code?: number;
   data?: T;

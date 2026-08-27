@@ -1,20 +1,27 @@
-# Generated API Contracts
+# API Contracts
 
-## Status
-- `placeholder`: OpenAPI generation is deferred to Wave 11; current hand-written transport types remain authoritative.
-## Responsibilities
-- Eventually contain reproducibly generated backend transport schema/types for domains to consume where appropriate.
-## Non-responsibilities
-- It does not define domain models/services, package boundaries, UI state, hand-written business rules, or generate code in this wave.
-## Allowed dependencies
-- Generated outputs may depend only on their documented generator runtime/types; domains may consume public generated entries after review.
-## Forbidden dependencies
-- Apps, web-domains, web-kit, concrete adapters, domain implementation code, and undocumented manual edits to generated output.
-## Public entrypoints
-- Future `@namewta/api-contracts` scoped exports defined by the OpenAPI generation contract; none exists now.
-## Backend modules
-- `backendModules: [ruoyi-admin, ruoyi-system, ruoyi-workflow, ruoyi-ai, ruoyi-demo, ruoyi-gen, ruoyi-job]` as candidate Springdoc sources, narrowed per generated surface.
-## Activation conditions
-- Activate only after hand-written domain boundaries stabilize and T-16 defines generator source, ownership, command, drift policy, and review.
-## Validation
-- Before activation, require README-only/no-manifest scans; after activation, require reproducible generation, zero unexplained drift, typecheck, and domain-model separation review.
+Private transport types generated from the checked backend OpenAPI snapshot. Domain packages may import schema types from this package, but generated types never replace domain-owned models or use cases.
+
+## Provenance
+
+- Backend repository: `ruoyi-vue-plus-namewta`
+- Backend commit: `a98d6edcc591550221dd983e293d43e3aac36d23`
+- Runtime endpoint: `/v3/api-docs`
+- OpenAPI version: `3.1.0`
+- Raw source SHA-256: `d72883b9b089200e92962048ba55f0c003ff20f1527bcd3f3238e39df411bc9e`
+- Coverage: 308 paths, 304 schemas, 52 tags
+- Generator: `openapi-typescript@7.13.0`
+
+The snapshot was captured from a clean detached backend worktree. The local diagnostic server used the normal `dev` profile with LiteFlow disabled only to bypass its unrelated startup failure; no backend source or production endpoint was changed.
+
+## Commands
+
+Run these from `tooling/openapi`:
+
+```sh
+pnpm openapi:fetch -- --source http://127.0.0.1:18080/v3/api-docs
+pnpm openapi:generate
+pnpm openapi:check
+```
+
+`openapi:fetch` validates the complete response before atomically replacing the snapshot. `openapi:generate` reads only the checked snapshot. `openapi:check` generates in memory and fails on drift or manual edits without overwriting the committed output.

@@ -35,3 +35,7 @@
 ## Validation
 
 - Unit tests cover zero-request invalid Client/context failures, registration gating, OAuth Client identity, strict request order, captcha responses, identity/menu parsing, session lifecycle, and namespace isolation; architecture/type/lint/workspace gates prove the package remains headless.
+
+## OpenAPI boundary
+
+- `AuthClientContextVo` remains a transport type; `projectClientAuthContextTransport` normalizes it into `ClientAuthContext`.

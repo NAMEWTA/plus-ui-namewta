@@ -42,3 +42,7 @@
 ## Validation
 
 - Transport matrix tests lock all existing paths and methods; social binding/list results have concrete public models; public seams prove projection and Client-scoped failure propagation. OSS list resolution never falls back after authorization failure, and OSS/notice attachment security tests reject unsafe URLs without retaining secrets.
+
+## OpenAPI boundary
+
+- `SysUserVo` is generated transport; `projectSystemUserTransport` maps it into the stable public `UserSummary` contract.

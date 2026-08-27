@@ -17,6 +17,8 @@ import type { PostForm, PostQuery, PostVO } from './organization/post/types';
 import { createUserQueryPort, type UserQueryPort } from '../public/user/index';
 import { createSystemAdminResourceService, type SystemAdminResourceService } from './resources/index';
 
+export * from './transport';
+
 export type { ClientForm, ClientQuery, ClientVO } from './identity/client/types';
 export type { DeptTreeOption, RoleDeptTree, RoleForm, RoleQuery, RoleVO } from './identity/role/types';
 export type {

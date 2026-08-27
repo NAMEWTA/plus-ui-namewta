@@ -7,6 +7,8 @@ import {
   type UserSummary
 } from '@namewta/domain-system-admin/public/user';
 
+export * from './transport';
+
 export type {
   DepartmentSummary,
   UserPage,

@@ -1,5 +1,7 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
+
+export * from './transport';
 import type {
   ApiResponse,
   CacheVO,

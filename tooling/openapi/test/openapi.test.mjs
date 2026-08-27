@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { inspect } from 'node:util';
 import { checkContracts, fetchSnapshot, generateContracts, OpenApiContractError, sha256 } from '../src/index.mjs';
 
 const backendCommit = 'a98d6edcc591550221dd983e293d43e3aac36d23';
@@ -162,12 +163,16 @@ test('HTTP source errors redact credentials and query parameters for normalized 
   ]) {
     await assert.rejects(
       fetchSnapshot({ backendCommit, source }),
-      error =>
-        error instanceof OpenApiContractError &&
-        error.message.includes('https://127.0.0.1:1/contracts') &&
-        !error.message.includes('secret') &&
-        !error.message.includes('token') &&
-        !error.message.includes('sensitive')
+      error => {
+        const diagnostic = inspect(error, { depth: 5 });
+        return (
+          error instanceof OpenApiContractError &&
+          error.message.includes('https://127.0.0.1:1/contracts') &&
+          !diagnostic.includes('secret') &&
+          !diagnostic.includes('token') &&
+          !diagnostic.includes('sensitive')
+        );
+      }
     );
   }
 });

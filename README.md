@@ -1,3 +1,21 @@
+# NAMEWTA plus-ui
+
+本仓库是 NAMEWTA 的多 App 前端产品仓库。`main` 上的本地 monorepo 架构是实现权威；上游 `6.X-Vue` 用于发现新增能力、缺陷修复和安全变化，不要求文件路径同构。
+
+## 本地架构
+
+- `apps/*` 负责终端布局、品牌、Client 选择和显式组合；当前激活 `admin-web`、`client-web`，移动端与小程序保持 README-only 占位。
+- `packages/domains/*` 提供七个 headless 业务域：identity-access、system-admin、workflow、demo、ai、devtools、operations。
+- `packages/web-domains/*` 提供对应 Web 页面、hooks、组件、语言与 manifest，不拥有 App 布局。
+- `packages/platform/*` 定义跨领域端口和运行时合同，`packages/adapters/*` 实现浏览器能力，`packages/web-kit/*` 承载共享 Web 机制。
+- `packages/api-contracts` 与 `tooling/openapi` 管理生成 transport 和漂移，domain model 仍由各领域拥有；`tooling/architecture` 持续检查依赖方向。
+
+每个 App 只组合所需 domain/web-domain，并可独立定制布局、样式和 CSS。目录边界、激活状态和验证要求以各 package README 与 architecture Gate 为准。
+
+## 上游维护
+
+维护入口见 [docs/upstream/README.md](./docs/upstream/README.md)。评估上游时按 capability 映射到本地 owner boundary，记录 invariants、`adopt/adapt/reject/defer`、真实验证和 evidence；不得以复制旧 `src/**` 路径作为完成标准，安全变化不得静默 defer。
+
 ## 平台简介
 
 - 本仓库为前端技术栈 [Vue3](https://v3.cn.vuejs.org) + [TS](https://www.typescriptlang.org/) + [Element Plus](https://element-plus.org/zh-CN) + [Vite](https://cn.vitejs.dev) 版本。

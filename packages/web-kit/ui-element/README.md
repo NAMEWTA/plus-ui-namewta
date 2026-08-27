@@ -1,7 +1,7 @@
 # Element Web UI Kit
 
 ## Status
-- `placeholder`: reusable Element components remain in root `src/components` until real extraction slices exist.
+- `placeholder`: existing Element components remain App-owned in `apps/admin-web/src/components` until multiple consumers justify an extraction slice.
 ## Responsibilities
 - Provide cross-domain Element Plus components and composables with stable Web-only UI contracts.
 ## Non-responsibilities

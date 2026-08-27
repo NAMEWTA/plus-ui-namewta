@@ -32,7 +32,7 @@
 
 ## Activation conditions
 
-- Activated by T-05 with the demo domain and its root compatibility consumer; future Apps inject their selected manifests.
+- Activated by T-05 with the demo domain; admin-web and client-web now inject their selected manifests.
 
 ## Validation
 

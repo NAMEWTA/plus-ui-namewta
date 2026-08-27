@@ -30,7 +30,7 @@
 
 ## Activation conditions
 
-- The canonical super role is `superadmin`. Existing root plugin/utils/directive behavior is runtime evidence for retaining `admin` as an explicit legacy alias during the compatibility window.
+- The canonical super role is `superadmin`. The former root plugin/utils/directive behavior established the evidence for retaining `admin` as an explicit legacy alias after facade retirement.
 
 ## Validation
 

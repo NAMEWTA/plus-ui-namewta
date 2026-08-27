@@ -20,7 +20,7 @@
 
 ## Forbidden dependencies
 
-- Apps, other web-domain internals, concrete adapters, domain deep imports, and root compatibility internals after facade removal.
+- Apps, other web-domain internals, concrete adapters, domain deep imports, and App-private internals.
 
 ## Public entrypoints
 

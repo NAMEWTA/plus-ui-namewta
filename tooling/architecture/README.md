@@ -39,7 +39,7 @@
 
 ## Activation conditions
 
-- Active for the root application and every future App/package/tooling manifest matched by `pnpm-workspace.yaml`.
+- Active for the root workspace orchestrator and every App/package/tooling manifest matched by `pnpm-workspace.yaml`.
 - `apps/mobile-web`, `apps/miniapp-taro`, `packages/adapters/taro-request`, and `packages/adapters/taro-storage` remain README-only until their dedicated activation tickets.
 
 ## Baseline contract
@@ -63,5 +63,5 @@
 
 - `pnpm architecture:check` validates the live workspace graph without writing files.
 - `pnpm architecture:test` uses OS temporary directories to prove AST/SFC parsing, detail-sensitive baseline growth, direction and terminal purity, reviewed browser-global detection, switch/class/module/type/ambient scope behavior, deep/relative imports, inactive content, workspace/catalog drift, and lock importer parity.
-- Root `build`, `build:dev`, `build:prod`, `lint`, `test`, and `typecheck` retain the root App command names; each aggregate workspace script runs the architecture check before its filter-capable package gate, so `--if-present` cannot silently skip an activated package with a missing script.
+- Root `build`, `build:dev`, `build:prod`, `lint`, `test`, and `typecheck` remain workspace orchestration commands; each aggregate script runs the architecture check before its filter-capable package gate, so `--if-present` cannot silently skip an activated package with a missing script.
 - Playwright runs only in the Lead parent candidate.

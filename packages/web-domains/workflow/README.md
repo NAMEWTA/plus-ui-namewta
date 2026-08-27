@@ -21,7 +21,7 @@
 
 ## Forbidden dependencies
 
-- Root src, Apps, concrete adapters, other web-domain internals, and package deep imports.
+- App source, concrete adapters, other web-domain internals, and package deep imports.
 
 ## Public entrypoints
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-- `active`: transport and models are owned here; root `src/api/tool/gen` is compatibility-only.
+- `active`: transport and models are owned here; T-15 retired the root `src/api/tool/gen` compatibility facade.
 
 ## Responsibilities
 

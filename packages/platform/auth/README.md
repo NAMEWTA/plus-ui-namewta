@@ -2,7 +2,7 @@
 
 ## Status
 
-- `active`: `@namewta/platform-auth` provides injected, terminal-neutral relogin coordination to both App compositions.
+- `active`: `@namewta/platform-auth` provides injected, terminal-neutral relogin coordination to admin-web; other Apps may choose their own implementation of the same platform ports.
 
 ## Responsibilities
 

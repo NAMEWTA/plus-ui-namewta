@@ -34,8 +34,8 @@
 
 ## Activation conditions
 
-- The App is activated by T15 after every domain Gate through G6 is integrated.
-- The root compatibility entry may be removed only after this package passes its pre-contract architecture, lint, typecheck, unit and production build checks.
+- T15 activated the App after every domain Gate through G6 was integrated.
+- The root compatibility entry was retired only after this package passed its pre-contract architecture, lint, typecheck, unit and production build checks.
 
 ## Validation
 

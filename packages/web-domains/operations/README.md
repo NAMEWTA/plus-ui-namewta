@@ -12,8 +12,8 @@
 
 ## Non-responsibilities
 
-- It does not own monitor transports/models, URL trust decisions, backend authorization, global routing, the application shell, or concrete root adapters.
-- It does not copy root iframe/download/security implementations or select itself for an App.
+- It does not own monitor transports/models, URL trust decisions, backend authorization, global routing, the application shell, or concrete App adapters.
+- It does not copy App-owned iframe/download/security implementations or select itself for an App.
 
 ## Allowed dependencies
 
@@ -21,7 +21,7 @@
 
 ## Forbidden dependencies
 
-- Apps, other web-domain internals, concrete adapters, root compatibility internals, domain deep imports, global router/request modules, and browser effects outside injected runtime ports.
+- Apps, other web-domain internals, concrete adapters, App internals, domain deep imports, global router/request modules, and browser effects outside injected runtime ports.
 
 ## Public entrypoints
 

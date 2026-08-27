@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const adminWebUrl = 'http://127.0.0.1:4173';
+const clientWebUrl = 'http://127.0.0.1:4174';
+const waitForAdminPreview = `node --input-type=module -e "while (!(await fetch('${adminWebUrl}/login').catch(() => null))?.ok) await new Promise((resolve) => setTimeout(resolve, 250))"`;
+
 export default defineConfig({
   testDir: './e2e',
   outputDir: './tests/e2e/reports/results',
@@ -10,7 +14,7 @@ export default defineConfig({
     ? [['line'], ['html', { outputFolder: './tests/e2e/reports/html', open: 'never' }]]
     : 'line',
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: adminWebUrl,
     trace: 'on-first-retry'
   },
   projects: [
@@ -19,10 +23,18 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] }
     }
   ],
-  webServer: {
-    command: 'pnpm build:prod && pnpm --filter @namewta/admin-web preview',
-    url: 'http://127.0.0.1:4173/login',
-    reuseExistingServer: !process.env.CI,
-    timeout: 180_000
-  }
+  webServer: [
+    {
+      command: 'pnpm build:prod && pnpm --filter @namewta/admin-web preview',
+      url: `${adminWebUrl}/login`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 180_000
+    },
+    {
+      command: `${waitForAdminPreview} && pnpm --filter @namewta/client-web preview`,
+      url: `${clientWebUrl}/login`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 180_000
+    }
+  ]
 });

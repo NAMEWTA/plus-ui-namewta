@@ -1,45 +1,9 @@
-# Operations Domain
+# 运维领域
 
-## Status
+`@namewta/domain-operations` 已激活，拥有在线会话、缓存、操作日志、登录日志、通知日志和外部监控导航意图等终端无关模型、查询与命令。
 
-- `active`: T-14 owns the monitor and operations application services and transport models.
+本领域不拥有 Vue 页面、ECharts 展示、iframe、文件下载、浏览器跳转、App 路由或服务端授权。外部 URL 信任、导航和下载副作用必须由宿主端口批准并执行。
 
-## Responsibilities
+后端主要映射为 `ruoyi-system` 的监控与日志接口；外部监控地址来自部署配置而不是包依赖。Admin 选择本领域，Client 当前不选择。
 
-- Own cache, online-session, login-info, operation-log, notification-log, attachment authorization, and external monitor contracts.
-- Encode every dynamic path segment and create immutable embed/download intents only after permission and structured URL validation succeed.
-- Fail closed with stable, non-sensitive errors for missing permissions, missing URLs, malformed URLs, non-HTTP(S) absolute URLs, or credential-bearing URLs.
-
-## Non-responsibilities
-
-- It does not render Vue pages, access DOM/browser storage, perform navigation or downloads, own global request/session behavior, or configure deployment URLs.
-- It does not own Monitor Admin, SnailJob, or SnailAI server implementation and authorization.
-
-## Allowed dependencies
-
-- Public platform contracts, app-runtime metadata supplied through explicit ports, and generated transport types from `@namewta/api-contracts`.
-
-## Forbidden dependencies
-
-- Apps, web-domains, web-kit, Vue/Element Plus, DOM/browser globals, concrete adapters, root `src` modules, and unrelated domains.
-
-## Public entrypoints
-
-- `@namewta/domain-operations` exports `createOperationsService`, resource models, the capability descriptor, permission inventory, structured security errors, and immutable navigation intent types.
-
-## Backend modules
-
-- `backendModules: [ruoyi-system]` for monitor APIs; external Monitor Admin, SnailJob, and SnailAI remain separately deployed services reached through validated host configuration.
-
-## Activation conditions
-
-- An App must explicitly select `operations`; transport consumers may use the headless service without selecting the web manifest.
-- External and attachment effects additionally require the matching permission and a URL accepted by the shared root-relative/HTTP(S) policy.
-
-## Validation
-
-- Require the complete endpoint/method matrix, per-segment encoding, malformed host/port/percent/IPv6 and credential URL rejection, iframe/download boundary parity, architecture checks, lint, typecheck, unit tests, and selected/unselected E2E evidence.
-
-## OpenAPI boundary
-
-- `SysOperLogVo` is generated transport; `projectOperationLogTransport` normalizes it into the existing domain-owned `OperLogVO` before the service returns data.
+验证覆盖权限参数、URL 意图、失败时零副作用、日志/会话映射和错误分类。

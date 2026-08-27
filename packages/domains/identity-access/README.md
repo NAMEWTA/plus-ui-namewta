@@ -1,41 +1,21 @@
-# Identity Access Domain
+# 身份与访问领域
 
-## Status
+## 当前状态
 
-- `active`: T-07 extends the strict Client/password slice with registration, OAuth, identity/session, and server-menu use cases.
+`@namewta/domain-identity-access` 已激活，供 Admin 与 Client Web 共同使用。
 
-## Responsibilities
+## 职责
 
-- Validate the App-injected OAuth Client before authentication traffic; own context/code/password, registration, OAuth callback/login, logout, user-info, and server-menu transports; validate responses and write through an injected SessionStore.
+拥有 ClientContext、验证码、登录、注册、社交登录、当前用户、会话恢复、登出和访问评估所需的终端无关模型、映射器与服务。通过注入的 HTTP、存储、加密和时间端口工作。
 
-## Non-responsibilities
+## 边界
 
-- It does not render Vue, access DOM/storage, create Axios, select an App, map Vue routes, evaluate presentation permissions, or administer users, roles, and Clients.
+本领域不依赖 Vue、DOM、路由器、具体 Axios/Storage 实现或 App ClientId，不拥有登录页面和 App 布局。后端仍是认证与授权权威。
 
-## Allowed dependencies
+## 后端映射
 
-- Public `@namewta/platform-contracts` ports, `@namewta/platform-app-runtime` metadata, and generated transport types from `@namewta/api-contracts` only.
+对应 `ruoyi-admin` 与 `ruoyi-system` 的 `/auth/**`、用户信息和菜单相关接口。
 
-## Forbidden dependencies
+## 验证
 
-- Apps, web-domains, web-kit, Vue/Router/Pinia, DOM/browser globals, Axios, concrete adapters, and root `@/` aliases or deep imports.
-
-## Public entrypoints
-
-- `@namewta/domain-identity-access` exports the service factory, strict transport/domain models, `IdentityAccessError`, isolated session-key helper, and frozen `identityAccessDomainModule`.
-
-## Backend modules
-
-- `backendModules: [ruoyi-admin, ruoyi-system]` for `/auth/client/context`, `/auth/code`, `/auth/login`, `/auth/register`, `/auth/social/callback`, `/auth/logout`, `/system/user/getInfo`, and `/system/menu/getRouters`.
-
-## Activation conditions
-
-- A caller must inject a valid ClientContext, HttpClient, and SessionStore. Password login/registration stay unavailable until exact-Boolean Client context and verification succeed; OAuth validates Client context before its auth request.
-
-## Validation
-
-- Unit tests cover zero-request invalid Client/context failures, registration gating, OAuth Client identity, strict request order, captcha responses, identity/menu parsing, session lifecycle, and namespace isolation; architecture/type/lint/workspace gates prove the package remains headless.
-
-## OpenAPI boundary
-
-- `AuthClientContextVo` remains a transport type; `projectClientAuthContextTransport` normalizes it into `ClientAuthContext`.
+覆盖精确 ClientContext、显式 ClientId、加密边界、会话命名空间、失败关闭、登录恢复和权限评估。

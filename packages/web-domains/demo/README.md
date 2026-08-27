@@ -1,37 +1,7 @@
-# Demo Web Domain
+# 示例业务 Web 领域
 
-## Status
+`@namewta/web-domain-demo` 已激活，为 Admin 与 Client 提供普通列表、树表等示例页面和 manifest 注册。
 
-- `active`: `@namewta/web-domain-demo` owns the demo table/tree Vue pages and their explicit WebDomainManifest.
+本包依赖 demo domain 的公开入口，并从宿主取得权限评估、反馈、工具栏与分页等能力。它不拥有 App 布局、全局路由/Store、请求单例或后端授权。
 
-## Responsibilities
-
-- Provide Vue list/tree CRUD pages plus an explicit WebDomainManifest containing a message namespace, permission contributions, and stable web registrations.
-
-## Non-responsibilities
-
-- It does not own demo application services, global App layout, generic registry implementation, or backend permissions.
-
-## Allowed dependencies
-
-- Public demo domain, platform app-runtime/contracts, and selected web-kit entries.
-
-## Forbidden dependencies
-
-- Apps, other web-domain internals, concrete adapters, domain deep imports, and global implicit view globs as its public contract.
-
-## Public entrypoints
-
-- `@namewta/web-domain-demo` root exports lazy page factories, the injected `DemoWebRuntime` contract, and `createDemoWebDomain`; manifest contributions are frozen at creation.
-
-## Backend modules
-
-- `backendModules: [ruoyi-demo]`, inherited from demo list/tree capabilities.
-
-## Activation conditions
-
-- Activated in T-05 with stable `demo/demo/index` and `demo/tree/index` keys. T-15 retired the root view facades; admin-web loads the pages through the composed registry and keeps the explicit `manifest-diagnostic` harness for a chosen missing key. Arbitrary backend key integration remains owned by T-07.
-
-## Validation
-
-- Require manifest contribution/deep-freeze tests, duplicate/missing registry tests, keep-alive request-count and explicit manifest-diagnostic harness E2E, lint, typecheck, and App build.
+两个 App 均须显式选择 demo domain 与本 Web domain。验证覆盖组件键、查询与编辑行为、树表交互、权限失败关闭和双 App 宿主差异。

@@ -1,37 +1,7 @@
-# Element Web Shell
+# Element Web 外壳
 
-## Status
+`@namewta/web-shell-element` 已激活，提供可复用的 Element Plus 页面容器、品牌/导航地标，以及迁移页面所需的最小工具栏和分页宿主。
 
-- `active-minimal`: T-06 activates a reusable Element Plus container for client branding, navigation, App Client context, and content slots; admin migration remains later work.
+App 负责传入品牌、Client 标签、基于 Router 的导航回调、布局插槽与内容。本包不选择领域、不解析路由、不认证、不调用后端，也不拥有特定 App 品牌。
 
-## Responsibilities
-
-- Provide accessible brand/navigation landmarks with App-owned navigation, stable shell data markers, Client context display, App-owned slot/layout hooks, and the minimal reusable toolbar/pagination hosts required by migrated table pages.
-
-## Non-responsibilities
-
-- It does not choose domains, resolve routes, own authentication, call backend APIs, define App branding, or authorize navigation.
-
-## Allowed dependencies
-
-- Vue, Element Plus, and public design-token primitives.
-
-## Forbidden dependencies
-
-- Domains, Apps, web-domain internals, backend transport, concrete adapters, and Router/Store singletons.
-
-## Public entrypoints
-
-- `@namewta/web-shell-element` exports `ClientWebShell`, `ClientRightToolbar`, `ClientPagination`, and their typed navigation/pagination contracts.
-
-## Backend modules
-
-- `backendModules: []`; the shell owns no backend capability.
-
-## Activation conditions
-
-- App consumers must supply a Router-derived brand href/callback, branding, Client label, navigation callbacks, and content; reusable mechanics must stay independent of a specific App or domain.
-
-## Validation
-
-- Public component tests, architecture/lint/typecheck gates, client build, and Lead dual-preview E2E verify base-safe brand navigation, actionable toolbar/pagination hosts, shell identity, accessibility landmarks, and theme distinction.
+禁止依赖 App、domain、web-domain 内部、具体适配器或全局 Router/Store。验证覆盖可访问性地标、基路径导航、工具栏/分页行为、主题覆盖和双 App 使用。

@@ -1,43 +1,30 @@
-# Admin Web Application
+# Admin Web 应用
 
-## Status
+## 当前状态
 
-- `active`: this package owns the production admin browser entry and explicitly composes all selected capabilities.
+`@namewta/admin-web` 是已激活的后台管理浏览器应用，可独立开发、测试、构建和部署。
 
-## Responsibilities
+## 职责
 
-- Own the admin ClientContext, browser bootstrap, shell, router/store adapters, layout, theme, static assets and deployment configuration.
-- Compose identity-access, system-admin, workflow, AI, demo, devtools and operations through their public domain/web-domain entries.
+- 拥有 Admin 的 ClientContext、启动流程、布局、品牌、主题、路由与 Store 适配、浏览器插件和部署配置。
+- 显式组合 identity-access、system-admin、workflow、demo、ai、devtools、operations。
+- 将后端菜单组件键解析为所选 Web 领域的页面，并保留少量 App 自有静态页面。
 
-## Non-responsibilities
+## 边界
 
-- Reusable domain services, shared adapter implementations, backend authorization and terminal-neutral business models remain outside this App.
+可复用领域服务、终端无关模型、浏览器适配器合同和后端授权不属于本 App。禁止导入其他 App、包内部路径、Taro 适配器，禁止恢复根级 `src/` 兼容入口。
 
-## Allowed dependencies
+## 公开入口
 
-- Public entries of selected platform, domain, web-domain, web-kit and browser-adapter packages.
-- App-local shell components, views, stores, browser plugins and presentation assets.
+- `src/main.ts`：浏览器入口。
+- `src/router/adminManifestRegistry.ts`：编译期领域与页面清单组合入口。
+- `src/permission.ts`：受保护导航与登录态恢复。
+- `src/store/modules/permission.ts`：后端菜单转换与动态路由注入。
 
-## Forbidden dependencies
+## 后端映射
 
-- Other Apps, package internals/deep imports, Taro adapters, backend implementation modules and the retired root `src/` entry.
+通过领域合同访问 `ruoyi-admin`、`ruoyi-system`、`ruoyi-workflow`、`ruoyi-ai`、`ruoyi-demo`、`ruoyi-gen`、`ruoyi-job`。
 
-## Public entrypoints
+## 验证
 
-- `src/main.ts` is the browser entry.
-- `src/router/adminManifestRegistry.ts` is the compile-time capability composition boundary.
-- Package scripts expose independent `build`, `build:dev`, `build:prod`, `dev`, `preview`, `lint`, `test` and `typecheck` gates.
-
-## Backend modules
-
-- `backendModules: [ruoyi-admin, ruoyi-system, ruoyi-workflow, ruoyi-ai, ruoyi-demo, ruoyi-gen, ruoyi-job]` are reached only through selected domain contracts.
-
-## Activation conditions
-
-- T15 activated the App after every domain Gate through G6 was integrated.
-- The root compatibility entry was retired only after this package passed its pre-contract architecture, lint, typecheck, unit and production build checks.
-
-## Validation
-
-- Run frozen install, workspace/architecture checks, independent admin lint/typecheck/unit/build, both App builds and Lead-owned full Playwright.
-- Gate H also requires the root `src/` path and retired root App entry/config/static files to be absent after the contract commit.
+运行本包的 lint、typecheck、test、build，并通过根级架构检查、工作区构建和涉及 Admin 流程的 Playwright 验收。

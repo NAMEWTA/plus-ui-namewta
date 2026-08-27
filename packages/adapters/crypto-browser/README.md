@@ -1,37 +1,7 @@
-# Browser Crypto Adapter
+# 浏览器加密适配器
 
-## Status
+`@namewta/adapter-crypto-browser` 已激活，为浏览器 App 实现加解密平台能力。
 
-- `active`: `@namewta/adapter-crypto-browser` preserves request encryption and response decryption for both App compositions.
+本包不选择密钥、Client 或业务加密策略，不拥有请求流程，也不得依赖 App 和领域页面。调用方必须显式提供配置；缺失或无效配置应返回可诊断错误，不能静默降级为明文。
 
-## Responsibilities
-
-- Implement platform crypto ports that preserve request public-key encryption and response decryption, receiving the existing independent key materials through explicit runtime configuration.
-
-## Non-responsibilities
-
-- It does not own login payload semantics, generate/select/rotate/persist RSA key material, hard-code or log key values, transport HTTP, or remove response decryption. It does generate an ephemeral AES key for each encrypted request; browser-delivered RSA material is configuration, not a secret or security boundary.
-
-## Allowed dependencies
-
-- Public platform crypto/configuration contracts, Web Crypto, and approved existing browser-compatible crypto libraries; App/runtime composition injects key values without an adapter-to-App import.
-
-## Forbidden dependencies
-
-- Apps, domains, web-domains, web-kit, Axios request orchestration, Taro APIs, embedded RSA key values, RSA key generation/ownership, and logging of any key material.
-
-## Public entrypoints
-
-- `@namewta/adapter-crypto-browser` root export for explicit crypto adapter factories and result/error contracts.
-
-## Backend modules
-
-- `backendModules: []`; cryptography adapts a transport protocol and owns no backend capability.
-
-## Activation conditions
-
-- Activated in T-04 with parity for current request public-key encryption and response decryption using separately injected materials without assuming they are a pair; removing response decryption requires a separate backend protocol migration outside T-04.
-
-## Validation
-
-- Require request-encryption and response-decryption compatibility vectors, injected/missing/malformed configuration cases, scans proving no key values are embedded or logged, architecture checks, lint, typecheck, and production build.
+验证覆盖往返加解密、错误输入、配置隔离和不泄露敏感明文。

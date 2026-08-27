@@ -1,20 +1,17 @@
-# Taro Miniapp Application
+# Taro 小程序应用占位
 
-## Status
-- `placeholder`: Taro is not installed or version-pinned and this directory is not a package.
-## Responsibilities
-- Reserve a future miniapp composition that reuses headless domains through Taro runtime adapters and its own presentation layer.
-## Non-responsibilities
-- It does not implement a miniapp, select a target platform, or reuse Vue Web domains and Element Plus UI.
-## Allowed dependencies
-- After a dedicated Spec, public platform/domain entries and activated Taro request/storage adapters.
-## Forbidden dependencies
-- `web-domains`, Element Plus `web-kit`, browser-only adapters, other Apps, and deep imports.
-## Public entrypoints
-- None; a future terminal Spec must define Taro configuration, App entry, and composition manifest.
-## Backend modules
-- `backendModules: []`; future selected domains must provide explicit backend traceability.
-## Activation conditions
-- Activate only for a real miniapp requirement with an approved Taro/version/platform decision and independent Client/security contract.
-## Validation
-- Before activation, scan for README-only content and no manifest; after activation, require Taro build/tests and proof of no Web/DOM dependency.
+## 当前状态
+
+`placeholder`：尚未安装或锁定 Taro 版本，没有源码、依赖、包清单或构建目标，因此不属于工作区。
+
+## 未来职责
+
+通过 Taro 请求与存储适配器复用 headless domains，并拥有小程序专用 ClientContext、页面、组合、平台配置和发布流程。
+
+## 边界
+
+小程序不得依赖 `web-domains`、Element Plus Web 组件、浏览器专用适配器、其他 App 内部或 DOM 能力。
+
+## 激活条件
+
+出现真实小程序需求后，通过独立规格确定 Taro 版本、目标平台、Client、安全合同、所选领域、测试和发布方式，再创建真实工作区包。

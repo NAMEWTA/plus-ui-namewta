@@ -1,37 +1,7 @@
-# Browser Storage Adapter
+# 浏览器存储适配器
 
-## Status
+`@namewta/adapter-storage-browser` 已激活，为浏览器 App 实现平台存储合同，并支持 App 独立命名空间。
 
-- `active`: `@namewta/adapter-storage-browser` backs the auth composition in admin-web and client-web.
+本包不定义令牌语义、默认会话键或跨 App 共享策略。禁止依赖 App、领域页面和业务模型；存储不可用或数据畸形时必须返回明确结果并避免跨命名空间读取。
 
-## Responsibilities
-
-- Implement TokenStorage and SessionStore over explicit browser storage, with isolated in-memory continuity only when storage is unavailable or an operation raises a browser storage exception. A successful null read clears stale fallback state.
-
-## Non-responsibilities
-
-- It does not define session policy, select token names without migration evidence, own domain state, or access Taro storage.
-
-## Allowed dependencies
-
-- Public platform storage/auth contracts and browser storage APIs selected by the activation Ticket.
-
-## Forbidden dependencies
-
-- Apps, domains, web-domains, web-kit, Axios, Taro APIs, Router/Pinia singletons, and unscoped secrets.
-
-## Public entrypoints
-
-- `@namewta/adapter-storage-browser` root export for token-storage factories with explicit key/config ownership.
-
-## Backend modules
-
-- `backendModules: []`; storage is a local runtime implementation.
-
-## Activation conditions
-
-- Activated in T-04 after existing token key, lifecycle, clearing, and multi-App isolation behavior was measured.
-
-## Validation
-
-- Require read/write/clear/isolation, external-removal, and SecurityError/QuotaExceededError unit tests, browser boundary/security review, auth E2E, lint, typecheck, architecture checks, and App builds.
+验证覆盖读写删除、序列化失败、存储不可用和 Admin/Client 会话隔离。

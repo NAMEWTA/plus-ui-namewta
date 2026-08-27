@@ -4,11 +4,7 @@
     "apps/admin-web/src/types/components.d.ts",
     "apps/admin-web/src/types/auto-imports.d.ts",
     "packages/api-contracts/generated/openapi.ts",
-    "packages/api-contracts/openapi/revisions/*/source.json",
-    ".ai_state",
-    ".claude",
-    ".codex",
-    "doc"
+    "packages/api-contracts/openapi/revisions/*/source.json"
   ],
   "printWidth": 120,
   "singleQuote": true,

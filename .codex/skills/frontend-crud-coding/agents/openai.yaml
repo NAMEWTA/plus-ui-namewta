@@ -1,7 +1,0 @@
-interface:
-  display_name: "前端编码"
-  short_description: "按 plus-ui-namewta main 真实代码和 gen 模板编写前端 CRUD"
-  default_prompt: "使用 $frontend-crud-coding 先读取适用 reference，再按 GitHub 仓库 plus-ui-namewta 的 main 分支真实页面、hooks、API/types 约定和项目内 gen 模板实现前端修改。"
-
-policy:
-  allow_implicit_invocation: true

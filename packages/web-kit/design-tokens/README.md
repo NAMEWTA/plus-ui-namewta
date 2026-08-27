@@ -1,37 +1,7 @@
-# Web Design Tokens
+# Web 设计令牌
 
-## Status
+`@namewta/design-tokens` 已激活，提供轻量、语义化的色彩、画布、表面、边框、文字、圆角和层级令牌，并同时公开只读 TypeScript 数据与 CSS 自定义属性。
 
-- `active`: T-06 activates the minimal semantic palette used by both the client shell and identity login surface.
+本包不规定 Admin 品牌，不渲染组件，不拥有领域样式、布局或运行时能力。禁止依赖 App、domain、web-domain、Vue 组件、DOM 和后端模块。
 
-## Responsibilities
-
-- Publish framework-light client accent, canvas, surface, line, text, radius, and elevation primitives with CSS and typed read-only entrypoints.
-
-## Non-responsibilities
-
-- It does not impose an admin brand, render components, own domain styles/layout, or access runtime/backend capabilities.
-
-## Allowed dependencies
-
-- Static CSS and TypeScript data primitives only.
-
-## Forbidden dependencies
-
-- Domains, Apps, web-domains, Vue/Element components, runtime adapters, DOM access, and backend modules.
-
-## Public entrypoints
-
-- `@namewta/design-tokens` exports frozen token data; `@namewta/design-tokens/client-theme.css` exports the client CSS custom properties.
-
-## Backend modules
-
-- `backendModules: []`; tokens are presentation-only.
-
-## Activation conditions
-
-- Changes require at least the shell and a real page surface to consume semantic tokens without embedding App/domain behavior.
-
-## Validation
-
-- Token unit tests, architecture checks, scoped lint/typecheck, client build, and Lead dual-App visual assertions guard the public values and override boundary.
+变更必须由至少一个 Shell 和真实页面消费，并通过令牌测试、架构检查、类型检查、相关 App 构建和视觉验证。

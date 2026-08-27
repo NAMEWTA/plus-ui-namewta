@@ -1,37 +1,7 @@
-# Platform HTTP
+# HTTP 平台合同
 
-## Status
+`@namewta/platform-http` 定义终端无关的请求、响应、错误、取消和拦截端口，供 domain 依赖并由具体 adapter 实现。
 
-- `active`: `@namewta/platform-http` owns transport-neutral error classification used by runtime HTTP adapters.
+本包不依赖 Axios、Taro、浏览器全局、认证页面或业务 DTO。适配器可以把运行时错误映射为本合同，但业务错误解释仍由所属 domain 完成。
 
-## Responsibilities
-
-- Own transport-neutral request orchestration and stable `TransportError` classification with kind, message, optional code, sanitized cause metadata, and explicit handled state.
-
-## Non-responsibilities
-
-- It does not own Axios instances, Element Plus messages, Router navigation, domain endpoints, or browser encryption implementation.
-
-## Allowed dependencies
-
-- Public `platform-contracts` and narrowly required transport-neutral types.
-
-## Forbidden dependencies
-
-- Apps, domains, web-domains, web-kit, browser/Taro globals, and concrete adapters.
-
-## Public entrypoints
-
-- `@namewta/platform-http` root exports `TransportError`, its factory/guards, and transport-message policies.
-
-## Backend modules
-
-- `backendModules: []`; endpoint ownership remains in domains and generated API contracts.
-
-## Activation conditions
-
-- Activated in T-04 after request 401/encryption/download/repeat-submit behavior was characterized and preserved.
-
-## Validation
-
-- Run structured-error/sanitized-cause/handled unit tests, request contract tests, architecture import checks, typecheck, lint, and both App integration gates when consumers exist.
+验证覆盖请求参数透传、错误分类、取消语义和实现可替换性。

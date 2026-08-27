@@ -1,37 +1,7 @@
-# Identity Access Web Domain
+# 身份与访问 Web 领域
 
-## Status
+`@namewta/web-domain-identity-access` 已激活，为 Admin 与 Client 提供登录、注册及身份相关 Vue 表现，并通过 manifest 公开页面注册。
 
-- `active`: the injectable identity presentation manifest is selected by client-web; admin-web keeps its product-specific markup while consuming domain-owned messages and use cases.
+本包依赖 identity-access domain 的公开入口，通过类型化宿主运行时获取路由、提示、品牌和终端配置。它不拥有 ClientId、会话存储实现、App 布局、全局路由器或后端授权。
 
-## Responsibilities
-
-- Render accessible login and captcha controls, refresh the complete preparation sequence while submit remains disabled, keep submit disabled on terminal fail-close, hand credentials to the injected service, and publish stable message/permission/registration contributions.
-
-## Non-responsibilities
-
-- It does not own session truth, Client selection, HTTP/storage/crypto adapters, App layout/navigation, or backend authorization. Admin registration/social markup remains App-owned customization.
-
-## Allowed dependencies
-
-- Public identity-access domain and app-runtime contracts plus Vue and Element Plus presentation dependencies.
-
-## Forbidden dependencies
-
-- Apps, concrete adapters, root `src/**`, other web-domain internals, direct Axios/backend calls, Router/Store singletons, and package deep imports.
-
-## Public entrypoints
-
-- `@namewta/web-domain-identity-access` exports `createIdentityAccessWebDomain`, `IdentityAccessWebRuntime`, and immutable shared auth messages; component key `identity-access/login/index` resolves to keep-alive name `IdentityLogin`.
-
-## Backend modules
-
-- `backendModules: [ruoyi-admin, ruoyi-system]`, consumed only through the injected headless identity service.
-
-## Activation conditions
-
-- The App must provide a fully configured service and authentication completion callback; an absent runtime fails before the manifest is composed.
-
-## Validation
-
-- Manifest and presentation-state tests freeze stable contributions, reject missing runtime, and prove captcha refresh stays disabled until a new challenge succeeds; client unit/build plus Lead E2E verify terminal fail-close and successful injected login.
+App 必须同时选择 identity-access domain 与本 Web domain。验证覆盖 ClientContext 失败关闭、登录/注册状态、双 App 品牌与会话隔离、manifest 注册和浏览器认证流程。

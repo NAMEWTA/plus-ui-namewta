@@ -1,41 +1,7 @@
-# Operations Web Domain
+# 运维 Web 领域
 
-## Status
+`@namewta/web-domain-operations` 已激活，提供在线会话、缓存、操作日志、登录日志、通知日志和外部监控页面及 manifest。
 
-- `active`: T-14 owns the Vue presentation and manifest registrations for the operations domain.
+字典、弹窗、导出、附件下载、iframe 和外部 URL 通过宿主运行时端口取得。只有 domain 返回已批准的导航意图后才能执行浏览器副作用；失败或不安全 URL 必须可见且零副作用。
 
-## Responsibilities
-
-- Provide online-session, cache, operation-log, login-info, notification-log, and three external-monitor pages under the legacy component keys.
-- Accept request, permission, dictionary, modal, export, attachment-download, iframe, and configured external URL capabilities through `OperationsWebRuntime`.
-- Render permission/configuration failures visibly and invoke iframe/download effects only with an approved domain navigation intent.
-
-## Non-responsibilities
-
-- It does not own monitor transports/models, URL trust decisions, backend authorization, global routing, the application shell, or concrete App adapters.
-- It does not copy App-owned iframe/download/security implementations or select itself for an App.
-
-## Allowed dependencies
-
-- Public operations domain, platform app-runtime, Vue, Element Plus, ECharts, and Vue JSON Pretty.
-
-## Forbidden dependencies
-
-- Apps, other web-domain internals, concrete adapters, App internals, domain deep imports, global router/request modules, and browser effects outside injected runtime ports.
-
-## Public entrypoints
-
-- `@namewta/web-domain-operations` exports the typed runtime contract, live dictionary adapter, and `createOperationsWebDomain`; `@namewta/web-domain-operations/pages` exports compatibility-safe page components.
-
-## Backend modules
-
-- `backendModules: [ruoyi-system]`, inherited from the operations domain; external monitor deployments remain host configuration rather than package dependencies.
-
-## Activation conditions
-
-- An App must explicitly select both `operations` and `web-domain-operations`; admin-web does so and client-web does not.
-- External pages require their target-specific permission and safe configured URL. Notification attachment download additionally requires query permission and a successful safe URL authorization response.
-
-## Validation
-
-- Require manifest key/permission inventory tests, visible permission/unsafe URL/API failure behavior with zero downstream effect, strict unknown-request E2E, client unselected diagnostics, architecture checks, lint, typecheck, unit tests, and production builds.
+本包不拥有运维传输模型、URL 信任策略、App 路由、具体适配器或后端授权。Admin 选择本能力，Client 不选择。验证覆盖组件键、权限、URL 安全、错误终态和外部导航行为。

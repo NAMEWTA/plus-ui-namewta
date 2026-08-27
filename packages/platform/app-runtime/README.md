@@ -1,39 +1,7 @@
-# Platform App Runtime
+# App 组合运行时
 
-## Status
+`@namewta/platform-app-runtime` 提供 App、domain 与 web-domain 的类型化组合合同。它按 App 显式选择的领域构建不可变运行时，聚合路由和组件注册，并对重复键、未知领域、缺失依赖与未选择能力失败关闭。
 
-- `active`: `@namewta/platform-app-runtime` provides the terminal-neutral manifest registry used by the demo pilot.
+本包不选择具体 App 能力，不拥有页面、布局、路由器单例、请求实现或业务领域规则。可依赖最小平台合同，但不得依赖 App、domain 实现、web-domain 或浏览器适配器。
 
-## Responsibilities
-
-- Filter DomainModule and WebDomainManifest inputs to the App selection before validating duplicates, then compose message namespaces, permission contributions, and stable web registrations.
-- Assemble server-authorized menus without a second Client filter and coordinate protected navigation in the fixed identity/menu/add/replace order through injected ports.
-- Clone and freeze public contributions, resolve component keys, and report structured duplicate or missing diagnostics without later registrations overwriting earlier ones.
-
-## Non-responsibilities
-
-- It does not own domain pages, App layout, backend menu filtering, Vue Router, or runtime remote-plugin discovery.
-
-## Allowed dependencies
-
-- Public platform contracts plus manifest metadata contracts; concrete manifests are injected by Apps.
-
-## Forbidden dependencies
-
-- Specific Apps/domains/web-domains, Vue page implementations, concrete adapters, deep imports, and remote module loaders.
-
-## Public entrypoints
-
-- `@namewta/platform-app-runtime` root exports manifest contracts, selected-only composition, immutable resolution, server route assembly, missing-key diagnostics, and protected navigation recovery ports.
-
-## Backend modules
-
-- `backendModules: []`; manifests carry domain-specific backend traceability.
-
-## Activation conditions
-
-- Activated by T-05 with the demo domain; admin-web and client-web now inject their selected manifests.
-
-## Validation
-
-- Registry and route fixtures cover selected/unselected duplicates, contribution conflicts, mutation, server metadata passthrough, missing keys, and exact `getInfo -> getRouters -> addRoute -> replace`; architecture/type gates and Lead dynamic-route E2E complete validation.
+验证应覆盖选择顺序、不可变结果、重复注册、缺失领域、未选择注册和稳定诊断。

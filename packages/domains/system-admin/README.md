@@ -1,48 +1,9 @@
-# System Administration Domain
+# 系统管理领域
 
-## Status
+`@namewta/domain-system-admin` 已激活，拥有用户、部门、岗位、角色、菜单、字典、参数、通知、OSS、OSS 配置和个人资料相关的领域模型、查询/命令服务与传输映射。
 
-- `active`: T-10 activated governance; T-11 adds dictionary, configuration, notice, OSS, OSS configuration, message, and social-resource contracts.
+本领域不拥有 Vue 页面、表格交互、弹窗、编辑器、下载副作用、App 路由或后端授权，也不依赖具体请求适配器。宿主能力通过端口注入。
 
-## Responsibilities
+后端映射为 `ruoyi-system` 的 `/system/**` 与 `/resource/**` 接口。Admin 选择本领域，Client 当前不选择。
 
-- Own Client/user/user-type/role/menu/department/post governance and resource/content services and models.
-- Validate backend-issued OSS and presigned upload URLs at the domain boundary before browser code can consume them.
-- Preserve the T-09 workflow-safe public user-query seam without widening its projected user data.
-- Provide minimal public dictionary and recursively projected menu query ports with stable fields and explicit Client scope.
-
-## Non-responsibilities
-
-- It does not own current-session authentication, global route guards, Vue administration pages, workflow rules, or code-generator behavior.
-- It does not perform browser upload/download, render HTML, own OSS credentials, or log tokens, signed URLs, request headers, or response objects.
-
-## Allowed dependencies
-
-- Public platform contracts/runtime and generated `@namewta/api-contracts` transport types; expose only explicit cross-domain ports.
-
-## Forbidden dependencies
-
-- Apps, web-domains, web-kit, Vue/DOM, concrete adapters, workflow/devtools implementations, and cyclic same-layer imports.
-
-## Public entrypoints
-
-- `@namewta/domain-system-admin` exports governance/resource services and models plus the domain capability descriptor.
-- `@namewta/domain-system-admin/public/dict` and `/public/menu` expose projected cross-domain query ports without administration internals.
-- `@namewta/domain-system-admin/public/user` exports minimal workflow-safe user summaries and an injected `UserQueryPort`; list and option responses are projected at runtime so extra user/PII fields cannot cross the seam.
-
-## Backend modules
-
-- `backendModules: [ruoyi-system]` for `/system/**`, `/resource/**`, and the existing social-auth bindings.
-
-## Activation conditions
-
-- Admin-web selects the domain and its web manifest. Other Apps receive no governance registrations unless they explicitly select both.
-- The current-session profile transport is exposed for the existing host profile page, but that static host route is not a T-10 manifest registration.
-
-## Validation
-
-- Transport matrix tests lock all existing paths and methods; social binding/list results have concrete public models; public seams prove projection and Client-scoped failure propagation. OSS list resolution never falls back after authorization failure, and OSS/notice attachment security tests reject unsafe URLs without retaining secrets.
-
-## OpenAPI boundary
-
-- `SysUserVo` is generated transport; the public user service maps it into the stable `UserSummary` contract before data crosses the seam.
+验证覆盖请求参数、领域映射、资源安全边界、错误分类和公开入口。

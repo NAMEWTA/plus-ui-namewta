@@ -1,20 +1,7 @@
-# Taro Request Adapter
+# Taro 请求适配器占位
 
-## Status
-- `placeholder`: Taro is not installed, selected, versioned, or included in any build.
-## Responsibilities
-- Reserve a future implementation of platform HttpClient semantics over the selected Taro request runtime.
-## Non-responsibilities
-- It does not implement Taro now, own domain endpoints, emulate browser Axios, or choose a miniapp platform.
-## Allowed dependencies
-- After a dedicated terminal Spec, public platform contracts/http plus the approved Taro request API.
-## Forbidden dependencies
-- Axios/browser globals, Web domains, Element Plus, Apps other than an explicitly composed Taro terminal, and domain business rules.
-## Public entrypoints
-- None now; a future `@namewta/adapter-taro-request` root export must be defined by the terminal activation Spec.
-## Backend modules
-- `backendModules: []`; selected domains retain backend traceability.
-## Activation conditions
-- A real miniapp requirement must approve Taro/version/platform, auth headers, encryption/download behavior, cancellation, and failure mapping.
-## Validation
-- Before activation, require README-only/no-manifest scans; after activation, require Taro contract tests, terminal build, architecture checks, and auth/network E2E.
+`placeholder`：尚未安装 Taro、没有源码、包清单或工作区依赖。
+
+未来在小程序规格激活后实现平台 HTTP 合同，处理目标平台请求、Client、认证头、取消和错误映射。它不得依赖 Web DOM、Axios 浏览器实现、App 内部或业务领域规则。
+
+激活时必须锁定 Taro 与目标平台版本，并提供合同测试、真机或模拟器证据和小程序 App 构建验证。

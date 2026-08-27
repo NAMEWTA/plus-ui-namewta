@@ -1,37 +1,29 @@
-# Client Web Application
+# Client Web 应用
 
-## Status
+## 当前状态
 
-- `active`: `@namewta/client-web` is the T-06 second-App proof with its own Vite build, preview, ClientContext, session namespace, shell, theme, and explicit composition.
+`@namewta/client-web` 是已激活的第二个浏览器 App，拥有独立构建、预览、ClientContext、会话命名空间、布局与主题。
 
-## Responsibilities
+## 职责
 
-- Compose only identity-access and demo public manifests, create browser adapters, own base-aware client routing and stable registry diagnostics, install the minimal demo toolbar/pagination/icon hosts, and produce an independently deployable client bundle.
+- 只组合 identity-access 与 demo 的公开 domain/web-domain 清单。
+- 创建本 App 的浏览器请求、存储和加密适配器。
+- 拥有基于部署路径的路由、品牌导航和最小页面宿主。
 
-## Non-responsibilities
+## 边界
 
-- It is not an admin clone and does not own reusable identity/demo rules, full authorization recovery, system administration, workflow, AI, devtools, or operations. Until T-07 installs shared access evaluation, migrated demo `v-hasPermi` controls are removed fail-closed; this is a temporary T-06 proof boundary, not final permission semantics, and never grants backend authority.
+Client 不是 Admin 的复制品，不拥有系统管理、工作流、AI、开发工具或运维能力。禁止导入 Admin 内部、未选择领域、包内部路径、默认 Client 或 `Admin-Token` 会话键。
 
-## Allowed dependencies
+## 公开入口
 
-- Public exports of selected identity/demo domains and web-domains, platform contracts/app-runtime, browser axios/storage/crypto adapters, Vue/Router/Element Plus, and the activated shell/design tokens.
+- `src/main.ts`：浏览器入口。
+- `src/composition.ts`：编译期领域选择与运行时组合。
+- `src/application.ts`：应用创建和宿主能力装配。
 
-## Forbidden dependencies
+## 后端映射
 
-- Root `src/**`, admin internals, unselected domains, package deep imports, a fallback/default Client, and the `Admin-Token` storage key.
+通过 identity-access 与 demo 合同访问 `ruoyi-admin`、`ruoyi-system`、`ruoyi-demo` 的已选接口。部署必须提供非空且与服务端能力匹配的 `VITE_CLIENT_WEB_CLIENT_ID`。
 
-## Public entrypoints
+## 验证
 
-- `src/main.ts` is the browser entry; `src/composition.ts` owns the compile-time selection; package scripts expose `build`, `preview`, `lint`, `test`, and `typecheck`.
-
-## Backend modules
-
-- `backendModules: [ruoyi-admin, ruoyi-system, ruoyi-demo]` through `/auth/client/context`, `/auth/code`, `/auth/login`, and selected demo APIs.
-
-## Activation conditions
-
-- Deployment must inject a non-empty OAuth `VITE_CLIENT_WEB_CLIENT_ID` mapped to the selected server capabilities. The committed proof Client and disabled request encryption are public test configuration, not a production credential or a change to admin encryption.
-
-## Validation
-
-- Source owner runs `pnpm --filter @namewta/client-web test`, `typecheck`, and `build`; source must not run Playwright. Lead builds root admin and client, starts admin preview on `4173` and `pnpm --filter @namewta/client-web preview` on `4174`, then runs `CLIENT_WEB_URL=http://127.0.0.1:4174 ADMIN_WEB_URL=http://127.0.0.1:4173 pnpm exec playwright test e2e/client-web-proof.spec.ts`. The proof exercises captcha refresh, demo toolbar/pagination behavior, Router-owned brand navigation, and the T-06 fail-closed permission boundary; T-07 still owns final shared permission/router integration.
+运行本包的 test、typecheck、build，并通过根级架构检查、双 App 构建及 Client 专属 Playwright 流程。

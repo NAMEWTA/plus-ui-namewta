@@ -1,37 +1,7 @@
-# Platform Contracts
+# 平台基础合同
 
-## Status
+`@namewta/platform-contracts` 保存少量、稳定、跨领域且终端无关的基础类型与端口。
 
-- `active`: `@namewta/platform-contracts` exports the terminal-neutral ports used by T-04 adapters.
+这里不是公共业务垃圾桶：领域模型应留在所属 domain，浏览器实现应放入 adapters，Vue 类型应留在 Web 层。新增合同前必须证明至少存在多个真实消费者且所有权无法归入单一领域。
 
-## Responsibilities
-
-- Define terminal-neutral ports such as HttpClient, TokenStorage, ClientContext, ErrorPresenter, NavigationPort, and stable error/result shapes.
-
-## Non-responsibilities
-
-- It does not implement Axios, storage, crypto, UI feedback, navigation, authentication workflows, or business domains.
-
-## Allowed dependencies
-
-- Type-only standard-library primitives and deliberately approved transport-neutral contract types.
-
-## Forbidden dependencies
-
-- Domains, Apps, Vue, Vue Router, Element Plus, DOM globals, Axios, Taro, and concrete adapters.
-
-## Public entrypoints
-
-- `@namewta/platform-contracts` root exports for stable port types and ClientContext validation.
-
-## Backend modules
-
-- `backendModules: []`; contracts are frontend runtime boundaries, not a backend capability domain.
-
-## Activation conditions
-
-- Activated in T-04 because the browser adapters consume these ports and their contract tests cover each active boundary.
-
-## Validation
-
-- Enforce no framework/runtime imports, public-root-only consumption, typecheck, unit contract tests, and architecture checks.
+本包不得依赖 App、domain、web-domain、具体适配器或 DOM；公共 API 变化必须由类型和消费者测试共同验证。

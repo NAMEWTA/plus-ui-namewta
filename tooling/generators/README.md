@@ -1,20 +1,7 @@
-# Workspace Generators
+# 工作区生成器占位
 
-## Status
-- `placeholder`: no frontend workspace/package generator is installed or executable.
-## Responsibilities
-- Eventually scaffold activated App/package contracts, names, exports, tests, and metadata consistently after boundaries are proven.
-## Non-responsibilities
-- It does not generate empty placeholder packages, implement backend `ruoyi-gen`, choose domain boundaries, or rewrite existing modules wholesale.
-## Allowed dependencies
-- Tooling-only template/parser dependencies and approved architecture metadata contracts.
-## Forbidden dependencies
-- Product runtime imports, silent overwrite of owned files, package activation without a Ticket, and backend generator implementation coupling.
-## Public entrypoints
-- Future explicit generator CLI with dry-run and collision behavior; no executable exists now.
-## Backend modules
-- `backendModules: []`; backend `ruoyi-gen` belongs to devtools capability and is not this tool's implementation dependency.
-## Activation conditions
-- Activate only after at least two manually verified packages establish stable layouts and generator ownership/overwrite rules are specified.
-## Validation
-- Require dry-run/golden fixtures, collision and rollback tests, generated diff review, architecture checks, and representative package gates.
+`placeholder`：当前没有可执行的前端工作区或包生成器，本目录不属于工作区包。
+
+未来可在边界被多次人工验证后，生成 App/包的名称、exports、测试和架构元数据。它不负责后端 `ruoyi-gen`，不替开发者选择领域边界，也不得静默覆盖已有文件或通过生成空包激活占位目录。
+
+激活前必须明确 dry-run、冲突、覆盖和回滚合同，并提供黄金样例、碰撞测试、生成 diff 审查、架构检查与代表性包验证。

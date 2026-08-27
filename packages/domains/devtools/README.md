@@ -1,41 +1,9 @@
-# Developer Tools Domain
+# 开发工具领域
 
-## Status
+`@namewta/domain-devtools` 已激活，拥有代码生成、数据源、生成配置和相关开发工具的终端无关模型、服务与传输映射。
 
-- `active`: transport and models are owned here; T-15 retired the root `src/api/tool/gen` compatibility facade.
+本领域不等同于根级模板目录，也不拥有 Vue 页面、文件下载实现、App 路由或后端生成器源码。前端根级 `gen/*.ftl` 已删除；实际后端生成能力仍由服务端负责。
 
-## Responsibilities
+后端映射为 `ruoyi-gen`。Admin 选择本领域，Client 当前不选择。
 
-- Own generator configuration, metadata queries, preview/download orchestration, generated-file result handling, and devtools permissions.
-
-## Non-responsibilities
-
-- It does not render generator Vue pages, implement backend templates, generate OpenAPI clients, or administer dictionaries/menus.
-
-## Allowed dependencies
-
-- Public platform HTTP/download contracts, generated `@namewta/api-contracts` transport types, and explicit `system-admin/public/dict` and `public/menu` ports.
-
-## Forbidden dependencies
-
-- Apps, web-domains, web-kit, Vue/DOM, concrete adapters, system-admin internals, and OpenAPI tooling runtime code.
-
-## Public entrypoints
-
-- `@namewta/domain-devtools` exports generator services/models and `DomainModule` metadata.
-
-## Backend modules
-
-- `backendModules: [ruoyi-gen, ruoyi-system]`; system metadata is consumed only through public ports.
-
-## Activation conditions
-
-- Admin-web explicitly selects the domain and its web manifest.
-
-## Validation
-
-- Require metadata-port contracts, preview/download negative tests, no deep imports/cycles, sensitive metadata review, lint, typecheck, and selected-App E2E/build.
-
-## OpenAPI boundary
-
-- `GenTable` is generated transport; `projectGeneratorTableTransport` supplies domain defaults and returns the existing `TableVO`.
+验证覆盖元数据映射、生成请求、下载意图、错误处理和公开入口。

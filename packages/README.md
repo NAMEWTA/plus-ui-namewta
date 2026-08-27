@@ -1,20 +1,12 @@
-# Shared Packages
+# 共享包目录
 
-## Status
-- `index`: this directory groups active workspace packages and intentional README-only placeholders; the group directories themselves expose no runtime code.
-## Responsibilities
-- Index current and future platform, domain, Web-domain, Web-kit, adapter, and generated transport-contract boundaries.
-## Non-responsibilities
-- It is not a generic common/utils container and does not activate packages merely by directory presence.
-## Allowed dependencies
-- Children may use only the dependency directions and public entries declared in their own contracts.
-## Forbidden dependencies
-- Package deep imports, dependency cycles, reverse dependencies into Apps, and undeclared same-layer coupling.
-## Public entrypoints
-- None at this level; each activated child exposes a private `@namewta/*` package root.
-## Backend modules
-- `backendModules: []`; concrete domain packages own backend traceability.
-## Activation conditions
-- A migration Ticket must add a focused private package manifest, exports, real source, consumers, and verification together.
-## Validation
-- Confirm placeholder children contain README files only, have no package manifests, and are absent from workspace discovery.
+`packages` 按所有权而不是按技术文件类型划分：
+
+- `domains`：无界面业务领域。
+- `web-domains`：领域对应的 Vue Web 表现层。
+- `platform`：跨领域最小端口和运行时合同。
+- `adapters`：浏览器或未来终端的具体能力实现。
+- `web-kit`：被多个真实消费者证明稳定的 Web 共享机制。
+- `api-contracts`：OpenAPI 生成的传输合同。
+
+所有包必须声明工作区依赖、只公开必要入口并避免大而全的 barrel。禁止跨包相对导入、深层导入、依赖 App 内部或通过副作用自动注册。

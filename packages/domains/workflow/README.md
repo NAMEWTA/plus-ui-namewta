@@ -1,48 +1,9 @@
-# Workflow Domain
+# 工作流领域
 
-## Status
+`@namewta/domain-workflow` 已激活，拥有流程分类、定义、设计、SpEL、任务、实例、审批、参与人操作、请假和附件等终端无关模型、命令、查询与状态规则。
 
-- Active for workflow definition administration and T-09 task/instance/leave runtime.
+本领域不拥有 Vue 页面、流程设计器宿主、路由、上传下载副作用、用户管理页面或服务端授权。HTTP、文件、导航和反馈能力通过类型化端口注入。
 
-## Responsibilities
+后端映射为 `ruoyi-workflow`。Admin 选择本领域，Client 当前不选择。
 
-- Own category, definition, SpEL, task, instance and leave transport models/services plus domain metadata, including exact task-operation, termination and three-field urge contracts.
-- Consume the minimal `@namewta/domain-system-admin/public/user` query port; no system implementation or private user model crosses the boundary.
-
-## Non-responsibilities
-
-- Does not own Vue pages, browser state, routing, concrete HTTP adapters, or system user administration.
-
-## Allowed dependencies
-
-- Platform contracts, app-runtime, generated `@namewta/api-contracts` transport types, and the system-admin public user seam through an injected HttpClient.
-
-## Forbidden dependencies
-
-- Vue, DOM/browser globals, concrete adapters, Apps, root src, and package deep imports.
-
-## Public entrypoints
-
-- The package root exports all workflow runtime models, WorkflowDefinitionService, its factory, user seam types, and workflowDomainModule.
-
-## Backend modules
-
-- backendModules: [ruoyi-workflow].
-
-## Activation conditions
-
-- An App selects the workflow domain and injects its own HttpClient.
-
-## Validation
-
-- Exhaustive transport tests lock definition and runtime methods/paths/encoding, project current-task users to UserSummary, and prove user failures propagate; architecture checks prove the headless dependency boundary.
-
-## Compatibility
-
-Mutation methods intentionally retain existing PUT/DELETE contracts under DEV-T08-002. legacyDefinitionXml retains the
-old frontend path although the current backend has no matching controller and no production caller. T-15 retired the root
-facades; both transport contracts remain until a separately coordinated backend migration.
-
-## OpenAPI boundary
-
-- `FlowTaskVo` is generated transport; `projectWorkflowTaskTransport` normalizes it into the existing domain-owned `WorkflowTask` before the service returns data.
+验证覆盖候选人过滤、状态门控、完成/退回/委派/转办/加减签等负载、请假天数和失败保留。

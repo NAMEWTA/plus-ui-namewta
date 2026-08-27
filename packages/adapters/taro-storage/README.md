@@ -1,20 +1,7 @@
-# Taro Storage Adapter
+# Taro 存储适配器占位
 
-## Status
-- `placeholder`: Taro storage dependencies and source are intentionally absent.
-## Responsibilities
-- Reserve a future TokenStorage/key-value port implementation for the approved Taro terminal runtime.
-## Non-responsibilities
-- It does not implement storage now, define session policy, reuse browser storage globals, or choose a miniapp platform.
-## Allowed dependencies
-- After a dedicated terminal Spec, public platform storage/auth contracts plus the approved Taro storage API.
-## Forbidden dependencies
-- Browser local/session storage, Web domains, Element Plus, unrelated Apps, Axios, and domain business rules.
-## Public entrypoints
-- None now; a future `@namewta/adapter-taro-storage` root export must be defined by the terminal activation Spec.
-## Backend modules
-- `backendModules: []`; terminal storage owns no backend capability.
-## Activation conditions
-- A real terminal requirement must define Taro/version/platform, key isolation, clearing, lifecycle, quota, and security behavior.
-## Validation
-- Before activation, require README-only/no-manifest scans; after activation, require storage isolation/lifecycle tests, terminal build, architecture review, and auth E2E.
+`placeholder`：尚未安装 Taro、没有源码、包清单或工作区依赖。
+
+未来在小程序规格激活后实现平台存储合同，并为每个小程序 Client 提供独立命名空间。它不得依赖浏览器存储、Web DOM、App 内部或认证业务规则。
+
+激活时必须验证目标平台存储限制、序列化失败、清理行为、会话隔离和小程序构建。

@@ -1,20 +1,7 @@
-# AI Web Domain
+# AI Web 领域
 
-## Status
-- `active`: `@namewta/web-domain-ai` owns the Snail AI iframe page, lifecycle, and explicit manifest.
-## Responsibilities
-- Provide the Vue iframe page, registration/loading/error/retry lifecycle, same-origin HTML probe, AI messages/styles, and manifest contribution.
-## Non-responsibilities
-- It does not own AI transport, global shell, model infrastructure, or invent postMessage/SSE/ReadableStream/backend protocols.
-## Allowed dependencies
-- Public AI domain, platform app-runtime, Vue, and Element Plus.
-## Forbidden dependencies
-- Apps, other web-domain internals, concrete adapters, direct globals for domain behavior, and secret-bearing logs.
-## Public entrypoints
-- `@namewta/web-domain-ai` exports the typed runtime, lazy page loader, and `createAiWebDomain`; `./pages` exports the compatibility-safe page.
-## Backend modules
-- `backendModules: [ruoyi-ai]`, inherited from the current-user registration capability.
-## Activation conditions
-- Activated in T-12 only when an App explicitly selects `ai` and `web-domain-ai`; admin does so and client does not.
-## Validation
-- Require registration, probe failure, iframe load timeout, retry, credential URL cleanup, selected-only checks, secret review, lint, typecheck, E2E, and dual-App builds.
+`@namewta/web-domain-ai` 已激活，提供 AI 配置、模型、知识库、会话等 Vue 页面、局部组件和 manifest。
+
+本包只依赖 AI domain 与必要的公开 Web/平台合同；流式交互、反馈、下载和导航通过宿主端口取得。它不拥有 App 布局、全局请求/路由单例或后端授权。
+
+Admin 同时选择 AI domain 与本 Web domain；Client 不选择。验证覆盖组件键、权限、加载/错误终态、交互状态和生产构建。

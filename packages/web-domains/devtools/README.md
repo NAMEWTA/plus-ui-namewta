@@ -1,37 +1,7 @@
-# Developer Tools Web Domain
+# 开发工具 Web 领域
 
-## Status
+`@namewta/web-domain-devtools` 已激活，提供代码生成、数据源和生成配置等 Vue 页面、组件与 manifest。
 
-- `active`: generator list, import, edit, preview and download pages are owned here.
+预览、下载、反馈和导航通过宿主运行时端口执行。本包不拥有后端生成器、根级模板目录、App 路由、具体请求实现或服务端授权。
 
-## Responsibilities
-
-- Provide Vue generator configuration, metadata selection, preview/download UI, messages, and devtools manifest mappings.
-
-## Non-responsibilities
-
-- It does not own generation services, backend templates, system dictionary/menu administration, or OpenAPI tooling.
-
-## Allowed dependencies
-
-- Public devtools domain, approved system-admin public selection contracts, platform download/error contracts, and web-kit.
-
-## Forbidden dependencies
-
-- Apps, system-admin implementation pages, other web-domain deep imports, concrete adapters, and direct unsafe file handling.
-
-## Public entrypoints
-
-- `@namewta/web-domain-devtools` exports the manifest; `./pages` exports compatibility pages.
-
-## Backend modules
-
-- Generation maps to `ruoyi-gen`; dictionary/menu metadata maps to `ruoyi-system` and remains behind public ports.
-
-## Activation conditions
-
-- Admin-web explicitly selects this manifest; other Apps remain unselected by default.
-
-## Validation
-
-- Require metadata selection, preview/download failure E2E, manifest registration, no deep imports/cycles, lint, typecheck, and selected-App builds.
+Admin 同时选择 devtools domain 与本 Web domain；Client 不选择。验证覆盖组件键、生成参数、预览/下载意图、权限失败关闭和浏览器流程。

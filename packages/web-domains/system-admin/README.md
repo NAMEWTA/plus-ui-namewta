@@ -1,39 +1,7 @@
-# System Administration Web Domain
+# 系统管理 Web 领域
 
-## Status
+`@namewta/web-domain-system-admin` 已激活，提供用户、部门、岗位、角色、菜单、字典、参数、通知、OSS、OSS 配置等 Vue 页面、局部组件、组合式函数和 manifest。
 
-- `active`: T-10 provides governance pages; T-11 adds dictionary, configuration, notice, OSS, and OSS-configuration pages.
+编辑器、图片预览、字典缓存、OSS 下载和 HTML 净化通过类型化宿主端口取得。本包不拥有领域服务、App 布局、全局路由、当前会话认证或后端授权。
 
-## Responsibilities
-
-- Provide Vue administration pages, local components/composables, and manifest entries for governance and resource/content slices.
-- Consume editor, image preview, dictionary cache, OSS download, and HTML sanitization only through typed host runtime ports.
-
-## Non-responsibilities
-
-- It does not own system application services, global shell/layout, current-session authentication, workflow UI, or backend authorization.
-- The current-session profile remains a host-owned static route. Message-box and social-binding transports have no standalone backend menu page and therefore remain domain services rather than invented registrations.
-
-## Allowed dependencies
-
-- Public system-admin domain, platform app-runtime, Vue, Vue Router, and Element Plus.
-
-## Forbidden dependencies
-
-- Apps, other web-domain internals, concrete adapters, domain deep imports, and App-private internals.
-
-## Public entrypoints
-
-- `@namewta/web-domain-system-admin` exports the typed host runtime contract and `createSystemAdminWebDomain` manifest factory; `@namewta/web-domain-system-admin/pages` is the compatibility-safe page component entrypoint.
-
-## Backend modules
-
-- `backendModules: [ruoyi-system]`, including existing `/system/**` and `/resource/**` administration controllers.
-
-## Activation conditions
-
-- An App must explicitly select both `system-admin` and `web-domain-system-admin`; admin-web does so and client-web does not.
-
-## Validation
-
-- Require exact component-key/permission manifest tests, selected-only registration, resource transport/security tests, settled resource loading states, lint, typecheck, architecture checks, and Lead-run browser evidence for real OSS controls, message consumption, and legacy profile social seams. T-15 retired the legacy root API/view facades after consumer scans passed.
+Admin 同时选择 system-admin domain 与本 Web domain；Client 不选择。验证覆盖组件键和权限清单、资源加载终态、安全下载、错误可见性及真实管理流程。

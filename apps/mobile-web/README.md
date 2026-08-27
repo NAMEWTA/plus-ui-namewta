@@ -1,20 +1,17 @@
-# Mobile Web Application
+# 移动 Web 应用占位
 
-## Status
-- `placeholder`: no framework decision, manifest, source, dependency, or build target is active.
-## Responsibilities
-- Reserve a future mobile-browser delivery unit that reuses headless domains with a mobile-specific presentation and composition.
-## Non-responsibilities
-- It does not promise a responsive variant of admin-web, native packaging, or reuse of desktop Element pages.
-## Allowed dependencies
-- After a dedicated Spec, public platform/domain contracts and explicitly selected mobile-compatible Web capabilities.
-## Forbidden dependencies
-- Other App internals, implicit desktop shell dependencies, deep imports, and direct ownership of shared business rules.
-## Public entrypoints
-- None; a future terminal Spec must define its App entry and composition manifest.
-## Backend modules
-- `backendModules: []`; the future product scope must declare backend sources through selected domains.
-## Activation conditions
-- A real mobile-Web product requirement and separate Spec must choose UX, ClientContext, supported domains, and deployment constraints.
-## Validation
-- Before activation, verify README-only status; after activation, require terminal-specific build, interaction, Client, and architecture gates.
+## 当前状态
+
+`placeholder`：尚未选择框架，没有源码、依赖、包清单或构建目标，因此不属于工作区。
+
+## 未来职责
+
+承载移动浏览器专用的 ClientContext、组合、交互、布局、主题和部署，并复用终端无关的 headless domains。
+
+## 边界
+
+本占位不承诺复用 Admin 的响应式布局、桌面 Element 页面或原生封装。禁止提前依赖其他 App 内部、桌面 Shell 或直接复制共享业务规则。
+
+## 激活条件
+
+出现真实移动 Web 产品需求后，通过独立规格确定体验、Client、安全策略、所选领域、技术栈和部署约束，再创建包、源码、测试与构建门禁。

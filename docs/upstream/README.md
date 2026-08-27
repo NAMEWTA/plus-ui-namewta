@@ -1,5 +1,12 @@
-# Upstream follow
+# 上游跟踪
 
-NAMEWTA 相对上游 plus-ui `6.X-Vue` 的改造热点与合并约束，见父仓库 [customization-map.md](https://github.com/NAMEWTA/ruoyi-vue-plus-docs/blob/main/docs/upstream/customization-map.md)（本目录作为 submodule 时也可打开 `../../../docs/upstream/customization-map.md`）。
+本目录只保存前端上游能力评估与映射材料。产品架构以 `main` 的本地 monorepo 为权威，上游 `6.X-Vue` 是只读能力来源，不要求目录同构。
 
-产品在 `main`；`6.X-Vue` 只做上游镜像。不要在镜像分支提交业务，也不要移动基线标签 `namewta-base-upstream-6x-vue`。
+评估上游变化时：
+
+1. 识别新增能力、缺陷修复、安全变化和行为不变量。
+2. 映射到本地 `apps`、`domains`、`web-domains`、`platform`、`adapters`、`web-kit` 或 `tooling` 的真实 owner。
+3. 明确记录 `adopt`、`adapt`、`reject` 或 `defer`，并给出理由和验证证据。
+4. 安全变化不得静默延后；不得以复制上游旧 `src/**` 路径作为完成标准。
+
+历史报告可以保留当时事实，但新实现和新文档必须引用当前架构入口。

@@ -1,27 +1,15 @@
-# API Contracts
+# API 传输合同
 
-Private transport types generated from the checked backend OpenAPI snapshot. Domain packages may import schema types from this package, but generated types never replace domain-owned models or use cases.
+## 当前状态
 
-## Provenance
+`@namewta/api-contracts` 已激活，保存经 `tooling/openapi` 确定性生成并提交的 TypeScript 传输类型与客户端。
 
-- Backend repository: `ruoyi-vue-plus-namewta`
-- Backend commit: `a98d6edcc591550221dd983e293d43e3aac36d23`
-- Runtime endpoint: `/v3/api-docs`
-- OpenAPI version: `3.1.0`
-- Raw source SHA-256: `d72883b9b089200e92962048ba55f0c003ff20f1527bcd3f3238e39df411bc9e`
-- Coverage: 308 paths, 304 schemas, 52 tags
-- Generator: `openapi-typescript@7.13.0`
+## 职责与边界
 
-The snapshot was captured from a clean detached backend worktree. The local diagnostic server used the normal `dev` profile with LiteFlow disabled only to bypass its unrelated startup failure; no backend source or production endpoint was changed.
+本包只描述 HTTP 线上结构，不拥有领域模型、页面模型、业务映射、认证策略或具体运行时适配器。domain 必须在边界处把生成传输对象映射为自己拥有的模型，禁止页面直接依赖生成器内部文件。
 
-## Commands
+生成目录由工具维护，不应手工编辑。仅从 `package.json` 声明的公开入口消费。
 
-Run these from `tooling/openapi`:
+## 验证
 
-```sh
-pnpm openapi:fetch -- --source http://127.0.0.1:18080/v3/api-docs --backend-commit a98d6edcc591550221dd983e293d43e3aac36d23
-pnpm openapi:generate
-pnpm openapi:check
-```
-
-`openapi:fetch` validates the complete response, writes snapshot and machine provenance to an immutable bundle-digest revision, then activates both with one atomic `openapi/current.json` pointer replacement. The revision identity binds the raw bytes and canonical provenance, so equal snapshots from different backend commits remain distinct auditable revisions. `openapi:generate` first validates the active provenance against the active snapshot. `openapi:check` repeats that validation, generates in memory, and fails on provenance drift, contract drift, or manual edits without overwriting the committed output.
+使用 `openapi:check` 检查激活快照、来源信息和生成漂移，并通过工作区 typecheck、架构检查与消费方测试。

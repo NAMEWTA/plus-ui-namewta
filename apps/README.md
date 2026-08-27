@@ -1,20 +1,16 @@
-# Application Placeholders
+# App 目录
 
-## Status
-- `placeholder`: this directory is not a workspace member and contains no buildable application.
-## Responsibilities
-- Index the future independently built delivery units and their composition boundaries.
-## Non-responsibilities
-- It does not own reusable domain rules, runtime adapters, or shared Web UI.
-## Allowed dependencies
-- Activated child Apps may consume selected public entries from `packages/**`.
-## Forbidden dependencies
-- Child Apps must not import another App or deep-import package internals.
-## Public entrypoints
-- None while placeholder; each activated App will own its entry and composition manifest.
-## Backend modules
-- `backendModules: []`; backend traceability belongs to each App's selected domains.
-## Activation conditions
-- Activate a child only through its migration Ticket with an independent ClientContext, build, and deployment contract.
-## Validation
-- Confirm this tree contains README files only until individual Apps are activated and is absent from workspace package discovery.
+## 当前状态
+
+- `admin-web`、`client-web` 是已激活、可独立构建和部署的浏览器 App。
+- `mobile-web`、`miniapp-taro` 是仅含 README 的未来终端占位，不属于工作区包。
+
+## 目录职责
+
+每个 App 拥有自己的入口、ClientContext、环境变量、会话命名空间、领域选择、路由装配、布局、品牌、主题、静态资源和部署配置。
+
+App 可从 `packages/**` 的公开入口组合所需能力，但不得导入其他 App、深层导入包内部，也不得重新拥有可复用领域规则。
+
+## 激活新终端
+
+必须先通过独立规格明确产品范围、Client、安全合同、所选领域、技术栈、构建和部署方式，再创建真实包与源码。占位阶段不得添加空 `package.json` 或虚假构建脚本。

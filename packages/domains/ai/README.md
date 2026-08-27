@@ -1,41 +1,9 @@
-# AI Domain
+# AI 领域
 
-## Status
+`@namewta/domain-ai` 已激活，拥有 AI 配置、模型、知识库、会话及相关能力的终端无关模型、查询/命令服务和传输映射。
 
-- `active`: `@namewta/domain-ai` owns the current Snail AI user-registration transport and embedded-chat metadata.
+本领域不拥有 Vue 页面、富文本展示、流式界面、App 路由、浏览器副作用或服务端授权。运行时能力通过显式端口注入。
 
-## Responsibilities
+后端映射为 `ruoyi-ai`。Admin 选择本领域，Client 当前不选择。
 
-- Own the current-user registration request/response contract, injected application service, and traceable domain metadata.
-
-## Non-responsibilities
-
-- It does not render the chat iframe, own browser credentials or URLs, provide model infrastructure, or expose credentials to logs.
-
-## Allowed dependencies
-
-- Public platform contracts/http, app-runtime metadata, and generated transport types from api-contracts.
-
-## Forbidden dependencies
-
-- Apps, web-domains, web-kit, Vue/DOM, concrete browser adapters, and unrelated domains.
-
-## Public entrypoints
-
-- `@namewta/domain-ai` exports the typed registration service/model and `aiDomainModule` metadata.
-
-## Backend modules
-
-- `backendModules: [ruoyi-ai]` for current-user Snail AI registration.
-
-## Activation conditions
-
-- Activated in T-12; T-15 retired the root `src/api/ai/**` compatibility facade after consumer scans passed.
-
-## Validation
-
-- Require headless import checks, exact transport tests, secret/log review, lint, typecheck, manifest E2E, and dual-App build selection.
-
-## OpenAPI boundary
-
-- `OpenApiUserVO` is generated transport; `projectAiUserTransport` maps it into `SnailOpenApiUser` without exposing schema ownership to callers.
+验证覆盖请求与响应映射、配置边界、错误处理和不依赖 Web/DOM 的架构约束。

@@ -384,9 +384,9 @@ test('social list is rendered and binding/unlock failures remain Client scoped a
 });
 
 test('client-web diagnoses the unselected system resource key', async ({ page }) => {
-  await page.goto(`${clientUrl}/diagnostic?domain=system-admin&key=system%2Foss%2Findex`);
+  await page.goto(`${clientUrl}/diagnostic?domain=system&key=system%2Foss%2Findex`);
 
   await expect(page.getByRole('heading', { name: '当前 App 未选择该能力' })).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('[missing-component-key]');
-  await expect(page.getByRole('alert')).toContainText('app=client-web domain=system-admin key=system/oss/index');
+  await expect(page.getByRole('alert')).toContainText('app=client-web domain=system key=system/oss/index');
 });

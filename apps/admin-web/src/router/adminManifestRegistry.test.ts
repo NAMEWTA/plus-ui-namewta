@@ -11,10 +11,10 @@ vi.mock('@/application/services', () => {
   return {
     aiService: createService(),
     demoService: createService(),
-    devtoolsService: createService(),
+    genService: createService(),
     identityAccessService: createService(),
-    operationsService: createService(),
-    systemAdminService: createService(),
+    monitorService: createService(),
+    systemService: createService(),
     workflowService: createService()
   };
 });
@@ -26,13 +26,13 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('admin selected manifest registry', () => {
   it('selects the active admin manifests and excludes unregistered system slices', () => {
-    expect(resolveAdminWebRegistration('identity-access/login/index', 'identity-access')).toMatchObject({
+    expect(resolveAdminWebRegistration('identity-access/login/index', 'admin')).toMatchObject({
       componentName: 'IdentityLogin'
     });
     expect(resolveAdminWebRegistration('demo/demo/index', 'demo')).toMatchObject({ componentName: 'Demo' });
-    expect(resolveAdminWebRegistration('tool/gen/index', 'devtools')).toMatchObject({ componentName: 'Gen' });
-    expect(resolveAdminWebRegistration('tool/gen-edit/index', 'devtools')).toMatchObject({ componentName: 'GenEdit' });
-    expect(resolveAdminWebRegistration('tool/openapi/index', 'devtools')).toBeUndefined();
+    expect(resolveAdminWebRegistration('tool/gen/index', 'gen')).toMatchObject({ componentName: 'Gen' });
+    expect(resolveAdminWebRegistration('tool/gen-edit/index', 'gen')).toMatchObject({ componentName: 'GenEdit' });
+    expect(resolveAdminWebRegistration('tool/openapi/index', 'gen')).toBeUndefined();
     expect(resolveAdminWebRegistration('workflow/category/index', 'workflow')).toMatchObject({
       componentName: 'Category'
     });
@@ -40,26 +40,33 @@ describe('admin selected manifest registry', () => {
       componentName: 'processDefinition'
     });
     expect(resolveAdminWebRegistration('workflow/task/index', 'workflow')).toBeUndefined();
-    expect(resolveAdminWebRegistration('system/user/index', 'system-admin')).toMatchObject({
+    expect(resolveAdminWebRegistration('system/user/index', 'system')).toMatchObject({
       componentName: 'User'
     });
-    expect(resolveAdminWebRegistration('system/role/authUser', 'system-admin')).toMatchObject({
+    expect(resolveAdminWebRegistration('system/role/authUser', 'system')).toMatchObject({
       componentName: 'AuthUser'
     });
-    expect(resolveAdminWebRegistration('system/oss/index', 'system-admin')).toMatchObject({ componentName: 'Oss' });
-    expect(resolveAdminWebRegistration('system/dict/index', 'system-admin')).toMatchObject({ componentName: 'Dict' });
-    expect(resolveAdminWebRegistration('system/devtools/index', 'system-admin')).toBeUndefined();
+    expect(resolveAdminWebRegistration('system/oss/index', 'system')).toMatchObject({ componentName: 'Oss' });
+    expect(resolveAdminWebRegistration('system/dict/index', 'system')).toMatchObject({ componentName: 'Dict' });
+    expect(resolveAdminWebRegistration('system/devtools/index', 'system')).toBeUndefined();
     expect(resolveAdminWebRegistration('ai/chat/index', 'ai')).toMatchObject({
       componentName: 'AiChatPage'
     });
     expect(resolveAdminWebRegistration('ai/model/index', 'ai')).toBeUndefined();
-    expect(resolveAdminWebRegistration('monitor/online/index', 'operations')).toMatchObject({
+    expect(resolveAdminWebRegistration('monitor/online/index', 'system')).toMatchObject({
       componentName: 'Online'
     });
-    expect(resolveAdminWebRegistration('monitor/notify/index', 'operations')).toMatchObject({
+    expect(resolveAdminWebRegistration('monitor/notify/index', 'system')).toMatchObject({
       componentName: 'NotifyMonitor'
     });
-    expect(resolveAdminWebRegistration('operations/report/index', 'operations')).toBeUndefined();
+    expect(resolveAdminWebRegistration('monitor/admin/index', 'system')).toMatchObject({
+      componentName: 'MonitorAdmin'
+    });
+    expect(resolveAdminWebRegistration('monitor/snailjob/index', 'system')).toMatchObject({
+      componentName: 'SnailJob'
+    });
+    expect(resolveAdminWebRegistration('monitor/snailai/index', 'system')).toMatchObject({ componentName: 'SnailAi' });
+    expect(resolveAdminWebRegistration('monitor/report/index', 'system')).toBeUndefined();
   });
 
   it('probes the same-origin chat document with an abortable HTML request', async () => {

@@ -1,7 +1,7 @@
 import type { LoadingInstance } from 'element-plus';
 import axiosModule from 'axios';
 import { extractErrorMessage, globalHeaders } from '@/application/http';
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import errorCode from '@/utils/errorCode';
 import { saveBlob } from '@/utils/save';
 
@@ -112,7 +112,7 @@ export default {
       background: 'rgba(0, 0, 0, 0.7)'
     });
     try {
-      const response = await systemAdminService.resources.oss.downloadUrl(ossId);
+      const response = await systemService.resources.oss.downloadUrl(ossId);
       const download = response.data;
       if (!download?.url) throw new Error('未取得 OSS 下载授权');
       const link = document.createElement('a');

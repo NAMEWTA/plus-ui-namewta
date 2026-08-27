@@ -7,7 +7,7 @@
 ## 职责
 
 - 拥有 Admin 的 ClientContext、启动流程、布局、品牌、主题、路由与 Store 适配、浏览器插件和部署配置。
-- 显式组合 identity-access、system-admin、workflow、demo、ai、devtools、operations。
+- 显式组合 admin、system、workflow、demo、ai、gen；监控能力并入 system。
 - 将后端菜单组件键解析为所选 Web 领域的页面，并保留少量 App 自有静态页面。
 
 ## 边界

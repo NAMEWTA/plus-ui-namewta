@@ -146,10 +146,10 @@
 </template>
 
 <script setup lang="ts">
-import { identityAccessWebMessages } from '@namewta/web-domain-identity-access';
+import { identityAccessWebMessages } from '@namewta/web-domain-admin';
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
-import { identityAccessService, systemAdminService } from '@/application/services';
+import { identityAccessService } from '@/application/services';
 import { type AdminLoginInput, useUserStore } from '@/store/modules/user';
 
 const title = import.meta.env.VITE_APP_TITLE;
@@ -270,7 +270,7 @@ const doSocialLogin = async (type: string) => {
   if (!loginEnabled.value) {
     return;
   }
-  const res = await systemAdminService.resources.social.bindingUrl(type);
+  const res = await identityAccessService.social.bindingUrl(type);
   window.location.href = res.data;
 };
 

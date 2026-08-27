@@ -4,6 +4,6 @@
 
 本领域不拥有 Vue 页面、流程设计器宿主、路由、上传下载副作用、用户管理页面或服务端授权。HTTP、文件、导航和反馈能力通过类型化端口注入。
 
-后端映射为 `ruoyi-workflow`。Admin 选择本领域，Client 当前不选择。
+后端映射为 `ruoyi-workflow`，当前资源入口为 `category/`、`definition/`、`instance/`、`task/`、`spel/` 与 `leave/`。Admin 选择本领域，Client 当前不选择。
 
 验证覆盖候选人过滤、状态门控、完成/退回/委派/转办/加减签等负载、请假天数和失败保留。

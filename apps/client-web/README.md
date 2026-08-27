@@ -6,7 +6,7 @@
 
 ## 职责
 
-- 只组合 identity-access 与 demo 的公开 domain/web-domain 清单。
+- 组合 admin、system 与 demo 的公开 domain；只选择 admin 与 demo 的 Web manifest。system 仅提供身份和菜单端口，不向 Client 注册系统管理页面。
 - 创建本 App 的浏览器请求、存储和加密适配器。
 - 拥有基于部署路径的路由、品牌导航和最小页面宿主。
 
@@ -22,7 +22,7 @@ Client 不是 Admin 的复制品，不拥有系统管理、工作流、AI、开�
 
 ## 后端映射
 
-通过 identity-access 与 demo 合同访问 `ruoyi-admin`、`ruoyi-system`、`ruoyi-demo` 的已选接口。部署必须提供非空且与服务端能力匹配的 `VITE_CLIENT_WEB_CLIENT_ID`。
+通过 admin、system 与 demo 合同访问 `ruoyi-admin`、`ruoyi-system`、`ruoyi-demo` 的已选接口。部署必须提供非空且与服务端能力匹配的 `VITE_CLIENT_WEB_CLIENT_ID`。
 
 ## 验证
 

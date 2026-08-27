@@ -5,18 +5,12 @@ import {
   projectUserSummary,
   type UserQueryPort,
   type UserSummary
-} from '@namewta/domain-system-admin/public/user';
+} from '@namewta/domain-system/user';
 import { projectWorkflowTaskTransport, type WorkflowTaskTransport } from './transport';
 
 export * from './transport';
 
-export type {
-  DepartmentSummary,
-  UserPage,
-  UserQuery,
-  UserQueryPort,
-  UserSummary
-} from '@namewta/domain-system-admin/public/user';
+export type { DepartmentSummary, UserPage, UserQuery, UserQueryPort, UserSummary } from '@namewta/domain-system/user';
 
 export interface ApiResponse<T = unknown> {
   code?: number;

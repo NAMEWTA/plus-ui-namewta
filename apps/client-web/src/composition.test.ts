@@ -1,5 +1,5 @@
+import type { IdentityAccessWebRuntime } from '@namewta/web-domain-admin';
 import type { DemoWebRuntime } from '@namewta/web-domain-demo';
-import type { IdentityAccessWebRuntime } from '@namewta/web-domain-identity-access';
 import { describe, expect, it, vi } from 'vitest';
 import { clientCompositionManifest, composeClientRuntime } from './composition';
 import { createT06PermissionDirective } from './permissionProof';
@@ -33,16 +33,16 @@ const demoRuntime = (): DemoWebRuntime => ({
 });
 
 describe('client web composition', () => {
-  it('selects only identity-access and demo through public manifests', () => {
+  it('selects admin, system identity, and demo through public manifests', () => {
     const runtime = composeClientRuntime({ demo: demoRuntime(), identity: identityRuntime() });
 
     expect(clientCompositionManifest).toEqual({
       appId: 'client-web',
-      selectedDomainIds: ['identity-access', 'demo'],
-      selectedManifestIds: ['web-domain-identity-access', 'web-domain-demo']
+      selectedDomainIds: ['admin', 'system', 'demo'],
+      selectedManifestIds: ['web-domain-admin', 'web-domain-demo']
     });
     expect(runtime.componentKeys()).toEqual(['demo/demo/index', 'demo/tree/index', 'identity-access/login/index']);
-    expect(runtime.messages().map(item => item.namespace)).toEqual(['identity-access', 'demo']);
+    expect(runtime.messages().map(item => item.namespace)).toEqual(['admin', 'demo']);
     expect(runtime.componentKeys()).not.toContain('workflow/task/index');
     expect(Object.isFrozen(clientCompositionManifest)).toBe(true);
     expect(Object.isFrozen(clientCompositionManifest.selectedDomainIds)).toBe(true);

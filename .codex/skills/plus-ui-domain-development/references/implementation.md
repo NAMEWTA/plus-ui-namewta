@@ -2,11 +2,11 @@
 
 ## 新增或迁移一个领域能力
 
-1. 确认后端归属和接口，例如 `ruoyi-system`、`ruoyi-workflow`、`ruoyi-ai`。
+1. 确认唯一后端 Maven 模块、Controller 类和 `@RequestMapping` base path。
 2. 如需生成传输类型，在 `packages/api-contracts` 和 `tooling/openapi` 内更新快照与生成结果；不要把生成类型直接当领域模型。
-3. 在 `packages/domains/<domain>` 定义领域模型、映射器、服务和注入端口，并为错误映射、请求参数和核心规则编写测试。
-4. Web 能力放入 `packages/web-domains/<domain>`，通过类型化运行时端口获取字典、弹窗、下载、导航等宿主能力。
-5. 从包根或明确的子路径公开导出，更新包 README 的职责、后端模块、激活条件和验证命令。
+3. 在 `packages/domains/<module>/<resource>` 定义领域模型、映射器、服务和注入端口；`module` 去掉 `ruoyi-` 前缀，`resource` 由 base path 转为 kebab-case。
+4. Web 能力放入 `packages/web-domains/<module>/<resource>`，通过类型化运行时端口获取字典、弹窗、下载、导航等宿主能力。
+5. 从包根或明确的资源子路径公开导出，禁止 `./*` exports；更新包 README 的职责、后端模块、Controller 映射和验证命令。
 6. 在目标 App 的组合入口显式选择；不要让包通过副作用自动注册。
 7. 验证未选择的 App 看不到该能力，重复键、缺失领域和未知清单均失败关闭。
 
@@ -37,3 +37,4 @@ pnpm build:prod
 - 假定所有 App 共享同一布局或同一会话键的实现
 - 从 `apps/admin-web` 深层导入来构建其他 App
 - 为尚未激活的移动端或小程序创建空包清单和虚假构建脚本
+- `identity-access`、`system-admin`、`devtools`、`operations` 等旧一级语义包或其兼容门面

@@ -1,4 +1,4 @@
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import { useDictStore } from '@/store/modules/dict';
 
 const pendingRequests = new Map<string, Promise<DictDataOption[]>>();
@@ -16,7 +16,7 @@ export const useDict = (...args: string[]): { [key: string]: DictDataOption[] } 
       res[dictType] = dicts;
     } else {
       if (!pendingRequests.has(dictType)) {
-        const request = systemAdminService.resources.dictData
+        const request = systemService.resources.dictData
           .byType(dictType)
           .then(resp => {
             const data = resp.data.map(

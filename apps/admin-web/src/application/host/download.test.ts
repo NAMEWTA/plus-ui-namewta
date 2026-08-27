@@ -14,7 +14,7 @@ vi.mock('element-plus', () => ({
   ElMessage: { error: harness.error }
 }));
 vi.mock('@/application/services', () => ({
-  systemAdminService: { resources: { oss: { downloadUrl: vi.fn() } } }
+  systemService: { resources: { oss: { downloadUrl: vi.fn() } } }
 }));
 vi.mock('@/application/http', () => ({
   extractErrorMessage: harness.extractErrorMessage,

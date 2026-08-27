@@ -24,10 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import type { UserProfileForm } from '@namewta/domain-system-admin';
+import type { UserProfileForm } from '@namewta/domain-system';
 import modal from '@/application/host/feedback';
 import tab from '@/application/host/navigation';
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import { useDict } from '@/utils/dict';
 import { propTypes } from '@/utils/propTypes';
 
@@ -72,7 +72,7 @@ const submit = () => {
         email: props.user.email,
         gender: props.user.gender
       };
-      await systemAdminService.users.updateProfile(profile);
+      await systemService.users.updateProfile(profile);
       modal.msgSuccess('修改成功');
     }
   });

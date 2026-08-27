@@ -75,7 +75,7 @@ export function createClientRouter(runtime: AppRuntime<Component>, authenticated
     {
       path: '/login',
       name: 'ClientLogin',
-      component: routeView(runtime, 'identity-access', 'identity-access/login/index')
+      component: routeView(runtime, 'admin', 'identity-access/login/index')
     },
     {
       path: '/demo',

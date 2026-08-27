@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SocialCallbackInput } from '@namewta/domain-identity-access';
+import type { SocialCallbackInput } from '@namewta/domain-admin';
 import { identityAccessService } from '@/application/services';
 import { getToken } from '@/application/session';
 

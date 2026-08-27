@@ -1,4 +1,4 @@
-import type { OssPresignedRequest } from '@namewta/domain-system-admin';
+import type { OssPresignedRequest } from '@namewta/domain-system';
 
 export interface OssTransferProgress {
   loaded: number;

@@ -140,24 +140,21 @@ importers:
       '@namewta/adapter-storage-browser':
         specifier: workspace:*
         version: link:../../packages/adapters/storage-browser
+      '@namewta/domain-admin':
+        specifier: workspace:*
+        version: link:../../packages/domains/admin
       '@namewta/domain-ai':
         specifier: workspace:*
         version: link:../../packages/domains/ai
       '@namewta/domain-demo':
         specifier: workspace:*
         version: link:../../packages/domains/demo
-      '@namewta/domain-devtools':
+      '@namewta/domain-gen':
         specifier: workspace:*
-        version: link:../../packages/domains/devtools
-      '@namewta/domain-identity-access':
+        version: link:../../packages/domains/gen
+      '@namewta/domain-system':
         specifier: workspace:*
-        version: link:../../packages/domains/identity-access
-      '@namewta/domain-operations':
-        specifier: workspace:*
-        version: link:../../packages/domains/operations
-      '@namewta/domain-system-admin':
-        specifier: workspace:*
-        version: link:../../packages/domains/system-admin
+        version: link:../../packages/domains/system
       '@namewta/domain-workflow':
         specifier: workspace:*
         version: link:../../packages/domains/workflow
@@ -170,24 +167,21 @@ importers:
       '@namewta/platform-permission':
         specifier: workspace:*
         version: link:../../packages/platform/permission
+      '@namewta/web-domain-admin':
+        specifier: workspace:*
+        version: link:../../packages/web-domains/admin
       '@namewta/web-domain-ai':
         specifier: workspace:*
         version: link:../../packages/web-domains/ai
       '@namewta/web-domain-demo':
         specifier: workspace:*
         version: link:../../packages/web-domains/demo
-      '@namewta/web-domain-devtools':
+      '@namewta/web-domain-gen':
         specifier: workspace:*
-        version: link:../../packages/web-domains/devtools
-      '@namewta/web-domain-identity-access':
+        version: link:../../packages/web-domains/gen
+      '@namewta/web-domain-system':
         specifier: workspace:*
-        version: link:../../packages/web-domains/identity-access
-      '@namewta/web-domain-operations':
-        specifier: workspace:*
-        version: link:../../packages/web-domains/operations
-      '@namewta/web-domain-system-admin':
-        specifier: workspace:*
-        version: link:../../packages/web-domains/system-admin
+        version: link:../../packages/web-domains/system
       '@namewta/web-domain-workflow':
         specifier: workspace:*
         version: link:../../packages/web-domains/workflow
@@ -327,24 +321,27 @@ importers:
       '@namewta/design-tokens':
         specifier: workspace:*
         version: link:../../packages/web-kit/design-tokens
+      '@namewta/domain-admin':
+        specifier: workspace:*
+        version: link:../../packages/domains/admin
       '@namewta/domain-demo':
         specifier: workspace:*
         version: link:../../packages/domains/demo
-      '@namewta/domain-identity-access':
+      '@namewta/domain-system':
         specifier: workspace:*
-        version: link:../../packages/domains/identity-access
+        version: link:../../packages/domains/system
       '@namewta/platform-app-runtime':
         specifier: workspace:*
         version: link:../../packages/platform/app-runtime
       '@namewta/platform-contracts':
         specifier: workspace:*
         version: link:../../packages/platform/contracts
+      '@namewta/web-domain-admin':
+        specifier: workspace:*
+        version: link:../../packages/web-domains/admin
       '@namewta/web-domain-demo':
         specifier: workspace:*
         version: link:../../packages/web-domains/demo
-      '@namewta/web-domain-identity-access':
-        specifier: workspace:*
-        version: link:../../packages/web-domains/identity-access
       '@namewta/web-shell-element':
         specifier: workspace:*
         version: link:../../packages/web-kit/shell-element
@@ -452,6 +449,28 @@ importers:
         specifier: 'catalog:'
         version: 6.0.3
 
+  packages/domains/admin:
+    dependencies:
+      '@namewta/api-contracts':
+        specifier: workspace:*
+        version: link:../../api-contracts
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../platform/app-runtime
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
   packages/domains/ai:
     dependencies:
       '@namewta/api-contracts':
@@ -496,14 +515,14 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
 
-  packages/domains/devtools:
+  packages/domains/gen:
     dependencies:
       '@namewta/api-contracts':
         specifier: workspace:*
         version: link:../../api-contracts
-      '@namewta/domain-system-admin':
+      '@namewta/domain-system':
         specifier: workspace:*
-        version: link:../system-admin
+        version: link:../system
       '@namewta/platform-app-runtime':
         specifier: workspace:*
         version: link:../../platform/app-runtime
@@ -521,51 +540,7 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
 
-  packages/domains/identity-access:
-    dependencies:
-      '@namewta/api-contracts':
-        specifier: workspace:*
-        version: link:../../api-contracts
-      '@namewta/platform-app-runtime':
-        specifier: workspace:*
-        version: link:../../platform/app-runtime
-      '@namewta/platform-contracts':
-        specifier: workspace:*
-        version: link:../../platform/contracts
-    devDependencies:
-      oxlint:
-        specifier: 'catalog:'
-        version: 1.75.0
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 4.1.10
-        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
-
-  packages/domains/operations:
-    dependencies:
-      '@namewta/api-contracts':
-        specifier: workspace:*
-        version: link:../../api-contracts
-      '@namewta/platform-app-runtime':
-        specifier: workspace:*
-        version: link:../../platform/app-runtime
-      '@namewta/platform-contracts':
-        specifier: workspace:*
-        version: link:../../platform/contracts
-    devDependencies:
-      oxlint:
-        specifier: 'catalog:'
-        version: 1.75.0
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 4.1.10
-        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
-
-  packages/domains/system-admin:
+  packages/domains/system:
     dependencies:
       '@namewta/api-contracts':
         specifier: workspace:*
@@ -592,9 +567,9 @@ importers:
       '@namewta/api-contracts':
         specifier: workspace:*
         version: link:../../api-contracts
-      '@namewta/domain-system-admin':
+      '@namewta/domain-system':
         specifier: workspace:*
-        version: link:../system-admin
+        version: link:../system
       '@namewta/platform-app-runtime':
         specifier: workspace:*
         version: link:../../platform/app-runtime
@@ -683,6 +658,37 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
 
+  packages/web-domains/admin:
+    dependencies:
+      '@namewta/domain-admin':
+        specifier: workspace:*
+        version: link:../../domains/admin
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../platform/app-runtime
+      element-plus:
+        specifier: 'catalog:'
+        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.40(typescript@6.0.3)
+    devDependencies:
+      '@vue/compiler-sfc':
+        specifier: 'catalog:'
+        version: 3.5.40
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+      vue-tsc:
+        specifier: 3.3.8
+        version: 3.3.8(typescript@6.0.3)
+
   packages/web-domains/ai:
     dependencies:
       '@namewta/domain-ai':
@@ -745,11 +751,11 @@ importers:
         specifier: 3.3.8
         version: 3.3.8(typescript@6.0.3)
 
-  packages/web-domains/devtools:
+  packages/web-domains/gen:
     dependencies:
-      '@namewta/domain-devtools':
+      '@namewta/domain-gen':
         specifier: workspace:*
-        version: link:../../domains/devtools
+        version: link:../../domains/gen
       '@namewta/platform-app-runtime':
         specifier: workspace:*
         version: link:../../platform/app-runtime
@@ -779,42 +785,11 @@ importers:
         specifier: 3.3.8
         version: 3.3.8(typescript@6.0.3)
 
-  packages/web-domains/identity-access:
+  packages/web-domains/system:
     dependencies:
-      '@namewta/domain-identity-access':
+      '@namewta/domain-system':
         specifier: workspace:*
-        version: link:../../domains/identity-access
-      '@namewta/platform-app-runtime':
-        specifier: workspace:*
-        version: link:../../platform/app-runtime
-      element-plus:
-        specifier: 'catalog:'
-        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.40(typescript@6.0.3)
-    devDependencies:
-      '@vue/compiler-sfc':
-        specifier: 'catalog:'
-        version: 3.5.40
-      oxlint:
-        specifier: 'catalog:'
-        version: 1.75.0
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 4.1.10
-        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
-      vue-tsc:
-        specifier: 3.3.8
-        version: 3.3.8(typescript@6.0.3)
-
-  packages/web-domains/operations:
-    dependencies:
-      '@namewta/domain-operations':
-        specifier: workspace:*
-        version: link:../../domains/operations
+        version: link:../../domains/system
       '@namewta/platform-app-runtime':
         specifier: workspace:*
         version: link:../../platform/app-runtime
@@ -830,37 +805,6 @@ importers:
       vue-json-pretty:
         specifier: 2.6.0
         version: 2.6.0(vue@3.5.40(typescript@6.0.3))
-    devDependencies:
-      '@vue/compiler-sfc':
-        specifier: 'catalog:'
-        version: 3.5.40
-      oxlint:
-        specifier: 'catalog:'
-        version: 1.75.0
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-      vitest:
-        specifier: 4.1.10
-        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
-      vue-tsc:
-        specifier: 3.3.8
-        version: 3.3.8(typescript@6.0.3)
-
-  packages/web-domains/system-admin:
-    dependencies:
-      '@namewta/domain-system-admin':
-        specifier: workspace:*
-        version: link:../../domains/system-admin
-      '@namewta/platform-app-runtime':
-        specifier: workspace:*
-        version: link:../../platform/app-runtime
-      element-plus:
-        specifier: 'catalog:'
-        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.40(typescript@6.0.3)
       vue-router:
         specifier: 'catalog:'
         version: 5.2.0(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.40(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vue@3.5.40(typescript@6.0.3))

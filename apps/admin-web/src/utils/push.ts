@@ -1,6 +1,6 @@
-import type { MessageVO } from '@namewta/domain-system-admin';
+import type { MessageVO } from '@namewta/domain-system';
 import { ElNotification } from 'element-plus';
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import { getToken } from '@/application/session';
 import { useNoticeStore } from '@/store/modules/notice';
 import { useUserStore } from '@/store/modules/user';
@@ -153,7 +153,7 @@ export const initMessageBox = async () => {
     useNoticeStore().clearNotice();
     return;
   }
-  const { data } = await systemAdminService.resources.messages.box();
+  const { data } = await systemService.resources.messages.box();
   const notices = [...(data?.systemList ?? []), ...(data?.noticeList ?? []), ...(data?.workflowList ?? [])].map(
     toNoticeItem
   );

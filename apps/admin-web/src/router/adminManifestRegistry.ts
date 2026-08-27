@@ -1,40 +1,35 @@
+import { adminDomainModule } from '@namewta/domain-admin';
 import { aiDomainModule } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
-import { devtoolsDomainModule } from '@namewta/domain-devtools';
-import { identityAccessDomainModule } from '@namewta/domain-identity-access';
-import { operationsDomainModule } from '@namewta/domain-operations';
-import { systemAdminDomainModule } from '@namewta/domain-system-admin';
+import { genDomainModule } from '@namewta/domain-gen';
+import { systemDomainModule } from '@namewta/domain-system';
 import { workflowDomainModule } from '@namewta/domain-workflow';
-import { AppRuntimeError, composeAppRuntime, type WebComponentRegistration } from '@namewta/platform-app-runtime';
+import {
+  AppRuntimeError,
+  composeAppRuntime,
+  type WebComponentRegistration,
+  type WebDomainManifest
+} from '@namewta/platform-app-runtime';
+import { createAdminWebDomain } from '@namewta/web-domain-admin';
 import { createAiWebDomain, type AiWebRuntime } from '@namewta/web-domain-ai';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
-import { createDevtoolsWebDomain, type DevtoolsWebRuntime } from '@namewta/web-domain-devtools';
-import { createIdentityAccessWebDomain } from '@namewta/web-domain-identity-access';
-import {
-  createLiveOperationsDictRefs,
-  createOperationsWebDomain,
-  type OperationsWebRuntime
-} from '@namewta/web-domain-operations';
-import {
-  createLiveSystemDictRefs,
-  createSystemAdminWebDomain,
-  type SystemAdminWebRuntime
-} from '@namewta/web-domain-system-admin';
+import { createGenWebDomain, type GenWebRuntime } from '@namewta/web-domain-gen';
+import { createLiveMonitorDictRefs, createMonitorWebDomain, type MonitorWebRuntime } from '@namewta/web-domain-system';
+import { createLiveSystemDictRefs, createSystemWebDomain, type SystemWebRuntime } from '@namewta/web-domain-system';
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
 import { getActivePinia } from 'pinia';
-import { defineAsyncComponent, type Component } from 'vue';
+import { defineAsyncComponent, defineComponent, h, type Component } from 'vue';
 import { createAdminAccessEvaluator } from '@/application/access';
 import {
   aiService,
   demoService,
-  devtoolsService,
+  genService,
   identityAccessService,
-  operationsService,
-  systemAdminService,
+  monitorService,
+  systemService,
   workflowService
 } from '@/application/services';
 import { getToken } from '@/application/session';
-import IFrame from '@/components/iFrame/index.vue';
 import WorkflowTreePanel from '@/components/TreePanel/index.vue';
 import { sanitizeHtml } from '@/utils/sanitize';
 
@@ -96,7 +91,7 @@ export const adminWorkflowWebRuntime = {
     );
   },
   resolveAttachments: async ids => {
-    const response = await systemAdminService.resources.oss.listByIds(ids);
+    const response = await systemService.resources.oss.listByIds(ids);
     return response.data.map(item => ({ ossId: item.ossId, originalName: item.originalName }));
   },
   downloadAttachment: ossId =>
@@ -140,8 +135,8 @@ export const adminWorkflowWebRuntime = {
 };
 const workflowManifest = createWorkflowWebDomain(adminWorkflowWebRuntime);
 
-export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
-  service: systemAdminService,
+export const adminSystemWebRuntime: SystemWebRuntime = {
+  service: systemService,
   treePanel: WorkflowTreePanel,
   editor: SystemEditor,
   imagePreview: SystemImagePreview,
@@ -177,7 +172,7 @@ export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
   closeCurrentPage: () => import('@/application/host/navigation').then(({ default: tab }) => tab.closePage()),
   closeAndOpenPage: location =>
     import('@/application/host/navigation').then(({ default: tab }) => tab.closeOpenPage(location)),
-  config: key => systemAdminService.resources.configs.byKey(key).then(response => response.data),
+  config: key => systemService.resources.configs.byKey(key).then(response => response.data),
   hasPermission: permission => createAdminAccessEvaluator().hasPermission(permission),
   currentUserId: () => {
     const user = getActivePinia()?.state.value.user as { userId?: string | number } | undefined;
@@ -188,16 +183,10 @@ export const adminSystemAdminWebRuntime: SystemAdminWebRuntime = {
     clientid: import.meta.env.VITE_APP_CLIENT_ID
   })
 };
-const systemAdminManifest = createSystemAdminWebDomain(adminSystemAdminWebRuntime);
+const systemManifest = createSystemWebDomain(adminSystemWebRuntime);
 
-export const adminOperationsWebRuntime: OperationsWebRuntime = {
-  service: operationsService,
-  iframe: IFrame,
-  externalUrls: Object.freeze({
-    'monitor-admin': import.meta.env.VITE_APP_MONITOR_ADMIN,
-    'snail-job': import.meta.env.VITE_APP_SNAILJOB_ADMIN,
-    'snail-ai': import.meta.env.VITE_APP_SNAILAI_ADMIN
-  }),
+export const adminMonitorWebRuntime: MonitorWebRuntime = {
+  service: monitorService,
   confirm: async message => {
     const { default: modal } = await import('@/application/host/feedback');
     await modal.confirm(message);
@@ -227,13 +216,41 @@ export const adminOperationsWebRuntime: OperationsWebRuntime = {
     link.remove();
   },
   dicts: (...types) =>
-    createLiveOperationsDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
+    createLiveMonitorDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types))),
   hasPermission: permission => createAdminAccessEvaluator().hasPermission(permission)
 };
-const operationsManifest = createOperationsWebDomain(adminOperationsWebRuntime);
+const monitorManifest = createMonitorWebDomain(adminMonitorWebRuntime);
+const AdminExternalMonitorPage = defineAsyncComponent(() => import('@/views/monitor/external/index.vue'));
+const adminExternalMonitorManifest: WebDomainManifest<Component> = Object.freeze({
+  id: 'admin-external-monitor',
+  domainId: 'system',
+  messages: Object.freeze([]),
+  permissions: Object.freeze(
+    ['admin', 'snailjob', 'snailai'].map(slice =>
+      Object.freeze({ id: `admin-monitor-${slice}`, permissions: Object.freeze([`monitor:${slice}:list`]) })
+    )
+  ),
+  registrations: Object.freeze(
+    (
+      [
+        ['admin-monitor-admin', 'monitor/admin/index', 'MonitorAdmin', 'monitor-admin'],
+        ['admin-monitor-snailjob', 'monitor/snailjob/index', 'SnailJob', 'snail-job'],
+        ['admin-monitor-snailai', 'monitor/snailai/index', 'SnailAi', 'snail-ai']
+      ] as const
+    ).map(([id, componentKey, componentName, target]) =>
+      Object.freeze({
+        id,
+        componentKey,
+        componentName,
+        load: async () =>
+          defineComponent({ name: componentName, setup: () => () => h(AdminExternalMonitorPage, { target }) })
+      })
+    )
+  )
+});
 
-export const adminDevtoolsWebRuntime: DevtoolsWebRuntime = {
-  service: devtoolsService,
+export const adminGenWebRuntime: GenWebRuntime = {
+  service: genService,
   clientId: () => import.meta.env.VITE_APP_CLIENT_ID,
   confirm: async message => {
     const { default: modal } = await import('@/application/host/feedback');
@@ -254,42 +271,43 @@ export const adminDevtoolsWebRuntime: DevtoolsWebRuntime = {
   downloadZip: (url, fileName) =>
     import('@/application/host/download').then(({ default: download }) => download.zip(url, fileName))
 };
-const devtoolsManifest = createDevtoolsWebDomain(adminDevtoolsWebRuntime);
+const genManifest = createGenWebDomain(adminGenWebRuntime);
 
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
   domainModules: [
-    identityAccessDomainModule,
+    adminDomainModule,
     demoDomainModule,
-    devtoolsDomainModule,
+    genDomainModule,
     workflowDomainModule,
-    systemAdminDomainModule,
-    aiDomainModule,
-    operationsDomainModule
+    systemDomainModule,
+    aiDomainModule
   ],
   manifests: [
-    createIdentityAccessWebDomain({
+    createAdminWebDomain({
       service: identityAccessService,
       onAuthenticated: () => {
         window.location.href = `${import.meta.env.VITE_APP_CONTEXT_PATH}index`;
       }
     }),
     createDemoWebDomain(demoRuntime),
-    devtoolsManifest,
+    genManifest,
     workflowManifest,
-    systemAdminManifest,
+    systemManifest,
     aiManifest,
-    operationsManifest
+    monitorManifest,
+    adminExternalMonitorManifest
   ],
-  selectedDomainIds: ['identity-access', 'demo', 'devtools', 'workflow', 'system-admin', 'ai', 'operations'],
+  selectedDomainIds: ['admin', 'demo', 'gen', 'workflow', 'system', 'ai'],
   selectedManifestIds: [
-    'web-domain-identity-access',
+    'web-domain-admin',
     'web-domain-demo',
-    'web-domain-devtools',
+    'web-domain-gen',
     'web-domain-workflow',
-    'web-domain-system-admin',
+    'web-domain-system',
     'web-domain-ai',
-    'web-domain-operations'
+    'web-domain-system-monitor',
+    'admin-external-monitor'
   ]
 });
 

@@ -1,0 +1,172 @@
+import assert from 'node:assert/strict';
+import { access, readdir, readFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
+
+const workspaceRoot = join(dirname(fileURLToPath(import.meta.url)), '../../..');
+const canonicalDomains = ['admin', 'ai', 'demo', 'gen', 'system', 'workflow'];
+const removedDomains = ['identity-access', 'system-admin', 'devtools', 'operations'];
+const backendModules = {
+  admin: 'ruoyi-admin',
+  ai: 'ruoyi-ai',
+  demo: 'ruoyi-demo',
+  gen: 'ruoyi-gen',
+  system: 'ruoyi-system',
+  workflow: 'ruoyi-workflow'
+};
+
+const domainResources = {
+  admin: {
+    auth: ['AuthController', '/auth'],
+    captcha: ['CaptchaController', '/auth/code']
+  },
+  ai: {
+    'snail-ai': ['SnailAiController', '/snail-ai']
+  },
+  demo: {
+    'test-demo': ['TestDemoController', '/demo/demo'],
+    'test-tree': ['TestTreeController', '/demo/tree']
+  },
+  gen: {
+    generator: ['GenController', '/tool/gen']
+  },
+  system: {
+    client: ['SysClientController', '/system/client'],
+    config: ['SysConfigController', '/system/config'],
+    dept: ['SysDeptController', '/system/dept'],
+    'dict-data': ['SysDictDataController', '/system/dict/data'],
+    'dict-type': ['SysDictTypeController', '/system/dict/type'],
+    menu: ['SysMenuController', '/system/menu'],
+    message: ['SysMessageController', '/resource/message'],
+    notice: ['SysNoticeController', '/system/notice'],
+    oss: ['SysOssController', '/resource/oss'],
+    'oss-config': ['SysOssConfigController', '/resource/oss/config'],
+    'oss-upload': ['SysOssUploadController', '/resource/oss/uploads'],
+    post: ['SysPostController', '/system/post'],
+    profile: ['SysProfileController', '/system/user/profile'],
+    role: ['SysRoleController', '/system/role'],
+    social: ['SysSocialController', '/system/social'],
+    user: ['SysUserController', '/system/user'],
+    'user-type': ['SysUserTypeController', '/system/userType'],
+    'monitor/cache': ['CacheController', '/monitor/cache'],
+    'monitor/login-info': ['SysLoginInfoController', '/monitor/loginInfo'],
+    'monitor/notify': ['SysNotifyController', '/monitor/notify'],
+    'monitor/online': ['SysUserOnlineController', '/monitor/online'],
+    'monitor/operlog': ['SysOperlogController', '/monitor/operlog']
+  },
+  workflow: {
+    category: ['FlwCategoryController', '/workflow/category'],
+    definition: ['FlwDefinitionController', '/workflow/definition'],
+    instance: ['FlwInstanceController', '/workflow/instance'],
+    leave: ['TestLeaveController', '/workflow/leave'],
+    spel: ['FlwSpelController', '/workflow/spel'],
+    task: ['FlwTaskController', '/workflow/task']
+  }
+};
+
+const webResources = {
+  admin: ['auth'],
+  ai: ['snail-ai'],
+  demo: ['test-demo', 'test-tree'],
+  gen: ['generator'],
+  system: [
+    'client',
+    'config',
+    'dept',
+    'dict-type',
+    'menu',
+    'notice',
+    'oss',
+    'oss-config',
+    'post',
+    'role',
+    'user',
+    'user-type',
+    'monitor/cache',
+    'monitor/login-info',
+    'monitor/notify',
+    'monitor/online',
+    'monitor/operlog'
+  ],
+  workflow: ['category', 'definition', 'instance', 'leave', 'spel', 'task']
+};
+
+async function exists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function packageDirectories(group) {
+  const entries = await readdir(join(workspaceRoot, 'packages', group), { withFileTypes: true });
+  const result = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (await exists(join(workspaceRoot, 'packages', group, entry.name, 'package.json'))) result.push(entry.name);
+  }
+  return result.toSorted();
+}
+
+test('keeps domain package names aligned one-to-one with backend modules', async () => {
+  assert.deepEqual(await packageDirectories('domains'), canonicalDomains);
+  assert.deepEqual(await packageDirectories('web-domains'), canonicalDomains);
+
+  for (const name of canonicalDomains) {
+    const domain = JSON.parse(await readFile(join(workspaceRoot, 'packages/domains', name, 'package.json'), 'utf8'));
+    const webDomain = JSON.parse(
+      await readFile(join(workspaceRoot, 'packages/web-domains', name, 'package.json'), 'utf8')
+    );
+    assert.equal(domain.name, `@namewta/domain-${name}`);
+    assert.equal(webDomain.name, `@namewta/web-domain-${name}`);
+
+    const source = await readFile(join(workspaceRoot, 'packages/domains', name, 'src/index.ts'), 'utf8');
+    assert.match(source, new RegExp(`id: ['"]${name}['"]`));
+    assert.match(
+      source,
+      new RegExp(
+        `backendModules: (?:Object\\.freeze\\()?\\[['"]${backendModules[name]}['"]\\](?:\\))?`
+      )
+    );
+  }
+
+  for (const name of removedDomains) {
+    assert.equal(await exists(join(workspaceRoot, 'packages/domains', name)), false);
+    assert.equal(await exists(join(workspaceRoot, 'packages/web-domains', name)), false);
+  }
+});
+
+test('keeps consumed Controller resources traceable through typed domain entries', async () => {
+  for (const [domain, resources] of Object.entries(domainResources)) {
+    const packageJson = JSON.parse(
+      await readFile(join(workspaceRoot, 'packages/domains', domain, 'package.json'), 'utf8')
+    );
+    for (const [resource, [controller, basePath]] of Object.entries(resources)) {
+      const directory = join(workspaceRoot, 'packages/domains', domain, 'src', resource);
+      const source = await readFile(join(directory, 'index.ts'), 'utf8');
+      assert.equal(await exists(join(directory, 'types.ts')), true, `${domain}/${resource} needs types.ts`);
+      assert.match(source, new RegExp(`controller: ['"]${controller}['"]`));
+      assert.match(source, new RegExp(`basePath: ['"]${basePath.replaceAll('/', '\\/')}['"]`));
+      assert.equal(packageJson.exports[`./${resource}`], `./src/${resource}/index.ts`);
+    }
+  }
+});
+
+test('keeps web pages mirrored under their owning Controller resources', async () => {
+  for (const [domain, resources] of Object.entries(webResources)) {
+    const packageJson = JSON.parse(
+      await readFile(join(workspaceRoot, 'packages/web-domains', domain, 'package.json'), 'utf8')
+    );
+    for (const resource of resources) {
+      assert.equal(
+        await exists(join(workspaceRoot, 'packages/web-domains', domain, 'src', resource, 'index.ts')),
+        true,
+        `${domain}/${resource} needs a web entry`
+      );
+      assert.equal(packageJson.exports[`./${resource}`], `./src/${resource}/index.ts`);
+    }
+  }
+});

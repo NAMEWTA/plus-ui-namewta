@@ -1,5 +1,5 @@
-import type { PasswordLoginInput } from '@namewta/domain-identity-access';
-import type { UserVO } from '@namewta/domain-system-admin';
+import type { PasswordLoginInput } from '@namewta/domain-admin';
+import type { UserVO } from '@namewta/domain-system';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { adminHttp } from '@/application/http';

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import { createOssFileFingerprint } from '@/utils/oss/fingerprint';
 import { getOssResumeRecord, putOssResumeRecord, removeOssResumeRecord } from '@/utils/oss/resumeStore';
 import { transferToOss } from '@/utils/oss/transport';
 import { getDirectOssUploadErrorMessage, uploadDirectToOss } from './useDirectOssUpload';
 
 vi.mock('@/application/services', () => ({
-  systemAdminService: {
+  systemService: {
     resources: {
       oss: {
         abortUpload: vi.fn(),
@@ -27,7 +27,7 @@ vi.mock('@/utils/oss/resumeStore', () => ({
 }));
 vi.mock('@/utils/oss/transport', () => ({ transferToOss: vi.fn() }));
 
-const ossService = systemAdminService.resources.oss;
+const ossService = systemService.resources.oss;
 const completeOssUpload = ossService.completeUpload;
 const getOssDownloadUrl = ossService.downloadUrl;
 const initOssUpload = ossService.initUpload;

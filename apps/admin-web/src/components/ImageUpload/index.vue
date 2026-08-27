@@ -43,10 +43,10 @@
 </template>
 
 <script setup lang="ts">
-import type { OssUploadVO, OssVO, SysOssExt } from '@namewta/domain-system-admin';
+import type { OssUploadVO, OssVO, SysOssExt } from '@namewta/domain-system';
 import { compressAccurately } from 'image-conversion';
 import modal from '@/application/host/feedback';
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import { createDirectOssUploadRequest, getDirectOssUploadErrorMessage } from '@/hooks/oss/useDirectOssUpload';
 import { propTypes } from '@/utils/propTypes';
 
@@ -104,7 +104,7 @@ watch(
       if (Array.isArray(val)) {
         list = val as OssVO[];
       } else {
-        const res = await systemAdminService.resources.oss.listByIds(val);
+        const res = await systemService.resources.oss.listByIds(val);
         list = res.data;
       }
       // 然后将数组转为对象数组
@@ -190,7 +190,7 @@ const handleDelete = (file: UploadFile): boolean => {
   const findex = fileList.value.map(f => f.name).indexOf(file.name);
   if (findex > -1 && uploadList.value.length === number.value) {
     const ossId = fileList.value[findex].ossId;
-    void systemAdminService.resources.oss.delete(ossId);
+    void systemService.resources.oss.delete(ossId);
     fileList.value.splice(findex, 1);
     emit('update:modelValue', listToString(fileList.value));
     return false;

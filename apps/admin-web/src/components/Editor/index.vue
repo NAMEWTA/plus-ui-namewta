@@ -19,7 +19,7 @@ import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor-next
 import type { PropType } from 'vue';
 import { Editor as WangEditor, Toolbar as EditorToolbar } from '@wangeditor-next/editor-for-vue';
 import modal from '@/application/host/feedback';
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import { uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
 import { propTypes } from '@/utils/propTypes';
 
@@ -131,7 +131,7 @@ const decodeOssContent = async (html: string): Promise<string> => {
       }
       return result;
     }
-    const res = await systemAdminService.resources.oss.listByIds(ossIds);
+    const res = await systemService.resources.oss.listByIds(ossIds);
     let result = html;
     for (const oss of res.data) {
       const id = String(oss.ossId);

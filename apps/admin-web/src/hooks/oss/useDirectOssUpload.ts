@@ -4,9 +4,9 @@ import type {
   OssUploadInitResponse,
   OssUploadResumeResponse,
   OssUploadVO
-} from '@namewta/domain-system-admin';
+} from '@namewta/domain-system';
 import type { UploadProgressEvent, UploadRequestOptions } from 'element-plus';
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import { getToken } from '@/application/session';
 import { createOssFileFingerprint } from '@/utils/oss/fingerprint';
 import { getOssResumeRecord, putOssResumeRecord, removeOssResumeRecord } from '@/utils/oss/resumeStore';
@@ -15,7 +15,7 @@ import { transferToOss } from '@/utils/oss/transport';
 const DEFAULT_POLICY = 'general';
 const SIGN_WINDOW = 8;
 const MAX_PART_ATTEMPTS = 3;
-const ossService = systemAdminService.resources.oss;
+const ossService = systemService.resources.oss;
 
 export interface DirectUploadOptions {
   signal: AbortSignal;

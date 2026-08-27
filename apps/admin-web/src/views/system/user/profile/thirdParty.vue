@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import modal from '@/application/host/feedback';
 import tab from '@/application/host/navigation';
-import { systemAdminService } from '@/application/services';
+import { identityAccessService } from '@/application/services';
 import { propTypes } from '@/utils/propTypes';
 
 const props = defineProps({
@@ -74,7 +74,7 @@ const auths = computed(() => props.auths);
 const unlockAuth = (row: any) => {
   ElMessageBox.confirm('您确定要解除"' + row.source + '"的账号绑定吗？')
     .then(() => {
-      return systemAdminService.resources.social.unlock(row.id);
+      return identityAccessService.social.unlock(row.id);
     })
     .then(() => {
       modal.msgSuccess('解绑成功');
@@ -84,7 +84,7 @@ const unlockAuth = (row: any) => {
 };
 
 const authUrl = async (source: string) => {
-  const res = await systemAdminService.resources.social.bindingUrl(source);
+  const res = await identityAccessService.social.bindingUrl(source);
   window.location.href = res.data;
 };
 </script>

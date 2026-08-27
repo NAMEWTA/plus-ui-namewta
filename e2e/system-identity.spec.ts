@@ -191,10 +191,10 @@ test('a rejected Client-scoped user query stays visible and does not invent fall
   expect(state.unknownRequests).toEqual([]);
 });
 
-test('client-web visibly diagnoses the unselected system-admin capability', async ({ page }) => {
-  await page.goto(`${clientUrl}/diagnostic?domain=system-admin&key=system%2Fuser%2Findex`);
+test('client-web visibly diagnoses the unselected system web capability', async ({ page }) => {
+  await page.goto(`${clientUrl}/diagnostic?domain=system&key=system%2Fuser%2Findex`);
 
   await expect(page.getByRole('heading', { name: '当前 App 未选择该能力' })).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('[missing-component-key]');
-  await expect(page.getByRole('alert')).toContainText('app=client-web domain=system-admin key=system/user/index');
+  await expect(page.getByRole('alert')).toContainText('app=client-web domain=system key=system/user/index');
 });

@@ -7,7 +7,7 @@ export type { AiWebRuntime } from './runtime';
 
 export async function loadAiChatPage(runtimeInput: AiWebRuntime | undefined): Promise<Component> {
   const runtime = requireAiWebRuntime(runtimeInput);
-  const page = (await import('./views/AiChatPage.vue')).default;
+  const page = (await import('./snail-ai/AiChatPage.vue')).default;
   return defineComponent({
     name: 'AiChatPage',
     setup: () => () => h(page, { runtime })

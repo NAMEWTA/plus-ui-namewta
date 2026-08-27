@@ -1,1 +1,1 @@
-export { default as AiChatPage } from './views/AiChatPage.vue';
+export { default as AiChatPage } from './snail-ai/AiChatPage.vue';

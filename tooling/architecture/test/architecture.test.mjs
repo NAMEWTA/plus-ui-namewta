@@ -134,17 +134,17 @@ test('accepts a valid public dependency graph without reading environment files'
   await addPackage(root, 'packages/platform/http', '@namewta/platform-http');
   await addPackage(
     root,
-    'packages/domains/identity-access',
-    '@namewta/domain-identity-access',
+    'packages/domains/admin',
+    '@namewta/domain-admin',
     { '@namewta/platform-http': 'workspace:*' },
     ['@namewta/platform-http']
   );
   await addPackage(
     root,
-    'packages/web-domains/identity-access-web',
-    '@namewta/web-domain-identity-access',
-    { '@namewta/domain-identity-access': 'workspace:*' },
-    ['@namewta/domain-identity-access']
+    'packages/web-domains/admin-web',
+    '@namewta/web-domain-admin',
+    { '@namewta/domain-admin': 'workspace:*' },
+    ['@namewta/domain-admin']
   );
   await addPackage(root, 'packages/adapters/browser-request', '@namewta/adapter-browser-request', {
     '@namewta/platform-http': 'workspace:*'
@@ -155,9 +155,9 @@ test('accepts a valid public dependency graph without reading environment files'
     '@namewta/admin-web',
     {
       '@namewta/adapter-browser-request': 'workspace:*',
-      '@namewta/web-domain-identity-access': 'workspace:*'
+      '@namewta/web-domain-admin': 'workspace:*'
     },
-    ['@namewta/adapter-browser-request', '@namewta/web-domain-identity-access']
+    ['@namewta/adapter-browser-request', '@namewta/web-domain-admin']
   );
   await writeFixtureFile(root, '.env', 'ARCHITECTURE_SENTINEL=must-not-be-read\n');
 

@@ -47,9 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import type { OssUploadVO, SysOssExt } from '@namewta/domain-system-admin';
+import type { OssUploadVO, SysOssExt } from '@namewta/domain-system';
 import modal from '@/application/host/feedback';
-import { systemAdminService } from '@/application/services';
+import { systemService } from '@/application/services';
 import { createDirectOssUploadRequest, getDirectOssUploadErrorMessage } from '@/hooks/oss/useDirectOssUpload';
 import { propTypes } from '@/utils/propTypes';
 
@@ -98,7 +98,7 @@ watch(
       if (Array.isArray(val)) {
         list = val;
       } else if (typeof val === 'string' || typeof val === 'number') {
-        const res = await systemAdminService.resources.oss.listByIds(val);
+        const res = await systemService.resources.oss.listByIds(val);
         list = res.data.map(oss => {
           return {
             name: oss.originalName,
@@ -180,7 +180,7 @@ const handleUploadSuccess = (result: OssUploadVO) => {
 // 删除文件
 const handleDelete = (index: number) => {
   const ossId = fileList.value[index].ossId;
-  void systemAdminService.resources.oss.delete(ossId);
+  void systemService.resources.oss.delete(ossId);
   fileList.value.splice(index, 1);
   emit('update:modelValue', listToString(fileList.value));
 };

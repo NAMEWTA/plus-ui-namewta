@@ -5,8 +5,9 @@ import type { Router } from 'vue-router';
 import { createAxiosBrowserAdapter } from '@namewta/adapter-axios-browser';
 import { createBrowserCryptoAdapter } from '@namewta/adapter-crypto-browser';
 import { createBrowserSessionStore } from '@namewta/adapter-storage-browser';
+import { createClientSessionKey, createIdentityAccessService } from '@namewta/domain-admin';
 import { createDemoService } from '@namewta/domain-demo';
-import { createClientSessionKey, createIdentityAccessService } from '@namewta/domain-identity-access';
+import { createSystemService } from '@namewta/domain-system';
 import { ref } from 'vue';
 import type { ClientWebConfig } from './config';
 import { composeClientRuntime } from './composition';
@@ -117,10 +118,12 @@ export function createClientApplication(config: ClientWebConfig): ClientApplicat
     serializeParams,
     successCode: 200
   });
+  const system = createSystemService(http);
   const identityService = createIdentityAccessService({
     client: config.client,
     encryptLoginRequest: config.loginEncryption,
     http,
+    identity: system.identity,
     session
   });
   const runtime = composeClientRuntime({

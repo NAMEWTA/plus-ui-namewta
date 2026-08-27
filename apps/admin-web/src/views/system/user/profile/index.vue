@@ -93,8 +93,8 @@
 </template>
 
 <script setup name="Profile" lang="ts">
-import type { UserVO } from '@namewta/domain-system-admin';
-import { operationsService, systemAdminService } from '@/application/services';
+import type { UserVO } from '@namewta/domain-system';
+import { monitorService, systemService } from '@/application/services';
 import OnlineDevice from './onlineDevice.vue';
 import ResetPwd from './resetPwd.vue';
 import ThirdParty from './thirdParty.vue';
@@ -120,7 +120,7 @@ const state = ref<State>({
 const userForm = ref({});
 
 const getUser = async () => {
-  const res = await systemAdminService.users.profile();
+  const res = await systemService.users.profile();
   state.value.user = res.data.user;
   userForm.value = { ...res.data.user };
   state.value.roleGroup = res.data.roleGroup;
@@ -128,11 +128,11 @@ const getUser = async () => {
 };
 
 const getAuths = async () => {
-  const res = await systemAdminService.resources.social.list();
+  const res = await systemService.resources.social.list();
   state.value.auths = res.data;
 };
 const getOnlines = async () => {
-  const res = await operationsService.online.current();
+  const res = await monitorService.online.current();
   state.value.devices = res.data?.rows;
 };
 

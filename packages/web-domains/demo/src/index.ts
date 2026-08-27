@@ -18,10 +18,10 @@ async function runtimeView(
 }
 
 export const loadDemoPage = (runtime: DemoWebRuntime) =>
-  runtimeView('Demo', requireDemoWebRuntime(runtime), () => import('./views/DemoPage.vue'));
+  runtimeView('Demo', requireDemoWebRuntime(runtime), () => import('./test-demo/DemoPage.vue'));
 
 export const loadTreePage = (runtime: DemoWebRuntime) =>
-  runtimeView('Tree', requireDemoWebRuntime(runtime), () => import('./views/TreePage.vue'));
+  runtimeView('Tree', requireDemoWebRuntime(runtime), () => import('./test-tree/TreePage.vue'));
 
 export function createDemoWebDomain(runtimeInput: DemoWebRuntime | undefined): WebDomainManifest<Component> {
   const runtime = requireDemoWebRuntime(runtimeInput);

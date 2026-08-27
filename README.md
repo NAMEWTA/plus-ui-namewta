@@ -24,7 +24,9 @@ tooling/                 架构、OpenAPI 与未来脚手架工具
 
 当前已激活 `admin-web` 与 `client-web`。移动 Web、小程序和 Taro 适配器仅保留中文 README 占位，在独立规格确定技术栈、Client、安全和部署合同前不会成为工作区包。
 
-七个 headless domains 与后端能力对应：identity-access、system-admin、workflow、demo、ai、devtools、operations。每个 App 只显式组合需要的 domain/web-domain，可以独立定制布局、样式和 CSS。
+六个 headless domains 与后端模块一一对应：admin、system、workflow、demo、ai、gen。每个 App 只显式组合需要的 domain/web-domain，可以独立定制布局、样式和 CSS。
+
+包内第二层按 Controller 的稳定 HTTP 资源命名。例如 `SysClientController` 的 `/system/client` 对应 `packages/domains/system/src/client/`，页面对应 `packages/web-domains/system/src/client/`；`SysUserOnlineController` 对应两侧的 `system/src/monitor/online/`。Java 的 `Sys`、`Flw` 等实现前缀不进入目录名，公开使用 package exports，禁止包间深层导入。
 
 详细边界见 [架构基线](docs/architecture-baseline.md)、各目录 README，以及 `.codex/skills/plus-ui-domain-development/SKILL.md`。
 

@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import type { RegistrationInput } from '@namewta/domain-identity-access';
+import type { RegistrationInput } from '@namewta/domain-admin';
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
 import { identityAccessService } from '@/application/services';

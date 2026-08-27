@@ -1,6 +1,6 @@
 # AI Web 领域
 
-`@namewta/web-domain-ai` 已激活，提供 AI 配置、模型、知识库、会话等 Vue 页面、局部组件和 manifest。
+`@namewta/web-domain-ai` 已激活，当前在 `snail-ai/` 提供嵌入式 AI 会话页面和 manifest。
 
 本包只依赖 AI domain 与必要的公开 Web/平台合同；流式交互、反馈、下载和导航通过宿主端口取得。它不拥有 App 布局、全局请求/路由单例或后端授权。
 

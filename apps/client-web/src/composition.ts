@@ -1,9 +1,10 @@
 import type { Component } from 'vue';
+import { adminDomainModule } from '@namewta/domain-admin';
 import { demoDomainModule } from '@namewta/domain-demo';
-import { identityAccessDomainModule } from '@namewta/domain-identity-access';
+import { systemDomainModule } from '@namewta/domain-system';
 import { composeAppRuntime, type AppRuntime, type WebDomainManifest } from '@namewta/platform-app-runtime';
+import { createAdminWebDomain, type IdentityAccessWebRuntime } from '@namewta/web-domain-admin';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
-import { createIdentityAccessWebDomain, type IdentityAccessWebRuntime } from '@namewta/web-domain-identity-access';
 
 export interface ClientCompositionDependencies {
   demo: DemoWebRuntime;
@@ -12,18 +13,18 @@ export interface ClientCompositionDependencies {
 
 export const clientCompositionManifest = Object.freeze({
   appId: 'client-web',
-  selectedDomainIds: Object.freeze(['identity-access', 'demo']),
-  selectedManifestIds: Object.freeze(['web-domain-identity-access', 'web-domain-demo'])
+  selectedDomainIds: Object.freeze(['admin', 'system', 'demo']),
+  selectedManifestIds: Object.freeze(['web-domain-admin', 'web-domain-demo'])
 });
 
 export function composeClientRuntime({ demo, identity }: ClientCompositionDependencies): AppRuntime<Component> {
   const manifests: readonly WebDomainManifest<Component>[] = [
-    createIdentityAccessWebDomain(identity),
+    createAdminWebDomain(identity),
     createDemoWebDomain(demo)
   ];
   return composeAppRuntime({
     ...clientCompositionManifest,
-    domainModules: [identityAccessDomainModule, demoDomainModule],
+    domainModules: [adminDomainModule, systemDomainModule, demoDomainModule],
     manifests
   });
 }

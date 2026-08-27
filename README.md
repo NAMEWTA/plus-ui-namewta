@@ -1,6 +1,21 @@
 # NAMEWTA plus-ui
 
-本仓库是 NAMEWTA 的多 App 前端产品仓库。`main` 上的本地 monorepo 是实现权威；上游只读分支 `6.X-Vue` 用于发现新增能力、缺陷修复和安全变化，不要求目录同构。
+本仓库是基于上游 Plus-UI 深度重构的 NAMEWTA 多 App 前端增强版。它保留 Vue 管理端能力，但不再以单 App 的 `src/api + src/views + src/store` 作为复用边界，而是把后端合同、领域规则、Web 页面和终端壳层拆分到明确的工作区包中。
+
+`main` 上的本地 monorepo 是产品实现权威；上游只读分支 `6.X-Vue` 用于发现新增能力、缺陷修复和安全变化，不要求目录同构。
+
+## 相较上游的核心增强
+
+| 增强方向 | 当前实现 | 带来的变化 |
+|---|---|---|
+| 多 App 交付 | `apps/admin-web` 与 `apps/client-web` 可独立构建、部署，移动 Web 和小程序保留规范化占位 | 同一后端可服务多个具有独立 Client、品牌、布局和会话的前端产品 |
+| 领域复用 | 无界面 API、类型和业务服务进入 `packages/domains/*`，Vue 页面进入 `packages/web-domains/*` | 新 App 直接组合已有能力，不重新创建后端接口和数据模型 |
+| 前后端映射 | domain 名与后端 `admin/system/workflow/demo/gen/ai` 模块一致，资源目录与 Controller base path 一致 | 可从 Java Controller 或 URL 快速定位前端 API、类型和页面 |
+| 通用平台能力 | 认证、权限、HTTP 和运行时进入 `platform`，Axios、存储和加密进入 `adapters`，Web 壳层进入 `web-kit` | 动态路由、权限、字典、OSS、加密等能力可复用，同时允许不同终端替换实现 |
+| Client 安全 | App 使用显式 ClientId、独立会话命名空间和服务端 ClientContext；认证与路由失败关闭 | 避免不同 App 之间的 Token、菜单和权限串用 |
+| 动态菜单 | App 只注册已选择 web-domain manifest 中的页面，未知或未选择的组件键拒绝解析 | 后端菜单仍动态驱动界面，但不能越过 App 的编译期能力边界 |
+| API 合同 | OpenAPI 传输合同确定性生成并检查漂移，domain 在边界处映射自己的领域模型 | 自动生成类型可追溯，又不会把页面直接绑定到生成器内部结构 |
+| 工程门禁 | 架构检查、Oxlint、Oxfmt、TypeScript、Vitest、双 App build 和 Playwright | 依赖方向、公开导出和关键登录/权限流程可以持续验证 |
 
 ## 技术栈
 
@@ -29,6 +44,18 @@ tooling/                 架构、OpenAPI 与未来脚手架工具
 包内第二层按 Controller 的稳定 HTTP 资源命名。例如 `SysClientController` 的 `/system/client` 对应 `packages/domains/system/src/client/`，页面对应 `packages/web-domains/system/src/client/`；`SysUserOnlineController` 对应两侧的 `system/src/monitor/online/`。Java 的 `Sys`、`Flw` 等实现前缀不进入目录名，公开使用 package exports，禁止包间深层导入。
 
 详细边界见 [架构基线](docs/architecture-baseline.md)、各目录 README，以及 `.codex/skills/plus-ui-domain-development/SKILL.md`。
+
+## 新 App 如何复用后端能力
+
+新 App 不复制 Admin 的 API、Store 或页面目录。标准组合顺序是：
+
+1. 为 App 配置独立 ClientId、会话命名空间、路由基路径和部署环境。
+2. 从 `packages/domains/*` 的公开导出选择需要的 API、领域类型和服务。
+3. Web App 按需选择对应 `packages/web-domains/*` manifest；非 Web 终端使用自己的表现层。
+4. 通过 platform port 注入请求、存储、加密、导航、下载和反馈等终端能力。
+5. App 仅实现布局、品牌、主题、静态页面及启动/路由编排。
+
+以 `/system/client` 为例，HTTP 与领域模型归 `packages/domains/system/src/client/`，Vue 管理页面归 `packages/web-domains/system/src/client/`，Admin 只负责选择它并将后端菜单组件键接入动态路由。第二个 App 若只需要 Client 查询服务，可只组合 domain，不必引入系统管理页面。
 
 ## 开发命令
 
@@ -66,3 +93,7 @@ pnpm build:prod
 ## 配套后端
 
 后端位于父工作区的独立子仓库 `ruoyi-vue-plus-namewta`，两者通过 HTTP 合同协作并独立开发、测试和发布。
+
+## 许可证与上游
+
+本仓库保留上游项目许可证和署名，详见 `LICENSE`。上游能力进入 NAMEWTA 时按当前 owner boundary 适配，不恢复已经退役的根级 `src` 或 App 内领域 API 兼容门面。

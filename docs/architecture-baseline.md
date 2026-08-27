@@ -1,6 +1,25 @@
 # 多 App 领域架构基线
 
-本文描述当前架构和必须保持的行为边界。
+本文描述 NAMEWTA 相较上游单 App 前端形成的当前架构，以及必须保持的行为边界。该分层的目标是让多个终端共享后端合同和领域能力，同时保留各 App 对布局、品牌、样式、路由选择与终端适配的控制权。
+
+## 复用模型
+
+```text
+后端 Controller / HTTP
+          ↓
+domains：API、类型、领域服务、传输映射
+          ↓
+web-domains：Vue 页面、领域组件、hooks、manifest
+          ↓
+apps：Client、布局、品牌、路由与部署组合
+
+platform ports ← adapters / web-kit 提供终端实现
+```
+
+- 共享后端 API 或数据模型时修改 domain，不在每个 App 各写一份。
+- 共享 Vue 领域页面时修改 web-domain；App 定制布局、主题或静态页面时留在 App。
+- 浏览器、Taro 等运行时差异通过 adapter 实现 platform port，不进入 headless domain。
+- 目录按后端模块和 Controller HTTP 资源定位，不追随 Java 实现类前缀，也不使用包内部深层导入。
 
 ## 认证不变量
 
@@ -26,4 +45,4 @@
 
 ## 验证基线
 
-根级 `architecture:check`、`architecture:test`、lint、typecheck、test、开发构建和生产构建必须通过。涉及真实登录、菜单、权限或双 App 隔离时，增加对应 Playwright 浏览器验收。
+根级 `architecture:check`、`architecture:test`、lint、typecheck、test、开发构建和生产构建必须通过。OpenAPI 快照变化还必须通过 `openapi:check`。涉及真实登录、菜单、权限或双 App 隔离时，增加对应 Playwright 浏览器验收。

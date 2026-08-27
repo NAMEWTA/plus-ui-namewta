@@ -3,7 +3,7 @@
 ## Admin 动态路由
 
 1. `apps/admin-web/src/permission.ts` 在受保护导航中恢复用户信息和菜单。
-2. `apps/admin-web/src/store/modules/permission.ts` 调用 `getRouters`，将后端菜单通过 `filterAsyncRouter` 和 `assembleServerRoutes` 转为路由。
+2. `apps/admin-web/src/store/modules/permission.ts` 调用 `apps/admin-web/src/application/services.ts` 装配的 `identityAccessService.getMenus()`，将后端菜单通过 `filterAsyncRouter` 和 `assembleServerRoutes` 转为路由。
 3. `apps/admin-web/src/router/adminManifestRegistry.ts` 把后端组件键解析为已选择 Web 领域的注册项。
 4. App 自有静态页面可由 Admin 本地 `views` 映射兜底；领域页面必须来自公开清单，不得深层导入。
 5. 路由使用 `router.addRoute` 注入；恢复结束后以 replace 导航，避免守卫循环。

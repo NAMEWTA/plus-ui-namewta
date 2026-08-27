@@ -49,142 +49,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@element-plus/icons-vue':
-        specifier: 2.3.2
-        version: 2.3.2(vue@3.5.40(typescript@6.0.3))
-      '@highlightjs/vue-plugin':
-        specifier: 2.1.2
-        version: 2.1.2(highlight.js@11.11.1)(vue@3.5.40(typescript@6.0.3))
-      '@iconify/vue':
-        specifier: ^5.0.1
-        version: 5.0.1(vue@3.5.40(typescript@6.0.3))
-      '@namewta/adapter-axios-browser':
-        specifier: workspace:*
-        version: link:packages/adapters/axios-browser
-      '@namewta/adapter-crypto-browser':
-        specifier: workspace:*
-        version: link:packages/adapters/crypto-browser
-      '@namewta/adapter-storage-browser':
-        specifier: workspace:*
-        version: link:packages/adapters/storage-browser
-      '@namewta/domain-ai':
-        specifier: workspace:*
-        version: link:packages/domains/ai
-      '@namewta/domain-demo':
-        specifier: workspace:*
-        version: link:packages/domains/demo
-      '@namewta/domain-devtools':
-        specifier: workspace:*
-        version: link:packages/domains/devtools
-      '@namewta/domain-identity-access':
-        specifier: workspace:*
-        version: link:packages/domains/identity-access
-      '@namewta/domain-operations':
-        specifier: workspace:*
-        version: link:packages/domains/operations
-      '@namewta/domain-system-admin':
-        specifier: workspace:*
-        version: link:packages/domains/system-admin
-      '@namewta/domain-workflow':
-        specifier: workspace:*
-        version: link:packages/domains/workflow
-      '@namewta/platform-app-runtime':
-        specifier: workspace:*
-        version: link:packages/platform/app-runtime
-      '@namewta/platform-auth':
-        specifier: workspace:*
-        version: link:packages/platform/auth
-      '@namewta/platform-permission':
-        specifier: workspace:*
-        version: link:packages/platform/permission
-      '@namewta/web-domain-ai':
-        specifier: workspace:*
-        version: link:packages/web-domains/ai
-      '@namewta/web-domain-demo':
-        specifier: workspace:*
-        version: link:packages/web-domains/demo
-      '@namewta/web-domain-devtools':
-        specifier: workspace:*
-        version: link:packages/web-domains/devtools
-      '@namewta/web-domain-identity-access':
-        specifier: workspace:*
-        version: link:packages/web-domains/identity-access
-      '@namewta/web-domain-operations':
-        specifier: workspace:*
-        version: link:packages/web-domains/operations
-      '@namewta/web-domain-system-admin':
-        specifier: workspace:*
-        version: link:packages/web-domains/system-admin
-      '@namewta/web-domain-workflow':
-        specifier: workspace:*
-        version: link:packages/web-domains/workflow
-      '@vueuse/core':
-        specifier: 14.3.0
-        version: 14.3.0(vue@3.5.40(typescript@6.0.3))
-      '@wangeditor-next/editor':
-        specifier: 5.7.16
-        version: 5.7.16
-      '@wangeditor-next/editor-for-vue':
-        specifier: 5.1.14
-        version: 5.1.14(@wangeditor-next/editor@5.7.16)(vue@3.5.40(typescript@6.0.3))
-      animate.css:
-        specifier: 4.1.1
-        version: 4.1.1
-      await-to-js:
-        specifier: 3.0.0
-        version: 3.0.0
-      axios:
-        specifier: 'catalog:'
-        version: 1.18.1
-      crypto-js:
-        specifier: 'catalog:'
-        version: 4.2.0
-      echarts:
-        specifier: 6.1.0
-        version: 6.1.0
-      element-plus:
-        specifier: 'catalog:'
-        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
-      highlight.js:
-        specifier: 11.11.1
-        version: 11.11.1
-      image-conversion:
-        specifier: 2.1.1
-        version: 2.1.1
-      jsencrypt:
-        specifier: 'catalog:'
-        version: 3.5.4
-      nprogress:
-        specifier: 0.2.0
-        version: 0.2.0
-      pinia:
-        specifier: 'catalog:'
-        version: 4.0.2(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.40(typescript@6.0.3))
-      vue:
-        specifier: 'catalog:'
-        version: 3.5.40(typescript@6.0.3)
-      vue-cropper:
-        specifier: 1.1.4
-        version: 1.1.4
-      vue-i18n:
-        specifier: 11.4.8
-        version: 11.4.8(vue@3.5.40(typescript@6.0.3))
-      vue-json-pretty:
-        specifier: 2.6.0
-        version: 2.6.0(vue@3.5.40(typescript@6.0.3))
-      vue-router:
-        specifier: 'catalog:'
-        version: 5.2.0(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.40(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vue@3.5.40(typescript@6.0.3))
-      vue-types:
-        specifier: 7.0.0
-        version: 7.0.0(vue@3.5.40(typescript@6.0.3))
-      vxe-pc-ui:
-        specifier: 4.16.22
-        version: 4.16.22(vue@3.5.40(typescript@6.0.3))
-      vxe-table:
-        specifier: 4.20.8
-        version: 4.20.8
     devDependencies:
       '@namewta/architecture':
         specifier: workspace:*
@@ -216,6 +80,9 @@ importers:
       autoprefixer:
         specifier: 10.5.4
         version: 10.5.4(postcss@8.5.23)
+      crypto-js:
+        specifier: 'catalog:'
+        version: 4.2.0
       oxfmt:
         specifier: ^0.60.0
         version: 0.60.0

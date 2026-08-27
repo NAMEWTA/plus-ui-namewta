@@ -2,7 +2,7 @@
 
 ## Status
 
-- `active`: `@namewta/adapter-storage-browser` backs the root auth compatibility facade.
+- `active`: `@namewta/adapter-storage-browser` backs the auth composition in admin-web and client-web.
 
 ## Responsibilities
 

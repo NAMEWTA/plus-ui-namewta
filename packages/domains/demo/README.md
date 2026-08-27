@@ -30,7 +30,7 @@
 
 ## Activation conditions
 
-- Activated in T-05; root `src/api/demo/**` remains a compatibility facade until T-15.
+- Activated in T-05; T-15 retired the root `src/api/demo/**` compatibility facade after consumer scans passed.
 
 ## Validation
 

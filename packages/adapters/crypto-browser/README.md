@@ -2,7 +2,7 @@
 
 ## Status
 
-- `active`: `@namewta/adapter-crypto-browser` preserves request encryption and response decryption for the root request facade.
+- `active`: `@namewta/adapter-crypto-browser` preserves request encryption and response decryption for both App compositions.
 
 ## Responsibilities
 

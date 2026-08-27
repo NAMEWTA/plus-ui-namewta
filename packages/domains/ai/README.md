@@ -15,6 +15,6 @@
 ## Backend modules
 - `backendModules: [ruoyi-ai]` for current-user Snail AI registration.
 ## Activation conditions
-- Activated in T-12; the root `src/api/ai/**` path remains a compatibility facade until T-15.
+- Activated in T-12; T-15 retired the root `src/api/ai/**` compatibility facade after consumer scans passed.
 ## Validation
 - Require headless import checks, exact transport tests, secret/log review, lint, typecheck, manifest E2E, and dual-App build selection.

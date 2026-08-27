@@ -36,4 +36,4 @@
 
 ## Validation
 
-- Require exact component-key/permission manifest tests, selected-only registration, resource transport/security tests, settled resource loading states, lint, typecheck, architecture checks, and Lead-run browser evidence for real OSS controls, message consumption, and legacy profile social seams. Legacy root API/view paths remain compatibility facades until T-15.
+- Require exact component-key/permission manifest tests, selected-only registration, resource transport/security tests, settled resource loading states, lint, typecheck, architecture checks, and Lead-run browser evidence for real OSS controls, message consumption, and legacy profile social seams. T-15 retired the legacy root API/view facades after consumer scans passed.

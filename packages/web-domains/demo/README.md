@@ -30,7 +30,7 @@
 
 ## Activation conditions
 
-- Activated in T-05 with stable `demo/demo/index` and `demo/tree/index` keys; root view facades load through the composed registry, while the explicit root `manifest-diagnostic` harness exercises a chosen missing key. Arbitrary backend key integration remains owned by T-07.
+- Activated in T-05 with stable `demo/demo/index` and `demo/tree/index` keys. T-15 retired the root view facades; admin-web loads the pages through the composed registry and keeps the explicit `manifest-diagnostic` harness for a chosen missing key. Arbitrary backend key integration remains owned by T-07.
 
 ## Validation
 

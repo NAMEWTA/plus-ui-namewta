@@ -2,7 +2,7 @@
 
 ## Status
 
-- `active`: the injectable identity presentation manifest is selected by client-web; admin keeps its compatibility markup while consuming domain-owned messages and use cases until T-15.
+- `active`: the injectable identity presentation manifest is selected by client-web; admin-web keeps its product-specific markup while consuming domain-owned messages and use cases.
 
 ## Responsibilities
 
@@ -10,7 +10,7 @@
 
 ## Non-responsibilities
 
-- It does not own session truth, Client selection, HTTP/storage/crypto adapters, App layout/navigation, or backend authorization. Admin registration/social markup remains a compatibility facade during expand-migrate.
+- It does not own session truth, Client selection, HTTP/storage/crypto adapters, App layout/navigation, or backend authorization. Admin registration/social markup remains App-owned customization.
 
 ## Allowed dependencies
 

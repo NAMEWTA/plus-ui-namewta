@@ -2,7 +2,7 @@
 
 ## Status
 
-- `active`: T-07 activates the terminal-neutral evaluator; root directives/plugins/utils remain compatibility facades until T-15.
+- `active`: T-07 activated the terminal-neutral evaluator; T-15 retired the root directive/plugin/util compatibility facades.
 
 ## Responsibilities
 
@@ -34,4 +34,4 @@
 
 ## Validation
 
-- Unit matrices cover `superadmin`, the explicit `admin` alias, `*:*:*`, ordinary grants, empty requirements, and malformed fail-close snapshots; root gates and Lead E2E cover facade integration.
+- Unit matrices cover `superadmin`, the explicit `admin` alias, `*:*:*`, ordinary grants, empty requirements, and malformed fail-close snapshots; App gates and Lead E2E cover composition integration.

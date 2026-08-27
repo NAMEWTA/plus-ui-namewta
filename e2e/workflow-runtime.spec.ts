@@ -341,12 +341,13 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
       state.workflowStartBodies?.push(request.postDataJSON());
       return json(route, { code: 200, data: { taskId: 'task-1' } });
     }
-    if (path === '/workflow/leave/leave-1' && method === 'GET')
+    const leaveMatch = path.match(/^\/workflow\/leave\/(leave-\d+)$/);
+    if (leaveMatch && method === 'GET')
       return json(route, {
         code: 200,
         data: {
-          id: 'leave-1',
-          applyCode: 'LEAVE-1',
+          id: leaveMatch[1],
+          applyCode: leaveMatch[1].toUpperCase(),
           leaveType: '1',
           startDate: '2026-08-26',
           endDate: '2026-08-27',
@@ -355,7 +356,7 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           status: 'waiting'
         }
       });
-    if (path === '/workflow/instance/flowHisTaskList/leave-1' && method === 'GET')
+    if (/^\/workflow\/instance\/flowHisTaskList\/leave-\d+$/.test(path) && method === 'GET')
       return json(route, {
         code: 200,
         data: { instanceId: 'instance-1', list: [{ id: 'history-1', nodeName: '提交申请', createTime: '2026-08-26' }] }

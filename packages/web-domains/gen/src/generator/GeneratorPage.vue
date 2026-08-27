@@ -1,5 +1,5 @@
 <template>
-  <div class="gen-generator-page app-container">
+  <div class="devtools-generator-page app-container">
     <el-card shadow="never">
       <el-form ref="queryFormRef" :model="query" :inline="true" v-show="showSearch">
         <el-form-item label="数据源" prop="dataName">
@@ -278,7 +278,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.gen-generator-page {
+.devtools-generator-page {
   padding: 16px;
 }
 .toolbar {

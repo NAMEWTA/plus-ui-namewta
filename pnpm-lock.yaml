@@ -987,7 +987,7 @@ importers:
     dependencies:
       openapi-typescript:
         specifier: 7.13.0
-        version: 7.13.0(typescript@6.0.3)
+        version: 7.13.0(typescript@5.9.3)
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -995,6 +995,9 @@ importers:
       oxlint:
         specifier: 'catalog:'
         version: 1.75.0
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
 packages:
 
@@ -2983,6 +2986,11 @@ packages:
   type@2.7.3:
     resolution: {integrity: sha512-8j+1QmAbPvLZow5Qpi6NCaN8FB60p/6x8/vfNqOk/hC+HuvFZhL4+WfekuhQLiqFZXOgQdrs3B+XxEmCc6b3FQ==}
 
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   typescript@6.0.3:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
@@ -4866,14 +4874,14 @@ snapshots:
       node-fetch-native: 1.6.7
       ufo: 1.6.4
 
-  openapi-typescript@7.13.0(typescript@6.0.3):
+  openapi-typescript@7.13.0(typescript@5.9.3):
     dependencies:
       '@redocly/openapi-core': 1.34.19(supports-color@10.2.2)
       ansi-colors: 4.1.3
       change-case: 5.4.4
       parse-json: 8.3.0
       supports-color: 10.2.2
-      typescript: 6.0.3
+      typescript: 5.9.3
       yargs-parser: 21.1.1
 
   oxc-parser@0.131.0:
@@ -5149,6 +5157,8 @@ snapshots:
   type-level-regexp@0.1.17: {}
 
   type@2.7.3: {}
+
+  typescript@5.9.3: {}
 
   typescript@6.0.3: {}
 

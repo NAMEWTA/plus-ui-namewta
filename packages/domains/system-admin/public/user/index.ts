@@ -1,4 +1,7 @@
+import type { OpenApiSchema } from '@namewta/api-contracts';
 import type { HttpClient } from '@namewta/platform-contracts';
+
+export type SystemUserTransport = OpenApiSchema<'SysUserVo'>;
 
 export interface UserSummary {
   deptName?: string;
@@ -46,21 +49,20 @@ export interface UserQueryPort {
 const identifiers = (values: readonly (string | number)[]) =>
   values.map(value => encodeURIComponent(String(value))).join(',');
 
-export const projectUserSummary = (value: unknown): UserSummary => {
-  const source = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+export const projectUserSummary = (source: SystemUserTransport): UserSummary => {
   return {
-    userId: source.userId as string | number,
-    userName: typeof source.userName === 'string' ? source.userName : undefined,
-    nickName: typeof source.nickName === 'string' ? source.nickName : '',
-    deptName: typeof source.deptName === 'string' ? source.deptName : undefined,
-    status: typeof source.status === 'string' ? source.status : undefined
+    userId: source.userId ?? '',
+    userName: source.userName,
+    nickName: source.nickName ?? '',
+    deptName: source.deptName,
+    status: source.status
   };
 };
 
 export function createUserQueryPort(http: HttpClient): UserQueryPort {
   return Object.freeze({
     list: async query => {
-      const response = await http.request<UserQueryResponse<UserPage>>({
+      const response = await http.request<UserQueryResponse<{ rows: SystemUserTransport[]; total: number }>>({
         url: '/system/user/list',
         method: 'get',
         params: query
@@ -68,7 +70,7 @@ export function createUserQueryPort(http: HttpClient): UserQueryPort {
       return { ...response, data: { ...response.data, rows: response.data.rows.map(projectUserSummary) } };
     },
     options: async userIds => {
-      const response = await http.request<UserQueryResponse<UserSummary[]>>({
+      const response = await http.request<UserQueryResponse<SystemUserTransport[]>>({
         url: '/system/user/optionselect?userIds=' + identifiers(userIds),
         method: 'get'
       });

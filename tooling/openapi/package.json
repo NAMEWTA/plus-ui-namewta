@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "oxlint": "catalog:"
+    "oxlint": "catalog:",
+    "typescript": "5.9.3"
   }
 }

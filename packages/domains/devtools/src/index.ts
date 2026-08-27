@@ -2,6 +2,7 @@ import type { DictTypeCatalogPort } from '@namewta/domain-system-admin/public/di
 import type { MenuQueryPort } from '@namewta/domain-system-admin/public/menu';
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
+import { projectGeneratorTableTransport, type GeneratorTableTransport } from './transport';
 
 export * from './transport';
 import type {
@@ -50,7 +51,20 @@ export function createDevtoolsService(
 ): DevtoolsService {
   const request = <T = unknown>(config: HttpRequest) => http.request<ApiResponse<T>>(config);
   return Object.freeze({
-    list: (params: TableQuery) => request<PageResult<TableVO>>({ url: '/tool/gen/list', method: 'get', params }),
+    list: async (params: TableQuery) => {
+      const response = await request<PageResult<GeneratorTableTransport>>({
+        url: '/tool/gen/list',
+        method: 'get',
+        params
+      });
+      if (!response.data || !Array.isArray(response.data.rows)) {
+        return response as unknown as ApiResponse<PageResult<TableVO>>;
+      }
+      return {
+        ...response,
+        data: { ...response.data, rows: response.data.rows.map(projectGeneratorTableTransport) }
+      };
+    },
     listDatabaseTables: (params: DbTableQuery) =>
       request<PageResult<DbTableVO>>({ url: '/tool/gen/db/list', method: 'get', params }),
     get: (tableId: Identifier) =>

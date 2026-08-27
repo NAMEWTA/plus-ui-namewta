@@ -98,4 +98,17 @@ describe('operations transport and security contracts', () => {
       mode: 'embed'
     });
   });
+
+  it('projects generated operation-log rows before returning domain models', async () => {
+    const service = createOperationsService({
+      request: async () => ({ data: { rows: [{ operId: 9, title: 'Update' }], total: 1 } }) as never
+    });
+
+    await expect(service.operationLogs.list({ pageNum: 1, pageSize: 10 } as never)).resolves.toMatchObject({
+      data: {
+        rows: [{ operId: 9, title: 'Update', businessType: 0, requestMethod: '', status: 0, costTime: 0 }],
+        total: 1
+      }
+    });
+  });
 });

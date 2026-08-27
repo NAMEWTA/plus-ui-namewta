@@ -1,6 +1,7 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { ClientContext, HttpClient, SessionStore } from '@namewta/platform-contracts';
 import { requireClientContext } from '@namewta/platform-contracts';
+import { projectClientAuthContextTransport, type ClientAuthContextTransport } from './transport';
 
 export * from './transport';
 
@@ -129,7 +130,7 @@ function parseClientAuthContext(value: unknown): ClientAuthContext {
     throw clientContextError();
   }
   if (!context.clientEnabled) throw clientContextError();
-  return Object.freeze({ clientEnabled: true, registerEnabled: context.registerEnabled });
+  return Object.freeze(projectClientAuthContextTransport(context as ClientAuthContextTransport));
 }
 
 function parseVerification(value: unknown): LoginVerification {
@@ -213,7 +214,7 @@ export function createIdentityAccessService({
   const loadClientContext = async () => {
     prepared = false;
     context = undefined;
-    const contextResponse = await http.request<ApiResponse<unknown>>({
+    const contextResponse = await http.request<ApiResponse<ClientAuthContextTransport>>({
       url: '/auth/client/context',
       method: 'get',
       headers: { isToken: false }

@@ -6,6 +6,7 @@ import {
   type UserQueryPort,
   type UserSummary
 } from '@namewta/domain-system-admin/public/user';
+import { projectWorkflowTaskTransport, type WorkflowTaskTransport } from './transport';
 
 export * from './transport';
 
@@ -241,6 +242,21 @@ type IdentifierList = Identifier | readonly Identifier[];
 const segment = (value: IdentifierList) =>
   (Array.isArray(value) ? value : [value]).map(item => encodeURIComponent(String(item))).join(',');
 
+const projectTaskPage = (response: ApiResponse<PageResult<WorkflowTaskTransport>>) => {
+  if (!response.data || !Array.isArray(response.data.rows)) {
+    return response as unknown as ApiResponse<PageResult<WorkflowTask>>;
+  }
+  return {
+    ...response,
+    data: { ...response.data, rows: response.data.rows.map(projectWorkflowTaskTransport) }
+  };
+};
+
+const projectTask = (response: ApiResponse<WorkflowTaskTransport>) =>
+  response.data
+    ? { ...response, data: projectWorkflowTaskTransport(response.data) }
+    : (response as unknown as ApiResponse<WorkflowTask>);
+
 export interface WorkflowDefinitionService {
   addCategory(data: CategoryForm): Promise<ApiResponse>;
   addDefinition(data: FlowDefinitionForm | Record<string, unknown>): Promise<ApiResponse>;
@@ -355,20 +371,56 @@ export function createWorkflowDefinitionService(http: HttpClient): WorkflowDefin
     addSpel: data => request({ url: '/workflow/spel', method: 'post', data }),
     updateSpel: data => request({ url: '/workflow/spel', method: 'put', data }),
     deleteSpel: id => request({ url: '/workflow/spel/' + segment(id), method: 'delete' }),
-    pageTaskWaiting: query =>
-      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByTaskWait', method: 'get', params: query }),
-    pageTaskFinished: query =>
-      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByTaskFinish', method: 'get', params: query }),
-    pageTaskCopies: query =>
-      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByTaskCopy', method: 'get', params: query }),
-    pageAllTaskWaiting: query =>
-      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByAllTaskWait', method: 'get', params: query }),
-    pageAllTaskFinished: query =>
-      request<PageResult<WorkflowTask>>({ url: '/workflow/task/pageByAllTaskFinish', method: 'get', params: query }),
+    pageTaskWaiting: async query =>
+      projectTaskPage(
+        await request<PageResult<WorkflowTaskTransport>>({
+          url: '/workflow/task/pageByTaskWait',
+          method: 'get',
+          params: query
+        })
+      ),
+    pageTaskFinished: async query =>
+      projectTaskPage(
+        await request<PageResult<WorkflowTaskTransport>>({
+          url: '/workflow/task/pageByTaskFinish',
+          method: 'get',
+          params: query
+        })
+      ),
+    pageTaskCopies: async query =>
+      projectTaskPage(
+        await request<PageResult<WorkflowTaskTransport>>({
+          url: '/workflow/task/pageByTaskCopy',
+          method: 'get',
+          params: query
+        })
+      ),
+    pageAllTaskWaiting: async query =>
+      projectTaskPage(
+        await request<PageResult<WorkflowTaskTransport>>({
+          url: '/workflow/task/pageByAllTaskWait',
+          method: 'get',
+          params: query
+        })
+      ),
+    pageAllTaskFinished: async query =>
+      projectTaskPage(
+        await request<PageResult<WorkflowTaskTransport>>({
+          url: '/workflow/task/pageByAllTaskFinish',
+          method: 'get',
+          params: query
+        })
+      ),
     startWorkflow: data => request({ url: '/workflow/task/startWorkFlow', method: 'post', data }),
     completeTask: data => request({ url: '/workflow/task/completeTask', method: 'post', data }),
     backProcess: data => request({ url: '/workflow/task/backProcess', method: 'post', data }),
-    getTask: taskId => request<WorkflowTask>({ url: '/workflow/task/getTask/' + segment(taskId), method: 'get' }),
+    getTask: async taskId =>
+      projectTask(
+        await request<WorkflowTaskTransport>({
+          url: '/workflow/task/getTask/' + segment(taskId),
+          method: 'get'
+        })
+      ),
     updateAssignee: (taskIds, userId) =>
       request({ url: '/workflow/task/updateAssignee/' + segment(userId), method: 'put', data: taskIds }),
     terminateTask: data => request({ url: '/workflow/task/terminationTask', method: 'post', data }),

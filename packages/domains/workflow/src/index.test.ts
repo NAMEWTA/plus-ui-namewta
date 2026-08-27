@@ -201,4 +201,20 @@ describe('workflow definition transport contract', () => {
     ]);
     expect(JSON.stringify(currentUsers)).not.toMatch(/must-not-cross|phoneNumber/);
   });
+
+  it('projects generated task responses before returning domain models', async () => {
+    const service = createWorkflowDefinitionService({
+      request: async request =>
+        (request.url.includes('pageByTaskWait')
+          ? { data: { rows: [{ id: 1, instanceId: 2, flowCode: 'leave' }], total: 1 } }
+          : { data: { id: 3, instanceId: 4, nodeCode: 'approve' } }) as never
+    });
+
+    await expect(service.pageTaskWaiting({ pageNum: 1, pageSize: 10 })).resolves.toMatchObject({
+      data: { rows: [{ id: 1, instanceId: '2', flowCode: 'leave', nodeType: 0 }], total: 1 }
+    });
+    await expect(service.getTask(3)).resolves.toMatchObject({
+      data: { id: 3, instanceId: '4', nodeCode: 'approve', nodeType: 0 }
+    });
+  });
 });

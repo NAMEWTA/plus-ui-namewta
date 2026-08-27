@@ -69,6 +69,7 @@ const sharedCatalogPackages = [
   'vue-router',
   'yaml'
 ];
+const catalogReferenceExceptions = new Map([['@namewta/tooling-openapi\0devDependencies\0typescript', '5.9.3']]);
 const inactivePlaceholders = [
   'apps/mobile-web',
   'apps/miniapp-taro',
@@ -595,7 +596,8 @@ async function validatePnpmState(root, packages) {
     const sourceName = item.manifest.name ?? item.relativeDirectory;
     for (const field of dependencyFields) {
       for (const [targetName, specification] of Object.entries(item.manifest[field] ?? {})) {
-        if (sharedCatalogPackages.includes(targetName) && specification !== 'catalog:') {
+        const exception = catalogReferenceExceptions.get(`${sourceName}\0${field}\0${targetName}`);
+        if (sharedCatalogPackages.includes(targetName) && specification !== 'catalog:' && specification !== exception) {
           detected.push(
             violation(
               'catalog-reference',

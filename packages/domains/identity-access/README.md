@@ -14,7 +14,7 @@
 
 ## Allowed dependencies
 
-- Public `@namewta/platform-contracts` ports and `@namewta/platform-app-runtime` metadata only.
+- Public `@namewta/platform-contracts` ports, `@namewta/platform-app-runtime` metadata, and generated transport types from `@namewta/api-contracts` only.
 
 ## Forbidden dependencies
 

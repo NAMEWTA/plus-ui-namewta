@@ -47,4 +47,20 @@ describe('demo domain', () => {
       { url: '/demo/tree/tree%2F8,tree%209', method: 'delete' }
     ]);
   });
+
+  it('projects generated demo responses before returning domain models', async () => {
+    const service = createDemoService({
+      request: async request =>
+        (request.url.endsWith('/list')
+          ? { data: { rows: [{ id: 7, testKey: 'key' }], total: 1 } }
+          : { data: { id: 8, value: 'detail' } }) as never
+    });
+
+    await expect(service.listDemo({ pageNum: 1, pageSize: 10 })).resolves.toMatchObject({
+      data: { rows: [{ id: 7, testKey: 'key', deptId: '', userId: '', orderNum: 0, value: '' }], total: 1 }
+    });
+    await expect(service.getDemo(8)).resolves.toMatchObject({
+      data: { id: 8, value: 'detail', deptId: '', userId: '', orderNum: 0, testKey: '' }
+    });
+  });
 });

@@ -21,7 +21,7 @@
 
 ## Allowed dependencies
 
-- Node.js built-in modules plus direct catalog references to `typescript`, `@vue/compiler-sfc`, and `yaml`.
+- Node.js built-in modules plus direct catalog references to `typescript`, `@vue/compiler-sfc`, and `yaml`. The only reviewed non-catalog toolchain peer is `@namewta/tooling-openapi`'s `devDependencies.typescript@5.9.3`, required by its pinned generator; package, field, name, and version must all match.
 
 ## Forbidden dependencies
 

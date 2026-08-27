@@ -1,5 +1,6 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
+import { projectOperationLogTransport, type OperationLogTransport } from './transport';
 
 export * from './transport';
 import type {
@@ -162,8 +163,20 @@ export function createOperationsService(http: HttpClient): OperationsService {
         request({ url: '/monitor/online/myself/' + segment(tokenId), method: 'delete' })
     }),
     operationLogs: Object.freeze({
-      list: (params: OperLogQuery) =>
-        request<PageResult<OperLogVO>>({ url: '/monitor/operlog/list', method: 'get', params }),
+      list: async (params: OperLogQuery) => {
+        const response = await request<PageResult<OperationLogTransport>>({
+          url: '/monitor/operlog/list',
+          method: 'get',
+          params
+        });
+        if (!response.data || !Array.isArray(response.data.rows)) {
+          return response as unknown as ApiResponse<PageResult<OperLogVO>>;
+        }
+        return {
+          ...response,
+          data: { ...response.data, rows: response.data.rows.map(projectOperationLogTransport) }
+        };
+      },
       delete: (ids: IdentifierList) => request({ url: '/monitor/operlog/' + segment(ids), method: 'delete' }),
       clean: () => request({ url: '/monitor/operlog/clean', method: 'delete' })
     }),

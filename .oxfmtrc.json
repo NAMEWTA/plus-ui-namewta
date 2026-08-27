@@ -3,6 +3,8 @@
   "ignorePatterns": [
     "apps/admin-web/src/types/components.d.ts",
     "apps/admin-web/src/types/auto-imports.d.ts",
+    "packages/api-contracts/generated/openapi.ts",
+    "packages/api-contracts/openapi/source.json",
     ".ai_state",
     ".claude",
     ".codex",

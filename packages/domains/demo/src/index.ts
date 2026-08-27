@@ -1,5 +1,6 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient } from '@namewta/platform-contracts';
+import { projectDemoTransport, type DemoTransport } from './transport';
 
 export * from './transport';
 
@@ -103,8 +104,26 @@ const encodeIds = (id: string | number | Array<string | number>): string =>
 
 export function createDemoService(http: HttpClient): DemoService {
   return Object.freeze({
-    listDemo: query => http.request({ url: '/demo/demo/list', method: 'get', params: query }),
-    getDemo: id => http.request({ url: `/demo/demo/${encodeId(id)}`, method: 'get' }),
+    listDemo: async query => {
+      const response = await http.request<ApiResponse<PageResult<DemoTransport>>>({
+        url: '/demo/demo/list',
+        method: 'get',
+        params: query
+      });
+      if (!response.data || !Array.isArray(response.data.rows)) {
+        return response as unknown as ApiResponse<PageResult<DemoVO>>;
+      }
+      return { ...response, data: { ...response.data, rows: response.data.rows.map(projectDemoTransport) } };
+    },
+    getDemo: async id => {
+      const response = await http.request<ApiResponse<DemoTransport>>({
+        url: `/demo/demo/${encodeId(id)}`,
+        method: 'get'
+      });
+      return response.data
+        ? { ...response, data: projectDemoTransport(response.data) }
+        : (response as ApiResponse<DemoVO>);
+    },
     addDemo: data => http.request({ url: '/demo/demo', method: 'post', data }),
     updateDemo: data => http.request({ url: '/demo/demo', method: 'put', data }),
     deleteDemo: id => http.request({ url: `/demo/demo/${encodeIds(id)}`, method: 'delete' }),

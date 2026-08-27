@@ -18,7 +18,7 @@
 
 ## Allowed dependencies
 
-- Public platform contracts/runtime and explicit transport contracts; expose only explicit cross-domain ports.
+- Public platform contracts/runtime and generated `@namewta/api-contracts` transport types; expose only explicit cross-domain ports.
 
 ## Forbidden dependencies
 
@@ -45,4 +45,4 @@
 
 ## OpenAPI boundary
 
-- `SysUserVo` is generated transport; `projectSystemUserTransport` maps it into the stable public `UserSummary` contract.
+- `SysUserVo` is generated transport; the public user service maps it into the stable `UserSummary` contract before data crosses the seam.

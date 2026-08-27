@@ -14,7 +14,7 @@
 
 ## Allowed dependencies
 
-- Public platform HTTP/download contracts and explicit `system-admin/public/dict` and `public/menu` ports.
+- Public platform HTTP/download contracts, generated `@namewta/api-contracts` transport types, and explicit `system-admin/public/dict` and `public/menu` ports.
 
 ## Forbidden dependencies
 

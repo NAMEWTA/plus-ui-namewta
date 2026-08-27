@@ -1,5 +1,6 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { HttpClient } from '@namewta/platform-contracts';
+import { projectAiUserTransport, type AiUserTransport } from './transport';
 
 export * from './transport';
 
@@ -28,11 +29,15 @@ export const aiDomainModule: DomainModule = Object.freeze({
 
 export function createAiService(http: HttpClient): AiService {
   return Object.freeze({
-    registerCurrentSnailUser: () =>
-      http.request<AiApiResponse<SnailOpenApiUser>>({
+    registerCurrentSnailUser: async () => {
+      const response = await http.request<AiApiResponse<AiUserTransport>>({
         url: '/snail-ai/user/register',
         method: 'post',
         headers: { repeatSubmit: false }
-      })
+      });
+      return response.data
+        ? { ...response, data: projectAiUserTransport(response.data) }
+        : (response as AiApiResponse<SnailOpenApiUser>);
+    }
   });
 }

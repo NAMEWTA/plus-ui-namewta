@@ -529,6 +529,42 @@ test('rejects a shared framework version outside the catalog', async () => {
   );
 });
 
+test('allows only the reviewed OpenAPI generator TypeScript peer outside the catalog', async () => {
+  const root = await createFixture();
+  await addPackage(root, 'tooling/openapi', '@namewta/tooling-openapi');
+  const manifest = fixtureManifests.get(root).get('tooling/openapi');
+  manifest.devDependencies = { typescript: '5.9.3' };
+  await writeJson(join(root, 'tooling/openapi/package.json'), manifest);
+
+  const result = await check(root);
+  assert.equal(result.exitCode, 0, result.output);
+});
+
+test('rejects the OpenAPI TypeScript peer exception in another package or dependency field', async () => {
+  const otherRoot = await createFixture();
+  await addPackage(otherRoot, 'apps/admin-web', '@namewta/admin-web');
+  const otherManifest = fixtureManifests.get(otherRoot).get('apps/admin-web');
+  otherManifest.devDependencies = { typescript: '5.9.3' };
+  await writeJson(join(otherRoot, 'apps/admin-web/package.json'), otherManifest);
+  assertFailure(
+    await check(otherRoot),
+    'catalog-reference',
+    '@namewta/admin-web',
+    'typescript',
+    'apps/admin-web/package.json#devDependencies'
+  );
+
+  const fieldRoot = await createFixture();
+  await addPackage(fieldRoot, 'tooling/openapi', '@namewta/tooling-openapi', { typescript: '5.9.3' }, ['typescript']);
+  assertFailure(
+    await check(fieldRoot),
+    'catalog-reference',
+    '@namewta/tooling-openapi',
+    'typescript',
+    'tooling/openapi/package.json#dependencies'
+  );
+});
+
 test('rejects a non-workspace internal reference', async () => {
   const root = await createFixture();
   await addPackage(root, 'packages/platform/http', '@namewta/platform-http');

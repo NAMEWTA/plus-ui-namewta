@@ -17,7 +17,7 @@
 
 ## Allowed dependencies
 
-- Public platform contracts and app-runtime metadata supplied through explicit ports.
+- Public platform contracts, app-runtime metadata supplied through explicit ports, and generated transport types from `@namewta/api-contracts`.
 
 ## Forbidden dependencies
 
@@ -42,4 +42,4 @@
 
 ## OpenAPI boundary
 
-- `SysOperLogVo` is generated transport; `projectOperationLogTransport` projects the stable audit fields into a domain-owned view.
+- `SysOperLogVo` is generated transport; `projectOperationLogTransport` normalizes it into the existing domain-owned `OperLogVO` before the service returns data.

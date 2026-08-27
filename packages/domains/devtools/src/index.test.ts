@@ -96,4 +96,18 @@ describe('devtools domain', () => {
     });
     expect(() => service.downloadIntent([])).toThrow('至少选择一张数据表');
   });
+
+  it('projects generated table rows before returning domain models', async () => {
+    const service = createDevtoolsService(
+      { request: async () => ({ data: { rows: [{ tableId: 3, tableName: 'sys_user' }], total: 1 } }) as never },
+      { dictTypes: { list: async () => [] }, menus: { options: async () => [] } }
+    );
+
+    await expect(service.list({ pageNum: 1, pageSize: 10 } as never)).resolves.toMatchObject({
+      data: {
+        rows: [{ tableId: 3, tableName: 'sys_user', tplCategory: 'crud', frontendType: 'element-plus' }],
+        total: 1
+      }
+    });
+  });
 });

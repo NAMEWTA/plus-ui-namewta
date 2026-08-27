@@ -19,9 +19,9 @@ The snapshot was captured from a clean detached backend worktree. The local diag
 Run these from `tooling/openapi`:
 
 ```sh
-pnpm openapi:fetch -- --source http://127.0.0.1:18080/v3/api-docs
+pnpm openapi:fetch -- --source http://127.0.0.1:18080/v3/api-docs --backend-commit a98d6edcc591550221dd983e293d43e3aac36d23
 pnpm openapi:generate
 pnpm openapi:check
 ```
 
-`openapi:fetch` validates the complete response before atomically replacing the snapshot. `openapi:generate` reads only the checked snapshot. `openapi:check` generates in memory and fails on drift or manual edits without overwriting the committed output.
+`openapi:fetch` validates the complete response before transactionally replacing the snapshot and machine provenance. `openapi:generate` first validates the provenance against the checked snapshot. `openapi:check` repeats that validation, generates in memory, and fails on provenance drift, contract drift, or manual edits without overwriting the committed output.

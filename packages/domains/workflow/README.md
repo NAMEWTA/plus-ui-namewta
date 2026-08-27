@@ -15,7 +15,7 @@
 
 ## Allowed dependencies
 
-- Platform contracts, app-runtime, and the system-admin public user seam through an injected HttpClient.
+- Platform contracts, app-runtime, generated `@namewta/api-contracts` transport types, and the system-admin public user seam through an injected HttpClient.
 
 ## Forbidden dependencies
 
@@ -45,4 +45,4 @@ facades; both transport contracts remain until a separately coordinated backend 
 
 ## OpenAPI boundary
 
-- `FlowTaskVo` is generated transport; `projectWorkflowTaskTransport` projects its stable workflow fields into a domain-owned view.
+- `FlowTaskVo` is generated transport; `projectWorkflowTaskTransport` normalizes it into the existing domain-owned `WorkflowTask` before the service returns data.

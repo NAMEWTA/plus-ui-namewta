@@ -1,17 +1,18 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { readFile, rename, unlink, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { mkdir, readFile, rename, rm, unlink, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import openapiTS, { astToString } from 'openapi-typescript';
 
 const packageDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const contractsDirectory = resolve(packageDirectory, '../../packages/api-contracts');
 const generator = 'openapi-typescript@7.13.0';
+const revisionPattern = /^[\da-f]{64}$/;
 
 export const defaultPaths = Object.freeze({
   output: resolve(contractsDirectory, 'generated/openapi.ts'),
-  provenance: resolve(contractsDirectory, 'openapi/provenance.json'),
-  snapshot: resolve(contractsDirectory, 'openapi/source.json')
+  pointer: resolve(contractsDirectory, 'openapi/current.json'),
+  store: resolve(contractsDirectory, 'openapi')
 });
 
 export class OpenApiContractError extends Error {
@@ -42,33 +43,39 @@ export function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function safeSourceLabel(source) {
-  if (!/^https?:\/\//.test(source)) return source;
+function classifySource(source) {
+  if (!/^https?:\/\//i.test(source)) return { kind: 'file', path: source };
   try {
     const url = new URL(source);
-    return `${url.protocol}//${url.host}${url.pathname}`;
-  } catch {
-    return '<invalid-http-source>';
+    const protocol = url.protocol.toLowerCase();
+    if (protocol !== 'http:' && protocol !== 'https:') throw new Error('unsupported protocol');
+    return { kind: 'http', label: `${protocol}//${url.host}${url.pathname}`, url };
+  } catch (error) {
+    throw new OpenApiContractError('OpenAPI HTTP source URL is invalid', error);
   }
 }
 
 async function readSource(source) {
-  if (/^https?:\/\//.test(source)) {
+  const classified = classifySource(source);
+  if (classified.kind === 'http') {
     let response;
     try {
-      response = await fetch(source, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(30_000) });
+      response = await fetch(classified.url, {
+        headers: { accept: 'application/json' },
+        signal: AbortSignal.timeout(30_000)
+      });
     } catch (error) {
-      throw new OpenApiContractError(`Unable to fetch OpenAPI source: ${safeSourceLabel(source)}`, error);
+      throw new OpenApiContractError(`Unable to fetch OpenAPI source: ${classified.label}`, error);
     }
     if (!response.ok) {
-      throw new OpenApiContractError(`OpenAPI source returned HTTP ${response.status}: ${safeSourceLabel(source)}`);
+      throw new OpenApiContractError(`OpenAPI source returned HTTP ${response.status}: ${classified.label}`);
     }
     return Buffer.from(await response.arrayBuffer());
   }
   try {
-    return await readFile(resolve(source));
+    return await readFile(resolve(classified.path));
   } catch (error) {
-    throw new OpenApiContractError(`Unable to read OpenAPI source: ${source}`, error);
+    throw new OpenApiContractError(`Unable to read OpenAPI source: ${classified.path}`, error);
   }
 }
 
@@ -109,7 +116,7 @@ function createProvenance(bytes, spec, { backendCommit, backendRepository, runti
   };
 }
 
-const provenanceText = value => `${JSON.stringify(value, null, 2)}\n`;
+const jsonText = value => `${JSON.stringify(value, null, 2)}\n`;
 
 async function atomicWrite(path, content) {
   const temporary = `${path}.tmp-${process.pid}-${randomUUID()}`;
@@ -121,55 +128,93 @@ async function atomicWrite(path, content) {
   }
 }
 
-async function readExisting(path) {
+function revisionPaths(store, revision) {
+  if (!revisionPattern.test(revision)) throw new OpenApiContractError('OpenAPI revision pointer is invalid');
+  const directory = join(store, 'revisions', revision);
+  return {
+    directory,
+    provenance: join(directory, 'provenance.json'),
+    snapshot: join(directory, 'source.json')
+  };
+}
+
+async function readPointer(pointer) {
+  let current;
   try {
-    return await readFile(path);
+    current = JSON.parse(await readFile(pointer, 'utf8'));
+  } catch (error) {
+    throw new OpenApiContractError(`OpenAPI revision pointer is missing or invalid: ${pointer}`, error);
+  }
+  if (!current || typeof current !== 'object' || Array.isArray(current) || !revisionPattern.test(current.revision)) {
+    throw new OpenApiContractError(`OpenAPI revision pointer is missing or invalid: ${pointer}`);
+  }
+  return current.revision;
+}
+
+async function readRevision(store, revision) {
+  const paths = revisionPaths(store, revision);
+  try {
+    const [bytes, provenance] = await Promise.all([readFile(paths.snapshot), readFile(paths.provenance, 'utf8')]);
+    return { bytes, paths, provenance };
   } catch (error) {
     if (error?.code === 'ENOENT') return undefined;
     throw error;
   }
 }
 
-async function atomicWriteMany(entries) {
-  const staged = [];
-  const previous = [];
+async function persistRevision(store, revision, bytes, provenance) {
+  const paths = revisionPaths(store, revision);
+  const expectedProvenance = jsonText(provenance);
+  const existing = await readRevision(store, revision);
+  if (existing) {
+    if (!existing.bytes.equals(bytes) || existing.provenance !== expectedProvenance) {
+      throw new OpenApiContractError(`Immutable OpenAPI revision collision detected: ${revision}`);
+    }
+    return;
+  }
+
+  const revisions = join(store, 'revisions');
+  const staged = join(revisions, `.staged-${revision}-${process.pid}-${randomUUID()}`);
+  await mkdir(staged, { recursive: true });
   try {
-    for (const [path, content] of entries) {
-      const temporary = `${path}.tmp-${process.pid}-${randomUUID()}`;
-      await writeFile(temporary, content);
-      staged.push([path, temporary]);
-      previous.push([path, await readExisting(path)]);
+    await Promise.all([
+      writeFile(join(staged, 'source.json'), bytes),
+      writeFile(join(staged, 'provenance.json'), expectedProvenance)
+    ]);
+    try {
+      await rename(staged, paths.directory);
+    } catch (error) {
+      if (!['EEXIST', 'ENOTEMPTY'].includes(error?.code)) throw error;
+      const concurrent = await readRevision(store, revision);
+      if (!concurrent || !concurrent.bytes.equals(bytes) || concurrent.provenance !== expectedProvenance) {
+        throw new OpenApiContractError(`Immutable OpenAPI revision collision detected: ${revision}`, error);
+      }
     }
-    for (const [path, temporary] of staged) await rename(temporary, path);
-  } catch (error) {
-    for (const [path, content] of previous) {
-      if (content === undefined) await unlink(path).catch(() => undefined);
-      else await atomicWrite(path, content).catch(() => undefined);
-    }
-    throw error;
   } finally {
-    await Promise.all(staged.map(([, temporary]) => unlink(temporary).catch(() => undefined)));
+    await rm(staged, { recursive: true, force: true });
   }
 }
 
-async function readAndValidateProvenance(snapshot, provenance) {
-  const bytes = await readFile(snapshot);
-  const spec = parseSource(bytes);
+async function readAndValidateActiveRevision(store, pointer) {
+  const revision = await readPointer(pointer);
+  const active = await readRevision(store, revision);
+  if (!active) throw new OpenApiContractError(`Active OpenAPI revision is missing: ${revision}`);
+  const spec = parseSource(active.bytes);
   let current;
   try {
-    current = JSON.parse(await readFile(provenance, 'utf8'));
+    current = JSON.parse(active.provenance);
   } catch (error) {
-    throw new OpenApiContractError(`OpenAPI provenance is missing or invalid: ${provenance}`, error);
+    throw new OpenApiContractError(`OpenAPI provenance is invalid in revision ${revision}`, error);
   }
   if (!current || typeof current !== 'object' || Array.isArray(current)) {
-    throw new OpenApiContractError(`OpenAPI provenance is missing or invalid: ${provenance}`);
+    throw new OpenApiContractError(`OpenAPI provenance is invalid in revision ${revision}`);
   }
-  const expected = createProvenance(bytes, spec, {
+  const expected = createProvenance(active.bytes, spec, {
     backendCommit: current.backendCommit,
     backendRepository: current.backendRepository,
     runtimeEndpoint: current.runtimeEndpoint
   });
-  if (provenanceText(current) !== provenanceText(expected)) {
+  if (revision !== expected.rawSha256 || active.provenance !== jsonText(expected)) {
     throw new OpenApiContractError('OpenAPI provenance drift detected; run openapi:fetch and review the diff');
   }
   return { spec };
@@ -178,19 +223,19 @@ async function readAndValidateProvenance(snapshot, provenance) {
 export async function fetchSnapshot({
   backendCommit,
   backendRepository = 'ruoyi-vue-plus-namewta',
-  destination = defaultPaths.snapshot,
-  provenance = defaultPaths.provenance,
+  pointer = defaultPaths.pointer,
   runtimeEndpoint = '/v3/api-docs',
-  source
+  source,
+  store = defaultPaths.store
 }) {
   if (!source) throw new OpenApiContractError('fetch requires --source <url-or-file>');
   const bytes = await readSource(source);
   const spec = parseSource(bytes);
   const metadata = createProvenance(bytes, spec, { backendCommit, backendRepository, runtimeEndpoint });
-  await atomicWriteMany([
-    [destination, bytes],
-    [provenance, provenanceText(metadata)]
-  ]);
+  const revision = metadata.rawSha256;
+  await persistRevision(store, revision, bytes, metadata);
+  await mkdir(dirname(pointer), { recursive: true });
+  await atomicWrite(pointer, jsonText({ revision }));
   return summarize(bytes, spec);
 }
 
@@ -202,27 +247,27 @@ async function generateContractsFromSpec(spec) {
   }
 }
 
-export async function generateContractsText(snapshot = defaultPaths.snapshot, provenance = defaultPaths.provenance) {
-  const { spec } = await readAndValidateProvenance(snapshot, provenance);
+export async function generateContractsText({ pointer = defaultPaths.pointer, store = defaultPaths.store } = {}) {
+  const { spec } = await readAndValidateActiveRevision(store, pointer);
   return generateContractsFromSpec(spec);
 }
 
 export async function generateContracts({
   output = defaultPaths.output,
-  provenance = defaultPaths.provenance,
-  snapshot = defaultPaths.snapshot
+  pointer = defaultPaths.pointer,
+  store = defaultPaths.store
 } = {}) {
-  const generated = await generateContractsText(snapshot, provenance);
+  const generated = await generateContractsText({ pointer, store });
   await atomicWrite(output, generated);
   return Object.freeze({ bytes: Buffer.byteLength(generated), sha256: sha256(generated) });
 }
 
 export async function checkContracts({
   output = defaultPaths.output,
-  provenance = defaultPaths.provenance,
-  snapshot = defaultPaths.snapshot
+  pointer = defaultPaths.pointer,
+  store = defaultPaths.store
 } = {}) {
-  const expected = await generateContractsText(snapshot, provenance);
+  const expected = await generateContractsText({ pointer, store });
   let current;
   try {
     current = await readFile(output, 'utf8');

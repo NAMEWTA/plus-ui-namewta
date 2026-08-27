@@ -4,33 +4,31 @@ import type { OperLogVO } from './types';
 export type OperationLogTransport = OpenApiSchema<'SysOperLogVo'>;
 
 export function projectOperationLogTransport(value: OperationLogTransport): OperLogVO {
-  const domainFields = value as unknown as Partial<OperLogVO>;
   return {
-    ...(value as unknown as OperLogVO),
-    operId: value.operId ?? '',
-    tenantId: domainFields.tenantId ?? '',
-    title: value.title ?? '',
+    browser: value.browser ?? '',
     businessType: value.businessType ?? 0,
     businessTypes: value.businessTypes,
-    method: value.method ?? '',
-    requestMethod: value.requestMethod ?? '',
-    operatorType: value.operatorType ?? 0,
-    operName: value.operName ?? '',
-    userId: value.userId ?? '',
+    clientKey: value.clientKey ?? '',
+    costTime: value.costTime ?? 0,
     deptId: value.deptId ?? '',
     deptName: value.deptName ?? '',
-    clientKey: value.clientKey ?? '',
     deviceType: value.deviceType ?? '',
-    browser: value.browser ?? '',
-    os: value.os ?? '',
-    operUrl: value.operUrl ?? '',
+    errorMsg: value.errorMsg ?? '',
+    jsonResult: value.jsonResult ?? '',
+    method: value.method ?? '',
+    operId: value.operId ?? '',
     operIp: value.operIp ?? '',
     operLocation: value.operLocation ?? '',
+    operatorType: value.operatorType ?? 0,
+    operName: value.operName ?? '',
     operParam: value.operParam ?? '',
-    jsonResult: value.jsonResult ?? '',
-    status: value.status ?? 0,
-    errorMsg: value.errorMsg ?? '',
     operTime: value.operTime ?? '',
-    costTime: value.costTime ?? 0
+    operUrl: value.operUrl ?? '',
+    os: value.os ?? '',
+    requestMethod: value.requestMethod ?? '',
+    status: value.status ?? 0,
+    tenantId: '',
+    title: value.title ?? '',
+    userId: value.userId ?? ''
   };
 }

@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { checkContracts, fetchSnapshot, generateContracts, OpenApiContractError } from '../src/index.mjs';
+import { checkContracts, fetchSnapshot, generateContracts, OpenApiContractError, sha256 } from '../src/index.mjs';
 
 const backendCommit = 'a98d6edcc591550221dd983e293d43e3aac36d23';
 const validSpec = paths =>
@@ -17,66 +17,98 @@ const validSpec = paths =>
 async function fixture(t) {
   const directory = await mkdtemp(join(tmpdir(), 'namewta-openapi-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
+  const store = join(directory, 'openapi');
+  return { directory, output: join(directory, 'openapi.ts'), pointer: join(store, 'current.json'), store };
+}
+
+const fetchFixture = (paths, source) => fetchSnapshot({ ...paths, backendCommit, source });
+
+async function activeRevision({ pointer, store }) {
+  const { revision } = JSON.parse(await readFile(pointer, 'utf8'));
+  const directory = join(store, 'revisions', revision);
   return {
     directory,
-    output: join(directory, 'openapi.ts'),
-    provenance: join(directory, 'provenance.json'),
-    snapshot: join(directory, 'source.json')
+    pointer: await readFile(pointer, 'utf8'),
+    provenance: await readFile(join(directory, 'provenance.json'), 'utf8'),
+    revision,
+    snapshot: await readFile(join(directory, 'source.json'), 'utf8')
   };
 }
 
-const fetchFixture = ({ provenance, snapshot }, source) =>
-  fetchSnapshot({ backendCommit, destination: snapshot, provenance, source });
-
-test('invalid and missing sources preserve the last-known-good snapshot and provenance', async t => {
+test('invalid and missing sources preserve the last-known-good active revision', async t => {
   const paths = await fixture(t);
   const baseline = join(paths.directory, 'baseline.json');
   const invalid = join(paths.directory, 'invalid.json');
   await writeFile(baseline, validSpec({}));
   await writeFile(invalid, '{"openapi":"2.0"}');
   await fetchFixture(paths, baseline);
-  const snapshotBefore = await readFile(paths.snapshot, 'utf8');
-  const provenanceBefore = await readFile(paths.provenance, 'utf8');
+  const before = await activeRevision(paths);
 
   await assert.rejects(fetchFixture(paths, invalid), OpenApiContractError);
   await assert.rejects(fetchFixture(paths, join(paths.directory, 'missing.json')), OpenApiContractError);
-  assert.equal(await readFile(paths.snapshot, 'utf8'), snapshotBefore);
-  assert.equal(await readFile(paths.provenance, 'utf8'), provenanceBefore);
+  assert.deepEqual(await activeRevision(paths), before);
 });
 
-test('valid fetch replaces snapshot and machine provenance after validation', async t => {
+test('valid fetch persists an immutable revision before atomically activating its pointer', async t => {
   const paths = await fixture(t);
   const source = join(paths.directory, 'next.json');
   await writeFile(source, validSpec({ '/ready': { get: { responses: { 200: { description: 'ok' } } } } }));
 
   const result = await fetchFixture(paths, source);
-  const provenance = JSON.parse(await readFile(paths.provenance, 'utf8'));
+  const active = await activeRevision(paths);
+  const provenance = JSON.parse(active.provenance);
   assert.equal(result.paths, 1);
-  assert.equal(await readFile(paths.snapshot, 'utf8'), await readFile(source, 'utf8'));
+  assert.equal(active.snapshot, await readFile(source, 'utf8'));
+  assert.equal(active.revision, result.sha256);
   assert.equal(provenance.backendCommit, backendCommit);
   assert.equal(provenance.generator, 'openapi-typescript@7.13.0');
   assert.deepEqual(provenance.totals, { paths: 1, schemas: 1, tags: 0 });
   assert.equal(provenance.rawSha256, result.sha256);
 });
 
-test('generation rejects stale provenance before checking generated output', async t => {
+test('an unactivated revision cannot change the last-known-good contract', async t => {
   const paths = await fixture(t);
-  const source = join(paths.directory, 'source-next.json');
+  const source = join(paths.directory, 'source.json');
   await writeFile(source, validSpec({}));
   await fetchFixture(paths, source);
   await generateContracts(paths);
-  await writeFile(paths.snapshot, validSpec({ '/drift': { get: { responses: { 200: { description: 'ok' } } } } }));
+  const pointerBefore = await readFile(paths.pointer, 'utf8');
+
+  const orphanBytes = Buffer.from(validSpec({ '/orphan': { get: { responses: { 200: { description: 'ok' } } } } }));
+  const orphan = sha256(orphanBytes);
+  const orphanDirectory = join(paths.store, 'revisions', orphan);
+  await mkdir(orphanDirectory, { recursive: true });
+  await writeFile(join(orphanDirectory, 'source.json'), orphanBytes);
+  await writeFile(join(orphanDirectory, 'provenance.json'), '{}\n');
+
+  await checkContracts(paths);
+  assert.equal(await readFile(paths.pointer, 'utf8'), pointerBefore);
+});
+
+test('generation rejects stale or invalid provenance in the active immutable revision', async t => {
+  const paths = await fixture(t);
+  const source = join(paths.directory, 'source.json');
+  const baseline = validSpec({});
+  await writeFile(source, baseline);
+  await fetchFixture(paths, source);
+  await generateContracts(paths);
+  const active = await activeRevision(paths);
+  await writeFile(
+    join(active.directory, 'source.json'),
+    validSpec({ '/drift': { get: { responses: { 200: { description: 'ok' } } } } })
+  );
 
   await assert.rejects(checkContracts(paths), /provenance drift detected/);
   await assert.rejects(generateContracts(paths), /provenance drift detected/);
 
-  await writeFile(paths.provenance, 'null\n');
-  await assert.rejects(checkContracts(paths), /provenance is missing or invalid/);
+  await writeFile(join(active.directory, 'source.json'), baseline);
+  await writeFile(join(active.directory, 'provenance.json'), 'null\n');
+  await assert.rejects(checkContracts(paths), /provenance is invalid/);
 });
 
 test('check detects source drift and manual generated-file edits without writing', async t => {
   const paths = await fixture(t);
-  const source = join(paths.directory, 'source-next.json');
+  const source = join(paths.directory, 'source.json');
   await writeFile(source, validSpec({}));
   await fetchFixture(paths, source);
   await generateContracts(paths);
@@ -94,13 +126,13 @@ test('check detects source drift and manual generated-file edits without writing
   await assert.rejects(checkContracts(paths), /contract drift detected/);
 });
 
-test('HTTP source errors redact credentials and query parameters', async () => {
-  const source = 'http://user:secret@127.0.0.1:1/contracts?token=sensitive#fragment';
+test('HTTP source errors redact credentials and query parameters for mixed-case schemes', async () => {
+  const source = 'HTTPS://user:secret@127.0.0.1:1/contracts?token=sensitive#fragment';
   await assert.rejects(
     fetchSnapshot({ backendCommit, source }),
     error =>
       error instanceof OpenApiContractError &&
-      error.message.includes('http://127.0.0.1:1/contracts') &&
+      error.message.includes('https://127.0.0.1:1/contracts') &&
       !error.message.includes('secret') &&
       !error.message.includes('token') &&
       !error.message.includes('sensitive')

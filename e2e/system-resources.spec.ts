@@ -52,6 +52,21 @@ async function installApi(page: Page, state: State, permissions: string[]) {
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/prod-api', '');
     const method = request.method();
+    if (path === '/auth/client/context') {
+      return json(route, {
+        code: 200,
+        data: {
+          clientEnabled: true,
+          registerEnabled: true,
+          passwordPolicy: {
+            minimumLength: 8,
+            maximumLength: 20,
+            requiredCharacterClasses: ['UPPERCASE', 'LOWERCASE', 'DIGIT', 'SPECIAL'],
+            allowedSpecialCharacters: '!@#'
+          }
+        }
+      });
+    }
     if (path === '/system/user/getInfo') {
       return json(route, {
         code: 200,

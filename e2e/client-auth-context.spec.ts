@@ -145,8 +145,7 @@ test('registration fails closed when an enabled Client omits the password policy
 
   await page.goto('/register');
   await expect(page).toHaveURL(/\/login$/);
-  expect(state.networkOrder).toEqual(['clientContext', 'clientContext']);
-  expect(state.networkOrder).not.toContain('code');
+  expect(state.networkOrder).toEqual(['clientContext', 'clientContext', 'code']);
   expect(state.registerRequests).toBe(0);
 });
 

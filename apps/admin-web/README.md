@@ -7,7 +7,7 @@
 ## 职责
 
 - 拥有 Admin 的 ClientContext、启动流程、布局、品牌、主题、路由与 Store 适配、浏览器插件和部署配置。
-- 显式组合 admin、system、workflow、demo、ai、gen；监控能力并入 system。
+- 显式组合 admin、system、workflow、demo、ai；监控能力并入 system。运行时代码生成器及其 `gen` domain/web-domain 不属于当前应用。
 - 将后端菜单组件键解析为所选 Web 领域的页面，并保留少量 App 自有静态页面。
 
 ## 边界
@@ -25,7 +25,7 @@
 
 ## 后端映射
 
-通过领域合同访问 `ruoyi-admin`、`ruoyi-system`、`ruoyi-workflow`、`ruoyi-ai`、`ruoyi-demo`、`ruoyi-gen`、`ruoyi-job`。
+通过领域合同访问 `ruoyi-admin`、`ruoyi-system`、`ruoyi-workflow`、`ruoyi-ai`、`ruoyi-demo`、`ruoyi-job`；后端运行时代码生成器已删除。
 
 页面、Store 与宿主组件按需使用 `src/application/services.ts` 中的正式服务；共享请求、数据模型和业务能力归 domain，共享 Web 页面归 web-domain，布局、导航和会话恢复等应用编排仍归本 App。
 

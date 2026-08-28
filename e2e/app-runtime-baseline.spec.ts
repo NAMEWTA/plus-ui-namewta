@@ -16,7 +16,9 @@ type BaselineApiState = {
   loginRequests: number;
   logoutRequests: number;
   messageBoxCode?: number;
+  menuComponent: string;
   networkOrder: string[];
+  permissions: string[];
   registerRequests: number;
   unknownRequests: string[];
 };
@@ -32,7 +34,9 @@ const createApiState = (overrides: Partial<BaselineApiState> = {}): BaselineApiS
   loginPostData: '',
   loginRequests: 0,
   logoutRequests: 0,
+  menuComponent: 'demo/demo/index',
   networkOrder: [],
+  permissions: ['demo:demo:list'],
   registerRequests: 0,
   unknownRequests: [],
   ...overrides
@@ -87,7 +91,7 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
         data: {
           user: { userId: 1, userName: 'baseline-user', nickName: 'Baseline User', avatarUrl: '' },
           roles: ['baseline-role'],
-          permissions: ['baseline:route:view']
+          permissions: state.permissions
         }
       });
     }
@@ -108,7 +112,7 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
               {
                 path: 'route',
                 name: 'BaselineRoute',
-                component: 'index',
+                component: state.menuComponent,
                 meta: { title: '迁移基线路由', icon: 'dashboard', noCache: false }
               }
             ]
@@ -161,7 +165,7 @@ test('client context missing a required field keeps authentication fail-closed',
   await expectAuthenticationRequestsBlocked(page, state);
 });
 
-test('login restores the redirected server-filtered dynamic route without a backend', async ({ page }) => {
+test('login restores the selected manifest route without re-filtering the server menu', async ({ page }) => {
   const state = createApiState();
   await installBaselineApi(page, state);
 
@@ -170,8 +174,10 @@ test('login restores the redirected server-filtered dynamic route without a back
   await page.locator('.submit-button').click();
 
   await expect(page).toHaveURL(/\/baseline\/route$/);
-  await expect(page.getByRole('heading', { name: 'RuoYi-Vue-Plus 控制台' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '测试单列表' })).toBeVisible();
   await expect(page.getByLabel('面包屑').getByText('迁移基线路由', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '新增' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '修改' })).toHaveCount(0);
 
   expect(state.networkOrder).toEqual(['login', 'getInfo', 'getRouters']);
   expect(state.loginRequests).toBe(1);
@@ -182,6 +188,25 @@ test('login restores the redirected server-filtered dynamic route without a back
   expect(state.loginPostData).not.toBe('');
   expect(state.loginPostData).not.toContain(productionClientId);
   expect(state.loginPostData).not.toContain('clientId');
+  expect(state.unknownRequests).toEqual([]);
+});
+
+test('unknown server component fails closed with stable manifest diagnostics', async ({ page }) => {
+  const state = createApiState({ menuComponent: 'unselected/report/index' });
+  await installBaselineApi(page, state);
+
+  await page.goto('/login?redirect=%2Fbaseline%2Froute');
+  await expect(page.locator('.submit-button')).toBeEnabled();
+  await page.locator('.submit-button').click();
+
+  await expect(page).toHaveURL(/\/baseline\/route$/);
+  await expect(page.getByTestId('manifest-route-diagnostic')).toContainText(
+    '页面组件不可用 [missing-component-key] app=admin-web domain=unselected key=unselected/report/index'
+  );
+  await expect(page.getByRole('heading', { name: '测试单列表' })).toHaveCount(0);
+  expect(state.networkOrder).toEqual(['login', 'getInfo', 'getRouters']);
+  expect(state.getInfoRequests).toBe(1);
+  expect(state.getRoutersRequests).toBe(1);
   expect(state.unknownRequests).toEqual([]);
 });
 

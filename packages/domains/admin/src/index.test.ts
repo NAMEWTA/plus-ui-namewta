@@ -174,12 +174,14 @@ describe('identity access domain', () => {
   });
 
   it('creates an explicit per-App and per-client token namespace', () => {
-    expect(createClientSessionKey('client-web', ' client-proof ')).toBe('namewta:client-web:client-proof:access-token');
-    expect(createClientSessionKey('client-web', 'client/with space')).toBe(
-      'namewta:client-web:client%2Fwith%20space:access-token'
+    expect(createClientSessionKey('fixture-web', ' fixture-proof ')).toBe(
+      'namewta:fixture-web:fixture-proof:access-token'
+    );
+    expect(createClientSessionKey('fixture-web', 'client/with space')).toBe(
+      'namewta:fixture-web:client%2Fwith%20space:access-token'
     );
     expect(() => createClientSessionKey('', 'client-proof')).toThrow('App id is required');
-    expect(createClientSessionKey('client-web', 'client-proof')).not.toBe('Admin-Token');
+    expect(createClientSessionKey('fixture-web', 'fixture-proof')).not.toBe('Admin-Token');
   });
 
   it('owns registration, identity, menu, logout, and OAuth use cases behind ClientContext', async () => {

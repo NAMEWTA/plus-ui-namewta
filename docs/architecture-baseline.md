@@ -24,7 +24,7 @@ platform ports ← adapters / web-kit 提供终端实现
 ## 认证不变量
 
 - 登录前必须先获取 `/auth/client/context`；`clientEnabled`、`registerEnabled` 只接受精确布尔值，缺失、畸形或请求失败均关闭后续认证动作。
-- 每个 App 必须使用显式 ClientId、独立环境变量与会话命名空间，不存在隐式默认 Client。
+- 每个已激活 App 必须使用显式 ClientId、独立环境变量与会话命名空间，不存在隐式默认 Client。
 - 请求加密、Client 请求头、验证码、登录、注册和社交登录能力必须服从服务端 ClientContext。
 - 登出和登录态失效必须清理当前 App 的会话，并防止跨 App 会话串用。
 
@@ -41,8 +41,8 @@ platform ports ← adapters / web-kit 提供终端实现
 - `domains/*` 保持无界面、无 DOM、无浏览器实现；`web-domains/*` 不拥有 App 布局和全局单例。
 - 所有工作区内部依赖必须显式声明并从公开 `exports` 导入。
 - 产品源码必须位于明确的 App、domain、web-domain、platform、adapter、web-kit 或 tooling 所有权目录。
-- 移动 Web、小程序与 Taro 适配器在独立规格激活前保持 README-only。
+- Client Web、移动 Web、小程序与 Taro 适配器在独立规格激活前保持 README-only。
 
 ## 验证基线
 
-根级 `architecture:check`、`architecture:test`、lint、typecheck、test、开发构建和生产构建必须通过。OpenAPI 快照变化还必须通过 `openapi:check`。涉及真实登录、菜单、权限或双 App 隔离时，增加对应 Playwright 浏览器验收。
+根级 `architecture:check`、`architecture:test`、lint、typecheck、test、开发构建和生产构建必须通过。OpenAPI 快照变化还必须通过 `openapi:check`。涉及真实登录、菜单或权限时，增加对应 Playwright 浏览器验收；激活第二个 App 时恢复跨 App Client 与会话隔离验收。

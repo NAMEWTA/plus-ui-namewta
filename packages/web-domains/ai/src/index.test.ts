@@ -1,8 +1,8 @@
 import { aiDomainModule } from '@namewta/domain-ai';
 import { composeAppRuntime } from '@namewta/platform-app-runtime';
 import { describe, expect, it, vi } from 'vitest';
-import { createAiWebDomain } from './index';
 import type { AiWebRuntime } from './runtime';
+import { createAiWebDomain } from './index';
 
 const runtime = (): AiWebRuntime => ({
   baseUrl: () => '/prod-api',
@@ -34,7 +34,7 @@ describe('AI web-domain manifest', () => {
       selectedManifestIds: ['web-domain-ai']
     });
     const unselected = composeAppRuntime({
-      appId: 'client-web',
+      appId: 'fixture-web',
       domainModules: [],
       manifests: [manifest],
       selectedDomainIds: [],

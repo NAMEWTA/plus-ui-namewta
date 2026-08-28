@@ -1,10 +1,7 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
 const adminUrl = process.env.ADMIN_WEB_URL ?? 'http://127.0.0.1:4173';
-const clientUrl = process.env.CLIENT_WEB_URL ?? 'http://127.0.0.1:4174';
 const adminClientId = 'e5cd7e4891bf95d1d19206ce24a7b32e';
-const clientId = 'client-web-proof';
-const clientTokenKey = `namewta:client-web:${clientId}:access-token`;
 
 type AdminState = {
   context: unknown;
@@ -161,51 +158,4 @@ test('a protected 401 presents one recovery and performs one logout', async ({ p
 
   expect(state.logoutRequests).toBe(1);
   await expect(page.getByRole('dialog', { name: '系统提示' })).toHaveCount(0);
-});
-
-test('admin-web and client-web keep Client headers and session namespaces isolated', async ({ browser }) => {
-  const context = await browser.newContext();
-  const adminPage = await context.newPage();
-  const clientPage = await context.newPage();
-  const state = adminState();
-  let clientHeader = '';
-  let clientBody: Record<string, unknown> = {};
-  await installAdminApi(adminPage, state);
-  await clientPage.route('**/prod-api/**', route => {
-    const request = route.request();
-    const path = new URL(request.url()).pathname.replace('/prod-api', '');
-    if (path === '/auth/client/context') {
-      return fulfillJson(route, { code: 200, data: { clientEnabled: true, registerEnabled: false } });
-    }
-    if (path === '/auth/code') return fulfillJson(route, { code: 200, data: { captchaEnabled: false } });
-    if (path === '/auth/login') {
-      clientHeader = request.headers()['clientid'] ?? '';
-      clientBody = request.postDataJSON() as Record<string, unknown>;
-      return fulfillJson(route, { code: 200, data: { access_token: 'client-proof-token' } });
-    }
-    if (path === '/demo/demo/list') return fulfillJson(route, { code: 200, data: { rows: [], total: 1 } });
-    return fulfillJson(route, { code: 200, data: null });
-  });
-
-  await Promise.all([adminPage.goto(`${adminUrl}/login`), clientPage.goto(`${clientUrl}/login`)]);
-  await expect(adminPage.locator('.submit-button')).toBeEnabled();
-  await expect(clientPage.getByRole('button', { name: '登录', exact: true })).toBeEnabled();
-  await clientPage.getByLabel('用户名').fill('client-user');
-  await clientPage.getByLabel('密码').fill('client-password');
-  await Promise.all([
-    adminPage.locator('.submit-button').click(),
-    clientPage.getByRole('button', { name: '登录', exact: true }).click()
-  ]);
-
-  await expect(adminPage).toHaveURL(`${adminUrl}/index`);
-  await expect(clientPage).toHaveURL(`${clientUrl}/demo`);
-  await expect(clientPage.getByRole('heading', { name: '测试单列表' })).toBeVisible();
-  expect(state.loginClientId).toBe(adminClientId);
-  expect(clientHeader).toBe(clientId);
-  expect(clientBody.clientId).toBe(clientId);
-  expect(await adminPage.evaluate(() => localStorage.getItem('Admin-Token'))).toBe('admin-proof-token');
-  expect(await adminPage.evaluate(key => sessionStorage.getItem(key), clientTokenKey)).toBeNull();
-  expect(await clientPage.evaluate(key => sessionStorage.getItem(key), clientTokenKey)).toBe('client-proof-token');
-  expect(await clientPage.evaluate(() => localStorage.getItem('Admin-Token'))).toBeNull();
-  await context.close();
 });

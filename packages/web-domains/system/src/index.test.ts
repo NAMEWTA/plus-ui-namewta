@@ -58,7 +58,7 @@ describe('system web manifest', () => {
     });
     expect(admin.componentKeys()).toContain('system/user/index');
     const client = composeAppRuntime({
-      appId: 'client-web',
+      appId: 'fixture-web',
       domainModules: [],
       manifests: [manifest],
       selectedDomainIds: [],

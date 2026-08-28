@@ -2,8 +2,8 @@
 
 ## 当前状态
 
-- `admin-web`、`client-web` 是已激活、可独立构建和部署的浏览器 App。
-- `mobile-web`、`miniapp-taro` 是仅含 README 的未来终端占位，不属于工作区包。
+- `admin-web` 是当前唯一已激活、可构建和部署的浏览器 App。
+- `client-web`、`mobile-web`、`miniapp-taro` 是仅含 README 的未来终端占位，不属于工作区包。
 
 ## 目录职责
 

@@ -38,8 +38,7 @@ tooling       -> 不进入产品运行时
 ## 当前组合
 
 - `admin-web`：选择 admin、system、workflow、demo、ai、gen；监控能力属于 system。
-- `client-web`：选择 admin、system、demo 的 headless domain，只注册 admin、demo 的 Web manifest。
-- `mobile-web`、`miniapp-taro`：仅占位，尚未进入工作区。
+- `client-web`、`mobile-web`、`miniapp-taro`：仅占位，尚未进入工作区。
 - `taro-request`、`taro-storage`：仅占位，尚无依赖和实现。
 
-Admin 的组合入口是 `apps/admin-web/src/router/adminManifestRegistry.ts`，Client 的组合入口是 `apps/client-web/src/composition.ts`。
+当前唯一 App 组合入口是 `apps/admin-web/src/router/adminManifestRegistry.ts`。未来终端激活时必须创建自己的显式组合入口，不得继承 Admin 全量能力或恢复已删除的 Client 实现。

@@ -1,7 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
 const adminUrl = process.env.ADMIN_WEB_URL ?? 'http://127.0.0.1:4173';
-const clientUrl = process.env.CLIENT_WEB_URL ?? 'http://127.0.0.1:4174';
 const json = (route: Route, body: unknown) =>
   route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
 const menus = [
@@ -433,10 +432,4 @@ test('import table ignores a stale empty-source response after resolving the def
   await expect(importDialog.getByText('candidate_table', { exact: true })).toBeVisible();
   await expect(importDialog.getByText('stale_table', { exact: true })).toHaveCount(0);
   expect(state.unknown).toEqual([]);
-});
-
-test('client-web keeps devtools unselected', async ({ page }) => {
-  await page.goto(`${clientUrl}/diagnostic?domain=devtools&key=tool%2Fgen%2Findex`);
-  await expect(page.getByRole('heading', { name: '当前 App 未选择该能力' })).toBeVisible();
-  await expect(page.getByRole('alert')).toContainText('app=client-web domain=devtools key=tool/gen/index');
 });

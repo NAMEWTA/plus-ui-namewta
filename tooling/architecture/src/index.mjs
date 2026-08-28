@@ -71,6 +71,7 @@ const sharedCatalogPackages = [
 ];
 const catalogReferenceExceptions = new Map([['@namewta/tooling-openapi\0devDependencies\0typescript', '5.9.3']]);
 const inactivePlaceholders = [
+  'apps/client-web',
   'apps/mobile-web',
   'apps/miniapp-taro',
   'packages/adapters/taro-request',

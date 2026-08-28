@@ -1,7 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
 const adminUrl = process.env.ADMIN_WEB_URL ?? 'http://127.0.0.1:4173';
-const clientUrl = process.env.CLIENT_WEB_URL ?? 'http://127.0.0.1:4174';
 const expectUnsafeConfiguredUrl = process.env.OPERATIONS_EXPECT_UNSAFE_URL === '1';
 const json = (route: Route, body: unknown) =>
   route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
@@ -146,7 +145,7 @@ test('admin selects operations, queries a real monitor seam and enforces the con
   expect(state.unknown).toEqual([]);
 });
 
-test('permission denial renders no external frame and client keeps operations unselected', async ({ page }) => {
+test('permission denial renders no external frame', async ({ page }) => {
   const state = createState();
   await installApi(page, [], state);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'operations-denied'));
@@ -154,10 +153,6 @@ test('permission denial renders no external frame and client keeps operations un
   await expect(page.getByRole('alert')).toContainText('无权访问运维入口');
   await expect(page.locator('iframe')).toHaveCount(0);
   expect(state.unknown).toEqual([]);
-
-  await page.goto(`${clientUrl}/diagnostic?domain=operations&key=monitor%2Fonline%2Findex`);
-  await expect(page.getByRole('heading', { name: '当前 App 未选择该能力' })).toBeVisible();
-  await expect(page.getByRole('alert')).toContainText('app=client-web domain=operations key=monitor/online/index');
 });
 
 test('unsafe and failed attachment authorization stays visible and creates no download intent', async ({ page }) => {

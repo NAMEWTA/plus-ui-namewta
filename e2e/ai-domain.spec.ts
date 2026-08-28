@@ -1,7 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
 const adminUrl = process.env.ADMIN_WEB_URL ?? 'http://127.0.0.1:4173';
-const clientUrl = process.env.CLIENT_WEB_URL ?? 'http://127.0.0.1:4174';
 const adminClientId = 'e5cd7e4891bf95d1d19206ce24a7b32e';
 
 type AiProofState = {
@@ -183,12 +182,4 @@ test('failed and hanging probes keep the sensitive URL private and remain retrya
   const retrySource = await retryFrame.getAttribute('src');
   expect(new URL(retrySource!, page.url()).searchParams.has('trustedCredential')).toBe(true);
   expect(state.unknownRequests).toEqual([]);
-});
-
-test('client-web visibly diagnoses the unselected AI capability', async ({ page }) => {
-  await page.goto(`${clientUrl}/diagnostic?domain=ai&key=ai%2Fchat%2Findex`);
-
-  await expect(page.getByRole('heading', { name: '当前 App 未选择该能力' })).toBeVisible();
-  await expect(page.getByRole('alert')).toContainText('[missing-component-key]');
-  await expect(page.getByRole('alert')).toContainText('app=client-web domain=ai key=ai/chat/index');
 });

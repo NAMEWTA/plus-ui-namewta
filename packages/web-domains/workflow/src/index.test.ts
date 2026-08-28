@@ -78,7 +78,7 @@ describe('workflow web-domain manifest', () => {
       'workflow/task/taskWaiting'
     ]);
     const unselected = composeAppRuntime({
-      appId: 'client-web',
+      appId: 'fixture-web',
       domainModules: [],
       manifests: [manifest],
       selectedDomainIds: [],

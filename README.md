@@ -8,14 +8,14 @@
 
 | 增强方向 | 当前实现 | 带来的变化 |
 |---|---|---|
-| 多 App 交付 | `apps/admin-web` 与 `apps/client-web` 可独立构建、部署，移动 Web 和小程序保留规范化占位 | 同一后端可服务多个具有独立 Client、品牌、布局和会话的前端产品 |
+| 多 App 交付 | `admin-web` 是当前激活产品；Client Web、移动 Web 和小程序保留 README-only 规划入口 | 新终端可在规格明确后接入同一领域架构，不需要复制 Admin 源码 |
 | 领域复用 | 无界面 API、类型和业务服务进入 `packages/domains/*`，Vue 页面进入 `packages/web-domains/*` | 新 App 直接组合已有能力，不重新创建后端接口和数据模型 |
 | 前后端映射 | domain 名与后端 `admin/system/workflow/demo/gen/ai` 模块一致，资源目录与 Controller base path 一致 | 可从 Java Controller 或 URL 快速定位前端 API、类型和页面 |
 | 通用平台能力 | 认证、权限、HTTP 和运行时进入 `platform`，Axios、存储和加密进入 `adapters`，Web 壳层进入 `web-kit` | 动态路由、权限、字典、OSS、加密等能力可复用，同时允许不同终端替换实现 |
 | Client 安全 | App 使用显式 ClientId、独立会话命名空间和服务端 ClientContext；认证与路由失败关闭 | 避免不同 App 之间的 Token、菜单和权限串用 |
 | 动态菜单 | App 只注册已选择 web-domain manifest 中的页面，未知或未选择的组件键拒绝解析 | 后端菜单仍动态驱动界面，但不能越过 App 的编译期能力边界 |
 | API 合同 | OpenAPI 传输合同确定性生成并检查漂移，domain 在边界处映射自己的领域模型 | 自动生成类型可追溯，又不会把页面直接绑定到生成器内部结构 |
-| 工程门禁 | 架构检查、Oxlint、Oxfmt、TypeScript、Vitest、双 App build 和 Playwright | 依赖方向、公开导出和关键登录/权限流程可以持续验证 |
+| 工程门禁 | 架构检查、Oxlint、Oxfmt、TypeScript、Vitest、工作区 build 和 Playwright | 依赖方向、公开导出和关键登录/权限流程可以持续验证 |
 
 ## 技术栈
 
@@ -37,7 +37,7 @@ packages/api-contracts/  OpenAPI 生成的传输合同
 tooling/                 架构、OpenAPI 与未来脚手架工具
 ```
 
-当前已激活 `admin-web` 与 `client-web`。移动 Web、小程序和 Taro 适配器仅保留中文 README 占位，在独立规格确定技术栈、Client、安全和部署合同前不会成为工作区包。
+当前仅激活 `admin-web`。`client-web`、移动 Web、小程序和 Taro 适配器仅保留中文 README 占位，在独立规格确定技术栈、Client、安全和部署合同前不会成为工作区包。
 
 六个 headless domains 与后端模块一一对应：admin、system、workflow、demo、ai、gen。每个 App 只显式组合需要的 domain/web-domain，可以独立定制布局、样式和 CSS。
 
@@ -80,7 +80,7 @@ pnpm build:dev
 pnpm build:prod
 ```
 
-需要只验证单个包时使用 `pnpm --filter <package-name> <script>`。涉及登录、动态菜单、权限或双 App 隔离的变化还应运行对应 Playwright 流程。
+需要只验证单个包时使用 `pnpm --filter <package-name> <script>`。涉及登录、动态菜单或权限的变化还应运行对应 Playwright 流程；重新激活第二个 App 时必须恢复跨 App Client 与会话隔离验收。
 
 ## 维护规则
 

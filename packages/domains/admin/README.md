@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-`@namewta/domain-admin` 已激活，供 Admin 与 Client Web 共同使用。
+`@namewta/domain-admin` 已激活，当前由 Admin 使用，并作为未来终端可组合的认证与入口领域。
 
 ## 职责
 

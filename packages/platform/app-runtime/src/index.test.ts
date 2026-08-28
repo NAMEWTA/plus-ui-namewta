@@ -238,7 +238,7 @@ describe('app runtime manifest registry', () => {
 
   it('reports a stable missing component diagnostic with app, domain, and key', () => {
     const runtime = composeAppRuntime({
-      appId: 'client-web',
+      appId: 'fixture-web',
       domainModules: [domain('demo')],
       manifests: [manifest('web-domain-demo', 'demo')],
       selectedDomainIds: ['demo'],
@@ -248,7 +248,7 @@ describe('app runtime manifest registry', () => {
     expect(() => runtime.resolve({ componentKey: 'demo/missing/index', domainId: 'demo' })).toThrowError(
       expect.objectContaining({
         code: 'missing-component-key',
-        appId: 'client-web',
+        appId: 'fixture-web',
         domainId: 'demo',
         componentKey: 'demo/missing/index'
       })
@@ -258,7 +258,7 @@ describe('app runtime manifest registry', () => {
   it('rejects selected web domains whose headless domain is unselected', () => {
     expect(() =>
       composeAppRuntime({
-        appId: 'client-web',
+        appId: 'fixture-web',
         domainModules: [domain('demo')],
         manifests: [manifest('web-domain-demo', 'demo')],
         selectedDomainIds: [],
@@ -267,7 +267,7 @@ describe('app runtime manifest registry', () => {
     ).toThrowError(
       expect.objectContaining({
         code: 'unselected-domain',
-        appId: 'client-web',
+        appId: 'fixture-web',
         domainId: 'demo',
         componentKey: '*'
       })

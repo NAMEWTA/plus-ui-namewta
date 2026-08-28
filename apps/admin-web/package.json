@@ -45,6 +45,7 @@
     "@namewta/web-domain-gen": "workspace:*",
     "@namewta/web-domain-system": "workspace:*",
     "@namewta/web-domain-workflow": "workspace:*",
+    "@namewta/web-kit-permission": "workspace:*",
     "@vueuse/core": "14.3.0",
     "@wangeditor-next/editor": "5.7.16",
     "@wangeditor-next/editor-for-vue": "5.1.14",

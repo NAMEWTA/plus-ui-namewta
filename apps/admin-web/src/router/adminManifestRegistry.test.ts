@@ -12,7 +12,6 @@ vi.mock('@/application/services', () => {
   return {
     aiService: createService(),
     demoService: createService(),
-    genService: createService(),
     identityAccessService: new Proxy(createService(), {
       get: (target, property) => (property === 'getClientContext' ? getClientContext : Reflect.get(target, property))
     }),
@@ -54,8 +53,8 @@ describe('admin selected manifest registry', () => {
       componentName: 'IdentityLogin'
     });
     expect(resolveAdminWebRegistration('demo/demo/index', 'demo')).toMatchObject({ componentName: 'Demo' });
-    expect(resolveAdminWebRegistration('tool/gen/index', 'gen')).toMatchObject({ componentName: 'Gen' });
-    expect(resolveAdminWebRegistration('tool/gen-edit/index', 'gen')).toMatchObject({ componentName: 'GenEdit' });
+    expect(resolveAdminWebRegistration('tool/gen/index', 'gen')).toBeUndefined();
+    expect(resolveAdminWebRegistration('tool/gen-edit/index', 'gen')).toBeUndefined();
     expect(resolveAdminWebRegistration('tool/openapi/index', 'gen')).toBeUndefined();
     expect(resolveAdminWebRegistration('workflow/category/index', 'workflow')).toMatchObject({
       componentName: 'Category'

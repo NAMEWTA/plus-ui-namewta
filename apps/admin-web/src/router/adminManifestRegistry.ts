@@ -1,7 +1,6 @@
 import { adminDomainModule, requirePasswordPolicy, validatePassword } from '@namewta/domain-admin';
 import { aiDomainModule } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
-import { genDomainModule } from '@namewta/domain-gen';
 import { systemDomainModule } from '@namewta/domain-system';
 import { workflowDomainModule } from '@namewta/domain-workflow';
 import {
@@ -13,7 +12,6 @@ import {
 import { createAdminWebDomain } from '@namewta/web-domain-admin';
 import { createAiWebDomain, type AiWebRuntime } from '@namewta/web-domain-ai';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
-import { createGenWebDomain, type GenWebRuntime } from '@namewta/web-domain-gen';
 import { createLiveMonitorDictRefs, createMonitorWebDomain, type MonitorWebRuntime } from '@namewta/web-domain-system';
 import { createLiveSystemDictRefs, createSystemWebDomain, type SystemWebRuntime } from '@namewta/web-domain-system';
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
@@ -23,7 +21,6 @@ import { createAdminAccessEvaluator } from '@/application/access';
 import {
   aiService,
   demoService,
-  genService,
   identityAccessService,
   monitorService,
   systemService,
@@ -257,36 +254,11 @@ const adminExternalMonitorManifest: WebDomainManifest<Component> = Object.freeze
   )
 });
 
-export const adminGenWebRuntime: GenWebRuntime = {
-  service: genService,
-  clientId: () => import.meta.env.VITE_APP_CLIENT_ID,
-  confirm: async message => {
-    const { default: modal } = await import('@/application/host/feedback');
-    await modal.confirm(message);
-  },
-  success: message => {
-    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgSuccess(message));
-  },
-  error: message => {
-    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgError(message));
-  },
-  navigate: async location => {
-    const { default: appRouter } = await import('@/router');
-    await appRouter.push(location);
-  },
-  closeAndOpenPage: location =>
-    import('@/application/host/navigation').then(({ default: tab }) => tab.closeOpenPage(location)),
-  downloadZip: (url, fileName) =>
-    import('@/application/host/download').then(({ default: download }) => download.zip(url, fileName))
-};
-const genManifest = createGenWebDomain(adminGenWebRuntime);
-
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
   domainModules: [
     adminDomainModule,
     demoDomainModule,
-    genDomainModule,
     workflowDomainModule,
     systemDomainModule,
     aiDomainModule
@@ -299,18 +271,16 @@ const runtime = composeAppRuntime<Component>({
       }
     }),
     createDemoWebDomain(demoRuntime),
-    genManifest,
     workflowManifest,
     systemManifest,
     aiManifest,
     monitorManifest,
     adminExternalMonitorManifest
   ],
-  selectedDomainIds: ['admin', 'demo', 'gen', 'workflow', 'system', 'ai'],
+  selectedDomainIds: ['admin', 'demo', 'workflow', 'system', 'ai'],
   selectedManifestIds: [
     'web-domain-admin',
     'web-domain-demo',
-    'web-domain-gen',
     'web-domain-workflow',
     'web-domain-system',
     'web-domain-ai',

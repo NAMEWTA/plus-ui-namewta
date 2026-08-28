@@ -91,7 +91,7 @@ const products = [
 const capabilityGroups = [
   {
     title: '后端基建',
-    items: ['Spring Boot / Spring Cloud', 'Sa-Token 认证与权限', 'MySQL / Redis', '代码生成器']
+    items: ['Spring Boot / Spring Cloud', 'Sa-Token 认证与权限', 'MySQL / Redis']
   },
   {
     title: '平台能力',

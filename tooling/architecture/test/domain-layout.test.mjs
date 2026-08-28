@@ -5,13 +5,12 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const workspaceRoot = join(dirname(fileURLToPath(import.meta.url)), '../../..');
-const canonicalDomains = ['admin', 'ai', 'demo', 'gen', 'system', 'workflow'];
-const removedDomains = ['identity-access', 'system-admin', 'devtools', 'operations'];
+const canonicalDomains = ['admin', 'ai', 'demo', 'system', 'workflow'];
+const removedDomains = ['identity-access', 'system-admin', 'devtools', 'operations', 'gen'];
 const backendModules = {
   admin: 'ruoyi-admin',
   ai: 'ruoyi-ai',
   demo: 'ruoyi-demo',
-  gen: 'ruoyi-gen',
   system: 'ruoyi-system',
   workflow: 'ruoyi-workflow'
 };
@@ -27,9 +26,6 @@ const domainResources = {
   demo: {
     'test-demo': ['TestDemoController', '/demo/demo'],
     'test-tree': ['TestTreeController', '/demo/tree']
-  },
-  gen: {
-    generator: ['GenController', '/tool/gen']
   },
   system: {
     client: ['SysClientController', '/system/client'],
@@ -69,7 +65,6 @@ const webResources = {
   admin: ['auth'],
   ai: ['snail-ai'],
   demo: ['test-demo', 'test-tree'],
-  gen: ['generator'],
   system: [
     'client',
     'config',

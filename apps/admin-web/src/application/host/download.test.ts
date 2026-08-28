@@ -149,7 +149,7 @@ describe('ZIP download safety', () => {
   ])('rejects %s without saving a corrupt file', async (_label, payload) => {
     harness.axios.mockResolvedValue({ data: payload });
 
-    await download.zip('/tool/gen/batchGenCode?tableIdStr=1', 'ruoyi.zip');
+    await download.zip('/downloads/archive.zip', 'archive.zip');
 
     expect(harness.saveBlob).not.toHaveBeenCalled();
     expect(harness.error).toHaveBeenCalledTimes(1);
@@ -164,9 +164,9 @@ describe('ZIP download safety', () => {
     const payload = new Blob([singleEntryZip()]);
     harness.axios.mockResolvedValue({ data: payload });
 
-    await download.zip('/tool/gen/batchGenCode?tableIdStr=1', 'ruoyi.zip');
+    await download.zip('/downloads/archive.zip', 'archive.zip');
 
-    expect(harness.saveBlob).toHaveBeenCalledWith(expect.any(Blob), 'ruoyi.zip');
+    expect(harness.saveBlob).toHaveBeenCalledWith(expect.any(Blob), 'archive.zip');
     expect(harness.error).not.toHaveBeenCalled();
     expect(harness.close).toHaveBeenCalledTimes(1);
   });
@@ -175,7 +175,7 @@ describe('ZIP download safety', () => {
     harness.axios.mockRejectedValue(new Error('transport-secret'));
     harness.extractErrorMessage.mockResolvedValue('<script>alert(1)</script> connection\u0000 failed');
 
-    await download.zip('/tool/gen/batchGenCode?tableIdStr=1', 'ruoyi.zip');
+    await download.zip('/downloads/archive.zip', 'archive.zip');
 
     expect(harness.saveBlob).not.toHaveBeenCalled();
     expect(harness.error).toHaveBeenCalledWith('alert(1) connection failed');

@@ -1,10 +1,7 @@
 import { createIdentityAccessService } from '@namewta/domain-admin';
 import { createAiService } from '@namewta/domain-ai';
 import { createDemoService } from '@namewta/domain-demo';
-import { createGenService } from '@namewta/domain-gen';
 import { createSystemService } from '@namewta/domain-system';
-import { createDictTypeCatalogPort } from '@namewta/domain-system/dict-type';
-import { createMenuQueryPort } from '@namewta/domain-system/menu';
 import { createMonitorService } from '@namewta/domain-system/monitor';
 import { createWorkflowDefinitionService } from '@namewta/domain-workflow';
 import { adminHttp } from './http';
@@ -31,7 +28,3 @@ export const workflowService = createWorkflowDefinitionService(domainHttp);
 export const demoService = createDemoService(domainHttp);
 export const monitorService = createMonitorService(domainHttp);
 export const aiService = createAiService(domainHttp);
-export const genService = createGenService(domainHttp, {
-  dictTypes: createDictTypeCatalogPort(domainHttp),
-  menus: createMenuQueryPort(domainHttp)
-});

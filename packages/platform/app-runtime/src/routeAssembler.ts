@@ -28,6 +28,16 @@ export interface AssembleServerRoutesOptions<Component> {
   specialComponents?: Readonly<Record<string, Component>>;
 }
 
+export interface ProjectServerRoutesOptions<Component> extends AssembleServerRoutesOptions<Component> {
+  flattenParentView?: boolean;
+  parentViewComponentKey?: string;
+}
+
+export interface DuplicateRouteNameDiagnostic {
+  code: 'duplicate-route-name';
+  routeName: string;
+}
+
 export function inferDomainId(componentKey: string): string {
   const [domainId] = componentKey.split('/').filter(Boolean);
   return domainId || 'unknown';
@@ -42,7 +52,7 @@ export function assembleServerRoutes<Component>({
 }: AssembleServerRoutesOptions<Component>): ServerRouteNode<Component>[] {
   return routes.map(route => {
     const assembled: ServerRouteNode<Component> = { ...route };
-    if (route.children) {
+    if (Array.isArray(route.children)) {
       assembled.children = assembleServerRoutes({
         appId,
         createDiagnostic,
@@ -73,4 +83,82 @@ export function assembleServerRoutes<Component>({
       });
     return assembled;
   });
+}
+
+function joinRoutePath(parentPath: string, childPath: string): string {
+  return `${parentPath.replace(/\/$/, '')}/${childPath.replace(/^\//, '')}`;
+}
+
+function normalizeProjection<Component>(
+  routes: readonly ServerRouteNode<Component>[],
+  flattenParentView: boolean,
+  parentViewComponentKey: string,
+  parentViewPath?: string
+): ServerRouteNode<Component>[] {
+  const result: ServerRouteNode<Component>[] = [];
+  for (const source of routes) {
+    const route: ServerRouteNode<Component> = { ...source };
+    const sourcePath = typeof source.path === 'string' ? source.path : '';
+    if (parentViewPath && sourcePath) route.path = joinRoutePath(parentViewPath, sourcePath);
+
+    const children: readonly ServerRouteNode<Component>[] = Array.isArray(source.children)
+      ? (source.children as readonly ServerRouteNode<Component>[])
+      : [];
+    if (flattenParentView && source.component === parentViewComponentKey && children.length > 0) {
+      result.push(
+        ...normalizeProjection(
+          children,
+          flattenParentView,
+          parentViewComponentKey,
+          typeof route.path === 'string' ? route.path : undefined
+        )
+      );
+      continue;
+    }
+
+    if (children.length > 0) {
+      route.children = normalizeProjection(children, flattenParentView, parentViewComponentKey);
+    } else {
+      delete route.children;
+      delete route.redirect;
+    }
+    result.push(route);
+  }
+  return result;
+}
+
+export function projectServerRoutes<Component>({
+  flattenParentView = false,
+  parentViewComponentKey = 'ParentView',
+  ...assembleOptions
+}: ProjectServerRoutesOptions<Component>): ServerRouteNode<Component>[] {
+  return assembleServerRoutes({
+    ...assembleOptions,
+    routes: normalizeProjection(assembleOptions.routes, flattenParentView, parentViewComponentKey)
+  });
+}
+
+export function findDuplicateRouteNames<Component>(
+  routeGroups: readonly (readonly ServerRouteNode<Component>[])[]
+): readonly DuplicateRouteNameDiagnostic[] {
+  const seen = new Set<string>();
+  const reported = new Set<string>();
+  const diagnostics: DuplicateRouteNameDiagnostic[] = [];
+
+  const visit = (routes: readonly ServerRouteNode<Component>[]) => {
+    for (const route of routes) {
+      const routeName = typeof route.name === 'string' ? route.name.trim() : '';
+      if (routeName) {
+        if (seen.has(routeName) && !reported.has(routeName)) {
+          reported.add(routeName);
+          diagnostics.push(Object.freeze({ code: 'duplicate-route-name', routeName }));
+        }
+        seen.add(routeName);
+      }
+      if (Array.isArray(route.children)) visit(route.children);
+    }
+  };
+
+  for (const routes of routeGroups) visit(routes);
+  return Object.freeze(diagnostics);
 }

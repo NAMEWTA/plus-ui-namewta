@@ -126,13 +126,13 @@ test('registration applies the public policy before sending the encrypted write'
   await page.goto('/register');
 
   await page.getByPlaceholder('用户名').fill('policy-user');
-  await page.getByPlaceholder('密码').fill('weak');
+  await page.getByPlaceholder('密码', { exact: true }).fill('weak');
   await page.getByPlaceholder('确认密码').fill('weak');
   await page.getByRole('button', { name: '注 册' }).click();
   await expect(page.getByText('密码长度不能少于 8 位', { exact: true })).toBeVisible();
   expect(state.registerRequests).toBe(0);
 
-  await page.getByPlaceholder('密码').fill('ValidPass!9');
+  await page.getByPlaceholder('密码', { exact: true }).fill('ValidPass!9');
   await page.getByPlaceholder('确认密码').fill('ValidPass!9');
   await page.getByRole('button', { name: '注 册' }).click();
   await expect(page.getByRole('dialog', { name: '系统提示' })).toBeVisible();
@@ -145,7 +145,8 @@ test('registration fails closed when an enabled Client omits the password policy
 
   await page.goto('/register');
   await expect(page).toHaveURL(/\/login$/);
-  expect(state.networkOrder).toEqual(['clientContext']);
+  expect(state.networkOrder).toEqual(['clientContext', 'clientContext']);
+  expect(state.networkOrder).not.toContain('code');
   expect(state.registerRequests).toBe(0);
 });
 

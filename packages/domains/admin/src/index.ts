@@ -63,7 +63,27 @@ export interface IdentityInfo {
   user: unknown;
 }
 
-export type IdentityMenu = Readonly<Record<string, unknown>>;
+export interface ServerMenuMeta {
+  activeMenu?: string;
+  icon?: string;
+  link?: string;
+  noCache?: boolean;
+  title?: string;
+}
+
+export interface ServerMenuNode {
+  alwaysShow?: boolean;
+  children?: readonly ServerMenuNode[];
+  component?: string;
+  ext?: string;
+  hidden?: boolean;
+  meta?: ServerMenuMeta;
+  name?: string;
+  path: string;
+  permissions?: readonly string[];
+  query?: string;
+  redirect?: string;
+}
 
 export type IdentityAccessErrorCode =
   | 'client-context-unavailable'
@@ -97,7 +117,7 @@ export interface IdentityAccessService {
 export interface IdentityAccessManagementService extends IdentityAccessService {
   getClientContext(): Promise<ClientAuthContext>;
   getInfo(): Promise<IdentityInfo>;
-  getMenus(): Promise<readonly IdentityMenu[]>;
+  getMenus(): Promise<readonly ServerMenuNode[]>;
   getVerification(): Promise<LoginVerification>;
   logout(): Promise<void>;
   register(input: RegistrationInput): Promise<void>;
@@ -202,11 +222,96 @@ function parseIdentityInfo(value: unknown): IdentityInfo {
   });
 }
 
-function parseMenus(value: unknown): readonly IdentityMenu[] {
-  if (!Array.isArray(value) || value.some(item => !item || typeof item !== 'object' || Array.isArray(item))) {
-    throw new IdentityAccessError('invalid-menu-response', '服务端菜单响应格式无效');
+function invalidMenu(path: string): IdentityAccessError {
+  return new IdentityAccessError('invalid-menu-response', `服务端菜单响应格式无效: ${path}`);
+}
+
+type UnknownObject = { readonly [key: string]: unknown };
+
+function requireMenuRecord(value: unknown, path: string): UnknownObject {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw invalidMenu(path);
+  return value as UnknownObject;
+}
+
+function menuString(
+  menu: UnknownObject,
+  key: string,
+  path: string,
+  options: { nonBlank?: boolean; required?: boolean } = {}
+): string | undefined {
+  const value = menu[key];
+  if (value === undefined && !options.required) return undefined;
+  if (typeof value !== 'string' || (options.nonBlank && !value.trim())) throw invalidMenu(`${path}.${key}`);
+  return value;
+}
+
+function menuBoolean(menu: UnknownObject, key: string, path: string): boolean | undefined {
+  const value = menu[key];
+  if (value === undefined) return undefined;
+  if (typeof value !== 'boolean') throw invalidMenu(`${path}.${key}`);
+  return value;
+}
+
+function menuStringList(
+  menu: UnknownObject,
+  key: string,
+  path: string
+): readonly string[] | undefined {
+  const value = menu[key];
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || value.some(item => typeof item !== 'string' || !item.trim())) {
+    throw invalidMenu(`${path}.${key}`);
   }
-  return Object.freeze(value.map(item => Object.freeze({ ...(item as Record<string, unknown>) })));
+  return Object.freeze(value.map(item => item.trim()));
+}
+
+function parseMenuMeta(value: unknown, path: string): ServerMenuMeta | undefined {
+  if (value === undefined) return undefined;
+  const meta = requireMenuRecord(value, path);
+  return Object.freeze({
+    ...(menuString(meta, 'activeMenu', path) !== undefined ? { activeMenu: menuString(meta, 'activeMenu', path) } : {}),
+    ...(menuString(meta, 'icon', path) !== undefined ? { icon: menuString(meta, 'icon', path) } : {}),
+    ...(menuString(meta, 'link', path) !== undefined ? { link: menuString(meta, 'link', path) } : {}),
+    ...(menuBoolean(meta, 'noCache', path) !== undefined ? { noCache: menuBoolean(meta, 'noCache', path) } : {}),
+    ...(menuString(meta, 'title', path) !== undefined ? { title: menuString(meta, 'title', path) } : {})
+  });
+}
+
+function parseMenuNode(value: unknown, path: string): ServerMenuNode {
+  const menu = requireMenuRecord(value, path);
+  const childrenValue = menu.children;
+  let children: readonly ServerMenuNode[] | undefined;
+  if (childrenValue !== undefined) {
+    if (!Array.isArray(childrenValue)) throw invalidMenu(`${path}.children`);
+    children = Object.freeze(childrenValue.map((child, index) => parseMenuNode(child, `${path}.children[${index}]`)));
+  }
+  const meta = parseMenuMeta(menu.meta, `${path}.meta`);
+  const alwaysShow = menuBoolean(menu, 'alwaysShow', path);
+  const component = menuString(menu, 'component', path, { nonBlank: true });
+  const ext = menuString(menu, 'ext', path);
+  const hidden = menuBoolean(menu, 'hidden', path);
+  const name = menuString(menu, 'name', path);
+  const permissions = menuStringList(menu, 'permissions', path);
+  const query = menuString(menu, 'query', path);
+  const redirect = menuString(menu, 'redirect', path);
+  return Object.freeze({
+    path: menuString(menu, 'path', path, { nonBlank: true, required: true })!,
+    ...(alwaysShow !== undefined ? { alwaysShow } : {}),
+    ...(children ? { children } : {}),
+    ...(component !== undefined ? { component } : {}),
+    ...(ext !== undefined ? { ext } : {}),
+    ...(hidden !== undefined ? { hidden } : {}),
+    ...(meta ? { meta } : {}),
+    ...(name !== undefined ? { name } : {}),
+    ...(permissions !== undefined ? { permissions } : {}),
+    ...(query !== undefined ? { query } : {}),
+    ...(redirect !== undefined ? { redirect } : {})
+  });
+}
+
+function parseMenus(value: unknown): readonly ServerMenuNode[] {
+  if (!Array.isArray(value)) throw invalidMenu('menus');
+  return Object.freeze(value.map((menu, index) => parseMenuNode(menu, `menus[${index}]`)));
 }
 
 export function createClientSessionKey(appId: string, clientId: string): string {

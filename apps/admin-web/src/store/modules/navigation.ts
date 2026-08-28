@@ -1,12 +1,11 @@
 import type { RouteRecordRaw } from 'vue-router';
+import type { ServerMenuMeta, ServerMenuNode } from '@namewta/domain-admin';
 import {
   findDuplicateRouteNames,
-  projectServerRoutes,
-  type RouteRegistration,
-  type ServerRouteNode
+  projectServerRoutes
 } from '@namewta/platform-app-runtime';
 import { defineStore } from 'pinia';
-import { ref, type Component } from 'vue';
+import { ref } from 'vue';
 import { identityAccessService } from '@/application/services';
 import ParentView from '@/components/ParentView/index.vue';
 import InnerLink from '@/layout/components/InnerLink/index.vue';
@@ -14,23 +13,23 @@ import Layout from '@/layout/index.vue';
 import { constantRoutes } from '@/router';
 import { resolveAdminWebRegistration } from '@/router/adminManifestRegistry';
 import { createManifestRouteDiagnostic, presentDuplicateRouteNameDiagnostics } from '@/router/manifestDiagnostic';
+import { adaptServerMenuRoutes, type AdminRouteComponent } from '@/router/serverMenuAdapter';
 import store from '@/store';
 
-type AdminRouteComponent = Component | (() => Promise<Component>);
-
-function projectMenus(menus: readonly RouteRecordRaw[], flattenParentView = false): RouteRecordRaw[] {
-  return projectServerRoutes<AdminRouteComponent>({
+function projectMenus(menus: readonly ServerMenuNode[], flattenParentView = false): RouteRecordRaw[] {
+  const projected = projectServerRoutes<AdminRouteComponent, ServerMenuMeta>({
     appId: 'admin-web',
-    routes: menus as unknown as readonly ServerRouteNode<AdminRouteComponent>[],
+    routes: menus,
     flattenParentView,
     specialComponents: { Layout, ParentView, InnerLink },
     resolveRegistration: ({ componentKey, domainId }) => {
       const registration = resolveAdminWebRegistration(componentKey, domainId);
       if (!registration) return undefined;
-      return registration as RouteRegistration<AdminRouteComponent>;
+      return registration;
     },
     createDiagnostic: createManifestRouteDiagnostic
-  }) as unknown as RouteRecordRaw[];
+  });
+  return adaptServerMenuRoutes(projected);
 }
 
 export const useNavigationStore = defineStore('navigation', () => {
@@ -58,7 +57,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   };
 
   const generateRoutes = async (): Promise<RouteRecordRaw[]> => {
-    const menus = (await identityAccessService.getMenus()) as unknown as RouteRecordRaw[];
+    const menus = await identityAccessService.getMenus();
     const sidebarRoutes = projectMenus(menus);
     const rewriteRoutes = projectMenus(menus, true);
     const projectedDefaultRoutes = projectMenus(menus);
@@ -69,8 +68,8 @@ export const useNavigationStore = defineStore('navigation', () => {
     setTopbarRoutes(projectedDefaultRoutes);
     presentDuplicateRouteNameDiagnostics(
       findDuplicateRouteNames([
-        constantRoutes as unknown as readonly ServerRouteNode<AdminRouteComponent>[],
-        sidebarRoutes as unknown as readonly ServerRouteNode<AdminRouteComponent>[]
+        constantRoutes,
+        sidebarRoutes
       ])
     );
     return rewriteRoutes;

@@ -378,12 +378,17 @@ test('social list is rendered and binding/unlock failures remain Client scoped a
   await page.getByRole('tab', { name: '第三方应用' }).click();
   await expect(page.getByText('github', { exact: true })).toBeVisible();
   await page.getByTitle('使用 GitHub 账号授权登录').click();
-  await expect(page.getByText('当前 Client 社交账号服务不可用', { exact: true })).toBeVisible();
+  const socialServiceFailure = page.getByRole('alert').filter({ hasText: '当前 Client 社交账号服务不可用' });
+  await expect(socialServiceFailure).toHaveCount(1);
+  await expect(socialServiceFailure).toBeVisible();
+  await expect(socialServiceFailure).toHaveCount(0);
   await page.locator('.profile-auth-table tbody tr').filter({ hasText: 'github' }).getByRole('button').click();
   const unlockDialog = page.getByRole('dialog').filter({ hasText: '解除"github"的账号绑定' });
   await expect(unlockDialog).toBeVisible();
   await unlockDialog.getByRole('button', { name: '确定' }).click();
-  await expect(page.getByText('当前 Client 社交账号服务不可用', { exact: true })).toBeVisible();
+  await expect(unlockDialog).toBeHidden();
+  await expect(socialServiceFailure).toHaveCount(1);
+  await expect(socialServiceFailure).toBeVisible();
 
   expect(
     state.requests

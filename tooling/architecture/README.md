@@ -9,6 +9,7 @@
 - 结构化解析 `pnpm-workspace.yaml` 与 lockfile，检查工作区 glob、catalog、importer 和依赖规格漂移。
 - 检查 domain/platform 中未经遮蔽的浏览器、DOM、存储、网络、Worker 与渲染全局。
 - 检查已激活 App 只通过 domain 公开服务完成后端能力组合。
+- 检查 Admin 动态页面只经所选 manifest 和共享菜单运行时解析，权限指令只从 Web Kit 安装，已退役的私有 owner 与 fallback 不得回流。
 - 将当前发现与 `baseline.json` 的精确身份比较；新增、过期或扩大的基线都失败关闭。
 - 确保移动 Web、小程序和 Taro 适配器在激活前只含 README。
 

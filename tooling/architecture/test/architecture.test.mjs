@@ -167,6 +167,39 @@ test('accepts a valid public dependency graph without reading environment files'
   assert.doesNotMatch(result.output, /ARCHITECTURE_SENTINEL|must-not-be-read/);
 });
 
+test('rejects retired Admin navigation owners and fallback algorithms', async () => {
+  const cases = [
+    {
+      path: 'apps/admin-web/src/store/modules/permission.ts',
+      source: 'export const usePermissionStore = () => undefined;\n',
+      target: '@namewta/platform-app-runtime'
+    },
+    {
+      path: 'apps/admin-web/src/directive/permission/index.ts',
+      source: 'export const hasPermi = { mounted() {} };\n',
+      target: '@namewta/web-kit-permission'
+    },
+    {
+      path: 'apps/admin-web/src/router/index.ts',
+      source: 'export const dynamicRoutes = [];\nexport const filterDynamicRoutes = () => [];\n',
+      target: '@namewta/platform-app-runtime'
+    },
+    {
+      path: 'apps/admin-web/src/store/modules/navigation.ts',
+      source: "const modules = import.meta.glob('../../views/**/*.vue');\nexport { modules };\n",
+      target: '@namewta/platform-app-runtime'
+    }
+  ];
+
+  for (const fixture of cases) {
+    const root = await createFixture();
+    await addPackage(root, 'apps/admin-web', '@namewta/admin-web');
+    await writeFixtureFile(root, fixture.path, fixture.source);
+
+    assertFailure(await check(root), 'admin-navigation-boundary', '@namewta/admin-web', fixture.target, fixture.path);
+  }
+});
+
 test('rejects an internal deep import with a localized public-entry diagnostic', async () => {
   const root = await createFixture();
   await addPackage(root, 'packages/domains/demo', '@namewta/domain-demo');

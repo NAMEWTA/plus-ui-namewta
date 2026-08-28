@@ -77,6 +77,13 @@ const inactivePlaceholders = [
   'packages/adapters/taro-request',
   'packages/adapters/taro-storage'
 ];
+const retiredAdminNavigationSymbols = [
+  'dynamicRoutes',
+  'filterAsyncRouter',
+  'filterDynamicRoutes',
+  'loadView',
+  'usePermissionStore'
+];
 const runtimeLayerAllowlist = {
   app: new Set(['adapter', 'domain', 'platform', 'web-domain', 'web-kit']),
   'web-domain': new Set(['domain', 'platform', 'web-kit']),
@@ -151,6 +158,42 @@ function packageLayer(relativeDirectory) {
 
 function violation(rule, source, target, path, detail) {
   return { rule, source, target, path, detail };
+}
+
+function adminNavigationBoundaryViolation(sourcePath, source) {
+  if (!sourcePath.startsWith('apps/admin-web/src/')) return undefined;
+  if (sourcePath.startsWith('apps/admin-web/src/directive/permission/')) {
+    return {
+      target: '@namewta/web-kit-permission',
+      detail: 'Admin permission directives must be installed from the Web Kit public entry'
+    };
+  }
+  if (sourcePath.startsWith('apps/admin-web/src/store/modules/permission.')) {
+    return {
+      target: '@namewta/platform-app-runtime',
+      detail: 'Admin navigation state must use the navigation Store and shared menu runtime'
+    };
+  }
+  if (/\.directive\(\s*['"]has(?:Permi|Roles)['"]/.test(source)) {
+    return {
+      target: '@namewta/web-kit-permission',
+      detail: 'Admin cannot register private permission directive implementations'
+    };
+  }
+  if (/import\s*\.\s*meta\s*\.\s*glob\s*\(/.test(source) && source.includes('/views/')) {
+    return {
+      target: '@namewta/platform-app-runtime',
+      detail: 'Admin dynamic pages must resolve through selected manifests instead of a local views glob'
+    };
+  }
+  const retiredSymbol = retiredAdminNavigationSymbols.find(symbol => new RegExp(`\\b${symbol}\\b`).test(source));
+  if (retiredSymbol) {
+    return {
+      target: '@namewta/platform-app-runtime',
+      detail: `Retired Admin navigation symbol ${retiredSymbol} cannot return`
+    };
+  }
+  return undefined;
 }
 
 function formatViolation(item) {
@@ -934,7 +977,20 @@ export async function inspectWorkspace({ root }) {
       for (const placeholder of inactivePlaceholders) excluded.add(join(absoluteRoot, placeholder));
     for (const file of await sourceFiles(item.directory, excluded)) {
       const sourcePath = toPosix(relative(absoluteRoot, file));
-      const parsed = parsedImports(await readFile(file, 'utf8'), sourcePath);
+      const source = await readFile(file, 'utf8');
+      const parsed = parsedImports(source, sourcePath);
+      const retiredNavigation = adminNavigationBoundaryViolation(sourcePath, source);
+      if (retiredNavigation) {
+        detected.push(
+          violation(
+            'admin-navigation-boundary',
+            sourceName,
+            retiredNavigation.target,
+            sourcePath,
+            retiredNavigation.detail
+          )
+        );
+      }
       for (const error of parsed.errors)
         detected.push(violation('source-parse', sourceName, 'valid source AST', sourcePath, error));
       if (['domain', 'platform'].includes(item.layer)) {

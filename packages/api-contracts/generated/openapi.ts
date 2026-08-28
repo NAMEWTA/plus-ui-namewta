@@ -235,26 +235,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/tool/gen": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * 保存代码生成业务配置。
-         * @description 保存代码生成业务配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:edit`<br><br>
-         */
-        put: operations["editSave"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/system/user": {
         parameters: {
             query?: never;
@@ -1213,26 +1193,6 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["handle"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/importTable": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * 导入表结构（保存）
-         * @description 导入表结构（保存）<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:import`<br><br>
-         */
-        post: operations["importTableSave"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2588,186 +2548,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/tool/gen/{tableId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 修改代码生成业务
-         * @description 修改代码生成业务<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:query`<br><br>
-         */
-        get: operations["getInfo_5"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/synchDb/{tableId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 同步数据库
-         * @description 同步数据库<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:edit`<br><br>
-         */
-        get: operations["synchDb"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/preview/{tableId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 预览代码
-         * @description 预览代码<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:preview`<br><br>
-         */
-        get: operations["preview"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 分页查询代码生成业务列表。
-         * @description 分页查询代码生成业务列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:list`<br><br>
-         */
-        get: operations["genList"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/getDataNames": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 查询当前可用数据源名称列表。
-         * @description 查询当前可用数据源名称列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:list`<br><br>
-         */
-        get: operations["getCurrentDataSourceNameList"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/download/{tableId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 生成代码（下载方式）
-         * @description 生成代码（下载方式）<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:code`<br><br>
-         */
-        get: operations["download"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/db/list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 分页查询数据库表列表。
-         * @description 分页查询数据库表列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:list`<br><br>
-         */
-        get: operations["dataList"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/column/{tableId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 查询数据表字段列表
-         * @description 查询数据表字段列表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:list`<br><br>
-         */
-        get: operations["columnList"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/tool/gen/batchGenCode": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 批量生成代码
-         * @description 批量生成代码<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:code`<br><br>
-         */
-        get: operations["batchGenCode"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/system/userType/{userTypeId}": {
         parameters: {
             query?: never;
@@ -2779,7 +2559,7 @@ export interface paths {
          * 获取登录域详细信息。
          * @description 获取登录域详细信息。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:userType:query`<br><br>
          */
-        get: operations["getInfo_6"];
+        get: operations["getInfo_5"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2959,7 +2739,7 @@ export interface paths {
          * 获取用户信息
          * @description 获取用户信息
          */
-        get: operations["getInfo_7"];
+        get: operations["getInfo_6"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3019,7 +2799,7 @@ export interface paths {
          * 根据用户编号获取详细信息
          * @description 根据用户编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:query`<br><br>
          */
-        get: operations["getInfo_8"];
+        get: operations["getInfo_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3039,7 +2819,7 @@ export interface paths {
          * 根据用户编号获取详细信息
          * @description 根据用户编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:query`<br><br>
          */
-        get: operations["getInfo_9"];
+        get: operations["getInfo_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3079,7 +2859,7 @@ export interface paths {
          * 根据角色编号获取详细信息
          * @description 根据角色编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:role:query`<br><br>
          */
-        get: operations["getInfo_10"];
+        get: operations["getInfo_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3199,7 +2979,7 @@ export interface paths {
          * 根据岗位编号获取详细信息
          * @description 根据岗位编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:post:query`<br><br>
          */
-        get: operations["getInfo_11"];
+        get: operations["getInfo_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3279,7 +3059,7 @@ export interface paths {
          * 根据通知公告编号获取详细信息
          * @description 根据通知公告编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:query`<br><br>
          */
-        get: operations["getInfo_12"];
+        get: operations["getInfo_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3336,7 +3116,7 @@ export interface paths {
          * 根据菜单编号获取详细信息
          * @description 根据菜单编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:query`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        get: operations["getInfo_13"];
+        get: operations["getInfo_12"];
         put?: never;
         post?: never;
         /**
@@ -3440,7 +3220,7 @@ export interface paths {
          * 查询字典类型详细
          * @description 查询字典类型详细<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:query`<br><br>
          */
-        get: operations["getInfo_14"];
+        get: operations["getInfo_13"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3500,7 +3280,7 @@ export interface paths {
          * 查询字典数据详细
          * @description 查询字典数据详细<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:query`<br><br>
          */
-        get: operations["getInfo_15"];
+        get: operations["getInfo_14"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3560,7 +3340,7 @@ export interface paths {
          * 根据部门编号获取详细信息
          * @description 根据部门编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dept:query`<br><br>
          */
-        get: operations["getInfo_16"];
+        get: operations["getInfo_15"];
         put?: never;
         post?: never;
         /**
@@ -3644,7 +3424,7 @@ export interface paths {
          * 根据参数编号获取详细信息
          * @description 根据参数编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:config:query`<br><br>
          */
-        get: operations["getInfo_17"];
+        get: operations["getInfo_16"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3704,7 +3484,7 @@ export interface paths {
          * 获取单个客户端的详细配置信息。
          * @description 获取单个客户端的详细配置信息。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:client:query`<br><br>
          */
-        get: operations["getInfo_18"];
+        get: operations["getInfo_17"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3841,7 +3621,7 @@ export interface paths {
          * 获取单个对象存储配置详情。
          * @description 获取单个对象存储配置详情。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:list`<br><br>
          */
-        get: operations["getInfo_19"];
+        get: operations["getInfo_18"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3981,7 +3761,7 @@ export interface paths {
          * 获取当前登录用户的在线设备列表，仅返回当前账号仍有效的 token 会话。
          * @description 获取当前登录用户的在线设备列表，仅返回当前账号仍有效的 token 会话。
          */
-        get: operations["getInfo_20"];
+        get: operations["getInfo_19"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4112,7 +3892,7 @@ export interface paths {
          * 获取 Redis 缓存监控信息。
          * @description 获取 Redis 缓存监控信息。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:cache:list`<br><br>
          */
-        get: operations["getInfo_21"];
+        get: operations["getInfo_20"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4152,7 +3932,7 @@ export interface paths {
          * 获取测试树表详细信息
          * @description 获取测试树表详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:query`<br><br>
          */
-        get: operations["getInfo_22"];
+        get: operations["getInfo_21"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5210,7 +4990,7 @@ export interface paths {
          * 获取测试单表详细信息
          * @description 获取测试单表详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:query`<br><br>
          */
-        get: operations["getInfo_23"];
+        get: operations["getInfo_22"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5662,26 +5442,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/tool/gen/{tableIds}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * 删除代码生成
-         * @description 删除代码生成<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `tool:gen:remove`<br><br>
-         */
-        delete: operations["remove_7"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/system/userType/{userTypeIds}": {
         parameters: {
             query?: never;
@@ -5696,7 +5456,7 @@ export interface paths {
          * 批量删除登录域。仍被引用时拒绝删除。
          * @description 批量删除登录域。仍被引用时拒绝删除。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:userType:remove`<br><br>
          */
-        delete: operations["remove_8"];
+        delete: operations["remove_7"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5716,7 +5476,7 @@ export interface paths {
          * 删除用户
          * @description 删除用户<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:remove`<br><br>
          */
-        delete: operations["remove_9"];
+        delete: operations["remove_8"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5736,7 +5496,7 @@ export interface paths {
          * 删除角色
          * @description 删除角色<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:role:remove`<br><br>
          */
-        delete: operations["remove_10"];
+        delete: operations["remove_9"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5756,7 +5516,7 @@ export interface paths {
          * 删除岗位
          * @description 删除岗位<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:post:remove`<br><br>
          */
-        delete: operations["remove_11"];
+        delete: operations["remove_10"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5776,7 +5536,7 @@ export interface paths {
          * 删除通知公告
          * @description 删除通知公告<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:remove`<br><br>
          */
-        delete: operations["remove_12"];
+        delete: operations["remove_11"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5796,7 +5556,7 @@ export interface paths {
          * 批量级联删除菜单
          * @description 批量级联删除菜单<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:remove`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        delete: operations["remove_13"];
+        delete: operations["remove_12"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5816,7 +5576,7 @@ export interface paths {
          * 删除字典类型
          * @description 删除字典类型<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:remove`<br><br>
          */
-        delete: operations["remove_14"];
+        delete: operations["remove_13"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5856,7 +5616,7 @@ export interface paths {
          * 删除字典数据
          * @description 删除字典数据<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:remove`<br><br>
          */
-        delete: operations["remove_15"];
+        delete: operations["remove_14"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5876,7 +5636,7 @@ export interface paths {
          * 删除参数配置
          * @description 删除参数配置<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:config:remove`<br><br>
          */
-        delete: operations["remove_16"];
+        delete: operations["remove_15"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5916,7 +5676,7 @@ export interface paths {
          * 批量删除客户端配置。
          * @description 批量删除客户端配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:client:remove`<br><br>
          */
-        delete: operations["remove_17"];
+        delete: operations["remove_16"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5936,7 +5696,7 @@ export interface paths {
          * 删除OSS对象存储
          * @description 删除OSS对象存储<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:oss:remove`<br><br>
          */
-        delete: operations["remove_18"];
+        delete: operations["remove_17"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5973,7 +5733,7 @@ export interface paths {
          * 批量删除对象存储配置。
          * @description 批量删除对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:remove`<br><br>
          */
-        delete: operations["remove_19"];
+        delete: operations["remove_18"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5993,7 +5753,7 @@ export interface paths {
          * 批量删除操作日志记录
          * @description 批量删除操作日志记录<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:operlog:remove`<br><br>
          */
-        delete: operations["remove_20"];
+        delete: operations["remove_19"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6053,7 +5813,7 @@ export interface paths {
          * 强退当前账号下指定在线设备，避免误踢其他账号的会话。
          * @description 强退当前账号下指定在线设备，避免误踢其他账号的会话。
          */
-        delete: operations["remove_21"];
+        delete: operations["remove_20"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6070,7 +5830,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notify:remove`<br><br> */
-        delete: operations["remove_22"];
+        delete: operations["remove_21"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6107,7 +5867,7 @@ export interface paths {
          * 批量删除登录日志
          * @description 批量删除登录日志<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:logininfo:remove`<br><br>
          */
-        delete: operations["remove_23"];
+        delete: operations["remove_22"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6147,7 +5907,7 @@ export interface paths {
          * 删除测试树表
          * @description 删除测试树表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:remove`<br><br>
          */
-        delete: operations["remove_24"];
+        delete: operations["remove_23"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6167,7 +5927,7 @@ export interface paths {
          * 删除测试单表
          * @description 删除测试单表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:remove`<br><br>
          */
-        delete: operations["remove_25"];
+        delete: operations["remove_24"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6187,7 +5947,7 @@ export interface paths {
          * 删除批量方法
          * @description 删除批量方法
          */
-        delete: operations["remove_26"];
+        delete: operations["remove_25"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6410,32 +6170,32 @@ export interface components {
             coordinate?: string;
             anyNodeSkip?: string;
             skipList?: components["schemas"]["Skip"][];
-            updateBy?: string;
             ext?: string;
+            updateBy?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
             /** Format: date-time */
             updateTime?: string;
             delFlag?: string;
+            permissionFlag?: string;
             nodeCode?: string;
             nodeName?: string;
             /** Format: int32 */
             nodeType?: number;
             nodeRatio?: string;
-            permissionFlag?: string;
             formCustom?: string;
             formPath?: string;
-            version?: string;
             /** Format: int64 */
             id?: number;
+            version?: string;
             listenerType?: string;
         };
         Skip: {
             /** Format: int32 */
-            nowNodeType?: number;
-            /** Format: int32 */
             nextNodeType?: number;
+            /** Format: int32 */
+            nowNodeType?: number;
             /** Format: int64 */
             definitionId?: number;
             tenantId?: string;
@@ -6492,221 +6252,6 @@ export interface components {
              * @description 显示顺序
              */
             orderNum?: number;
-        };
-        /** @description 业务表 gen_table */
-        GenTable: {
-            /**
-             * Format: int64
-             * @description 创建部门
-             */
-            createDept?: number;
-            /**
-             * Format: int64
-             * @description 创建者
-             */
-            createBy?: number;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createTime?: string;
-            /**
-             * Format: int64
-             * @description 更新者
-             */
-            updateBy?: number;
-            /**
-             * Format: date-time
-             * @description 更新时间
-             */
-            updateTime?: string;
-            /**
-             * Format: int64
-             * @description 编号
-             */
-            tableId?: number;
-            /** @description 数据源名称 */
-            dataName: string;
-            /** @description 表名称 */
-            tableName: string;
-            /** @description 表描述 */
-            tableComment: string;
-            /** @description 实体类名称(首字母大写) */
-            className: string;
-            /** @description 使用的模板（crud单表操作 tree树表操作） */
-            tplCategory?: string;
-            /** @description 前端模板类型，对应 fm 下的模板目录 */
-            frontendType?: string;
-            /** @description 生成包路径 */
-            packageName: string;
-            /** @description 生成模块名 */
-            moduleName: string;
-            /** @description 生成业务名 */
-            businessName: string;
-            /** @description 生成功能名 */
-            functionName: string;
-            /** @description 生成作者 */
-            functionAuthor: string;
-            /** @description 主键信息 */
-            pkColumn?: components["schemas"]["GenTableColumn"];
-            /** @description 表列信息 */
-            columns?: components["schemas"]["GenTableColumn"][];
-            /** @description 其它生成选项 */
-            options?: string;
-            /** @description 备注 */
-            remark?: string;
-            /** @description 树编码字段 */
-            treeCode?: string;
-            /** @description 树父编码字段 */
-            treeParentCode?: string;
-            /** @description 树名称字段 */
-            treeName?: string;
-            /** @description 菜单id列表 */
-            menuIds?: number[];
-            /**
-             * Format: int64
-             * @description 上级菜单ID字段
-             */
-            parentMenuId?: number;
-            /** @description 上级菜单名称字段 */
-            parentMenuName?: string;
-            /** @description 是否启用导出 */
-            enableExport?: boolean;
-            /** @description 是否启用状态切换 */
-            enableStatus?: boolean;
-            /** @description 状态字段 */
-            statusField?: string;
-            /** @description 是否启用组合唯一校验 */
-            enableUnique?: boolean;
-            /** @description 组合唯一字段 */
-            uniqueFields?: string[];
-            /** @description 是否启用排序调整 */
-            enableSort?: boolean;
-            /** @description 排序字段 */
-            sortField?: string;
-            /** @description 树根节点值 */
-            treeRootValue?: string;
-            /** @description 树祖级字段 */
-            treeAncestorsField?: string;
-            /** @description 树排序字段 */
-            treeOrderField?: string;
-            /** @description 请求参数 */
-            params?: {
-                [key: string]: unknown;
-            };
-            /** @description 判断当前业务表是否采用树表模板。 */
-            tree?: boolean;
-            /** @description 判断当前业务表是否采用普通 CRUD 模板。 */
-            crud?: boolean;
-        };
-        /** @description 代码生成业务字段表 gen_table_column */
-        GenTableColumn: {
-            /**
-             * Format: int64
-             * @description 创建部门
-             */
-            createDept?: number;
-            /**
-             * Format: int64
-             * @description 创建者
-             */
-            createBy?: number;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createTime?: string;
-            /**
-             * Format: int64
-             * @description 更新者
-             */
-            updateBy?: number;
-            /**
-             * Format: date-time
-             * @description 更新时间
-             */
-            updateTime?: string;
-            /**
-             * Format: int64
-             * @description 编号
-             */
-            columnId?: number;
-            /**
-             * Format: int64
-             * @description 归属表编号
-             */
-            tableId?: number;
-            /** @description 列名称 */
-            columnName?: string;
-            /** @description 列描述 */
-            columnComment?: string;
-            /** @description 列类型 */
-            columnType?: string;
-            /** @description JAVA类型 */
-            javaType?: string;
-            /** @description JAVA字段名 */
-            javaField: string;
-            /** @description 是否主键（1是） */
-            isPk?: string;
-            /** @description 是否自增（1是） */
-            isIncrement?: string;
-            /** @description 是否必填（1是） */
-            isRequired?: string;
-            /** @description 是否为插入字段（1是） */
-            isInsert?: string;
-            /** @description 是否编辑字段（1是） */
-            isEdit?: string;
-            /** @description 是否列表字段（1是） */
-            isList?: string;
-            /** @description 是否查询字段（1是） */
-            isQuery?: string;
-            /** @description 查询方式（EQ等于、NE不等于、GT大于、LT小于、LIKE模糊、BETWEEN范围） */
-            queryType?: string;
-            /** @description 显示类型（input文本框、textarea文本域、select下拉框、checkbox复选框、radio单选框、datetime日期控件、image图片上传控件、upload文件上传控件、editor富文本控件） */
-            htmlType?: string;
-            /** @description 字典类型 */
-            dictType?: string;
-            /**
-             * Format: int32
-             * @description 排序
-             */
-            sort?: number;
-            /** @description 判断当前字段是否为数值类型。 */
-            numberType?: boolean;
-            /** @description 判断当前列是否参与查询条件。 */
-            query?: boolean;
-            /** @description 判断当前列是否为自增列。 */
-            increment?: boolean;
-            /** @description 获取适合界面展示的字段注释，去除括号内的枚举说明。 */
-            columnLabel?: string;
-            /** @description 获取 TypeScript 字段类型。 */
-            tsType?: string;
-            /** @description 获取首字母大写后的 Java 字段名。 */
-            capJavaField?: string;
-            /** @description 获取开关启用值的前端字面量。 */
-            switchActiveValue?: string;
-            /** @description 获取开关停用值的前端字面量。 */
-            switchInactiveValue?: string;
-            /** @description 是否为日期范围查询字段。 */
-            dateRangeQuery?: boolean;
-            /** @description 判断当前列是否需要显式声明 MP 字段映射。 */
-            needTableField?: boolean;
-            /** @description 判断当前列是否为主键列。 */
-            pk?: boolean;
-            /** @description 判断当前列是否参与编辑。 */
-            edit?: boolean;
-            /** @description 判断当前列是否属于字典控件列。 */
-            dictColumn?: boolean;
-            /** @description 判断当前列是否参与新增。 */
-            insert?: boolean;
-            /** @description 判断当前列是否属于生成页面需要保留的白名单字段。 */
-            usableColumn?: boolean;
-            /** @description 判断当前列是否为基类公共字段。 */
-            superColumn?: boolean;
-            /** @description 判断当前列是否必填。 */
-            required?: boolean;
-            /** @description 判断当前列是否参与列表展示。 */
-            list?: boolean;
         };
         /** @description 用户信息业务对象 sys_user */
         SysUserBo: {
@@ -7556,8 +7101,8 @@ export interface components {
             definitionId?: number;
             tenantId?: string;
             defJson?: string;
-            updateBy?: string;
             ext?: string;
+            updateBy?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
@@ -7647,16 +7192,16 @@ export interface components {
             data?: unknown;
         };
         Form: {
-            tenantId?: string;
-            /** Format: int32 */
-            isPublish?: number;
-            formContent?: string;
             formCode?: string;
             formName?: string;
             /** Format: int32 */
             formType?: number;
-            updateBy?: string;
+            tenantId?: string;
+            /** Format: int32 */
+            isPublish?: number;
+            formContent?: string;
             ext?: string;
+            updateBy?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
@@ -7664,9 +7209,9 @@ export interface components {
             updateTime?: string;
             delFlag?: string;
             formPath?: string;
-            version?: string;
             /** Format: int64 */
             id?: number;
+            version?: string;
         };
         ApiResultInstance: {
             /** Format: int32 */
@@ -8936,8 +8481,8 @@ export interface components {
             isPublish?: number;
             nodeList?: components["schemas"]["Node"][];
             userList?: components["schemas"]["User"][];
-            updateBy?: string;
             ext?: string;
+            updateBy?: string;
             /** Format: date-time */
             createTime?: string;
             category?: string;
@@ -8949,9 +8494,9 @@ export interface components {
             flowName?: string;
             formCustom?: string;
             formPath?: string;
-            version?: string;
             /** Format: int64 */
             id?: number;
+            version?: string;
             listenerType?: string;
         };
         /** @description 响应信息主体 */
@@ -9270,76 +8815,6 @@ export interface components {
         WarmFlowVo: {
             tokenNameList?: string[];
             framework?: string;
-        };
-        /** @description 响应信息主体 */
-        RMapStringString: {
-            /**
-             * Format: int32
-             * @description 响应状态码
-             */
-            code?: number;
-            /** @description 响应提示信息 */
-            msg?: string;
-            /** @description 响应业务数据 */
-            data?: {
-                [key: string]: string;
-            };
-        };
-        /** @description 表格分页数据对象 */
-        PageResultGenTable: {
-            /**
-             * Format: int64
-             * @description 总记录数
-             */
-            total?: number;
-            /** @description 列表数据 */
-            rows?: components["schemas"]["GenTable"][];
-        };
-        /** @description 响应信息主体 */
-        RPageResultGenTable: {
-            /**
-             * Format: int32
-             * @description 响应状态码
-             */
-            code?: number;
-            /** @description 响应提示信息 */
-            msg?: string;
-            /** @description 响应业务数据 */
-            data?: components["schemas"]["PageResultGenTable"];
-        };
-        /** @description 响应信息主体 */
-        RObject: {
-            /**
-             * Format: int32
-             * @description 响应状态码
-             */
-            code?: number;
-            /** @description 响应提示信息 */
-            msg?: string;
-            /** @description 响应业务数据 */
-            data?: unknown;
-        };
-        /** @description 表格分页数据对象 */
-        PageResultGenTableColumn: {
-            /**
-             * Format: int64
-             * @description 总记录数
-             */
-            total?: number;
-            /** @description 列表数据 */
-            rows?: components["schemas"]["GenTableColumn"][];
-        };
-        /** @description 响应信息主体 */
-        RPageResultGenTableColumn: {
-            /**
-             * Format: int32
-             * @description 响应状态码
-             */
-            code?: number;
-            /** @description 响应提示信息 */
-            msg?: string;
-            /** @description 响应业务数据 */
-            data?: components["schemas"]["PageResultGenTableColumn"];
         };
         /** @description 响应信息主体 */
         RSysUserTypeVo: {
@@ -11134,6 +10609,18 @@ export interface components {
             data?: components["schemas"]["TestTreeVo"][];
         };
         /** @description 响应信息主体 */
+        RObject: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: unknown;
+        };
+        /** @description 响应信息主体 */
         RTestSensitive: {
             /**
              * Format: int32
@@ -12136,40 +11623,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["FlowCategoryBo"];
-            };
-        };
-        responses: {
-            /** @description 操作结果 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    editSave: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 业务配置 */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GenTable"];
             };
         };
         responses: {
@@ -14353,40 +13806,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResultInstance"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    importTableSave: {
-        parameters: {
-            query: {
-                /** @description 表名串 */
-                tables: string;
-                /** @description 数据源名称 */
-                dataName: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 操作结果 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
                 };
             };
             /** @description Unauthorized */
@@ -16773,312 +16192,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 表ID */
-                tableId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 表与字段信息 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RMapStringObject"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    synchDb: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description 表ID */
-                tableId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 操作结果 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    preview: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description 表ID */
-                tableId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 模板路径与生成代码内容映射 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RMapStringString"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    genList: {
-        parameters: {
-            query: {
-                /** @description 查询条件 */
-                genTable: components["schemas"]["GenTable"];
-                /** @description 分页参数 */
-                pageQuery: components["schemas"]["PageQuery"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 代码生成列表 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RPageResultGenTable"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    getCurrentDataSourceNameList: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 数据源名称集合 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RObject"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    download: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description 表ID */
-                tableId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    dataList: {
-        parameters: {
-            query: {
-                /** @description 查询条件 */
-                genTable: components["schemas"]["GenTable"];
-                /** @description 分页参数 */
-                pageQuery: components["schemas"]["PageQuery"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 数据库表列表 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RPageResultGenTable"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    columnList: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description 表ID */
-                tableId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 字段列表 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RPageResultGenTableColumn"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    batchGenCode: {
-        parameters: {
-            query: {
-                /** @description 表ID串 */
-                tableIdStr: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-            /** @description Internal Server Error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    getInfo_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
                 /** @description 主键 */
                 userTypeId: number;
             };
@@ -17362,7 +16475,7 @@ export interface operations {
             };
         };
     };
-    getInfo_7: {
+    getInfo_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -17457,7 +16570,7 @@ export interface operations {
             };
         };
     };
-    getInfo_8: {
+    getInfo_7: {
         parameters: {
             query?: {
                 clientId?: number;
@@ -17491,7 +16604,7 @@ export interface operations {
             };
         };
     };
-    getInfo_9: {
+    getInfo_8: {
         parameters: {
             query?: {
                 clientId?: number;
@@ -17551,7 +16664,7 @@ export interface operations {
             };
         };
     };
-    getInfo_10: {
+    getInfo_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -17749,7 +16862,7 @@ export interface operations {
             };
         };
     };
-    getInfo_11: {
+    getInfo_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -17881,7 +16994,7 @@ export interface operations {
             };
         };
     };
-    getInfo_12: {
+    getInfo_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -17978,7 +17091,7 @@ export interface operations {
             };
         };
     };
-    getInfo_13: {
+    getInfo_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -18167,7 +17280,7 @@ export interface operations {
             };
         };
     };
-    getInfo_14: {
+    getInfo_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -18262,7 +17375,7 @@ export interface operations {
             };
         };
     };
-    getInfo_15: {
+    getInfo_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -18360,7 +17473,7 @@ export interface operations {
             };
         };
     };
-    getInfo_16: {
+    getInfo_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -18520,7 +17633,7 @@ export interface operations {
             };
         };
     };
-    getInfo_17: {
+    getInfo_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -18618,7 +17731,7 @@ export interface operations {
             };
         };
     };
-    getInfo_18: {
+    getInfo_17: {
         parameters: {
             query?: never;
             header?: never;
@@ -18846,7 +17959,7 @@ export interface operations {
             };
         };
     };
-    getInfo_19: {
+    getInfo_18: {
         parameters: {
             query?: never;
             header?: never;
@@ -19065,7 +18178,7 @@ export interface operations {
             };
         };
     };
-    getInfo_20: {
+    getInfo_19: {
         parameters: {
             query?: never;
             header?: never;
@@ -19289,7 +18402,7 @@ export interface operations {
             };
         };
     };
-    getInfo_21: {
+    getInfo_20: {
         parameters: {
             query?: never;
             header?: never;
@@ -19359,7 +18472,7 @@ export interface operations {
             };
         };
     };
-    getInfo_22: {
+    getInfo_21: {
         parameters: {
             query?: never;
             header?: never;
@@ -20924,7 +20037,7 @@ export interface operations {
             };
         };
     };
-    getInfo_23: {
+    getInfo_22: {
         parameters: {
             query?: never;
             header?: never;
@@ -21654,38 +20767,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description 表ID串 */
-                tableIds: number[];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 操作结果 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    remove_8: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
                 /** @description 主键串 */
                 userTypeIds: number[];
             };
@@ -21713,7 +20794,7 @@ export interface operations {
             };
         };
     };
-    remove_9: {
+    remove_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -21745,7 +20826,7 @@ export interface operations {
             };
         };
     };
-    remove_10: {
+    remove_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -21777,7 +20858,7 @@ export interface operations {
             };
         };
     };
-    remove_11: {
+    remove_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -21809,7 +20890,7 @@ export interface operations {
             };
         };
     };
-    remove_12: {
+    remove_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -21841,7 +20922,7 @@ export interface operations {
             };
         };
     };
-    remove_13: {
+    remove_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -21873,7 +20954,7 @@ export interface operations {
             };
         };
     };
-    remove_14: {
+    remove_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -21934,7 +21015,7 @@ export interface operations {
             };
         };
     };
-    remove_15: {
+    remove_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -21966,7 +21047,7 @@ export interface operations {
             };
         };
     };
-    remove_16: {
+    remove_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -22027,7 +21108,7 @@ export interface operations {
             };
         };
     };
-    remove_17: {
+    remove_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -22059,7 +21140,7 @@ export interface operations {
             };
         };
     };
-    remove_18: {
+    remove_17: {
         parameters: {
             query?: never;
             header?: never;
@@ -22122,7 +21203,7 @@ export interface operations {
             };
         };
     };
-    remove_19: {
+    remove_18: {
         parameters: {
             query?: never;
             header?: never;
@@ -22154,7 +21235,7 @@ export interface operations {
             };
         };
     };
-    remove_20: {
+    remove_19: {
         parameters: {
             query?: never;
             header?: never;
@@ -22247,7 +21328,7 @@ export interface operations {
             };
         };
     };
-    remove_21: {
+    remove_20: {
         parameters: {
             query?: never;
             header?: never;
@@ -22279,7 +21360,7 @@ export interface operations {
             };
         };
     };
-    remove_22: {
+    remove_21: {
         parameters: {
             query?: never;
             header?: never;
@@ -22339,7 +21420,7 @@ export interface operations {
             };
         };
     };
-    remove_23: {
+    remove_22: {
         parameters: {
             query?: never;
             header?: never;
@@ -22400,7 +21481,7 @@ export interface operations {
             };
         };
     };
-    remove_24: {
+    remove_23: {
         parameters: {
             query?: never;
             header?: never;
@@ -22432,7 +21513,7 @@ export interface operations {
             };
         };
     };
-    remove_25: {
+    remove_24: {
         parameters: {
             query?: never;
             header?: never;
@@ -22464,7 +21545,7 @@ export interface operations {
             };
         };
     };
-    remove_26: {
+    remove_25: {
         parameters: {
             query?: never;
             header?: never;

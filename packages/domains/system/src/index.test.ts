@@ -17,6 +17,8 @@ import {
   type RoleForm,
   type RoleQuery,
   type RoleVO,
+  type ResetPasswordCandidate,
+  type TemporaryPassword,
   type UserQuery,
   type UserTypeQuery,
   type UserTypeVO,
@@ -201,6 +203,45 @@ describe('system transport contracts', () => {
     await expect(service.users.list({ pageNum: 1, pageSize: 10 })).rejects.toBe(error);
   });
 
+  it('uses no-store POST requests and narrows credential responses', async () => {
+    const requests: HttpRequest[] = [];
+    const http: HttpClient = {
+      request: vi.fn(async request => {
+        requests.push(request);
+        return {
+          code: 200,
+          data: request.url.endsWith('/candidate')
+            ? { password: 'Candidate9!', ignored: 'transport-only' }
+            : { password: 'Temporary9!', expiresInSeconds: 60, ignored: 'transport-only' }
+        } as never;
+      })
+    };
+    const users = createSystemService(http).users;
+
+    await expect(users.passwordResetCandidate(42)).resolves.toEqual({
+      code: 200,
+      data: { password: 'Candidate9!' }
+    });
+    await expect(users.issueTemporaryPassword(42)).resolves.toEqual({
+      code: 200,
+      data: { password: 'Temporary9!', expiresInSeconds: 60 }
+    });
+    expect(requests).toEqual([
+      {
+        url: '/system/user/resetPwd/candidate',
+        method: 'post',
+        headers: { 'Cache-Control': 'no-store', repeatSubmit: false },
+        data: { userId: 42 }
+      },
+      {
+        url: '/system/user/temporaryPassword',
+        method: 'post',
+        headers: { 'Cache-Control': 'no-store', repeatSubmit: false },
+        data: { userId: 42 }
+      }
+    ]);
+  });
+
   it('retains concrete DTO and VO contracts for every governance slice', () => {
     const service = createSystemService({ request: vi.fn() });
     expectTypeOf(service.clients.list).toEqualTypeOf<
@@ -208,6 +249,12 @@ describe('system transport contracts', () => {
     >();
     expectTypeOf(service.clients.add).toEqualTypeOf<(data: ClientForm) => Promise<ApiResponse>>();
     expectTypeOf(service.users.list).toEqualTypeOf<(query: UserQuery) => Promise<ApiResponse<PageResult<UserVO>>>>();
+    expectTypeOf(service.users.passwordResetCandidate).toEqualTypeOf<
+      (userId: string | number) => Promise<ApiResponse<ResetPasswordCandidate>>
+    >();
+    expectTypeOf(service.users.issueTemporaryPassword).toEqualTypeOf<
+      (userId: string | number) => Promise<ApiResponse<TemporaryPassword>>
+    >();
     expectTypeOf(service.userTypes.list).toEqualTypeOf<
       (query?: UserTypeQuery) => Promise<ApiResponse<PageResult<UserTypeVO>>>
     >();

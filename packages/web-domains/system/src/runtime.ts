@@ -7,6 +7,28 @@ export interface SystemDictOption {
   value: string;
 }
 
+export type SystemPasswordCharacterClass = 'UPPERCASE' | 'LOWERCASE' | 'DIGIT' | 'SPECIAL';
+
+export type SystemPasswordViolationReason =
+  | 'PASSWORD_TOO_SHORT'
+  | 'PASSWORD_TOO_LONG'
+  | 'PASSWORD_MISSING_UPPERCASE'
+  | 'PASSWORD_MISSING_LOWERCASE'
+  | 'PASSWORD_MISSING_DIGIT'
+  | 'PASSWORD_MISSING_SPECIAL'
+  | 'PASSWORD_CONTAINS_DISALLOWED_CHARACTER';
+
+export interface SystemPasswordPolicy {
+  allowedSpecialCharacters: string;
+  maximumLength: number;
+  minimumLength: number;
+  requiredCharacterClasses: readonly SystemPasswordCharacterClass[];
+}
+
+export interface SystemPasswordViolation {
+  reason: SystemPasswordViolationReason;
+}
+
 export interface SystemWebRuntime {
   service: SystemService;
   treePanel: Component;
@@ -27,6 +49,11 @@ export interface SystemWebRuntime {
   config(key: string): Promise<string | undefined>;
   hasPermission(permission: string): boolean;
   currentUserId(): string | number | undefined;
+  passwordPolicy: {
+    load(): Promise<SystemPasswordPolicy>;
+    validate(policy: SystemPasswordPolicy, password: string): readonly SystemPasswordViolation[];
+  };
+  copyText(value: string): Promise<void>;
   uploadHeaders(): Readonly<Record<string, string>>;
 }
 

@@ -6,8 +6,18 @@ import type { MenuForm, MenuQuery, MenuTreeOption, MenuVO, RoleMenuTree } from '
 import type { PostForm, PostQuery, PostVO } from './post/types';
 import type { RoleDeptTree, RoleForm, RoleQuery, RoleVO } from './role/types';
 import type { UserTypeForm, UserTypeQuery, UserTypeVO } from './user-type/types';
-import type { UserForm, UserInfoVO, UserProfileForm, UserProfileInfoVO, UserQuery, UserVO } from './user/types';
+import type {
+  ResetPasswordCandidate,
+  TemporaryPassword,
+  UserForm,
+  UserInfoVO,
+  UserProfileForm,
+  UserProfileInfoVO,
+  UserQuery,
+  UserVO
+} from './user/types';
 import { createSystemResourceService, type SystemResourceService } from './resource-service';
+import { projectResetPasswordCandidateTransport, projectTemporaryPasswordTransport } from './transport';
 import { createUserQueryPort, type UserQueryPort } from './user/public';
 
 export * from './transport';
@@ -16,6 +26,8 @@ export type { ClientForm, ClientQuery, ClientVO } from './client/types';
 export type { DeptTreeOption, RoleDeptTree, RoleForm, RoleQuery, RoleVO } from './role/types';
 export type {
   ResetPwdForm,
+  ResetPasswordCandidate,
+  TemporaryPassword,
   UserForm,
   UserInfo,
   UserInfoVO,
@@ -87,6 +99,8 @@ export interface SystemService {
     get(userId?: Identifier, clientId?: Identifier): Promise<ApiResponse<UserInfoVO>>;
     listByDepartment(deptId: Identifier): Promise<ApiResponse<UserVO[]>>;
     profile(): Promise<ApiResponse<UserProfileInfoVO>>;
+    passwordResetCandidate(userId: Identifier): Promise<ApiResponse<ResetPasswordCandidate>>;
+    issueTemporaryPassword(userId: Identifier): Promise<ApiResponse<TemporaryPassword>>;
     resetPassword(userId: Identifier, password: string): Promise<ApiResponse>;
     unlock(userId: Identifier): Promise<ApiResponse>;
     update(data: UserForm): Promise<ApiResponse>;
@@ -248,6 +262,24 @@ export function createSystemService(http: HttpClient): SystemService {
           headers: { isEncrypt: true, repeatSubmit: false },
           data: { userId, password }
         }),
+      passwordResetCandidate: async (userId: Identifier) => {
+        const response = await request({
+          url: '/system/user/resetPwd/candidate',
+          method: 'post',
+          headers: { 'Cache-Control': 'no-store', repeatSubmit: false },
+          data: { userId }
+        });
+        return { ...response, data: projectResetPasswordCandidateTransport(response.data) };
+      },
+      issueTemporaryPassword: async (userId: Identifier) => {
+        const response = await request({
+          url: '/system/user/temporaryPassword',
+          method: 'post',
+          headers: { 'Cache-Control': 'no-store', repeatSubmit: false },
+          data: { userId }
+        });
+        return { ...response, data: projectTemporaryPasswordTransport(response.data) };
+      },
       changeStatus: (userId: Identifier, status: string) =>
         request({ url: '/system/user/changeStatus', method: 'put', data: { userId, status } }),
       unlock: (id: Identifier) => request({ url: '/system/user/unlock/' + segment(id), method: 'get' }),

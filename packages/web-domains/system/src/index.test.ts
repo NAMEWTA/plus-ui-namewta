@@ -1,10 +1,11 @@
 import { systemDomainModule } from '@namewta/domain-system';
 import { composeAppRuntime } from '@namewta/platform-app-runtime';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { reactive } from 'vue';
 import dictPage from './dict-type/DictPage.vue?raw';
 import { createLiveSystemDictRefs, createSystemWebDomain } from './index';
 import ossPage from './oss/OssPage.vue?raw';
+import type { SystemPasswordPolicy, SystemPasswordViolation, SystemWebRuntime } from './runtime';
 
 const runtime = { service: {} } as never;
 
@@ -33,6 +34,7 @@ describe('system web manifest', () => {
         'system:user:list',
         'system:user:import',
         'system:user:resetPwd',
+        'system:user:temporaryPassword',
         'system:userType:list',
         'system:role:list',
         'system:menu:list',
@@ -45,6 +47,16 @@ describe('system web manifest', () => {
         'system:ossConfig:list'
       ])
     );
+  });
+
+  it('requires the host to provide password policy validation and ephemeral clipboard access', () => {
+    expectTypeOf<SystemWebRuntime['passwordPolicy']['load']>().toEqualTypeOf<
+      () => Promise<SystemPasswordPolicy>
+    >();
+    expectTypeOf<SystemWebRuntime['passwordPolicy']['validate']>().toEqualTypeOf<
+      (policy: SystemPasswordPolicy, password: string) => readonly SystemPasswordViolation[]
+    >();
+    expectTypeOf<SystemWebRuntime['copyText']>().toEqualTypeOf<(value: string) => Promise<void>>();
   });
 
   it('registers only for an explicitly selected App composition', () => {

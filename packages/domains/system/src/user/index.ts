@@ -1,6 +1,8 @@
 export * from './public';
 export type {
   ResetPwdForm,
+  ResetPasswordCandidate,
+  TemporaryPassword,
   UserForm,
   UserInfo,
   UserInfoVO,

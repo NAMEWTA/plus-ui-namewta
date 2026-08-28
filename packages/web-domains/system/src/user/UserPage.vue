@@ -227,7 +227,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column label="操作" fixed="right" width="180" class-name="small-padding fixed-width">
+            <el-table-column label="操作" fixed="right" width="220" class-name="small-padding fixed-width">
               <template #default="scope">
                 <el-tooltip v-if="scope.row.userId !== '1761100000000000001'" content="修改" placement="top">
                   <el-button
@@ -254,7 +254,19 @@
                     link
                     type="primary"
                     icon="Key"
-                    @click="handleResetPwd(scope.row)"
+                    aria-label="重置密码"
+                    @click="credentialDialogsRef?.openReset(scope.row)"
+                  ></el-button>
+                </el-tooltip>
+
+                <el-tooltip v-if="scope.row.userId !== '1761100000000000001'" content="签发临时密码" placement="top">
+                  <el-button
+                    v-hasPermi="['system:user:temporaryPassword']"
+                    link
+                    type="primary"
+                    icon="Timer"
+                    aria-label="签发临时密码"
+                    @click="credentialDialogsRef?.issueTemporary(scope.row)"
                   ></el-button>
                 </el-tooltip>
 
@@ -336,7 +348,7 @@
                 v-model="form.password"
                 placeholder="请输入用户密码"
                 type="password"
-                maxlength="20"
+                :maxlength="passwordPolicy?.maximumLength"
                 show-password
               />
             </el-form-item>
@@ -513,6 +525,8 @@
       </template>
     </el-dialog>
 
+    <user-credential-dialogs ref="credentialDialogsRef" :runtime="runtime" />
+
     <!-- 用户详情抽屉 -->
     <user-view-drawer ref="userViewRef" :runtime="runtime" />
   </div>
@@ -527,6 +541,7 @@ import type {
   RoleQuery,
   RoleVO,
   UserForm,
+  UserInfoVO,
   UserQuery,
   UserTypeVO,
   UserVO
@@ -541,7 +556,7 @@ import {
 } from 'element-plus';
 import { computed, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import type { SystemWebRuntime } from '../runtime';
+import type { SystemPasswordPolicy, SystemWebRuntime } from '../runtime';
 import {
   useDateRangeQuery,
   useDialogState,
@@ -551,6 +566,8 @@ import {
   useTableSelection,
   useTreeCollapsed
 } from '../composables';
+import { describePasswordViolations } from './credential-workflow';
+import UserCredentialDialogs from './UserCredentialDialogs.vue';
 import UserViewDrawer from './UserViewDrawer.vue';
 
 const { runtime } = defineProps<{ runtime: SystemWebRuntime }>();
@@ -586,7 +603,8 @@ const { dateRange, applyDateRange, resetDateRange } = useDateRangeQuery();
 const { treeCollapsed } = useTreeCollapsed();
 const deptOptions = ref<DeptTreeVO[]>([]);
 const enabledDeptOptions = ref<DeptTreeVO[]>([]);
-const initPassword = ref<string>('');
+const passwordPolicy = ref<SystemPasswordPolicy>();
+let passwordPolicyRequest: Promise<SystemPasswordPolicy> | undefined;
 const postOptions = ref<PostVO[]>([]);
 const userTypeOptions = ref<UserTypeVO[]>([]);
 const clientOptions = ref<ClientVO[]>([]);
@@ -630,6 +648,31 @@ const userFormRef = ref<ElFormInstance>();
 const uploadRef = ref<ElUploadInstance>();
 const formDialogRef = ref<ElDialogInstance>();
 const userViewRef = ref<InstanceType<typeof UserViewDrawer>>();
+const credentialDialogsRef = ref<InstanceType<typeof UserCredentialDialogs>>();
+
+const loadPasswordPolicy = async (): Promise<SystemPasswordPolicy> => {
+  passwordPolicyRequest ??= runtime.passwordPolicy.load();
+  try {
+    passwordPolicy.value = await passwordPolicyRequest;
+    return passwordPolicy.value;
+  } catch (error) {
+    passwordPolicyRequest = undefined;
+    passwordPolicy.value = undefined;
+    throw error;
+  }
+};
+
+const validateManagedPassword = (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+  if (!passwordPolicy.value) {
+    callback(new Error('密码策略配置不可用'));
+    return;
+  }
+  const messages = describePasswordViolations(
+    passwordPolicy.value,
+    runtime.passwordPolicy.validate(passwordPolicy.value, value)
+  );
+  callback(messages.length ? new Error(messages.join('；')) : undefined);
+};
 
 const initFormData: UserForm = {
   userId: undefined,
@@ -672,15 +715,8 @@ const initData: PageData<UserForm, UserQuery> = {
     password: [
       { required: true, message: '用户密码不能为空', trigger: 'blur' },
       {
-        min: 5,
-        max: 20,
-        message: '用户密码长度必须介于 5 和 20 之间',
-        trigger: 'blur'
-      },
-      {
-        pattern: /^[^<>"'|\\]+$/,
-        message: '不能包含非法字符：< > " \' \\ |',
-        trigger: 'blur'
+        validator: validateManagedPassword,
+        trigger: ['blur', 'change']
       }
     ],
     email: [
@@ -946,30 +982,6 @@ const handleAuthRole = (row: Partial<UserVO>) => {
   router.push('/system/user-auth/role/' + userId);
 };
 
-/** 重置密码按钮操作 */
-const handleResetPwd = async (row: Partial<UserVO>) => {
-  let password: string;
-  try {
-    const res = await ElMessageBox.prompt('请输入"' + row.userName + '"的新密码', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      closeOnClickModal: false,
-      inputPattern: /^.{5,20}$/,
-      inputErrorMessage: '用户密码长度必须介于 5 和 20 之间',
-      inputValidator: value => {
-        if (/<|>|"|'|\||\\/.test(value)) {
-          return '不能包含非法字符：< > " \' \\ |';
-        }
-      }
-    });
-    password = res.value;
-  } catch {
-    return;
-  }
-  await api.resetUserPwd(row.userId, password);
-  modal.msgSuccess('修改成功，新密码是：' + password);
-};
-
 /** 详情按钮操作 */
 const handleViewDetail = (row: Partial<UserVO>) => {
   userViewRef.value?.openDrawer(row.userId);
@@ -1045,14 +1057,25 @@ const cancel = () => {
 const handleAdd = async () => {
   reset();
   const requestId = ++roleContextRequestId;
-  const { data } = await api.getUser();
+  let data: UserInfoVO;
+  try {
+    const [, response] = await Promise.all([loadPasswordPolicy(), api.getUser()]);
+    data = response.data;
+  } catch {
+    runtime.error('密码策略或新增用户候选不可用');
+    return;
+  }
   if (requestId !== roleContextRequestId) {
+    return;
+  }
+  if (!data.password) {
+    runtime.error('新增用户密码候选不可用');
     return;
   }
   setDialogTitle('新增用户');
   openUserDialog();
   postOptions.value = data.posts ?? [];
-  form.value.password = initPassword.value.toString();
+  form.value.password = data.password;
 };
 
 /** 修改按钮操作 */
@@ -1149,9 +1172,6 @@ onMounted(() => {
   getList(); // 初始化列表数据
   loadUserTypeOptions();
   loadClients();
-  runtime.config('sys.user.initPassword').then(value => {
-    initPassword.value = value ?? '';
-  });
 });
 
 async function handleDeptChange(value: number | string) {

@@ -1,4 +1,4 @@
-import { adminDomainModule } from '@namewta/domain-admin';
+import { adminDomainModule, requirePasswordPolicy, validatePassword } from '@namewta/domain-admin';
 import { aiDomainModule } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
 import { genDomainModule } from '@namewta/domain-gen';
@@ -177,6 +177,14 @@ export const adminSystemWebRuntime: SystemWebRuntime = {
   currentUserId: () => {
     const user = getActivePinia()?.state.value.user as { userId?: string | number } | undefined;
     return user?.userId;
+  },
+  passwordPolicy: {
+    load: async () => requirePasswordPolicy(await identityAccessService.getClientContext()),
+    validate: (policy, password) => validatePassword(policy, password)
+  },
+  copyText: async value => {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable');
+    await navigator.clipboard.writeText(value);
   },
   uploadHeaders: () => ({
     Authorization: `Bearer ${getToken()}`,

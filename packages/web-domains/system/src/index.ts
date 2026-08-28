@@ -2,7 +2,15 @@ import type { WebDomainManifest } from '@namewta/platform-app-runtime';
 import { defineComponent, h, type Component } from 'vue';
 import type { SystemWebRuntime } from './runtime';
 
-export { createLiveSystemDictRefs, type SystemWebRuntime, type SystemDictOption } from './runtime';
+export {
+  createLiveSystemDictRefs,
+  type SystemDictOption,
+  type SystemPasswordCharacterClass,
+  type SystemPasswordPolicy,
+  type SystemPasswordViolation,
+  type SystemPasswordViolationReason,
+  type SystemWebRuntime
+} from './runtime';
 export {
   createLiveMonitorDictRefs,
   createMonitorWebDomain,
@@ -48,7 +56,7 @@ export function createSystemWebDomain(runtime: SystemWebRuntime): WebDomainManif
     permissions: Object.freeze(
       Object.entries({
         client: ['list', 'query', 'add', 'edit', 'remove', 'export'],
-        user: ['list', 'query', 'add', 'edit', 'remove', 'export', 'import', 'resetPwd'],
+        user: ['list', 'query', 'add', 'edit', 'remove', 'export', 'import', 'resetPwd', 'temporaryPassword'],
         userType: ['list', 'query', 'add', 'edit', 'remove', 'export'],
         role: ['list', 'query', 'add', 'edit', 'remove', 'export'],
         menu: ['list', 'query', 'add', 'edit', 'remove'],

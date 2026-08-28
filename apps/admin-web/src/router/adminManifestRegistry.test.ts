@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { adminAiWebRuntime, resolveAdminWebRegistration } from './adminManifestRegistry';
+import { adminAiWebRuntime, adminSystemWebRuntime, resolveAdminWebRegistration } from './adminManifestRegistry';
 
 vi.mock('@/application/services', () => {
   const createService = () => {
@@ -8,11 +8,14 @@ vi.mock('@/application/services', () => {
     });
     return service;
   };
+  const getClientContext = vi.fn();
   return {
     aiService: createService(),
     demoService: createService(),
     genService: createService(),
-    identityAccessService: createService(),
+    identityAccessService: new Proxy(createService(), {
+      get: (target, property) => (property === 'getClientContext' ? getClientContext : Reflect.get(target, property))
+    }),
     monitorService: createService(),
     systemService: createService(),
     workflowService: createService()
@@ -25,6 +28,27 @@ vi.mock('@/application/access', () => ({
 afterEach(() => vi.unstubAllGlobals());
 
 describe('admin selected manifest registry', () => {
+  it('adapts the admin identity policy and browser clipboard through explicit system runtime ports', async () => {
+    const services = await import('@/application/services');
+    vi.mocked(services.identityAccessService.getClientContext).mockResolvedValue({
+      clientEnabled: true,
+      registerEnabled: true,
+      passwordPolicy: {
+        minimumLength: 8,
+        maximumLength: 20,
+        requiredCharacterClasses: ['UPPERCASE', 'LOWERCASE', 'DIGIT', 'SPECIAL'],
+        allowedSpecialCharacters: '!@#'
+      }
+    });
+    const writeText = vi.fn(async () => undefined);
+    vi.stubGlobal('navigator', { clipboard: { writeText } });
+
+    const policy = await adminSystemWebRuntime.passwordPolicy.load();
+    expect(adminSystemWebRuntime.passwordPolicy.validate(policy, 'weak')).not.toEqual([]);
+    await adminSystemWebRuntime.copyText('redacted');
+    expect(writeText).toHaveBeenCalledWith('redacted');
+  });
+
   it('selects the active admin manifests and excludes unregistered system slices', () => {
     expect(resolveAdminWebRegistration('identity-access/login/index', 'admin')).toMatchObject({
       componentName: 'IdentityLogin'

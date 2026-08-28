@@ -101,11 +101,21 @@ export interface UserProfileForm {
 }
 
 export interface UserInfoVO {
+  password?: string;
   user?: UserVO;
   roles: RoleVO[];
   roleIds: Array<string | number>;
   posts: PostVO[];
   postIds: Array<string | number>;
+}
+
+export interface ResetPasswordCandidate {
+  password: string;
+}
+
+export interface TemporaryPassword {
+  expiresInSeconds: number;
+  password: string;
 }
 
 export interface UserProfileInfoVO {

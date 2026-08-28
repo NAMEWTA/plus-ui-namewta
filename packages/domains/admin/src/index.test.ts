@@ -239,6 +239,59 @@ describe('identity access domain', () => {
     expect(harness.session.clear).toHaveBeenCalledOnce();
   });
 
+  it('recursively validates and freezes server menus before exposing them', async () => {
+    const harness = createHarness({
+      '/system/menu/getRouters': {
+        data: [
+          {
+            path: '/system',
+            component: 'Layout',
+            meta: { title: '系统管理', noCache: false },
+            children: [{ path: 'user', name: 'User', component: 'system/user/index' }]
+          }
+        ]
+      }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      identity: harness.identity,
+      session: harness.session
+    });
+
+    const menus = await service.getMenus();
+
+    expect(menus).toEqual([
+      {
+        path: '/system',
+        component: 'Layout',
+        meta: { title: '系统管理', noCache: false },
+        children: [{ path: 'user', name: 'User', component: 'system/user/index' }]
+      }
+    ]);
+    expect(Object.isFrozen(menus)).toBe(true);
+    expect(Object.isFrozen(menus[0])).toBe(true);
+    expect(Object.isFrozen(menus[0]?.children)).toBe(true);
+    expect(Object.isFrozen(menus[0]?.children?.[0])).toBe(true);
+  });
+
+  it.each([
+    { data: [{ path: '/system', children: [{ path: 42, component: 'system/user/index' }] }] },
+    { data: [{ path: '/system', children: {} }] },
+    { data: [{ path: '/system', meta: { noCache: 'false' } }] },
+    { data: [{ path: '   ', component: 'Layout' }] }
+  ])('fails closed for a malformed nested server menu: $data', async ({ data }) => {
+    const harness = createHarness({ '/system/menu/getRouters': { data } });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      identity: harness.identity,
+      session: harness.session
+    });
+
+    await expect(service.getMenus()).rejects.toMatchObject({ code: 'invalid-menu-response' });
+  });
+
   it('fails registration closed when the validated Client disables it', async () => {
     const harness = createHarness({
       '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: false } },

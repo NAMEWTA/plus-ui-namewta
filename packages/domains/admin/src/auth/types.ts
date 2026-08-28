@@ -3,10 +3,11 @@ export type {
   IdentityAccessManagementService,
   IdentityAccessServiceOptions,
   IdentityInfo,
-  IdentityMenu,
   IdentitySession,
   PasswordLoginInput,
   RegistrationInput,
   SocialCallbackInput,
-  SocialCallbackResult
+  SocialCallbackResult,
+  ServerMenuMeta,
+  ServerMenuNode
 } from '../index';

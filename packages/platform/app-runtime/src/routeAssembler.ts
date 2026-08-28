@@ -1,7 +1,21 @@
-export interface ServerRouteNode<Component = unknown> {
-  children?: readonly ServerRouteNode<Component>[];
+export interface ServerRouteNode<Component = unknown, Meta = unknown> {
+  alwaysShow?: boolean;
+  children?: readonly ServerRouteNode<Component, Meta>[];
   component?: string | Component;
-  [key: string]: unknown;
+  ext?: string;
+  hidden?: boolean;
+  meta?: Meta;
+  name?: string;
+  path: string;
+  permissions?: readonly string[];
+  query?: string;
+  redirect?: string;
+}
+
+export interface NamedRouteNode {
+  children?: readonly NamedRouteNode[];
+  name?: unknown;
+  path?: unknown;
 }
 
 export interface MissingComponentDiagnostic {
@@ -16,7 +30,7 @@ export interface RouteRegistration<Component> {
   load: Component;
 }
 
-export interface AssembleServerRoutesOptions<Component> {
+export interface AssembleServerRoutesOptions<Component, Meta = unknown> {
   appId: string;
   createDiagnostic(details: MissingComponentDiagnostic): Component;
   resolveRegistration(input: {
@@ -24,11 +38,12 @@ export interface AssembleServerRoutesOptions<Component> {
     domainId: string;
     routeName?: string;
   }): RouteRegistration<Component> | undefined;
-  routes: readonly ServerRouteNode<Component>[];
+  routes: readonly ServerRouteNode<Component, Meta>[];
   specialComponents?: Readonly<Record<string, Component>>;
 }
 
-export interface ProjectServerRoutesOptions<Component> extends AssembleServerRoutesOptions<Component> {
+export interface ProjectServerRoutesOptions<Component, Meta = unknown>
+  extends AssembleServerRoutesOptions<Component, Meta> {
   flattenParentView?: boolean;
   parentViewComponentKey?: string;
 }
@@ -43,15 +58,15 @@ export function inferDomainId(componentKey: string): string {
   return domainId || 'unknown';
 }
 
-export function assembleServerRoutes<Component>({
+export function assembleServerRoutes<Component, Meta = unknown>({
   appId,
   createDiagnostic,
   resolveRegistration,
   routes,
   specialComponents = {}
-}: AssembleServerRoutesOptions<Component>): ServerRouteNode<Component>[] {
+}: AssembleServerRoutesOptions<Component, Meta>): ServerRouteNode<Component, Meta>[] {
   return routes.map(route => {
-    const assembled: ServerRouteNode<Component> = { ...route };
+    const assembled: ServerRouteNode<Component, Meta> = { ...route };
     if (Array.isArray(route.children)) {
       assembled.children = assembleServerRoutes({
         appId,
@@ -89,20 +104,20 @@ function joinRoutePath(parentPath: string, childPath: string): string {
   return `${parentPath.replace(/\/$/, '')}/${childPath.replace(/^\//, '')}`;
 }
 
-function normalizeProjection<Component>(
-  routes: readonly ServerRouteNode<Component>[],
+function normalizeProjection<Component, Meta>(
+  routes: readonly ServerRouteNode<Component, Meta>[],
   flattenParentView: boolean,
   parentViewComponentKey: string,
   parentViewPath?: string
-): ServerRouteNode<Component>[] {
-  const result: ServerRouteNode<Component>[] = [];
+): ServerRouteNode<Component, Meta>[] {
+  const result: ServerRouteNode<Component, Meta>[] = [];
   for (const source of routes) {
-    const route: ServerRouteNode<Component> = { ...source };
-    const sourcePath = typeof source.path === 'string' ? source.path : '';
+    const route: ServerRouteNode<Component, Meta> = { ...source };
+    const sourcePath = source.path;
     if (parentViewPath && sourcePath) route.path = joinRoutePath(parentViewPath, sourcePath);
 
-    const children: readonly ServerRouteNode<Component>[] = Array.isArray(source.children)
-      ? (source.children as readonly ServerRouteNode<Component>[])
+    const children: readonly ServerRouteNode<Component, Meta>[] = Array.isArray(source.children)
+      ? source.children
       : [];
     if (flattenParentView && source.component === parentViewComponentKey && children.length > 0) {
       result.push(
@@ -127,25 +142,25 @@ function normalizeProjection<Component>(
   return result;
 }
 
-export function projectServerRoutes<Component>({
+export function projectServerRoutes<Component, Meta = unknown>({
   flattenParentView = false,
   parentViewComponentKey = 'ParentView',
   ...assembleOptions
-}: ProjectServerRoutesOptions<Component>): ServerRouteNode<Component>[] {
+}: ProjectServerRoutesOptions<Component, Meta>): ServerRouteNode<Component, Meta>[] {
   return assembleServerRoutes({
     ...assembleOptions,
     routes: normalizeProjection(assembleOptions.routes, flattenParentView, parentViewComponentKey)
   });
 }
 
-export function findDuplicateRouteNames<Component>(
-  routeGroups: readonly (readonly ServerRouteNode<Component>[])[]
+export function findDuplicateRouteNames(
+  routeGroups: readonly (readonly NamedRouteNode[])[]
 ): readonly DuplicateRouteNameDiagnostic[] {
   const seen = new Set<string>();
   const reported = new Set<string>();
   const diagnostics: DuplicateRouteNameDiagnostic[] = [];
 
-  const visit = (routes: readonly ServerRouteNode<Component>[]) => {
+  const visit = (routes: readonly NamedRouteNode[]) => {
     for (const route of routes) {
       const routeName = typeof route.name === 'string' ? route.name.trim() : '';
       if (routeName) {

@@ -3,12 +3,13 @@ export type {
   IdentityAccessManagementService,
   IdentityAccessServiceOptions,
   IdentityInfo,
-  IdentityMenu,
   IdentitySession,
   PasswordLoginInput,
   RegistrationInput,
   SocialCallbackInput,
-  SocialCallbackResult
+  SocialCallbackResult,
+  ServerMenuMeta,
+  ServerMenuNode
 } from './types';
 export { createClientSessionKey, createIdentityAccessService, IdentityAccessError } from '../index';
 

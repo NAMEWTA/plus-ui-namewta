@@ -574,7 +574,11 @@ test('participant actions execute delegate transfer add-sign and reduce-sign con
     await expect(selector.getByRole('cell', { name: '流程负责人' })).toBeVisible();
     await selector.getByRole('row').filter({ hasText: '流程负责人' }).locator('label.el-checkbox').click();
     await selector.getByRole('button', { name: '确定', exact: true }).click();
-    await page.getByRole('button', { name: '确定', exact: true }).click();
+    await expect(selector).toBeHidden();
+    const confirmation = page.getByRole('dialog', { name: '系统提示' });
+    await expect(confirmation).toBeVisible();
+    await confirmation.getByRole('button', { name: '确定', exact: true }).click();
+    await expect(confirmation).toBeHidden();
   };
   const reopen = async () => {
     await expect(page).toHaveURL(/\/workflow\/task\/taskWaiting$/);

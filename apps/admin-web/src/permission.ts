@@ -4,7 +4,7 @@ import * as NProgressModule from 'nprogress';
 import 'nprogress/nprogress.css';
 import { isHandledRequestError, isRelogin } from '@/application/http';
 import { getToken } from '@/application/session';
-import { usePermissionStore } from '@/store/modules/permission';
+import { useNavigationStore } from '@/store/modules/navigation';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useUserStore } from '@/store/modules/user';
 import { isHttp, isPathMatch } from '@/utils/validate';
@@ -35,7 +35,7 @@ router.beforeEach(async (to, from) => {
         try {
           return await restoreProtectedNavigation({
             loadIdentity: () => useUserStore().getInfo(),
-            loadRoutes: () => usePermissionStore().generateRoutes(),
+            loadRoutes: () => useNavigationStore().generateRoutes(),
             isExternal: route => isHttp(route.path),
             addRoute: route => router.addRoute(route),
             createReplacement: () => {

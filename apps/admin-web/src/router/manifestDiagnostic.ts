@@ -1,4 +1,5 @@
-import type { MissingComponentDiagnostic } from '@namewta/platform-app-runtime';
+import type { DuplicateRouteNameDiagnostic, MissingComponentDiagnostic } from '@namewta/platform-app-runtime';
+import { ElNotification } from 'element-plus/es';
 import { defineComponent, h, type Component } from 'vue';
 
 export const formatManifestRouteDiagnostic = (details: MissingComponentDiagnostic): string =>
@@ -14,4 +15,15 @@ export function createManifestRouteDiagnostic(details: MissingComponentDiagnosti
         h('p', message)
       ])
   });
+}
+
+export const formatDuplicateRouteNameDiagnostic = (details: DuplicateRouteNameDiagnostic): string =>
+  `路由名称: [${details.routeName}] 重复, 会造成 404`;
+
+export function presentDuplicateRouteNameDiagnostics(details: readonly DuplicateRouteNameDiagnostic[]): void {
+  for (const diagnostic of details) {
+    const message = formatDuplicateRouteNameDiagnostic(diagnostic);
+    console.error(message);
+    ElNotification({ title: '路由名称重复', message, type: 'error' });
+  }
 }

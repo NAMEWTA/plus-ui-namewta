@@ -88,7 +88,7 @@
 <script setup lang="ts" name="layoutBreadcrumbSearch">
 import type { RouteRecordRaw } from 'vue-router';
 import { Search } from '@element-plus/icons-vue';
-import { usePermissionStore } from '@/store/modules/permission';
+import { useNavigationStore } from '@/store/modules/navigation';
 import { useSettingsStore } from '@/store/modules/settings';
 import { getNormalPath } from '@/utils/ruoyi';
 import { isHttp } from '@/utils/validate';
@@ -110,11 +110,11 @@ type SearchState = {
 };
 
 const router = useRouter();
-const permissionStore = usePermissionStore();
+const navigationStore = useNavigationStore();
 const settingsStore = useSettingsStore();
 const searchInputRef = ref<any>();
 
-const routes = computed(() => permissionStore.defaultRoutes);
+const routes = computed(() => navigationStore.defaultRoutes);
 const theme = computed(() => settingsStore.theme);
 
 const state = reactive<SearchState>({

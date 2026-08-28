@@ -22,11 +22,16 @@ function createPermissionDirective(
 ): Directive<HTMLElement, unknown> {
   return {
     mounted(element: HTMLElement, binding: DirectiveBinding<unknown>) {
-      const required = requireValues(binding.value, directiveName);
-      const evaluator = requireEvaluator(provider);
-      const allowed =
-        directiveName === 'hasPermi' ? evaluator.hasAnyPermission(required) : evaluator.hasAnyRole(required);
-      if (!allowed) element.parentNode?.removeChild(element);
+      try {
+        const required = requireValues(binding.value, directiveName);
+        const evaluator = requireEvaluator(provider);
+        const allowed =
+          directiveName === 'hasPermi' ? evaluator.hasAnyPermission(required) : evaluator.hasAnyRole(required);
+        if (!allowed) element.parentNode?.removeChild(element);
+      } catch (error) {
+        element.parentNode?.removeChild(element);
+        throw error;
+      }
     }
   };
 }

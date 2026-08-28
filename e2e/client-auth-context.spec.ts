@@ -120,7 +120,7 @@ test('invalid Client context reaches terminal fail-close before code or login', 
   expect(state.unknownRequests).toEqual([]);
 });
 
-test('registration applies the public policy before sending the encrypted write', async ({ page }) => {
+test('registration applies the public policy before sending the encrypted write', async ({ page }, testInfo) => {
   const state = adminState();
   await installAdminApi(page, state);
   await page.goto('/register');
@@ -130,6 +130,7 @@ test('registration applies the public policy before sending the encrypted write'
   await page.getByPlaceholder('确认密码').fill('weak');
   await page.getByRole('button', { name: '注 册' }).click();
   await expect(page.getByText('密码长度不能少于 8 位', { exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('registration-password-policy.png'), fullPage: true });
   expect(state.registerRequests).toBe(0);
 
   await page.getByPlaceholder('密码', { exact: true }).fill('ValidPass!9');
@@ -150,7 +151,7 @@ test('registration fails closed when an enabled Client omits the password policy
   expect(state.registerRequests).toBe(0);
 });
 
-test('profile password change reuses the same policy and blocks weak writes', async ({ page }) => {
+test('profile password change reuses the same policy and blocks weak writes', async ({ page }, testInfo) => {
   const state = adminState();
   await installAdminApi(page, state);
   await page.addInitScript(() => localStorage.setItem('Admin-Token', 'profile-token'));
@@ -162,6 +163,7 @@ test('profile password change reuses the same policy and blocks weak writes', as
   await page.getByPlaceholder('请确认新密码').fill('weak');
   await page.getByRole('button', { name: '保存' }).click();
   await expect(page.getByText('密码长度不能少于 8 位', { exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('profile-password-policy.png'), fullPage: true });
   expect(state.profilePasswordRequests).toBe(0);
 
   await page.getByPlaceholder('请输入新密码').fill('ChangedPass!9');

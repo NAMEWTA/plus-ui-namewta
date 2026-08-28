@@ -132,6 +132,9 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
     if (path === '/resource/message') {
       return route.fulfill({ contentType: 'text/event-stream', body: '' });
     }
+    if (path === '/demo/demo/list') {
+      return fulfillJson(route, { code: 200, rows: [], total: 0 });
+    }
     state.unknownRequests.push(`${request.method()} ${path}`);
     return fulfillJson(route, { code: 200, data: null, rows: [], total: 0 });
   });

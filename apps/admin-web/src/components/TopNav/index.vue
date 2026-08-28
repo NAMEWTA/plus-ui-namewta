@@ -38,7 +38,7 @@
 import { RouteRecordRaw } from 'vue-router';
 import { constantRoutes } from '@/router';
 import { useAppStore } from '@/store/modules/app';
-import { usePermissionStore } from '@/store/modules/permission';
+import { useNavigationStore } from '@/store/modules/navigation';
 import { useSettingsStore } from '@/store/modules/settings';
 import { isHttp } from '@/utils/validate';
 
@@ -49,14 +49,14 @@ const hideList = ['/index', '/user/profile'];
 
 const appStore = useAppStore();
 const settingsStore = useSettingsStore();
-const permissionStore = usePermissionStore();
+const navigationStore = useNavigationStore();
 const route = useRoute();
 const router = useRouter();
 
 // 主题颜色
 const theme = computed(() => settingsStore.theme);
 // 所有的路由信息
-const routers = computed(() => permissionStore.getTopbarRoutes());
+const routers = computed(() => navigationStore.getTopbarRoutes());
 
 // 顶部显示菜单
 const topMenus = computed(() => {
@@ -157,7 +157,7 @@ const activeRoutes = (key: string) => {
     });
   }
   if (routes.length > 0) {
-    permissionStore.setSidebarRouters(routes);
+    navigationStore.setSidebarRouters(routes);
   } else {
     appStore.toggleSideBarHide(true);
   }

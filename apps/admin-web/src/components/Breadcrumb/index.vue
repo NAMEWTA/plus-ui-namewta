@@ -13,11 +13,11 @@
 
 <script setup lang="ts">
 import { RouteLocationMatched } from 'vue-router';
-import { usePermissionStore } from '@/store/modules/permission';
+import { useNavigationStore } from '@/store/modules/navigation';
 
 const route = useRoute();
 const router = useRouter();
-const permissionStore = usePermissionStore();
+const navigationStore = useNavigationStore();
 const levelList = ref<RouteLocationMatched[]>([]);
 
 const getBreadcrumb = () => {
@@ -31,7 +31,7 @@ const getBreadcrumb = () => {
       if (index !== 0) item = item.slice(1);
       return item;
     });
-    getMatched(pathList, permissionStore.defaultRoutes, matched);
+    getMatched(pathList, navigationStore.defaultRoutes, matched);
   } else {
     matched = route.matched.filter(item => item.meta && item.meta.title);
   }

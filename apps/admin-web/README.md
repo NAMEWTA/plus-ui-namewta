@@ -21,7 +21,7 @@
 - `src/application/http.ts`：Admin 浏览器 HTTP 适配器与 401 恢复编排。
 - `src/router/adminManifestRegistry.ts`：编译期领域与页面清单组合入口。
 - `src/permission.ts`：受保护导航与登录态恢复。
-- `src/store/modules/permission.ts`：后端菜单转换与动态路由注入。
+- `src/store/modules/navigation.ts`：通过共享菜单运行时投影后端权威菜单，并维护 Admin 导航状态。
 
 ## 后端映射
 

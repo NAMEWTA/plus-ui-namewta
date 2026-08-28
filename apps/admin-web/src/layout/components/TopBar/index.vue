@@ -36,13 +36,13 @@
 
 <script setup lang="ts">
 import type { RouteRecordRaw } from 'vue-router';
-import { usePermissionStore } from '@/store/modules/permission';
+import { useNavigationStore } from '@/store/modules/navigation';
 import { useSettingsStore } from '@/store/modules/settings';
 import SidebarItem from '../Sidebar/SidebarItem.vue';
 
 const route = useRoute();
 const settingsStore = useSettingsStore();
-const permissionStore = usePermissionStore();
+const navigationStore = useNavigationStore();
 
 const theme = computed(() => settingsStore.theme);
 const activeMenu = computed(() => {
@@ -55,10 +55,10 @@ const activeMenu = computed(() => {
 
 const visibleNumber = ref(5);
 const topMenus = computed((): RouteRecordRaw[] => {
-  return permissionStore.sidebarRouters.filter(f => !f.hidden).slice(0, visibleNumber.value) as RouteRecordRaw[];
+  return navigationStore.sidebarRouters.filter(f => !f.hidden).slice(0, visibleNumber.value) as RouteRecordRaw[];
 });
 const moreRoutes = computed((): RouteRecordRaw[] => {
-  return permissionStore.sidebarRouters.filter(f => !f.hidden).slice(visibleNumber.value) as RouteRecordRaw[];
+  return navigationStore.sidebarRouters.filter(f => !f.hidden).slice(visibleNumber.value) as RouteRecordRaw[];
 });
 function setVisibleNumber() {
   let width = document.body.getBoundingClientRect().width;

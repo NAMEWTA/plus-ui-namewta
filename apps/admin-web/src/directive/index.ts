@@ -1,9 +1,9 @@
 import type { App } from 'vue';
+import { installWebPermissionHost } from '@namewta/web-kit-permission';
+import { createAdminAccessEvaluator } from '@/application/access';
 import copyText from './common/copyText';
-import { hasPermi, hasRoles } from './permission';
 
 export default (app: App) => {
   app.directive('copyText', copyText);
-  app.directive('hasPermi', hasPermi);
-  app.directive('hasRoles', hasRoles);
+  installWebPermissionHost(app, createAdminAccessEvaluator);
 };

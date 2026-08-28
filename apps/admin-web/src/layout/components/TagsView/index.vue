@@ -102,7 +102,7 @@ import {
   Right
 } from '@element-plus/icons-vue';
 import tab from '@/application/host/navigation';
-import { usePermissionStore } from '@/store/modules/permission';
+import { useNavigationStore } from '@/store/modules/navigation';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useTagsViewStore } from '@/store/modules/tagsView';
 import { getNormalPath } from '@/utils/ruoyi';
@@ -122,11 +122,11 @@ const fullscreenModeClass = 'tags-fullscreen-mode';
 const route = useRoute();
 const router = useRouter();
 const settingsStore = useSettingsStore();
-const permissionStore = usePermissionStore();
+const navigationStore = useNavigationStore();
 const tagsViewStore = useTagsViewStore();
 
 const visitedViews = computed(() => tagsViewStore.getVisitedViews());
-const routes = computed(() => permissionStore.getRoutes());
+const routes = computed(() => navigationStore.getRoutes());
 const tagsIcon = computed(() => settingsStore.tagsIcon);
 const selectedDropdownTag = computed<RouteLocationNormalized | undefined>(() => {
   return visitedViews.value.find(tag => isActive(tag)) || selectedTag.value;

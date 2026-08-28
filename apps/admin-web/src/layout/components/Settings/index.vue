@@ -174,14 +174,14 @@ import { NavTypeEnum } from '@/enums/NavTypeEnum';
 import { SideThemeEnum } from '@/enums/SideThemeEnum';
 import defaultSettings from '@/settings';
 import { useAppStore } from '@/store/modules/app';
-import { usePermissionStore } from '@/store/modules/permission';
+import { useNavigationStore } from '@/store/modules/navigation';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useDynamicTitle } from '@/utils/dynamicTitle';
 import { handleThemeStyle } from '@/utils/theme';
 
 const appStore = useAppStore();
 const settingsStore = useSettingsStore();
-const permissionStore = usePermissionStore();
+const navigationStore = useNavigationStore();
 
 const showSettings = ref(false);
 const theme = ref(settingsStore.theme);
@@ -212,10 +212,10 @@ watch(
   val => {
     if (val === NavTypeEnum.TOP) {
       appStore.toggleSideBarHide(true);
-      permissionStore.setSidebarRouters(permissionStore.defaultRoutes as any);
+      navigationStore.setSidebarRouters(navigationStore.defaultRoutes as any);
     } else if (val === NavTypeEnum.LEFT) {
       appStore.toggleSideBarHide(false);
-      permissionStore.setSidebarRouters(permissionStore.defaultRoutes as any);
+      navigationStore.setSidebarRouters(navigationStore.defaultRoutes as any);
     } else if (val === NavTypeEnum.MIX) {
       appStore.toggleSideBarHide(false);
     }

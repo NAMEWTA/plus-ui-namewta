@@ -1259,6 +1259,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/system/user/temporaryPassword": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 签发 60 秒有效、单次消费的临时密码，不修改永久密码。
+         * @description 签发 60 秒有效、单次消费的临时密码，不修改永久密码。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:temporaryPassword`<br><br>
+         */
+        post: operations["issue"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/user/resetPwd/candidate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 生成可编辑的永久密码重置候选，不修改用户。
+         * @description 生成可编辑的永久密码重置候选，不修改用户。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:resetPwd`<br><br>
+         */
+        post: operations["candidate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/system/user/importTemplate": {
         parameters: {
             query?: never;
@@ -6366,15 +6406,12 @@ export interface components {
             listenerPath?: string;
             /** Format: int64 */
             definitionId?: number;
-            permissionFlag?: string;
-            listenerType?: string;
-            /** Format: int64 */
-            id?: number;
-            /** Format: int32 */
-            nodeType?: number;
-            version?: string;
-            ext?: string;
+            tenantId?: string;
+            coordinate?: string;
+            anyNodeSkip?: string;
+            skipList?: components["schemas"]["Skip"][];
             updateBy?: string;
+            ext?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
@@ -6383,27 +6420,31 @@ export interface components {
             delFlag?: string;
             nodeCode?: string;
             nodeName?: string;
+            /** Format: int32 */
+            nodeType?: number;
             nodeRatio?: string;
+            permissionFlag?: string;
             formCustom?: string;
             formPath?: string;
-            anyNodeSkip?: string;
-            tenantId?: string;
-            coordinate?: string;
-            skipList?: components["schemas"]["Skip"][];
+            version?: string;
+            /** Format: int64 */
+            id?: number;
+            listenerType?: string;
         };
         Skip: {
-            /** Format: int64 */
-            definitionId?: number;
-            skipCondition?: string;
-            nextNodeCode?: string;
+            /** Format: int32 */
+            nowNodeType?: number;
             /** Format: int32 */
             nextNodeType?: number;
             /** Format: int64 */
-            id?: number;
-            /** Format: int64 */
-            nodeId?: number;
-            /** Format: int32 */
-            nowNodeType?: number;
+            definitionId?: number;
+            tenantId?: string;
+            coordinate?: string;
+            skipType?: string;
+            skipName?: string;
+            nowNodeCode?: string;
+            skipCondition?: string;
+            nextNodeCode?: string;
             updateBy?: string;
             /** Format: date-time */
             createTime?: string;
@@ -6411,16 +6452,13 @@ export interface components {
             /** Format: date-time */
             updateTime?: string;
             delFlag?: string;
-            nowNodeCode?: string;
-            tenantId?: string;
-            skipType?: string;
-            coordinate?: string;
-            skipName?: string;
-        };
-        User: {
-            type?: string;
+            /** Format: int64 */
+            nodeId?: number;
             /** Format: int64 */
             id?: number;
+        };
+        User: {
+            tenantId?: string;
             updateBy?: string;
             /** Format: date-time */
             createTime?: string;
@@ -6431,7 +6469,9 @@ export interface components {
             /** Format: int64 */
             associated?: number;
             processedBy?: string;
-            tenantId?: string;
+            /** Format: int64 */
+            id?: number;
+            type?: string;
         };
         /** @description 流程分类业务对象 wf_category */
         FlowCategoryBo: {
@@ -6631,6 +6671,16 @@ export interface components {
              * @description 排序
              */
             sort?: number;
+            /** @description 判断当前字段是否为数值类型。 */
+            numberType?: boolean;
+            /** @description 判断当前列是否参与查询条件。 */
+            query?: boolean;
+            /** @description 判断当前列是否为自增列。 */
+            increment?: boolean;
+            /** @description 获取适合界面展示的字段注释，去除括号内的枚举说明。 */
+            columnLabel?: string;
+            /** @description 获取 TypeScript 字段类型。 */
+            tsType?: string;
             /** @description 获取首字母大写后的 Java 字段名。 */
             capJavaField?: string;
             /** @description 获取开关启用值的前端字面量。 */
@@ -6641,10 +6691,6 @@ export interface components {
             dateRangeQuery?: boolean;
             /** @description 判断当前列是否需要显式声明 MP 字段映射。 */
             needTableField?: boolean;
-            /** @description 判断当前列是否必填。 */
-            required?: boolean;
-            /** @description 判断当前列是否参与列表展示。 */
-            list?: boolean;
             /** @description 判断当前列是否为主键列。 */
             pk?: boolean;
             /** @description 判断当前列是否参与编辑。 */
@@ -6657,16 +6703,10 @@ export interface components {
             usableColumn?: boolean;
             /** @description 判断当前列是否为基类公共字段。 */
             superColumn?: boolean;
-            /** @description 判断当前字段是否为数值类型。 */
-            numberType?: boolean;
-            /** @description 判断当前列是否参与查询条件。 */
-            query?: boolean;
-            /** @description 判断当前列是否为自增列。 */
-            increment?: boolean;
-            /** @description 获取适合界面展示的字段注释，去除括号内的枚举说明。 */
-            columnLabel?: string;
-            /** @description 获取 TypeScript 字段类型。 */
-            tsType?: string;
+            /** @description 判断当前列是否必填。 */
+            required?: boolean;
+            /** @description 判断当前列是否参与列表展示。 */
+            list?: boolean;
         };
         /** @description 用户信息业务对象 sys_user */
         SysUserBo: {
@@ -7514,13 +7554,10 @@ export interface components {
             activityStatus?: number;
             /** Format: int64 */
             definitionId?: number;
-            /** Format: int64 */
-            id?: number;
-            /** Format: int32 */
-            nodeType?: number;
-            variable?: string;
-            ext?: string;
+            tenantId?: string;
+            defJson?: string;
             updateBy?: string;
+            ext?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
@@ -7530,15 +7567,18 @@ export interface components {
             businessId?: string;
             nodeCode?: string;
             nodeName?: string;
+            /** Format: int32 */
+            nodeType?: number;
             flowStatus?: string;
+            variable?: string;
             flowName?: string;
             variableMap?: {
                 [key: string]: unknown;
             };
             formCustom?: string;
             formPath?: string;
-            tenantId?: string;
-            defJson?: string;
+            /** Format: int64 */
+            id?: number;
         };
         NodeJson: {
             /** Format: int32 */
@@ -7607,32 +7647,244 @@ export interface components {
             data?: unknown;
         };
         Form: {
-            /** Format: int64 */
-            id?: number;
-            version?: string;
-            ext?: string;
+            tenantId?: string;
+            /** Format: int32 */
+            isPublish?: number;
+            formContent?: string;
+            formCode?: string;
+            formName?: string;
+            /** Format: int32 */
+            formType?: number;
             updateBy?: string;
+            ext?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
             /** Format: date-time */
             updateTime?: string;
             delFlag?: string;
-            /** Format: int32 */
-            isPublish?: number;
             formPath?: string;
-            formContent?: string;
-            tenantId?: string;
-            formCode?: string;
-            formName?: string;
-            /** Format: int32 */
-            formType?: number;
+            version?: string;
+            /** Format: int64 */
+            id?: number;
         };
         ApiResultInstance: {
             /** Format: int32 */
             code?: number;
             msg?: string;
             data?: components["schemas"]["Instance"];
+        };
+        /** @description 临时密码签发请求。 */
+        TemporaryPasswordIssueBo: {
+            /**
+             * Format: int64
+             * @description 目标用户 ID
+             */
+            userId: number;
+        };
+        /** @description 响应信息主体 */
+        RTemporaryPasswordVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["TemporaryPasswordVo"];
+        };
+        /** @description 一次性临时密码签发响应。 */
+        TemporaryPasswordVo: {
+            /** @description 仅本次响应展示的明文 */
+            password?: string;
+            /**
+             * Format: int64
+             * @description 有效秒数
+             */
+            expiresInSeconds?: number;
+        };
+        /** @description 永久密码重置候选请求。 */
+        ResetPasswordCandidateBo: {
+            /**
+             * Format: int64
+             * @description 目标用户 ID
+             */
+            userId: number;
+        };
+        /** @description 响应信息主体 */
+        RResetPasswordCandidateVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["ResetPasswordCandidateVo"];
+        };
+        /** @description 用户初始化或永久重置使用的可编辑密码候选。 */
+        ResetPasswordCandidateVo: {
+            /** @description 用户信息 */
+            user?: components["schemas"]["SysUserVo"];
+            /** @description 角色ID列表 */
+            roleIds?: number[];
+            /** @description 角色列表 */
+            roles?: components["schemas"]["SysRoleVo"][];
+            /** @description 岗位ID列表 */
+            postIds?: number[];
+            /** @description 岗位列表 */
+            posts?: components["schemas"]["SysPostVo"][];
+            password?: string;
+        };
+        /** @description 岗位信息视图对象 sys_post */
+        SysPostVo: {
+            /**
+             * Format: int64
+             * @description 岗位ID
+             */
+            postId?: number;
+            /**
+             * Format: int64
+             * @description 部门id
+             */
+            deptId?: number;
+            /** @description 岗位编码 */
+            postCode?: string;
+            /** @description 岗位名称 */
+            postName?: string;
+            /** @description 岗位类别编码 */
+            postCategory?: string;
+            /**
+             * Format: int32
+             * @description 显示顺序
+             */
+            postSort?: number;
+            /** @description 状态（0正常 1停用） */
+            status?: string;
+            /** @description 备注 */
+            remark?: string;
+            /**
+             * Format: date-time
+             * @description 创建时间
+             */
+            createTime?: string;
+            /** @description 部门名 */
+            deptName?: string;
+        };
+        /** @description 角色信息视图对象 sys_role */
+        SysRoleVo: {
+            /**
+             * Format: int64
+             * @description 角色ID
+             */
+            roleId?: number;
+            /**
+             * Format: int64
+             * @description 归属客户端主键
+             */
+            clientId?: number;
+            /** @description 是否为当前客户端默认角色 */
+            clientDefault?: boolean;
+            /** @description 角色名称 */
+            roleName?: string;
+            /** @description 角色权限字符串 */
+            roleKey?: string;
+            /**
+             * Format: int32
+             * @description 显示顺序
+             */
+            roleSort?: number;
+            /** @description 数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限 6：部门及以下或本人数据权限） */
+            dataScope?: string;
+            /** @description 菜单树选择项是否关联显示 */
+            menuCheckStrictly?: boolean;
+            /** @description 部门树选择项是否关联显示 */
+            deptCheckStrictly?: boolean;
+            /** @description 角色状态（0正常 1停用） */
+            status?: string;
+            /** @description 备注 */
+            remark?: string;
+            /**
+             * Format: date-time
+             * @description 创建时间
+             */
+            createTime?: string;
+            /** @description 用户是否存在此角色标识 默认不存在 */
+            flag?: boolean;
+            /** @description 判断当前角色是否为超级管理员角色。 */
+            superAdmin?: boolean;
+        };
+        /** @description 用户信息视图对象 sys_user */
+        SysUserVo: {
+            /**
+             * Format: int64
+             * @description 用户ID
+             */
+            userId?: number;
+            /**
+             * Format: int64
+             * @description 部门ID
+             */
+            deptId?: number;
+            /** @description 用户账号 */
+            userName?: string;
+            /** @description 用户昵称 */
+            nickName?: string;
+            /** @description 用户邮箱 */
+            email?: string;
+            /** @description 手机号码 */
+            phoneNumber?: string;
+            /** @description 用户性别（0男 1女 2未知） */
+            gender?: string;
+            /**
+             * Format: int64
+             * @description 头像 OSS ID
+             */
+            avatar?: number;
+            /** @description 头像地址 */
+            avatarUrl?: string;
+            /** @description 账号状态（0正常 1停用） */
+            status?: string;
+            /** @description 最后登录IP */
+            loginIp?: string;
+            /**
+             * Format: date-time
+             * @description 最后登录时间
+             */
+            loginDate?: string;
+            /** @description 备注 */
+            remark?: string;
+            /**
+             * Format: date-time
+             * @description 创建时间
+             */
+            createTime?: string;
+            /**
+             * Format: date-time
+             * @description 更新时间
+             */
+            updateTime?: string;
+            /** @description 部门名 */
+            deptName?: string;
+            /** @description 角色对象 */
+            roles?: components["schemas"]["SysRoleVo"][];
+            /** @description 角色组 */
+            roleIds?: number[];
+            /** @description 岗位组 */
+            postIds?: number[];
+            /** @description 登录域ID列表 */
+            userTypeIds?: number[];
+            /** @description 登录域编码列表 */
+            userTypeCodes?: string[];
+            /** @description 登录域名称列表 */
+            userTypeNames?: string[];
+            /**
+             * Format: int64
+             * @description 数据权限 当前角色ID
+             */
+            roleId?: number;
         };
         /** @description 响应信息主体 */
         RString: {
@@ -7950,7 +8202,7 @@ export interface components {
             /** @description 用户名 */
             username: string;
             /** @description 用户密码 */
-            password: string;
+            password?: string;
             /**
              * Format: email
              * @description 可选邮箱。
@@ -8678,12 +8930,14 @@ export interface components {
             listenerPath?: string;
             /** Format: int32 */
             activityStatus?: number;
-            listenerType?: string;
-            /** Format: int64 */
-            id?: number;
-            version?: string;
-            ext?: string;
+            tenantId?: string;
+            modelValue?: string;
+            /** Format: int32 */
+            isPublish?: number;
+            nodeList?: components["schemas"]["Node"][];
+            userList?: components["schemas"]["User"][];
             updateBy?: string;
+            ext?: string;
             /** Format: date-time */
             createTime?: string;
             category?: string;
@@ -8693,14 +8947,12 @@ export interface components {
             delFlag?: string;
             flowCode?: string;
             flowName?: string;
-            nodeList?: components["schemas"]["Node"][];
-            /** Format: int32 */
-            isPublish?: number;
             formCustom?: string;
             formPath?: string;
-            tenantId?: string;
-            modelValue?: string;
-            userList?: components["schemas"]["User"][];
+            version?: string;
+            /** Format: int64 */
+            id?: number;
+            listenerType?: string;
         };
         /** @description 响应信息主体 */
         RDefinition: {
@@ -8861,10 +9113,10 @@ export interface components {
             deep?: number;
         };
         TreeString: {
-            id?: string;
+            weight?: unknown;
             parentId?: string;
             config?: components["schemas"]["TreeNodeConfig"];
-            weight?: unknown;
+            id?: string;
             name?: {
                 empty?: boolean;
             };
@@ -9278,119 +9530,6 @@ export interface components {
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysUserVo"][];
         };
-        /** @description 角色信息视图对象 sys_role */
-        SysRoleVo: {
-            /**
-             * Format: int64
-             * @description 角色ID
-             */
-            roleId?: number;
-            /**
-             * Format: int64
-             * @description 归属客户端主键
-             */
-            clientId?: number;
-            /** @description 是否为当前客户端默认角色 */
-            clientDefault?: boolean;
-            /** @description 角色名称 */
-            roleName?: string;
-            /** @description 角色权限字符串 */
-            roleKey?: string;
-            /**
-             * Format: int32
-             * @description 显示顺序
-             */
-            roleSort?: number;
-            /** @description 数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限 5：仅本人数据权限 6：部门及以下或本人数据权限） */
-            dataScope?: string;
-            /** @description 菜单树选择项是否关联显示 */
-            menuCheckStrictly?: boolean;
-            /** @description 部门树选择项是否关联显示 */
-            deptCheckStrictly?: boolean;
-            /** @description 角色状态（0正常 1停用） */
-            status?: string;
-            /** @description 备注 */
-            remark?: string;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createTime?: string;
-            /** @description 用户是否存在此角色标识 默认不存在 */
-            flag?: boolean;
-            /** @description 判断当前角色是否为超级管理员角色。 */
-            superAdmin?: boolean;
-        };
-        /** @description 用户信息视图对象 sys_user */
-        SysUserVo: {
-            /**
-             * Format: int64
-             * @description 用户ID
-             */
-            userId?: number;
-            /**
-             * Format: int64
-             * @description 部门ID
-             */
-            deptId?: number;
-            /** @description 用户账号 */
-            userName?: string;
-            /** @description 用户昵称 */
-            nickName?: string;
-            /** @description 用户邮箱 */
-            email?: string;
-            /** @description 手机号码 */
-            phoneNumber?: string;
-            /** @description 用户性别（0男 1女 2未知） */
-            gender?: string;
-            /**
-             * Format: int64
-             * @description 头像 OSS ID
-             */
-            avatar?: number;
-            /** @description 头像地址 */
-            avatarUrl?: string;
-            /** @description 账号状态（0正常 1停用） */
-            status?: string;
-            /** @description 最后登录IP */
-            loginIp?: string;
-            /**
-             * Format: date-time
-             * @description 最后登录时间
-             */
-            loginDate?: string;
-            /** @description 备注 */
-            remark?: string;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createTime?: string;
-            /**
-             * Format: date-time
-             * @description 更新时间
-             */
-            updateTime?: string;
-            /** @description 部门名 */
-            deptName?: string;
-            /** @description 角色对象 */
-            roles?: components["schemas"]["SysRoleVo"][];
-            /** @description 角色组 */
-            roleIds?: number[];
-            /** @description 岗位组 */
-            postIds?: number[];
-            /** @description 登录域ID列表 */
-            userTypeIds?: number[];
-            /** @description 登录域编码列表 */
-            userTypeCodes?: string[];
-            /** @description 登录域名称列表 */
-            userTypeNames?: string[];
-            /**
-             * Format: int64
-             * @description 数据权限 当前角色ID
-             */
-            roleId?: number;
-        };
         /** @description 表格分页数据对象 */
         PageResultSysUserVo: {
             /**
@@ -9445,41 +9584,6 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysUserInfoVo"];
-        };
-        /** @description 岗位信息视图对象 sys_post */
-        SysPostVo: {
-            /**
-             * Format: int64
-             * @description 岗位ID
-             */
-            postId?: number;
-            /**
-             * Format: int64
-             * @description 部门id
-             */
-            deptId?: number;
-            /** @description 岗位编码 */
-            postCode?: string;
-            /** @description 岗位名称 */
-            postName?: string;
-            /** @description 岗位类别编码 */
-            postCategory?: string;
-            /**
-             * Format: int32
-             * @description 显示顺序
-             */
-            postSort?: number;
-            /** @description 状态（0正常 1停用） */
-            status?: string;
-            /** @description 备注 */
-            remark?: string;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createTime?: string;
-            /** @description 部门名 */
-            deptName?: string;
         };
         /** @description 用户信息 */
         SysUserInfoVo: {
@@ -11411,6 +11515,17 @@ export interface components {
             clientEnabled?: boolean;
             /** @description 是否开放公开注册 */
             registerEnabled?: boolean;
+            /** @description 当前可用客户端的非敏感密码规则。 */
+            passwordPolicy?: components["schemas"]["PasswordPolicyProjection"];
+        };
+        /** @description 可向未认证客户端公开的密码规则。 */
+        PasswordPolicyProjection: {
+            /** Format: int32 */
+            minimumLength?: number;
+            /** Format: int32 */
+            maximumLength?: number;
+            requiredCharacterClasses?: ("UPPERCASE" | "LOWERCASE" | "DIGIT" | "SPECIAL")[];
+            allowedSpecialCharacters?: string;
         };
         /** @description 响应信息主体 */
         RAuthClientContextVo: {
@@ -14303,6 +14418,73 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    issue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TemporaryPasswordIssueBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RTemporaryPasswordVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    candidate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description 目标用户 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordCandidateBo"];
+            };
+        };
+        responses: {
+            /** @description 合规密码候选 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RResetPasswordCandidateVo"];
+                };
             };
             /** @description Unauthorized */
             401: {

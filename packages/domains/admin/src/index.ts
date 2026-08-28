@@ -1,19 +1,21 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { ClientContext, HttpClient, SessionStore } from '@namewta/platform-contracts';
 import { requireClientContext } from '@namewta/platform-contracts';
+import {
+  requirePasswordPolicy,
+  validatePassword,
+  type ClientAuthContext,
+  type PasswordPolicyViolation
+} from './password-policy';
 import { projectClientAuthContextTransport, type ClientAuthContextTransport } from './transport';
 
+export * from './password-policy';
 export * from './transport';
 
 export interface ApiResponse<T = unknown> {
   code?: number;
   data?: T;
   msg?: string;
-}
-
-export interface ClientAuthContext {
-  clientEnabled: boolean;
-  registerEnabled: boolean;
 }
 
 export interface LoginVerification {
@@ -69,16 +71,20 @@ export type IdentityAccessErrorCode =
   | 'invalid-login-response'
   | 'invalid-identity-response'
   | 'invalid-menu-response'
+  | 'password-policy-unavailable'
+  | 'password-policy-violation'
   | 'registration-disabled'
   | 'invalid-verification-response';
 
 export class IdentityAccessError extends Error {
   readonly code: IdentityAccessErrorCode;
+  readonly violations: readonly PasswordPolicyViolation[];
 
-  constructor(code: IdentityAccessErrorCode, message: string) {
+  constructor(code: IdentityAccessErrorCode, message: string, violations: readonly PasswordPolicyViolation[] = []) {
     super(message);
     this.name = 'IdentityAccessError';
     this.code = code;
+    this.violations = Object.freeze([...violations]);
   }
 }
 
@@ -296,6 +302,16 @@ export function createIdentityAccessService({
         throw new IdentityAccessError('registration-disabled', '当前客户端未开放注册');
       }
       const credentials = requireCredentials(input);
+      let policy;
+      try {
+        policy = requirePasswordPolicy(context);
+      } catch {
+        throw new IdentityAccessError('password-policy-unavailable', '密码策略配置不可用');
+      }
+      const violations = validatePassword(policy, credentials.password);
+      if (violations.length) {
+        throw new IdentityAccessError('password-policy-violation', '密码不符合安全策略', violations);
+      }
       if (input.confirmPassword !== undefined && input.confirmPassword !== input.password) {
         throw new IdentityAccessError('invalid-credentials', '两次输入的密码不一致');
       }

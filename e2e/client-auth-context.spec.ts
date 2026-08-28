@@ -2,6 +2,12 @@ import { expect, test, type Page, type Route } from '@playwright/test';
 
 const adminUrl = process.env.ADMIN_WEB_URL ?? 'http://127.0.0.1:4173';
 const adminClientId = 'e5cd7e4891bf95d1d19206ce24a7b32e';
+const passwordPolicy = {
+  minimumLength: 8,
+  maximumLength: 30,
+  requiredCharacterClasses: ['UPPERCASE', 'LOWERCASE', 'DIGIT', 'SPECIAL'],
+  allowedSpecialCharacters: '@$!%*?&'
+};
 
 type AdminState = {
   context: unknown;
@@ -9,17 +15,21 @@ type AdminState = {
   logoutRequests: number;
   networkOrder: string[];
   permissions: string[];
+  profilePasswordRequests: number;
+  registerRequests: number;
   roles: string[];
   routes: unknown[];
   unknownRequests: string[];
 };
 
 const adminState = (overrides: Partial<AdminState> = {}): AdminState => ({
-  context: { clientEnabled: true, registerEnabled: true },
+  context: { clientEnabled: true, registerEnabled: true, passwordPolicy },
   loginClientId: '',
   logoutRequests: 0,
   networkOrder: [],
   permissions: ['system:user:list'],
+  profilePasswordRequests: 0,
+  registerRequests: 0,
   roles: ['operator'],
   routes: [],
   unknownRequests: [],
@@ -46,6 +56,10 @@ async function installAdminApi(page: Page, state: AdminState, messageBoxCode = 2
       state.loginClientId = request.headers()['clientid'] ?? '';
       return fulfillJson(route, { code: 200, data: { access_token: 'admin-proof-token' } });
     }
+    if (path === '/auth/register') {
+      state.registerRequests += 1;
+      return fulfillJson(route, { code: 200, data: null });
+    }
     if (path === '/system/user/getInfo') {
       state.networkOrder.push('getInfo');
       return fulfillJson(route, {
@@ -60,6 +74,20 @@ async function installAdminApi(page: Page, state: AdminState, messageBoxCode = 2
     if (path === '/system/menu/getRouters') {
       state.networkOrder.push('getRouters');
       return fulfillJson(route, { code: 200, data: state.routes });
+    }
+    if (path === '/system/user/profile' && request.method() === 'GET') {
+      return fulfillJson(route, {
+        code: 200,
+        data: {
+          user: { userId: 1, userName: 'admin-proof', nickName: 'Admin Proof', avatarUrl: '' },
+          roleGroup: 'operator',
+          postGroup: ''
+        }
+      });
+    }
+    if (path === '/system/user/profile/updatePwd') {
+      state.profilePasswordRequests += 1;
+      return fulfillJson(route, { code: 200, data: null });
     }
     if (path === '/auth/logout') {
       state.logoutRequests += 1;
@@ -90,6 +118,55 @@ test('invalid Client context reaches terminal fail-close before code or login', 
   await expect(page.locator('.submit-button')).toBeDisabled();
   expect(state.networkOrder).toEqual(['clientContext']);
   expect(state.unknownRequests).toEqual([]);
+});
+
+test('registration applies the public policy before sending the encrypted write', async ({ page }) => {
+  const state = adminState();
+  await installAdminApi(page, state);
+  await page.goto('/register');
+
+  await page.getByPlaceholder('用户名').fill('policy-user');
+  await page.getByPlaceholder('密码').fill('weak');
+  await page.getByPlaceholder('确认密码').fill('weak');
+  await page.getByRole('button', { name: '注 册' }).click();
+  await expect(page.getByText('密码长度不能少于 8 位', { exact: true })).toBeVisible();
+  expect(state.registerRequests).toBe(0);
+
+  await page.getByPlaceholder('密码').fill('ValidPass!9');
+  await page.getByPlaceholder('确认密码').fill('ValidPass!9');
+  await page.getByRole('button', { name: '注 册' }).click();
+  await expect(page.getByRole('dialog', { name: '系统提示' })).toBeVisible();
+  expect(state.registerRequests).toBe(1);
+});
+
+test('registration fails closed when an enabled Client omits the password policy', async ({ page }) => {
+  const state = adminState({ context: { clientEnabled: true, registerEnabled: true } });
+  await installAdminApi(page, state);
+
+  await page.goto('/register');
+  await expect(page).toHaveURL(/\/login$/);
+  expect(state.networkOrder).toEqual(['clientContext']);
+  expect(state.registerRequests).toBe(0);
+});
+
+test('profile password change reuses the same policy and blocks weak writes', async ({ page }) => {
+  const state = adminState();
+  await installAdminApi(page, state);
+  await page.addInitScript(() => localStorage.setItem('Admin-Token', 'profile-token'));
+  await page.goto('/user/profile');
+  await page.getByRole('tab', { name: '修改密码' }).click();
+
+  await page.getByPlaceholder('请输入旧密码').fill('ExistingPass!8');
+  await page.getByPlaceholder('请输入新密码').fill('weak');
+  await page.getByPlaceholder('请确认新密码').fill('weak');
+  await page.getByRole('button', { name: '保存' }).click();
+  await expect(page.getByText('密码长度不能少于 8 位', { exact: true })).toBeVisible();
+  expect(state.profilePasswordRequests).toBe(0);
+
+  await page.getByPlaceholder('请输入新密码').fill('ChangedPass!9');
+  await page.getByPlaceholder('请确认新密码').fill('ChangedPass!9');
+  await page.getByRole('button', { name: '保存' }).click();
+  await expect.poll(() => state.profilePasswordRequests).toBe(1);
 });
 
 test('dynamic recovery uses server menu order and exposes a true no-facade typo diagnostic', async ({ page }) => {

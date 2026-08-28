@@ -61,6 +61,17 @@ export default {
       }
     }
   },
+  passwordPolicy: {
+    unavailable: 'Password policy is unavailable',
+    PASSWORD_TOO_SHORT: 'Password must contain at least {min} characters',
+    PASSWORD_TOO_LONG: 'Password must contain no more than {max} characters',
+    PASSWORD_MISSING_UPPERCASE: 'Password must contain an uppercase letter',
+    PASSWORD_MISSING_LOWERCASE: 'Password must contain a lowercase letter',
+    PASSWORD_MISSING_DIGIT: 'Password must contain a digit',
+    PASSWORD_MISSING_SPECIAL: 'Password must contain one of these special characters: {specials}',
+    PASSWORD_CONTAINS_DISALLOWED_CHARACTER:
+      'Password may contain only letters, digits, and these special characters: {specials}'
+  },
   // 导航栏国际化
   navbar: {
     full: 'Full Screen',

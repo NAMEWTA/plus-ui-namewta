@@ -108,7 +108,13 @@
 </template>
 
 <script setup lang="ts">
-import type { RegistrationInput } from '@namewta/domain-admin';
+import {
+  requirePasswordPolicy,
+  validatePassword,
+  type PasswordPolicy,
+  type PasswordViolationReason,
+  type RegistrationInput
+} from '@namewta/domain-admin';
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
 import { identityAccessService } from '@/application/services';
@@ -124,6 +130,7 @@ const highlights = ['技术栈全面升级', '动态菜单', '多主题布局', 
 const router = useRouter();
 
 const { t } = useI18n();
+const passwordPolicy = ref<PasswordPolicy>();
 
 const registerForm = ref<RegistrationInput>({
   username: '',
@@ -139,6 +146,22 @@ const equalToPassword = (rule: any, value: string, callback: any) => {
   } else {
     callback();
   }
+};
+
+const passwordViolationMessage = (reason: PasswordViolationReason) =>
+  t(`passwordPolicy.${reason}`, {
+    min: passwordPolicy.value?.minimumLength,
+    max: passwordPolicy.value?.maximumLength,
+    specials: passwordPolicy.value?.allowedSpecialCharacters
+  });
+
+const validatePasswordPolicy = (rule: unknown, value: string, callback: (error?: Error) => void) => {
+  if (!passwordPolicy.value) {
+    callback(new Error(t('passwordPolicy.unavailable')));
+    return;
+  }
+  const violation = validatePassword(passwordPolicy.value, value).at(0);
+  callback(violation ? new Error(passwordViolationMessage(violation.reason)) : undefined);
 };
 
 const registerRules: ElFormRules = {
@@ -161,19 +184,7 @@ const registerRules: ElFormRules = {
       trigger: 'blur',
       message: t('register.rule.password.required')
     },
-    {
-      min: 5,
-      max: 20,
-      message: t('register.rule.password.length', { min: 5, max: 20 }),
-      trigger: 'blur'
-    },
-    {
-      pattern: /^[^<>"'|\\]+$/,
-      message: t('register.rule.password.pattern', {
-        strings: '< > " \' \\ |'
-      }),
-      trigger: 'blur'
-    }
+    { validator: validatePasswordPolicy, trigger: ['blur', 'change'] }
   ],
   confirmPassword: [
     {
@@ -241,10 +252,12 @@ const loadClientAuthContext = async () => {
       await router.push('/login');
       return;
     }
+    passwordPolicy.value = requirePasswordPolicy(context);
     authContextState.value = 'available';
   } catch {
+    passwordPolicy.value = undefined;
     authContextState.value = 'unavailable';
-    ElMessage.warning('当前客户端未开放注册');
+    ElMessage.warning(t('passwordPolicy.unavailable'));
     await router.push('/login');
   }
 };

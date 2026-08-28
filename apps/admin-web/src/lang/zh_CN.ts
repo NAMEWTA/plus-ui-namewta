@@ -61,6 +61,16 @@ export default {
       }
     }
   },
+  passwordPolicy: {
+    unavailable: '密码策略配置不可用',
+    PASSWORD_TOO_SHORT: '密码长度不能少于 {min} 位',
+    PASSWORD_TOO_LONG: '密码长度不能超过 {max} 位',
+    PASSWORD_MISSING_UPPERCASE: '密码必须包含大写英文字母',
+    PASSWORD_MISSING_LOWERCASE: '密码必须包含小写英文字母',
+    PASSWORD_MISSING_DIGIT: '密码必须包含数字',
+    PASSWORD_MISSING_SPECIAL: '密码必须包含特殊字符：{specials}',
+    PASSWORD_CONTAINS_DISALLOWED_CHARACTER: '密码只能包含英文字母、数字和以下特殊字符：{specials}'
+  },
   // 导航栏国际化
   navbar: {
     full: '全屏',

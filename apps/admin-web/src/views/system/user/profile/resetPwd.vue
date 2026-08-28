@@ -10,7 +10,9 @@
       <el-input v-model="user.confirmPassword" placeholder="请确认新密码" type="password" show-password />
     </el-form-item>
     <el-form-item class="profile-form__actions">
-      <el-button type="primary" @click="submit">保存</el-button>
+      <el-button type="primary" :loading="submitting" :disabled="policyState !== 'available'" @click="submit">
+        保存
+      </el-button>
       <el-button @click="close">关闭</el-button>
     </el-form-item>
   </el-form>
@@ -18,11 +20,22 @@
 
 <script setup lang="ts">
 import type { ResetPwdForm } from '@namewta/domain-system';
+import {
+  requirePasswordPolicy,
+  validatePassword,
+  type PasswordPolicy,
+  type PasswordViolationReason
+} from '@namewta/domain-admin';
+import { useI18n } from 'vue-i18n';
 import modal from '@/application/host/feedback';
 import tab from '@/application/host/navigation';
-import { systemService } from '@/application/services';
+import { identityAccessService, systemService } from '@/application/services';
 
 const pwdRef = ref<ElFormInstance>();
+const { t } = useI18n();
+const passwordPolicy = ref<PasswordPolicy>();
+const policyState = ref<'loading' | 'available' | 'unavailable'>('loading');
+const submitting = ref(false);
 const user = ref<ResetPwdForm>({
   oldPassword: '',
   newPassword: '',
@@ -36,21 +49,27 @@ const equalToPassword = (rule: any, value: string, callback: any) => {
     callback();
   }
 };
+
+const passwordViolationMessage = (reason: PasswordViolationReason) =>
+  t(`passwordPolicy.${reason}`, {
+    min: passwordPolicy.value?.minimumLength,
+    max: passwordPolicy.value?.maximumLength,
+    specials: passwordPolicy.value?.allowedSpecialCharacters
+  });
+
+const validatePasswordPolicy = (rule: unknown, value: string, callback: (error?: Error) => void) => {
+  if (!passwordPolicy.value) {
+    callback(new Error(t('passwordPolicy.unavailable')));
+    return;
+  }
+  const violation = validatePassword(passwordPolicy.value, value).at(0);
+  callback(violation ? new Error(passwordViolationMessage(violation.reason)) : undefined);
+};
 const rules = ref({
   oldPassword: [{ required: true, message: '旧密码不能为空', trigger: 'blur' }],
   newPassword: [
     { required: true, message: '新密码不能为空', trigger: 'blur' },
-    {
-      min: 6,
-      max: 20,
-      message: '长度在 6 到 20 个字符',
-      trigger: 'blur'
-    },
-    {
-      pattern: /^[^<>"'|\\]+$/,
-      message: '不能包含非法字符：< > " \' \\ |',
-      trigger: 'blur'
-    }
+    { validator: validatePasswordPolicy, trigger: ['blur', 'change'] }
   ],
   confirmPassword: [
     { required: true, message: '确认密码不能为空', trigger: 'blur' },
@@ -64,10 +83,16 @@ const rules = ref({
 
 /** 提交按钮 */
 const submit = () => {
+  if (policyState.value !== 'available') return;
   pwdRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      await systemService.users.updatePassword(user.value.oldPassword, user.value.newPassword);
-      modal.msgSuccess('修改成功');
+      submitting.value = true;
+      try {
+        await systemService.users.updatePassword(user.value.oldPassword, user.value.newPassword);
+        modal.msgSuccess('修改成功');
+      } finally {
+        submitting.value = false;
+      }
     }
   });
 };
@@ -75,6 +100,18 @@ const submit = () => {
 const close = () => {
   tab.closePage();
 };
+
+onMounted(async () => {
+  policyState.value = 'loading';
+  try {
+    passwordPolicy.value = requirePasswordPolicy(await identityAccessService.getClientContext());
+    policyState.value = 'available';
+  } catch {
+    passwordPolicy.value = undefined;
+    policyState.value = 'unavailable';
+    ElMessage.warning(t('passwordPolicy.unavailable'));
+  }
+});
 </script>
 
 <style lang="scss" scoped>

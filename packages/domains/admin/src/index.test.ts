@@ -2,6 +2,13 @@ import type { HttpClient, HttpRequest, SessionStore } from '@namewta/platform-co
 import { describe, expect, it, vi } from 'vitest';
 import { createClientSessionKey, createIdentityAccessService, adminDomainModule, IdentityAccessError } from './index';
 
+const passwordPolicy = Object.freeze({
+  minimumLength: 8,
+  maximumLength: 30,
+  requiredCharacterClasses: ['UPPERCASE', 'LOWERCASE', 'DIGIT', 'SPECIAL'],
+  allowedSpecialCharacters: '@$!%*?&'
+});
+
 const createHarness = (responses: Readonly<Record<string, unknown>>) => {
   const identityCalls: string[] = [];
   const requests: HttpRequest[] = [];
@@ -148,7 +155,10 @@ describe('identity access domain', () => {
 
   it('uses the validated clientId in login payload and writes only the injected session', async () => {
     const harness = createHarness({
-      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: true } },
+      '/auth/client/context': {
+        code: 200,
+        data: { clientEnabled: true, registerEnabled: true, passwordPolicy }
+      },
       '/auth/code': { code: 200, data: { captchaEnabled: false } },
       '/auth/login': { code: 200, data: { access_token: 'client-token' } }
     });
@@ -186,7 +196,10 @@ describe('identity access domain', () => {
 
   it('owns registration, identity, menu, logout, and OAuth use cases behind ClientContext', async () => {
     const harness = createHarness({
-      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: true } },
+      '/auth/client/context': {
+        code: 200,
+        data: { clientEnabled: true, registerEnabled: true, passwordPolicy }
+      },
       '/auth/code': { code: 200, data: { captchaEnabled: false } },
       '/auth/register': { code: 200, data: {} },
       '/system/user/getInfo': {
@@ -205,7 +218,11 @@ describe('identity access domain', () => {
     });
 
     await service.prepareLogin();
-    await service.register({ username: 'new-user', password: 'secret', confirmPassword: 'secret' });
+    await service.register({
+      username: 'new-user',
+      password: 'ValidPass!9',
+      confirmPassword: 'ValidPass!9'
+    });
     await expect(service.getInfo()).resolves.toMatchObject({ roles: ['operator'], permissions: ['system:user:list'] });
     await expect(service.getMenus()).resolves.toEqual([{ path: '/system', component: 'Layout' }]);
     await service.socialCallback({ code: 'oauth-code', state: 'oauth-state' });
@@ -238,6 +255,55 @@ describe('identity access domain', () => {
     await expect(
       service.register({ username: 'new-user', password: 'secret', confirmPassword: 'secret' })
     ).rejects.toMatchObject({ code: 'registration-disabled' });
+    expect(harness.requests.map(request => request.url)).toEqual(['/auth/client/context', '/auth/code']);
+  });
+
+  it('fails registration closed when the public password policy is missing', async () => {
+    const harness = createHarness({
+      '/auth/client/context': { code: 200, data: { clientEnabled: true, registerEnabled: true } },
+      '/auth/code': { code: 200, data: { captchaEnabled: false } }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      identity: harness.identity,
+      session: harness.session
+    });
+
+    await service.prepareLogin();
+    await expect(
+      service.register({ username: 'new-user', password: 'ValidPass!9', confirmPassword: 'ValidPass!9' })
+    ).rejects.toMatchObject({ code: 'password-policy-unavailable' });
+    expect(harness.requests.map(request => request.url)).toEqual(['/auth/client/context', '/auth/code']);
+  });
+
+  it('returns stable policy violations without sending a weak registration request', async () => {
+    const harness = createHarness({
+      '/auth/client/context': {
+        code: 200,
+        data: { clientEnabled: true, registerEnabled: true, passwordPolicy }
+      },
+      '/auth/code': { code: 200, data: { captchaEnabled: false } }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      identity: harness.identity,
+      session: harness.session
+    });
+
+    await service.prepareLogin();
+    await expect(
+      service.register({ username: 'new-user', password: 'weak', confirmPassword: 'weak' })
+    ).rejects.toMatchObject({
+      code: 'password-policy-violation',
+      violations: [
+        { reason: 'PASSWORD_TOO_SHORT' },
+        { reason: 'PASSWORD_MISSING_UPPERCASE' },
+        { reason: 'PASSWORD_MISSING_DIGIT' },
+        { reason: 'PASSWORD_MISSING_SPECIAL' }
+      ]
+    });
     expect(harness.requests.map(request => request.url)).toEqual(['/auth/client/context', '/auth/code']);
   });
 

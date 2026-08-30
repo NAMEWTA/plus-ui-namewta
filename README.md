@@ -43,7 +43,7 @@ tooling/                 架构、OpenAPI 与未来脚手架工具
 
 包内第二层按 Controller 的稳定 HTTP 资源命名。例如 `SysClientController` 的 `/system/client` 对应 `packages/domains/system/src/client/`，页面对应 `packages/web-domains/system/src/client/`；`SysUserOnlineController` 对应两侧的 `system/src/monitor/online/`。Java 的 `Sys`、`Flw` 等实现前缀不进入目录名，公开使用 package exports，禁止包间深层导入。
 
-详细边界见 [架构基线](docs/architecture-baseline.md)、各目录 README，以及 `.codex/skills/plus-ui-domain-development/SKILL.md`。
+详细边界见 [架构基线](docs/architecture-baseline.md)、各目录 README，以及父聚合工作区 `../.agents/skills/plus-ui-frontend-conventions/SKILL.md`。项目开发 Skill 只在父工作区集中维护，本仓库不保留 `.claude` 或 `.codex` 副本。
 
 动态导航由 `packages/platform/app-runtime` 投影服务端菜单，`apps/admin-web/src/store/modules/navigation.ts` 维护 App 自有导航状态，`apps/admin-web/src/router/adminManifestRegistry.ts` 只解析编译期已选择的 Web manifest。Vue 权限指令由 `packages/web-kit/permission` 提供，Admin 在自己的 directive 入口注入当前会话 evaluator；这些前端可见性机制不替代后端鉴权。
 

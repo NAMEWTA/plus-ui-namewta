@@ -148,7 +148,7 @@ test('OSS config exposes two policies, enforces public constraints and uses POST
   await addDialog.getByRole('button', { name: '取 消' }).click();
 
   const privateRow = page.getByRole('row').filter({ hasText: 'private-main' });
-  await privateRow.getByRole('switch').click();
+  await privateRow.locator('.el-switch').click();
   await page.getByRole('dialog').getByRole('button', { name: '确定' }).click();
   await expect.poll(() => state.requests.filter(item => item.path.endsWith('/changeStatus')).length).toBe(1);
 

@@ -16,6 +16,7 @@ vi.mock('@/application/services', () => {
       get: (target, property) => (property === 'getClientContext' ? getClientContext : Reflect.get(target, property))
     }),
     monitorService: createService(),
+    openApiService: createService(),
     systemService: createService(),
     workflowService: createService()
   };
@@ -71,6 +72,7 @@ describe('admin selected manifest registry', () => {
     });
     expect(resolveAdminWebRegistration('system/oss/index', 'system')).toMatchObject({ componentName: 'Oss' });
     expect(resolveAdminWebRegistration('system/dict/index', 'system')).toMatchObject({ componentName: 'Dict' });
+    expect(resolveAdminWebRegistration('system/openApi/index', 'system')).toMatchObject({ componentName: 'OpenApi' });
     expect(resolveAdminWebRegistration('system/devtools/index', 'system')).toBeUndefined();
     expect(resolveAdminWebRegistration('ai/chat/index', 'ai')).toMatchObject({
       componentName: 'AiChatPage'

@@ -2,10 +2,12 @@ import { systemDomainModule } from '@namewta/domain-system';
 import { composeAppRuntime } from '@namewta/platform-app-runtime';
 import { describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { reactive } from 'vue';
+import type { SystemPasswordPolicy, SystemPasswordViolation, SystemWebRuntime } from './runtime';
 import dictPage from './dict-type/DictPage.vue?raw';
 import { createLiveSystemDictRefs, createSystemWebDomain } from './index';
+import openApiAdminPage from './open-api/OpenApiAdminPage.vue?raw';
+import openApiWorkspace from './open-api/OpenApiWorkspace.vue?raw';
 import ossPage from './oss/OssPage.vue?raw';
-import type { SystemPasswordPolicy, SystemPasswordViolation, SystemWebRuntime } from './runtime';
 
 const runtime = { service: {} } as never;
 
@@ -25,6 +27,7 @@ describe('system web manifest', () => {
       ['system/dict/index', 'Dict'],
       ['system/config/index', 'Config'],
       ['system/notice/index', 'Notice'],
+      ['system/openApi/index', 'OpenApi'],
       ['system/oss/index', 'Oss'],
       ['system/oss/config', 'OssConfig']
     ]);
@@ -43,6 +46,9 @@ describe('system web manifest', () => {
         'system:dict:list',
         'system:config:list',
         'system:notice:list',
+        'system:openApi:self',
+        'system:openApi:list',
+        'system:openApi:remove',
         'system:oss:download',
         'system:ossConfig:list'
       ])
@@ -50,9 +56,7 @@ describe('system web manifest', () => {
   });
 
   it('requires the host to provide password policy validation and ephemeral clipboard access', () => {
-    expectTypeOf<SystemWebRuntime['passwordPolicy']['load']>().toEqualTypeOf<
-      () => Promise<SystemPasswordPolicy>
-    >();
+    expectTypeOf<SystemWebRuntime['passwordPolicy']['load']>().toEqualTypeOf<() => Promise<SystemPasswordPolicy>>();
     expectTypeOf<SystemWebRuntime['passwordPolicy']['validate']>().toEqualTypeOf<
       (policy: SystemPasswordPolicy, password: string) => readonly SystemPasswordViolation[]
     >();
@@ -99,5 +103,14 @@ describe('system web manifest', () => {
   it('labels icon-only OSS row actions for assistive technology', () => {
     expect(ossPage).toContain('aria-label="下载"');
     expect(ossPage).toContain('aria-label="删除"');
+  });
+
+  it('keeps the target owner visible and clears the controlled one-time secret dialog on every close path', () => {
+    expect(openApiAdminPage).toContain("kind: 'target-user'");
+    expect(openApiAdminPage).toContain('userLabel(selectedUser)');
+    expect(openApiAdminPage).toContain('system:openApi:list');
+    expect(openApiWorkspace).toContain('@update:model-value="closeIssuedSecret"');
+    expect(openApiWorkspace).toContain('@closed="controller.dismissIssuedSecret"');
+    expect(openApiWorkspace).not.toMatch(/localStorage|sessionStorage/);
   });
 });

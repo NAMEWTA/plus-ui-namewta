@@ -1,7 +1,7 @@
 import { createIdentityAccessService } from '@namewta/domain-admin';
 import { createAiService } from '@namewta/domain-ai';
 import { createDemoService } from '@namewta/domain-demo';
-import { createSystemService } from '@namewta/domain-system';
+import { createOpenApiService, createSystemService } from '@namewta/domain-system';
 import { createMonitorService } from '@namewta/domain-system/monitor';
 import { createWorkflowDefinitionService } from '@namewta/domain-workflow';
 import { adminHttp } from './http';
@@ -15,6 +15,7 @@ const domainHttp = {
 };
 
 export const systemService = createSystemService(domainHttp);
+export const openApiService = createOpenApiService(domainHttp);
 
 export const identityAccessService = createIdentityAccessService({
   client: { clientId: import.meta.env.VITE_APP_CLIENT_ID },

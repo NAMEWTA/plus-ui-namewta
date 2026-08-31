@@ -1,4 +1,4 @@
-import type { SystemService } from '@namewta/domain-system';
+import type { OpenApiService, SystemService } from '@namewta/domain-system';
 import type { RouteLocationRaw } from 'vue-router';
 import { computed, shallowRef, type Component, type Ref } from 'vue';
 
@@ -31,6 +31,7 @@ export interface SystemPasswordViolation {
 
 export interface SystemWebRuntime {
   service: SystemService;
+  openApi: OpenApiService;
   treePanel: Component;
   editor: Component;
   imagePreview: Component;

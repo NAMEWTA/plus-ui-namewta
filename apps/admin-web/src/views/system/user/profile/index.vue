@@ -85,6 +85,9 @@
             <el-tab-pane label="在线设备" name="onlineDevice">
               <onlineDevice :devices="state.devices" />
             </el-tab-pane>
+            <el-tab-pane label="OpenAPI" name="openApi">
+              <open-api />
+            </el-tab-pane>
           </el-tabs>
         </el-card>
       </el-col>
@@ -96,6 +99,7 @@
 import type { UserVO } from '@namewta/domain-system';
 import { monitorService, systemService } from '@/application/services';
 import OnlineDevice from './onlineDevice.vue';
+import OpenApi from './openApi.vue';
 import ResetPwd from './resetPwd.vue';
 import ThirdParty from './thirdParty.vue';
 import UserAvatar from './userAvatar.vue';

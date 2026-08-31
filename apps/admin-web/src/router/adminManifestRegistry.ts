@@ -23,6 +23,7 @@ import {
   demoService,
   identityAccessService,
   monitorService,
+  openApiService,
   systemService,
   workflowService
 } from '@/application/services';
@@ -134,6 +135,7 @@ const workflowManifest = createWorkflowWebDomain(adminWorkflowWebRuntime);
 
 export const adminSystemWebRuntime: SystemWebRuntime = {
   service: systemService,
+  openApi: openApiService,
   treePanel: WorkflowTreePanel,
   editor: SystemEditor,
   imagePreview: SystemImagePreview,

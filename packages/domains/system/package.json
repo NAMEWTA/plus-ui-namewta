@@ -19,6 +19,7 @@
     "./monitor/online": "./src/monitor/online/index.ts",
     "./monitor/operlog": "./src/monitor/operlog/index.ts",
     "./notice": "./src/notice/index.ts",
+    "./open-api": "./src/open-api/index.ts",
     "./oss": "./src/oss/index.ts",
     "./oss-config": "./src/oss-config/index.ts",
     "./oss-upload": "./src/oss-upload/index.ts",

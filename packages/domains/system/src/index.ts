@@ -21,6 +21,7 @@ import { projectResetPasswordCandidateTransport, projectTemporaryPasswordTranspo
 import { createUserQueryPort, type UserQueryPort } from './user/public';
 
 export * from './transport';
+export * from './open-api';
 
 export type { ClientForm, ClientQuery, ClientVO } from './client/types';
 export type { DeptTreeOption, RoleDeptTree, RoleForm, RoleQuery, RoleVO } from './role/types';

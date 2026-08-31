@@ -166,7 +166,7 @@ async function installApi(page: Page, state: State, permissions: string[]) {
             fileName: 'system-resource-proof.txt',
             originalName: 'system-resource-proof.txt',
             fileSuffix: '.txt',
-            url: '',
+            url: 'https://untrusted.example.test/stored-public-url',
             createByName: 'resource-admin',
             service: 'proof',
             isTemp: 'N',
@@ -218,7 +218,7 @@ async function installApi(page: Page, state: State, permissions: string[]) {
                 fileName: 'system-resource-proof.txt',
                 originalName: 'system-resource-proof.txt',
                 fileSuffix: '.txt',
-                url: '',
+                url: 'https://untrusted.example.test/stored-public-url',
                 service: 'proof'
               }
             ]
@@ -232,7 +232,7 @@ async function installApi(page: Page, state: State, permissions: string[]) {
                 fileName: 'proof.txt',
                 originalName: 'proof.txt',
                 fileSuffix: '.txt',
-                url: '',
+                url: 'https://untrusted.example.test/stored-private-url',
                 service: 'proof'
               },
               ...uploadedRow
@@ -247,7 +247,8 @@ async function installApi(page: Page, state: State, permissions: string[]) {
           data: {
             url: 'https://files.example.test/system-resource-proof.txt',
             fileName: 'system-resource-proof.txt',
-            expiresAt: 'later'
+            accessType: 'PRIVATE',
+            expiresAt: '2099-01-01T00:00:00Z'
           }
         });
       }
@@ -257,7 +258,8 @@ async function installApi(page: Page, state: State, permissions: string[]) {
           data: {
             url: 'https://files.example.test/system-resource-proof.txt',
             fileName: 'system-resource-proof.txt',
-            expiresAt: 'later'
+            accessType: 'PUBLIC',
+            expiresAt: null
           }
         });
       }
@@ -299,6 +301,7 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
   await page.goto(`${adminUrl}/system/oss`);
   await expect(page.getByRole('heading', { name: '文件列表' })).toBeVisible();
   await expect(page.getByText('proof.txt', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(/untrusted\.example\.test/)).toHaveCount(0);
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: '下载' }).first().click();
   expect((await download).suggestedFilename()).toBe('system-resource-proof.txt');
@@ -333,7 +336,8 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
       'GET /resource/oss/7/download-url',
       'POST /resource/oss/uploads',
       'POST /resource/oss/uploads/system-resource-upload/complete',
-      'GET /resource/oss/listByIds/8'
+      'GET /resource/oss/listByIds/8',
+      'GET /resource/oss/8/download-url'
     ])
   );
   expect(state.unknown).toEqual([]);

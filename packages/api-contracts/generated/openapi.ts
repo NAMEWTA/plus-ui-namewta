@@ -763,50 +763,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/resource/oss/config": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * 修改对象存储配置。
-         * @description 修改对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:edit`<br><br>
-         */
-        put: operations["edit_15"];
-        /**
-         * 新增对象存储配置。
-         * @description 新增对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:add`<br><br>
-         */
-        post: operations["add_15"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/resource/oss/config/changeStatus": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * 切换对象存储配置启用状态，并同步更新当前生效配置。
-         * @description 切换对象存储配置启用状态，并同步更新当前生效配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:edit`<br><br>
-         */
-        put: operations["changeStatus_4"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/demo/tree": {
         parameters: {
             query?: never;
@@ -819,12 +775,12 @@ export interface paths {
          * 修改测试树表
          * @description 修改测试树表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:edit`<br><br>
          */
-        put: operations["edit_16"];
+        put: operations["edit_15"];
         /**
          * 新增测试树表
          * @description 新增测试树表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:add`<br><br>
          */
-        post: operations["add_16"];
+        post: operations["add_15"];
         delete?: never;
         options?: never;
         head?: never;
@@ -843,12 +799,12 @@ export interface paths {
          * 修改测试单表
          * @description 修改测试单表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:edit`<br><br>
          */
-        put: operations["edit_17"];
+        put: operations["edit_16"];
         /**
          * 新增测试单表
          * @description 新增测试单表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:add`<br><br>
          */
-        post: operations["add_17"];
+        post: operations["add_16"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1526,6 +1482,171 @@ export interface paths {
         put?: never;
         /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:oss:upload`<br><br> */
         post: operations["complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/migrations/{batchId}/rollback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossMigration:rollback`<br><br> */
+        post: operations["rollback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/migrations/{batchId}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossMigration:execute`<br><br> */
+        post: operations["retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/migrations/{batchId}/cleanup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossMigration:cleanup`<br><br> */
+        post: operations["cleanup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/migrations/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossMigration:execute`<br><br> */
+        post: operations["start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/migrations/dry-run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossMigration:execute`<br><br> */
+        post: operations["dryRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 新增对象存储配置。
+         * @description 新增对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:add`<br><br>
+         */
+        post: operations["add_17"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/config/remove/{ossConfigIds}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 批量删除对象存储配置。
+         * @description 批量删除对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:remove`<br><br>
+         */
+        post: operations["remove"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/config/edit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 修改对象存储配置。
+         * @description 修改对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:edit`<br><br>
+         */
+        post: operations["edit_17"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/config/changeStatus": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 切换对象存储配置启用状态，并同步更新当前生效配置。
+         * @description 切换对象存储配置启用状态，并同步更新当前生效配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:edit`<br><br>
+         */
+        post: operations["changeStatus_4"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2278,7 +2399,7 @@ export interface paths {
          * 删除流程分类，删除前校验默认分类、子节点和绑定流程定义。
          * @description 删除流程分类，删除前校验默认分类、子节点和绑定流程定义。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:category:remove`<br><br>
          */
-        delete: operations["remove"];
+        delete: operations["remove_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3123,7 +3244,7 @@ export interface paths {
          * 删除菜单
          * @description 删除菜单<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:remove`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        delete: operations["remove_1"];
+        delete: operations["remove_2"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3347,7 +3468,7 @@ export interface paths {
          * 删除部门
          * @description 删除部门<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dept:remove`<br><br>
          */
-        delete: operations["remove_2"];
+        delete: operations["remove_3"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3562,6 +3683,40 @@ export interface paths {
         };
         /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:oss:upload`<br><br> */
         get: operations["parts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/migrations/{batchId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossMigration:list`<br><br> */
+        get: operations["batch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/oss/migrations/{batchId}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossMigration:list`<br><br> */
+        get: operations["items"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4598,7 +4753,7 @@ export interface paths {
          * 删除队列数据
          * @description 删除队列数据
          */
-        get: operations["remove_3"];
+        get: operations["remove_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5336,7 +5491,7 @@ export interface paths {
          * 批量删除流程 SpEL 表达式定义。
          * @description 批量删除流程 SpEL 表达式定义。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:spel:remove`<br><br>
          */
-        delete: operations["remove_4"];
+        delete: operations["remove_5"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5356,7 +5511,7 @@ export interface paths {
          * 批量删除请假单。
          * @description 批量删除请假单。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:leave:remove`<br><br>
          */
-        delete: operations["remove_5"];
+        delete: operations["remove_6"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5436,7 +5591,7 @@ export interface paths {
          * 批量删除流程定义。
          * @description 批量删除流程定义。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:definition:remove`<br><br>
          */
-        delete: operations["remove_6"];
+        delete: operations["remove_7"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5456,7 +5611,7 @@ export interface paths {
          * 批量删除登录域。仍被引用时拒绝删除。
          * @description 批量删除登录域。仍被引用时拒绝删除。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:userType:remove`<br><br>
          */
-        delete: operations["remove_7"];
+        delete: operations["remove_8"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5476,7 +5631,7 @@ export interface paths {
          * 删除用户
          * @description 删除用户<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:remove`<br><br>
          */
-        delete: operations["remove_8"];
+        delete: operations["remove_9"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5496,7 +5651,7 @@ export interface paths {
          * 删除角色
          * @description 删除角色<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:role:remove`<br><br>
          */
-        delete: operations["remove_9"];
+        delete: operations["remove_10"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5516,7 +5671,7 @@ export interface paths {
          * 删除岗位
          * @description 删除岗位<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:post:remove`<br><br>
          */
-        delete: operations["remove_10"];
+        delete: operations["remove_11"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5536,7 +5691,7 @@ export interface paths {
          * 删除通知公告
          * @description 删除通知公告<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:remove`<br><br>
          */
-        delete: operations["remove_11"];
+        delete: operations["remove_12"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5556,7 +5711,7 @@ export interface paths {
          * 批量级联删除菜单
          * @description 批量级联删除菜单<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:remove`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        delete: operations["remove_12"];
+        delete: operations["remove_13"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5576,7 +5731,7 @@ export interface paths {
          * 删除字典类型
          * @description 删除字典类型<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:remove`<br><br>
          */
-        delete: operations["remove_13"];
+        delete: operations["remove_14"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5616,7 +5771,7 @@ export interface paths {
          * 删除字典数据
          * @description 删除字典数据<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:remove`<br><br>
          */
-        delete: operations["remove_14"];
+        delete: operations["remove_15"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5636,7 +5791,7 @@ export interface paths {
          * 删除参数配置
          * @description 删除参数配置<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:config:remove`<br><br>
          */
-        delete: operations["remove_15"];
+        delete: operations["remove_16"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5676,7 +5831,7 @@ export interface paths {
          * 批量删除客户端配置。
          * @description 批量删除客户端配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:client:remove`<br><br>
          */
-        delete: operations["remove_16"];
+        delete: operations["remove_17"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5696,7 +5851,7 @@ export interface paths {
          * 删除OSS对象存储
          * @description 删除OSS对象存储<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:oss:remove`<br><br>
          */
-        delete: operations["remove_17"];
+        delete: operations["remove_18"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5714,26 +5869,6 @@ export interface paths {
         post?: never;
         /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:oss:upload`<br><br> */
         delete: operations["abort"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/resource/oss/config/{ossConfigIds}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * 批量删除对象存储配置。
-         * @description 批量删除对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:remove`<br><br>
-         */
-        delete: operations["remove_18"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6164,21 +6299,20 @@ export interface components {
         };
         Node: {
             listenerPath?: string;
+            tenantId?: string;
             /** Format: int64 */
             definitionId?: number;
-            tenantId?: string;
             coordinate?: string;
             anyNodeSkip?: string;
             skipList?: components["schemas"]["Skip"][];
-            ext?: string;
             updateBy?: string;
+            ext?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
             /** Format: date-time */
             updateTime?: string;
             delFlag?: string;
-            permissionFlag?: string;
             nodeCode?: string;
             nodeName?: string;
             /** Format: int32 */
@@ -6186,6 +6320,7 @@ export interface components {
             nodeRatio?: string;
             formCustom?: string;
             formPath?: string;
+            permissionFlag?: string;
             /** Format: int64 */
             id?: number;
             version?: string;
@@ -6193,18 +6328,18 @@ export interface components {
         };
         Skip: {
             /** Format: int32 */
-            nextNodeType?: number;
-            /** Format: int32 */
             nowNodeType?: number;
+            /** Format: int32 */
+            nextNodeType?: number;
+            tenantId?: string;
             /** Format: int64 */
             definitionId?: number;
-            tenantId?: string;
+            skipCondition?: string;
+            nextNodeCode?: string;
             coordinate?: string;
             skipType?: string;
             skipName?: string;
             nowNodeCode?: string;
-            skipCondition?: string;
-            nextNodeCode?: string;
             updateBy?: string;
             /** Format: date-time */
             createTime?: string;
@@ -6700,40 +6835,6 @@ export interface components {
             /** @description 状态（0正常 1停用） */
             status?: string;
         };
-        /** @description 对象存储配置业务对象 sys_oss_config */
-        SysOssConfigBo: {
-            /**
-             * Format: int64
-             * @description 主键
-             */
-            ossConfigId: number;
-            /** @description 配置key */
-            configKey: string;
-            /** @description accessKey */
-            accessKey: string;
-            /** @description 秘钥 */
-            secretKey: string;
-            /** @description 桶名称 */
-            bucketName: string;
-            /** @description 前缀 */
-            prefix?: string;
-            /** @description 访问站点 */
-            endpoint: string;
-            /** @description 自定义域名 */
-            domainUrl?: string;
-            /** @description 是否https（Y=是,N=否） */
-            isHttps?: string;
-            /** @description 是否默认（Y=是,N=否） */
-            status?: string;
-            /** @description 域 */
-            region?: string;
-            /** @description 扩展字段 */
-            ext1?: string;
-            /** @description 备注 */
-            remark?: string;
-            /** @description 桶权限类型(0private 1public 2custom) */
-            accessPolicy: string;
-        };
         /** @description 测试树表业务对象 test_tree */
         TestTreeBo: {
             /**
@@ -7097,12 +7198,12 @@ export interface components {
         Instance: {
             /** Format: int32 */
             activityStatus?: number;
-            /** Format: int64 */
-            definitionId?: number;
             tenantId?: string;
             defJson?: string;
-            ext?: string;
+            /** Format: int64 */
+            definitionId?: number;
             updateBy?: string;
+            ext?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
@@ -7192,16 +7293,16 @@ export interface components {
             data?: unknown;
         };
         Form: {
-            formCode?: string;
-            formName?: string;
-            /** Format: int32 */
-            formType?: number;
             tenantId?: string;
             /** Format: int32 */
             isPublish?: number;
             formContent?: string;
-            ext?: string;
+            formCode?: string;
+            formName?: string;
+            /** Format: int32 */
+            formType?: number;
             updateBy?: string;
+            ext?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
@@ -7546,6 +7647,88 @@ export interface components {
             /** Format: int32 */
             partNumber?: number;
             eTag: string;
+        };
+        CleanupRequest: {
+            approved?: boolean;
+        };
+        MigrationRequest: {
+            ossIds: number[];
+            targetConfigKey: string;
+        };
+        /** @description 响应信息主体 */
+        RLong: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /**
+             * Format: int64
+             * @description 响应业务数据
+             */
+            data?: number;
+        };
+        DryRunReport: {
+            targetConfigKey?: string;
+            ready?: boolean;
+            items?: components["schemas"]["PreflightItem"][];
+        };
+        PreflightItem: {
+            /** Format: int64 */
+            ossId?: number;
+            sourceConfigKey?: string;
+            targetConfigKey?: string;
+            objectKey?: string;
+            ready?: boolean;
+            reason?: string;
+        };
+        /** @description 响应信息主体 */
+        RDryRunReport: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["DryRunReport"];
+        };
+        /** @description 对象存储配置业务对象 sys_oss_config */
+        SysOssConfigBo: {
+            /**
+             * Format: int64
+             * @description 主键
+             */
+            ossConfigId?: number;
+            /** @description 配置key */
+            configKey: string;
+            /** @description accessKey */
+            accessKey: string;
+            /** @description 秘钥 */
+            secretKey: string;
+            /** @description 桶名称 */
+            bucketName: string;
+            /** @description 前缀 */
+            prefix?: string;
+            /** @description 访问站点 */
+            endpoint: string;
+            /** @description 自定义域名 */
+            domainUrl?: string;
+            /** @description 是否https（Y=是,N=否） */
+            isHttps?: string;
+            /** @description 是否默认（Y=是,N=否） */
+            status?: string;
+            /** @description 域 */
+            region?: string;
+            /** @description 扩展字段 */
+            ext1?: string;
+            /** @description 备注 */
+            remark?: string;
+            /** @description 桶权限类型（0=PRIVATE，2=PUBLIC_READ） */
+            accessPolicy: string;
         };
         /** @description 操作日志记录业务对象 sys_oper_log */
         SysOperLogBo: {
@@ -8481,8 +8664,8 @@ export interface components {
             isPublish?: number;
             nodeList?: components["schemas"]["Node"][];
             userList?: components["schemas"]["User"][];
-            ext?: string;
             updateBy?: string;
+            ext?: string;
             /** Format: date-time */
             createTime?: string;
             category?: string;
@@ -8660,8 +8843,8 @@ export interface components {
         TreeString: {
             weight?: unknown;
             parentId?: string;
-            config?: components["schemas"]["TreeNodeConfig"];
             id?: string;
+            config?: components["schemas"]["TreeNodeConfig"];
             name?: {
                 empty?: boolean;
             };
@@ -9857,8 +10040,15 @@ export interface components {
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysClientVo"];
         };
+        OssAccessUrl: {
+            accessType?: string;
+            url?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            fileName?: string;
+        };
         /** @description 响应信息主体 */
-        ROssDownloadUrl: {
+        ROssAccessUrl: {
             /**
              * Format: int32
              * @description 响应状态码
@@ -9867,7 +10057,7 @@ export interface components {
             /** @description 响应提示信息 */
             msg?: string;
             /** @description 响应业务数据 */
-            data?: components["schemas"]["OssDownloadUrl"];
+            data?: components["schemas"]["OssAccessUrl"];
         };
         /** @description 响应信息主体 */
         RResumeResponse: {
@@ -9907,6 +10097,67 @@ export interface components {
             eTag?: string;
             /** Format: int64 */
             size?: number;
+        };
+        BatchView: {
+            /** Format: int64 */
+            batchId?: number;
+            targetConfigKey?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "RUNNING" | "FAILED" | "CLEANUP_ELIGIBLE" | "COMPLETED" | "ROLLED_BACK";
+            /** Format: int32 */
+            totalCount?: number;
+            /** Format: int32 */
+            successCount?: number;
+            /** Format: int32 */
+            failedCount?: number;
+            /** Format: date-time */
+            startedTime?: string;
+            /** Format: date-time */
+            completedTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RBatchView: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["BatchView"];
+        };
+        ItemView: {
+            /** Format: int64 */
+            itemId?: number;
+            /** Format: int64 */
+            ossId?: number;
+            sourceConfigKey?: string;
+            targetConfigKey?: string;
+            objectKey?: string;
+            /** @enum {string} */
+            status?: "PENDING" | "RUNNING" | "FAILED" | "CLEANUP_ELIGIBLE" | "COMPLETED" | "ROLLED_BACK";
+            /** @enum {string} */
+            stage?: "PREFLIGHT" | "COPIED" | "CONTENT_VERIFIED" | "SERVICE_SWITCHED" | "ACCESS_VERIFIED" | "CLEANUP_ELIGIBLE" | "COMPLETED" | "ROLLED_BACK";
+            /** Format: int32 */
+            retryCount?: number;
+            /** @enum {string} */
+            lastErrorStage?: "PREFLIGHT" | "COPIED" | "CONTENT_VERIFIED" | "SERVICE_SWITCHED" | "ACCESS_VERIFIED" | "CLEANUP_ELIGIBLE" | "COMPLETED" | "ROLLED_BACK";
+            errorMessage?: string;
+            /** Format: date-time */
+            cleanupEligibleTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RListItemView: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["ItemView"][];
         };
         /** @description OSS对象存储分页查询对象 sys_oss */
         SysOssBo: {
@@ -10048,8 +10299,6 @@ export interface components {
             configKey?: string;
             /** @description accessKey */
             accessKey?: string;
-            /** @description 秘钥 */
-            secretKey?: string;
             /** @description 桶名称 */
             bucketName?: string;
             /** @description 前缀 */
@@ -10068,7 +10317,7 @@ export interface components {
             ext1?: string;
             /** @description 备注 */
             remark?: string;
-            /** @description 桶权限类型(0private 1public 2custom) */
+            /** @description 桶权限类型（0=PRIVATE，2=PUBLIC_READ） */
             accessPolicy?: string;
         };
         /** @description 表格分页数据对象 */
@@ -10410,6 +10659,18 @@ export interface components {
             /** Format: int32 */
             version?: number;
             delFlag?: string;
+        };
+        /** @description 响应信息主体 */
+        ROssDownloadUrl: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["OssDownloadUrl"];
         };
         /** @description 全局通知监控筛选条件。clientPk 仅为显式审计筛选，不是行隔离条件。 */
         SysNotifyQuery: {
@@ -12874,14 +13135,13 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 配置信息 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysOssConfigBo"];
+                "application/json": components["schemas"]["TestTreeBo"];
             };
         };
         responses: {
-            /** @description 操作结果 */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -12908,48 +13168,13 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 配置信息 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysOssConfigBo"];
+                "application/json": components["schemas"]["TestTreeBo"];
             };
         };
         responses: {
-            /** @description 操作结果 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    changeStatus_4: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 状态变更信息 */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SysOssConfigBo"];
-            };
-        };
-        responses: {
-            /** @description 操作结果 */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -12970,72 +13195,6 @@ export interface operations {
         };
     };
     edit_16: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TestTreeBo"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    add_16: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TestTreeBo"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    edit_17: {
         parameters: {
             query?: never;
             header?: never;
@@ -13068,7 +13227,7 @@ export interface operations {
             };
         };
     };
-    add_17: {
+    add_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -14359,6 +14518,303 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RString"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    rollback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batchId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    retry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batchId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    cleanup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batchId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CleanupRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MigrationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RLong"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    dryRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MigrationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RDryRunReport"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    add_17: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description 配置信息 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SysOssConfigBo"];
+            };
+        };
+        responses: {
+            /** @description 操作结果 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description OSS配置ID串 */
+                ossConfigIds: number[];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 操作结果 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    edit_17: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description 配置信息 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SysOssConfigBo"];
+            };
+        };
+        responses: {
+            /** @description 操作结果 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    changeStatus_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description 状态变更信息 */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SysOssConfigBo"];
+            };
+        };
+        responses: {
+            /** @description 操作结果 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
                 };
             };
             /** @description Unauthorized */
@@ -15671,7 +16127,7 @@ export interface operations {
             };
         };
     };
-    remove: {
+    remove_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -17123,7 +17579,7 @@ export interface operations {
             };
         };
     };
-    remove_1: {
+    remove_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -17505,7 +17961,7 @@ export interface operations {
             };
         };
     };
-    remove_2: {
+    remove_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -17846,7 +18302,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ROssDownloadUrl"];
+                    "*/*": components["schemas"]["ROssAccessUrl"];
                 };
             };
             /** @description Unauthorized */
@@ -17880,6 +18336,68 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RResumeResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    batch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batchId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RBatchView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    items: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batchId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListItemView"];
                 };
             };
             /** @description Unauthorized */
@@ -19443,7 +19961,7 @@ export interface operations {
             };
         };
     };
-    remove_3: {
+    remove_4: {
         parameters: {
             query: {
                 /** @description 队列名 */
@@ -20570,7 +21088,7 @@ export interface operations {
             };
         };
     };
-    remove_4: {
+    remove_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -20602,7 +21120,7 @@ export interface operations {
             };
         };
     };
-    remove_5: {
+    remove_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -20730,7 +21248,7 @@ export interface operations {
             };
         };
     };
-    remove_6: {
+    remove_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -20762,7 +21280,7 @@ export interface operations {
             };
         };
     };
-    remove_7: {
+    remove_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -20794,7 +21312,7 @@ export interface operations {
             };
         };
     };
-    remove_8: {
+    remove_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -20826,7 +21344,7 @@ export interface operations {
             };
         };
     };
-    remove_9: {
+    remove_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -20858,7 +21376,7 @@ export interface operations {
             };
         };
     };
-    remove_10: {
+    remove_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -20890,7 +21408,7 @@ export interface operations {
             };
         };
     };
-    remove_11: {
+    remove_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -20922,7 +21440,7 @@ export interface operations {
             };
         };
     };
-    remove_12: {
+    remove_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -20954,7 +21472,7 @@ export interface operations {
             };
         };
     };
-    remove_13: {
+    remove_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -21015,7 +21533,7 @@ export interface operations {
             };
         };
     };
-    remove_14: {
+    remove_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -21047,7 +21565,7 @@ export interface operations {
             };
         };
     };
-    remove_15: {
+    remove_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -21108,7 +21626,7 @@ export interface operations {
             };
         };
     };
-    remove_16: {
+    remove_17: {
         parameters: {
             query?: never;
             header?: never;
@@ -21140,7 +21658,7 @@ export interface operations {
             };
         };
     };
-    remove_17: {
+    remove_18: {
         parameters: {
             query?: never;
             header?: never;
@@ -21184,38 +21702,6 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    remove_18: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description OSS配置ID串 */
-                ossConfigIds: number[];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 操作结果 */
             200: {
                 headers: {
                     [name: string]: unknown;

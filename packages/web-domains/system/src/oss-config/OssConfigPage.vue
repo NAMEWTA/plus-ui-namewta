@@ -87,11 +87,10 @@
         <el-table-column v-if="columns[4].visible" label="桶名称" align="center" prop="bucketName" />
         <el-table-column v-if="columns[5].visible" label="前缀" align="center" prop="prefix" />
         <el-table-column v-if="columns[6].visible" label="域" align="center" prop="region" />
-        <el-table-column v-if="columns[7].visible" label="桶权限类型" align="center" prop="accessPolicy">
+        <el-table-column v-if="columns[7].visible" label="访问类型" align="center" prop="accessPolicy">
           <template #default="scope">
-            <el-tag v-if="scope.row.accessPolicy === '0'" type="warning">private</el-tag>
-            <el-tag v-if="scope.row.accessPolicy === '1'" type="success">public</el-tag>
-            <el-tag v-if="scope.row.accessPolicy === '2'" type="info">custom</el-tag>
+            <el-tag v-if="scope.row.accessPolicy === 'PRIVATE'" type="warning">PRIVATE</el-tag>
+            <el-tag v-else type="success">PUBLIC_READ</el-tag>
           </template>
         </el-table-column>
         <el-table-column v-if="columns[8].visible" label="是否默认" align="center" prop="status">
@@ -100,6 +99,8 @@
               v-model="scope.row.status"
               active-value="Y"
               inactive-value="N"
+              :disabled="scope.row.accessPolicy === 'PUBLIC_READ'"
+              :aria-label="`${scope.row.configKey} 是否默认`"
               @change="handleStatusChange(scope.row)"
             ></el-switch>
           </template>
@@ -112,6 +113,7 @@
                 link
                 type="primary"
                 icon="Edit"
+                aria-label="修改"
                 @click="handleUpdate(scope.row)"
               ></el-button>
             </el-tooltip>
@@ -121,6 +123,7 @@
                 link
                 type="primary"
                 icon="Delete"
+                aria-label="删除"
                 @click="handleDelete(scope.row)"
               ></el-button>
             </el-tooltip>
@@ -173,12 +176,28 @@
             <el-radio v-for="dict in sys_yes_no" :key="dict.value" :value="dict.value">{{ dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="桶权限类型">
+        <el-form-item label="访问类型" prop="accessPolicy">
           <el-radio-group v-model="form.accessPolicy">
-            <el-radio value="0">private</el-radio>
-            <el-radio value="1">public</el-radio>
-            <el-radio value="2">custom</el-radio>
+            <el-radio value="PRIVATE">PRIVATE</el-radio>
+            <el-radio value="PUBLIC_READ">PUBLIC_READ</el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-alert
+          v-if="isPublicConfig"
+          class="public-policy-alert"
+          title="PUBLIC_READ 在生产环境必须配置可公开访问的 domainUrl"
+          type="warning"
+          show-icon
+          :closable="false"
+        />
+        <el-form-item label="是否默认" prop="status">
+          <el-switch
+            v-model="form.status"
+            active-value="Y"
+            inactive-value="N"
+            :disabled="isPublicConfig"
+            aria-label="是否默认"
+          />
         </el-form-item>
         <el-form-item label="域" prop="region">
           <el-input v-model="form.region" placeholder="请输入域" />
@@ -200,7 +219,7 @@
 <script setup name="OssConfig" lang="ts">
 import type { OssConfigForm, OssConfigQuery, OssConfigVO } from '@namewta/domain-system';
 import type { FormInstance as ElFormInstance } from 'element-plus';
-import { computed, onMounted, reactive, ref, toRefs } from 'vue';
+import { computed, onMounted, reactive, ref, toRefs, watch } from 'vue';
 import type { SystemWebRuntime } from '../runtime';
 import { useFormDialog, useLoading, useSearchReset, useSearchToggle, useTableSelection } from '../composables';
 
@@ -233,8 +252,8 @@ const columns = ref<FieldOption[]>([
   { key: 4, label: `桶名称`, visible: true },
   { key: 5, label: `前缀`, visible: true },
   { key: 6, label: `域`, visible: true },
-  { key: 7, label: `桶权限类型`, visible: true },
-  { key: 8, label: `状态`, visible: true }
+  { key: 7, label: `访问类型`, visible: true },
+  { key: 8, label: `是否默认`, visible: true }
 ]);
 
 const initFormData: OssConfigForm = {
@@ -247,7 +266,7 @@ const initFormData: OssConfigForm = {
   endpoint: '',
   domainUrl: '',
   isHttps: 'N',
-  accessPolicy: '1',
+  accessPolicy: 'PRIVATE',
   region: '',
   status: 'N',
   remark: ''
@@ -300,12 +319,28 @@ const data = reactive<PageData<OssConfigForm, OssConfigQuery>>({
         trigger: 'blur'
       }
     ],
-    accessPolicy: [{ required: true, message: 'accessPolicy不能为空', trigger: 'blur' }]
+    accessPolicy: [{ required: true, message: '访问类型不能为空', trigger: 'change' }],
+    domainUrl: [
+      {
+        validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+          if (form.value.accessPolicy === 'PUBLIC_READ' && !value?.trim()) {
+            callback(new Error('PUBLIC_READ 在生产环境必须配置 domainUrl'));
+            return;
+          }
+          callback();
+        },
+        trigger: 'blur'
+      }
+    ]
   }
 });
 
 const { queryParams, form, rules } = toRefs(data);
 const protocol = computed(() => (form.value.isHttps === 'Y' ? 'https://' : 'http://'));
+const isPublicConfig = computed(() => form.value.accessPolicy === 'PUBLIC_READ');
+watch(isPublicConfig, isPublic => {
+  if (isPublic) form.value.status = 'N';
+});
 const { ids, single, multiple, handleSelectionChange } = useTableSelection<OssConfigVO>(item => item.ossConfigId);
 const {
   dialog,
@@ -361,13 +396,15 @@ const handleUpdate = async (row?: Partial<OssConfigVO>) => {
 const submitForm = () => {
   ossConfigFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
+      if (isPublicConfig.value) form.value.status = 'N';
       buttonLoading.value = true;
+      const updating = Boolean(form.value.ossConfigId);
       if (form.value.ossConfigId) {
         await updateOssConfig(form.value).finally(() => (buttonLoading.value = false));
       } else {
         await addOssConfig(form.value).finally(() => (buttonLoading.value = false));
       }
-      modal.msgSuccess('新增成功');
+      modal.msgSuccess(updating ? '修改成功' : '新增成功');
       closeDialog();
       await getList();
     }
@@ -375,9 +412,13 @@ const submitForm = () => {
 };
 /** 状态修改  */
 const handleStatusChange = async (row: Partial<OssConfigVO>) => {
-  const text = row.status === 'Y' ? '启用' : '停用';
+  if (row.accessPolicy === 'PUBLIC_READ') {
+    row.status = 'N';
+    return;
+  }
+  const text = row.status === 'Y' ? '设为默认' : '取消默认';
   try {
-    await modal.confirm('确认要"' + text + '""' + row.configKey + '"配置吗?');
+    await modal.confirm('确认要将"' + row.configKey + '"' + text + '吗?');
     await changeOssConfigStatus(row.ossConfigId, row.status, row.configKey);
     await getList();
     modal.msgSuccess(text + '成功');
@@ -405,6 +446,11 @@ onMounted(() => {
   min-height: 0;
 }
 
+.public-policy-alert {
+  margin: 0 0 18px 120px;
+  width: calc(100% - 120px);
+}
+
 .data-table :deep(.el-button.is-link) {
   width: 32px;
   height: 32px;
@@ -415,6 +461,11 @@ onMounted(() => {
 @media (max-width: 900px) {
   .toolbar-shell {
     align-items: flex-start;
+  }
+
+  .public-policy-alert {
+    margin-left: 0;
+    width: 100%;
   }
 }
 </style>

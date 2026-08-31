@@ -181,8 +181,9 @@ export interface OssCompletedPart {
   eTag: string;
 }
 export interface OssDownloadUrl {
+  accessType: 'PUBLIC' | 'PRIVATE';
   url: string;
-  expiresAt: string;
+  expiresAt: string | null;
   fileName: string;
 }
 export interface OssQuery extends PageQuery {
@@ -210,6 +211,7 @@ export interface SysOssExt {
   isTemp?: boolean;
   md5?: string;
 }
+export type OssConfigAccessPolicy = 'PRIVATE' | 'PUBLIC_READ';
 export interface OssConfigVO extends BaseEntity {
   ossConfigId: ResourceIdentifier;
   configKey: string;
@@ -224,7 +226,7 @@ export interface OssConfigVO extends BaseEntity {
   status: string;
   ext1: string;
   remark: string;
-  accessPolicy: string;
+  accessPolicy: OssConfigAccessPolicy;
 }
 export interface OssConfigQuery extends PageQuery {
   configKey: string;
@@ -241,7 +243,7 @@ export interface OssConfigForm {
   endpoint: string;
   domainUrl: string;
   isHttps: string;
-  accessPolicy: string;
+  accessPolicy: OssConfigAccessPolicy;
   region: string;
   status: string;
   remark: string;

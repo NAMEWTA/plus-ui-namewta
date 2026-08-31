@@ -1,6 +1,11 @@
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
 import { describe, expect, expectTypeOf, it, vi } from 'vitest';
-import { createSystemResourceService, ResourceSecurityError, type SocialAuthVO } from './resource-service';
+import {
+  createSystemResourceService,
+  ResourceContractError,
+  ResourceSecurityError,
+  type SocialAuthVO
+} from './resource-service';
 
 describe('system resource transports', () => {
   it('preserves the complete resource method and path matrix', async () => {
@@ -17,8 +22,22 @@ describe('system resource transports', () => {
         if (request.url.includes('/download-url')) {
           return {
             code: 200,
-            data: { url: 'https://files.example.test/file', fileName: 'file', expiresAt: 'later' }
+            data: {
+              accessType: 'PRIVATE',
+              url: 'https://files.example.test/file',
+              fileName: 'file',
+              expiresAt: 'later'
+            }
           } as never;
+        }
+        if (request.url === '/resource/oss/list') {
+          return { code: 200, data: { rows: [], total: 0 } } as never;
+        }
+        if (request.url === '/resource/oss/config/list') {
+          return { code: 200, data: { rows: [], total: 0 } } as never;
+        }
+        if (request.url === '/resource/oss/config/config%2F1') {
+          return { code: 200, data: { accessPolicy: '0' } } as never;
         }
         if (request.url.includes('/listByIds/')) return { code: 200, data: [] } as never;
         if (request.url.endsWith('/parts/sign')) return { code: 200, data: { parts: [] } } as never;
@@ -49,6 +68,7 @@ describe('system resource transports', () => {
     const service = createSystemResourceService(http);
     const query = { pageNum: 1, pageSize: 10 };
     const form = { marker: 'resource' } as never;
+    const ossConfigForm = { marker: 'resource', accessPolicy: 'PRIVATE' } as never;
 
     await service.dictData.byType('sys/status');
     await service.dictData.list(query as never);
@@ -88,8 +108,8 @@ describe('system resource transports', () => {
     await service.oss.delete(['oss/1', 2]);
     await service.ossConfigs.list(query as never);
     await service.ossConfigs.get('config/1');
-    await service.ossConfigs.add(form);
-    await service.ossConfigs.update(form);
+    await service.ossConfigs.add(ossConfigForm);
+    await service.ossConfigs.update(ossConfigForm);
     await service.ossConfigs.delete(['config/1', 2]);
     await service.ossConfigs.changeStatus('oss/1', '0', 'primary');
     await service.messages.box();
@@ -138,12 +158,12 @@ describe('system resource transports', () => {
       { url: '/resource/oss/oss%2F1,2', method: 'delete' },
       { url: '/resource/oss/config/list', method: 'get', params: query },
       { url: '/resource/oss/config/config%2F1', method: 'get' },
-      { url: '/resource/oss/config', method: 'post', data: form },
-      { url: '/resource/oss/config', method: 'put', data: form },
-      { url: '/resource/oss/config/config%2F1,2', method: 'delete' },
+      { url: '/resource/oss/config', method: 'post', data: { marker: 'resource', accessPolicy: '0' } },
+      { url: '/resource/oss/config/edit', method: 'post', data: { marker: 'resource', accessPolicy: '0' } },
+      { url: '/resource/oss/config/remove/config%2F1,2', method: 'post' },
       {
         url: '/resource/oss/config/changeStatus',
-        method: 'put',
+        method: 'post',
         data: { ossConfigId: 'oss/1', status: '0', configKey: 'primary' }
       },
       { url: '/resource/message/box', method: 'get' },
@@ -153,11 +173,71 @@ describe('system resource transports', () => {
 
   it('fails closed on unsafe OSS response URLs without exposing request details', async () => {
     const request: HttpClient['request'] = async () =>
-      ({ data: { url: 'javascript:alert(1)', fileName: 'x', expiresAt: 'later' } }) as never;
+      ({ data: { accessType: 'PRIVATE', url: 'javascript:alert(1)', fileName: 'x', expiresAt: 'later' } }) as never;
     const service = createSystemResourceService({ request });
     await expect(service.oss.downloadUrl('1')).rejects.toEqual(
       expect.objectContaining({ code: 'unsafe-resource-url', name: ResourceSecurityError.name })
     );
+  });
+
+  it('projects public and private access responses without guessing from URL query parameters', async () => {
+    const responses = [
+      {
+        accessType: 'PUBLIC',
+        url: 'https://cdn.example.test/stable-file',
+        fileName: 'public.txt',
+        expiresAt: null
+      },
+      {
+        accessType: 'PRIVATE',
+        url: 'https://files.example.test/private-file?opaque=value',
+        fileName: 'private.txt',
+        expiresAt: '2026-09-01T03:40:00Z'
+      }
+    ];
+    const request: HttpClient['request'] = vi.fn(async () => ({ data: responses.shift() }) as never);
+    const service = createSystemResourceService({ request });
+
+    await expect(service.oss.downloadUrl(1)).resolves.toMatchObject({
+      data: { accessType: 'PUBLIC', expiresAt: null }
+    });
+    await expect(service.oss.downloadUrl(2)).resolves.toMatchObject({
+      data: { accessType: 'PRIVATE', expiresAt: '2026-09-01T03:40:00Z' }
+    });
+  });
+
+  it.each([
+    { accessType: 'CUSTOM', expiresAt: null },
+    { accessType: 'PUBLIC', expiresAt: 'later' },
+    { accessType: 'PRIVATE', expiresAt: null }
+  ])('rejects inconsistent OSS access contract %#', async value => {
+    const request: HttpClient['request'] = async () =>
+      ({ data: { ...value, url: 'https://files.example.test/file', fileName: 'file' } }) as never;
+    const service = createSystemResourceService({ request });
+
+    await expect(service.oss.downloadUrl(1)).rejects.toBeInstanceOf(ResourceContractError);
+  });
+
+  it('maps semantic access policies to the backend physical encoding and fails closed on retired values', async () => {
+    const requests: HttpRequest[] = [];
+    const request: HttpClient['request'] = async config => {
+      requests.push(config);
+      if (config.url.endsWith('/list')) {
+        return { data: { rows: [{ accessPolicy: '0' }, { accessPolicy: '2' }], total: 2 } } as never;
+      }
+      return { data: {} } as never;
+    };
+    const service = createSystemResourceService({ request });
+
+    const list = await service.ossConfigs.list({} as never);
+    expect(list.data.rows.map(item => item.accessPolicy)).toEqual(['PRIVATE', 'PUBLIC_READ']);
+    await service.ossConfigs.add({ accessPolicy: 'PUBLIC_READ' } as never);
+    expect(requests.at(-1)?.data).toEqual({ accessPolicy: '2' });
+
+    const retired = createSystemResourceService({
+      request: async () => ({ data: { rows: [{ accessPolicy: '1' }], total: 1 } }) as never
+    });
+    await expect(retired.ossConfigs.list({} as never)).rejects.toBeInstanceOf(ResourceContractError);
   });
 
   it('rejects unsafe upload URLs before they reach browser upload code', async () => {

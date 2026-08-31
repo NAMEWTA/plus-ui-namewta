@@ -1,3 +1,4 @@
+import type { OpenApiSchema } from '@namewta/api-contracts';
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
 import type { ApiResponse, PageResult } from './index';
 import type {
@@ -15,6 +16,7 @@ import type {
   NoticeQuery,
   NoticeVO,
   OssCompletedPart,
+  OssConfigAccessPolicy,
   OssConfigForm,
   OssConfigQuery,
   OssConfigVO,
@@ -43,6 +45,14 @@ export class ResourceSecurityError extends Error {
   }
 }
 
+export class ResourceContractError extends Error {
+  readonly code = 'invalid-resource-contract';
+  constructor() {
+    super('资源响应不可用');
+    this.name = 'ResourceContractError';
+  }
+}
+
 function requireSafeUrl(value: string) {
   try {
     const url = new URL(value);
@@ -57,6 +67,42 @@ function requireSafeUrl(value: string) {
 function validatePresigned<T extends { url: string }>(request: T): T {
   requireSafeUrl(request.url);
   return request;
+}
+
+type OssAccessUrlTransport = OpenApiSchema<'OssAccessUrl'>;
+type OssConfigTransport = OpenApiSchema<'SysOssConfigVo'>;
+type PhysicalOssAccessPolicy = '0' | '2';
+
+function projectAccessUrl(value: OssAccessUrlTransport): OssDownloadUrl {
+  const accessType = value?.accessType;
+  const expiresAt = (value as { expiresAt?: string | null } | undefined)?.expiresAt ?? null;
+  if (accessType !== 'PUBLIC' && accessType !== 'PRIVATE') throw new ResourceContractError();
+  if (typeof value.url !== 'string' || typeof value.fileName !== 'string') throw new ResourceContractError();
+  if ((accessType === 'PUBLIC' && expiresAt !== null) || (accessType === 'PRIVATE' && !expiresAt)) {
+    throw new ResourceContractError();
+  }
+  requireSafeUrl(value.url);
+  return Object.freeze({ accessType, url: value.url, expiresAt, fileName: value.fileName });
+}
+
+function projectAccessPolicy(value: unknown): OssConfigAccessPolicy {
+  if (value === '0') return 'PRIVATE';
+  if (value === '2') return 'PUBLIC_READ';
+  throw new ResourceContractError();
+}
+
+function encodeAccessPolicy(value: OssConfigAccessPolicy): PhysicalOssAccessPolicy {
+  if (value === 'PRIVATE') return '0';
+  if (value === 'PUBLIC_READ') return '2';
+  throw new ResourceContractError();
+}
+
+function projectOssConfig(value: OssConfigTransport): OssConfigVO {
+  return { ...(value as OssConfigVO), accessPolicy: projectAccessPolicy(value.accessPolicy) };
+}
+
+function encodeOssConfig(value: OssConfigForm) {
+  return { ...value, accessPolicy: encodeAccessPolicy(value.accessPolicy) };
 }
 
 export interface SystemResourceService {
@@ -133,12 +179,17 @@ function createNoticeService(request: Request) {
 
 function createOssService(request: Request) {
   const downloadUrl = async (id: ResourceIdentifier) => {
-    const response = await request<OssDownloadUrl>({ url: `/resource/oss/${segment(id)}/download-url`, method: 'get' });
-    requireSafeUrl(response.data.url);
-    return response;
+    const response = await request<OssAccessUrlTransport>({
+      url: `/resource/oss/${segment(id)}/download-url`,
+      method: 'get'
+    });
+    return { ...response, data: projectAccessUrl(response.data) };
   };
   return Object.freeze({
-    list: (params: OssQuery) => request<PageResult<OssVO>>({ url: '/resource/oss/list', method: 'get', params }),
+    list: async (params: OssQuery) => {
+      const response = await request<PageResult<OssVO>>({ url: '/resource/oss/list', method: 'get', params });
+      return { ...response, data: { ...response.data, rows: response.data.rows.map(item => ({ ...item, url: '' })) } };
+    },
     listByIds: async (ids: ResourceIdentifierList) => {
       const response = await request<OssVO[]>({ url: '/resource/oss/listByIds/' + segment(ids), method: 'get' });
       const data = await Promise.all(
@@ -182,15 +233,31 @@ function createOssService(request: Request) {
 
 function createOssConfigService(request: Request) {
   return Object.freeze({
-    list: (params: OssConfigQuery) =>
-      request<PageResult<OssConfigVO>>({ url: '/resource/oss/config/list', method: 'get', params }),
-    get: (id: ResourceIdentifier) =>
-      request<OssConfigVO>({ url: '/resource/oss/config/' + segment(id), method: 'get' }),
-    add: (data: OssConfigForm) => request({ url: '/resource/oss/config', method: 'post', data }),
-    update: (data: OssConfigForm) => request({ url: '/resource/oss/config', method: 'put', data }),
-    delete: (ids: ResourceIdentifierList) => request({ url: '/resource/oss/config/' + segment(ids), method: 'delete' }),
+    list: async (params: OssConfigQuery) => {
+      const response = await request<PageResult<OssConfigTransport>>({
+        url: '/resource/oss/config/list',
+        method: 'get',
+        params
+      });
+      return {
+        ...response,
+        data: { ...response.data, rows: response.data.rows.map(projectOssConfig) }
+      };
+    },
+    get: async (id: ResourceIdentifier) => {
+      const response = await request<OssConfigTransport>({
+        url: '/resource/oss/config/' + segment(id),
+        method: 'get'
+      });
+      return { ...response, data: projectOssConfig(response.data) };
+    },
+    add: (data: OssConfigForm) => request({ url: '/resource/oss/config', method: 'post', data: encodeOssConfig(data) }),
+    update: (data: OssConfigForm) =>
+      request({ url: '/resource/oss/config/edit', method: 'post', data: encodeOssConfig(data) }),
+    delete: (ids: ResourceIdentifierList) =>
+      request({ url: '/resource/oss/config/remove/' + segment(ids), method: 'post' }),
     changeStatus: (ossConfigId: ResourceIdentifier, status: string, configKey: string) =>
-      request({ url: '/resource/oss/config/changeStatus', method: 'put', data: { ossConfigId, status, configKey } })
+      request({ url: '/resource/oss/config/changeStatus', method: 'post', data: { ossConfigId, status, configKey } })
   });
 }
 

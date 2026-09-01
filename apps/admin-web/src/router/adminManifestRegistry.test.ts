@@ -91,6 +91,7 @@ describe('admin selected manifest registry', () => {
       componentName: 'SnailJob'
     });
     expect(resolveAdminWebRegistration('monitor/snailai/index', 'system')).toMatchObject({ componentName: 'SnailAi' });
+    expect(resolveAdminWebRegistration('monitor/nacos/index', 'system')).toMatchObject({ componentName: 'Nacos' });
     expect(resolveAdminWebRegistration('monitor/report/index', 'system')).toBeUndefined();
   });
 

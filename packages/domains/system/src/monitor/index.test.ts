@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createMonitorService, MonitorSecurityError } from './index';
+import { createMonitorService, monitorPermissions, MonitorSecurityError } from './index';
 
 describe('monitor transport and security contracts', () => {
   it('preserves endpoint methods and encodes every path segment', async () => {
@@ -95,6 +95,18 @@ describe('monitor transport and security contracts', () => {
     expect(service.externalIntent('snail-job', '/snail-job', true)).toEqual({
       target: 'snail-job',
       url: '/snail-job',
+      mode: 'embed'
+    });
+  });
+
+  it('maps the Nacos console to its dedicated system permission and safe URL contract', () => {
+    const service = createMonitorService({ request: vi.fn() });
+
+    expect(monitorPermissions.nacos).toBe('system:nacos:console');
+    expect(() => service.externalIntent('nacos', '/nacos/', false)).toThrowError(/无权/);
+    expect(service.externalIntent('nacos', '/nacos/', true)).toEqual({
+      target: 'nacos',
+      url: '/nacos/',
       mode: 'embed'
     });
   });

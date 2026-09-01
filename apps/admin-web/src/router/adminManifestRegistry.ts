@@ -2,6 +2,7 @@ import { adminDomainModule, requirePasswordPolicy, validatePassword } from '@nam
 import { aiDomainModule } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
 import { systemDomainModule } from '@namewta/domain-system';
+import { monitorPermissions } from '@namewta/domain-system/monitor';
 import { workflowDomainModule } from '@namewta/domain-workflow';
 import {
   AppRuntimeError,
@@ -228,23 +229,23 @@ export const adminMonitorWebRuntime: MonitorWebRuntime = {
 };
 const monitorManifest = createMonitorWebDomain(adminMonitorWebRuntime);
 const AdminExternalMonitorPage = defineAsyncComponent(() => import('@/views/monitor/external/index.vue'));
+const adminExternalMonitorRegistrations = [
+  ['admin-monitor-admin', 'monitor/admin/index', 'MonitorAdmin', 'monitor-admin'],
+  ['admin-monitor-snailjob', 'monitor/snailjob/index', 'SnailJob', 'snail-job'],
+  ['admin-monitor-snailai', 'monitor/snailai/index', 'SnailAi', 'snail-ai'],
+  ['admin-monitor-nacos', 'monitor/nacos/index', 'Nacos', 'nacos']
+] as const;
 const adminExternalMonitorManifest: WebDomainManifest<Component> = Object.freeze({
   id: 'admin-external-monitor',
   domainId: 'system',
   messages: Object.freeze([]),
   permissions: Object.freeze(
-    ['admin', 'snailjob', 'snailai'].map(slice =>
-      Object.freeze({ id: `admin-monitor-${slice}`, permissions: Object.freeze([`monitor:${slice}:list`]) })
+    adminExternalMonitorRegistrations.map(([id, , , target]) =>
+      Object.freeze({ id, permissions: Object.freeze([monitorPermissions[target]]) })
     )
   ),
   registrations: Object.freeze(
-    (
-      [
-        ['admin-monitor-admin', 'monitor/admin/index', 'MonitorAdmin', 'monitor-admin'],
-        ['admin-monitor-snailjob', 'monitor/snailjob/index', 'SnailJob', 'snail-job'],
-        ['admin-monitor-snailai', 'monitor/snailai/index', 'SnailAi', 'snail-ai']
-      ] as const
-    ).map(([id, componentKey, componentName, target]) =>
+    adminExternalMonitorRegistrations.map(([id, componentKey, componentName, target]) =>
       Object.freeze({
         id,
         componentKey,
@@ -258,13 +259,7 @@ const adminExternalMonitorManifest: WebDomainManifest<Component> = Object.freeze
 
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
-  domainModules: [
-    adminDomainModule,
-    demoDomainModule,
-    workflowDomainModule,
-    systemDomainModule,
-    aiDomainModule
-  ],
+  domainModules: [adminDomainModule, demoDomainModule, workflowDomainModule, systemDomainModule, aiDomainModule],
   manifests: [
     createAdminWebDomain({
       service: identityAccessService,

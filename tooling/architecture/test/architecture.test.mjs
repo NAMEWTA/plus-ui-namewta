@@ -167,6 +167,20 @@ test('accepts a valid public dependency graph without reading environment files'
   assert.doesNotMatch(result.output, /ARCHITECTURE_SENTINEL|must-not-be-read/);
 });
 
+test('ignores Speculo worktree copies outside the active workspace', async () => {
+  const root = await createFixture();
+  await writeFixtureFile(
+    root,
+    'specdev-worktree/archived-change/packages/domains/demo/src/index.ts',
+    "import axios from 'axios';\nexport const browserWindow = window;\n"
+  );
+
+  const result = await check(root);
+
+  assert.equal(result.exitCode, 0, result.output);
+  assert.doesNotMatch(result.output, /specdev-worktree|terminal-purity/);
+});
+
 test('rejects retired Admin navigation owners and fallback algorithms', async () => {
   const cases = [
     {

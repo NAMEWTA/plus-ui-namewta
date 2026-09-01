@@ -53,7 +53,15 @@ const browserGlobals = new Set([
   'getComputedStyle'
 ]);
 const sourceExtensions = new Set(['.cjs', '.js', '.jsx', '.mjs', '.ts', '.tsx', '.vue']);
-const ignoredDirectories = new Set(['.git', '.output', '.vite', 'coverage', 'dist', 'node_modules']);
+const ignoredDirectories = new Set([
+  '.git',
+  '.output',
+  '.vite',
+  'coverage',
+  'dist',
+  'node_modules',
+  'specdev-worktree'
+]);
 const requiredWorkspaceGlobs = ['.', 'apps/*', 'packages/*', 'packages/*/*', 'tooling/*'];
 const sharedCatalogPackages = [
   '@types/node',

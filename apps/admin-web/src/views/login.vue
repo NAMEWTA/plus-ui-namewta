@@ -246,12 +246,22 @@ const handleLogin = () => {
 };
 
 const getCode = async () => {
-  const verification = await identityAccessService.getVerification();
-  captchaEnabled.value = verification.captchaEnabled;
-  if (captchaEnabled.value) {
+  try {
+    const verification = await identityAccessService.getVerification();
+    captchaEnabled.value = verification.captchaEnabled;
+    if (captchaEnabled.value) {
+      loginForm.value.code = '';
+      codeUrl.value = 'data:image/gif;base64,' + verification.img;
+      loginForm.value.uuid = verification.uuid;
+    }
+  } catch {
+    authContextState.value = 'unavailable';
+    register.value = false;
+    captchaEnabled.value = false;
+    codeUrl.value = '';
     loginForm.value.code = '';
-    codeUrl.value = 'data:image/gif;base64,' + verification.img;
-    loginForm.value.uuid = verification.uuid;
+    loginForm.value.uuid = '';
+    ElMessage.error(identityAccessWebMessages.unavailable);
   }
 };
 

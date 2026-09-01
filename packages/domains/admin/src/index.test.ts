@@ -246,8 +246,21 @@ describe('identity access domain', () => {
           {
             path: '/system',
             component: 'Layout',
-            meta: { title: '系统管理', noCache: false },
-            children: [{ path: 'user', name: 'User', component: 'system/user/index' }]
+            name: null,
+            redirect: null,
+            alwaysShow: null,
+            permissions: null,
+            meta: { activeMenu: null, link: null, title: '系统管理', noCache: false },
+            children: [
+              {
+                path: 'user',
+                name: 'User',
+                component: 'system/user/index',
+                query: null,
+                meta: null,
+                children: null
+              }
+            ]
           }
         ]
       }
@@ -279,6 +292,7 @@ describe('identity access domain', () => {
     { data: [{ path: '/system', children: [{ path: 42, component: 'system/user/index' }] }] },
     { data: [{ path: '/system', children: {} }] },
     { data: [{ path: '/system', meta: { noCache: 'false' } }] },
+    { data: [{ path: null, component: 'Layout' }] },
     { data: [{ path: '   ', component: 'Layout' }] }
   ])('fails closed for a malformed nested server menu: $data', async ({ data }) => {
     const harness = createHarness({ '/system/menu/getRouters': { data } });

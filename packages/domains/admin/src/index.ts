@@ -240,14 +240,14 @@ function menuString(
   options: { nonBlank?: boolean; required?: boolean } = {}
 ): string | undefined {
   const value = menu[key];
-  if (value === undefined && !options.required) return undefined;
+  if ((value === undefined || value === null) && !options.required) return undefined;
   if (typeof value !== 'string' || (options.nonBlank && !value.trim())) throw invalidMenu(`${path}.${key}`);
   return value;
 }
 
 function menuBoolean(menu: UnknownObject, key: string, path: string): boolean | undefined {
   const value = menu[key];
-  if (value === undefined) return undefined;
+  if (value === undefined || value === null) return undefined;
   if (typeof value !== 'boolean') throw invalidMenu(`${path}.${key}`);
   return value;
 }
@@ -258,7 +258,7 @@ function menuStringList(
   path: string
 ): readonly string[] | undefined {
   const value = menu[key];
-  if (value === undefined) return undefined;
+  if (value === undefined || value === null) return undefined;
   if (!Array.isArray(value) || value.some(item => typeof item !== 'string' || !item.trim())) {
     throw invalidMenu(`${path}.${key}`);
   }
@@ -266,7 +266,7 @@ function menuStringList(
 }
 
 function parseMenuMeta(value: unknown, path: string): ServerMenuMeta | undefined {
-  if (value === undefined) return undefined;
+  if (value === undefined || value === null) return undefined;
   const meta = requireMenuRecord(value, path);
   return Object.freeze({
     ...(menuString(meta, 'activeMenu', path) !== undefined ? { activeMenu: menuString(meta, 'activeMenu', path) } : {}),
@@ -281,7 +281,7 @@ function parseMenuNode(value: unknown, path: string): ServerMenuNode {
   const menu = requireMenuRecord(value, path);
   const childrenValue = menu.children;
   let children: readonly ServerMenuNode[] | undefined;
-  if (childrenValue !== undefined) {
+  if (childrenValue !== undefined && childrenValue !== null) {
     if (!Array.isArray(childrenValue)) throw invalidMenu(`${path}.children`);
     children = Object.freeze(childrenValue.map((child, index) => parseMenuNode(child, `${path}.children[${index}]`)));
   }

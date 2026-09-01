@@ -3,8 +3,10 @@ import { expect, test, type Page, type Route } from '@playwright/test';
 const productionClientId = 'e5cd7e4891bf95d1d19206ce24a7b32e';
 
 type ClientContextMode = 'valid' | 'request-failure' | 'missing-fields';
+type AuthCodeMode = 'disabled' | 'fail-after-first';
 
 type BaselineApiState = {
+  authCodeMode: AuthCodeMode;
   authCodeRequests: number;
   clientContextMode: ClientContextMode;
   clientContextRequests: number;
@@ -24,6 +26,7 @@ type BaselineApiState = {
 };
 
 const createApiState = (overrides: Partial<BaselineApiState> = {}): BaselineApiState => ({
+  authCodeMode: 'disabled',
   authCodeRequests: 0,
   clientContextMode: 'valid',
   clientContextRequests: 0,
@@ -65,6 +68,19 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
     }
     if (path === '/auth/code') {
       state.authCodeRequests += 1;
+      if (state.authCodeMode === 'fail-after-first' && state.authCodeRequests > 1) {
+        return route.abort('failed');
+      }
+      if (state.authCodeMode === 'fail-after-first') {
+        return fulfillJson(route, {
+          code: 200,
+          data: {
+            captchaEnabled: true,
+            uuid: 'captcha-proof',
+            img: 'R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+          }
+        });
+      }
       return fulfillJson(route, { code: 200, data: { captchaEnabled: false } });
     }
     if (path === '/auth/login') {
@@ -113,7 +129,13 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
                 path: 'route',
                 name: 'BaselineRoute',
                 component: state.menuComponent,
-                meta: { title: '迁移基线路由', icon: 'dashboard', noCache: false }
+                meta: {
+                  activeMenu: null,
+                  link: null,
+                  title: '迁移基线路由',
+                  icon: 'dashboard',
+                  noCache: false
+                }
               }
             ]
           }
@@ -186,12 +208,29 @@ test('login restores the selected manifest route without re-filtering the server
   expect(state.loginRequests).toBe(1);
   expect(state.getInfoRequests).toBe(1);
   expect(state.getRoutersRequests).toBe(1);
+  expect(state.logoutRequests).toBe(0);
   expect(state.loginClientHeader).toBe(productionClientId);
   expect(state.loginEncryptKey).not.toBe('');
   expect(state.loginPostData).not.toBe('');
   expect(state.loginPostData).not.toContain(productionClientId);
   expect(state.loginPostData).not.toContain('clientId');
   expect(state.unknownRequests).toEqual([]);
+});
+
+test('captcha refresh failure is handled and disables authentication', async ({ page }) => {
+  const state = createApiState({ authCodeMode: 'fail-after-first' });
+  const pageErrors: Error[] = [];
+  page.on('pageerror', error => pageErrors.push(error));
+  await installBaselineApi(page, state);
+
+  await page.goto('/login');
+  await expect(page.locator('.submit-button')).toBeEnabled();
+  await page.locator('.login-code-img').click();
+
+  await expect(page.getByText('客户端认证配置不可用，无法登录', { exact: true })).toBeVisible();
+  await expect(page.locator('.submit-button')).toBeDisabled();
+  expect(state.authCodeRequests).toBe(2);
+  expect(pageErrors).toEqual([]);
 });
 
 test('unknown server component fails closed with stable manifest diagnostics', async ({ page }) => {

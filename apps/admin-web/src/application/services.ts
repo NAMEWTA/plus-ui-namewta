@@ -1,6 +1,7 @@
 import { createIdentityAccessService } from '@namewta/domain-admin';
 import { createAiService } from '@namewta/domain-ai';
 import { createDemoService } from '@namewta/domain-demo';
+import { createProfileService } from '@namewta/domain-profile';
 import { createOpenApiService, createSystemService } from '@namewta/domain-system';
 import { createMonitorService } from '@namewta/domain-system/monitor';
 import { createWorkflowDefinitionService } from '@namewta/domain-workflow';
@@ -26,6 +27,7 @@ export const identityAccessService = createIdentityAccessService({
 });
 
 export const workflowService = createWorkflowDefinitionService(domainHttp);
+export const profileService = createProfileService(domainHttp);
 export const demoService = createDemoService(domainHttp);
 export const monitorService = createMonitorService(domainHttp);
 export const aiService = createAiService(domainHttp);

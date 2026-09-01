@@ -139,6 +139,7 @@ describe('profile service contracts', () => {
     const service = createProfileService(fixtureHttp(requests));
 
     await service.person.archive.page({ fullName: 'Example', pageNum: 1, pageSize: 10 });
+    await service.person.archive.eligibleUsers('alice');
     await service.person.archive.review('app/1');
     await service.person.archive.decide('app/1', { decision: 'APPROVE', reason: 'verified' });
     await service.person.archive.create({ identity: personIdentity, bindUserId: 1, reason: 'create', materials: [] });
@@ -152,10 +153,12 @@ describe('profile service contracts', () => {
       reason: 'create',
       materials: []
     });
+    await service.enterprise.archive.eligibleUsers('owner');
     await service.enterprise.archive.reviewMaterial('app/2', 'ref/2');
 
     expect(requests.map(item => `${item.method} ${item.url}`)).toEqual([
       'get /profile/person/archive',
+      'get /profile/person/archive/eligible-users',
       'get /profile/person/archive/application/app%2F1/review-context',
       'post /profile/person/archive/application/app%2F1/decision',
       'post /profile/person/archive/admin-create',
@@ -164,6 +167,7 @@ describe('profile service contracts', () => {
       'post /profile/person/archive/1/binding',
       'post /profile/person/archive/1/revoke',
       'post /profile/enterprise/archive/admin-create',
+      'get /profile/enterprise/archive/eligible-users',
       'get /profile/enterprise/archive/application/app%2F2/material/ref%2F2/access-url'
     ]);
     expect(requests.every(item => item.method === 'get' || item.method === 'post')).toBe(true);

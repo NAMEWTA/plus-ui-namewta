@@ -208,7 +208,7 @@ async function searchUsers(keyword: string) {
   }
   userLoading.value = true;
   try {
-    userOptions.value = await runtime.findUsers(keyword.trim());
+    userOptions.value = await runtime.findUsers('ENTERPRISE', keyword.trim());
   } catch (error) {
     runtime.error(safeEnterpriseErrorMessage(error));
   } finally {

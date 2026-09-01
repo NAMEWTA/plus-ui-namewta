@@ -22,6 +22,12 @@ export interface OssAccessUrl {
   url: string;
 }
 
+export interface AccountCandidate {
+  nickName: string;
+  userId: Identifier;
+  userName: string;
+}
+
 export interface MaterialOwnerKey {
   ownerId: Identifier;
   ownerType: MaterialOwnerType;

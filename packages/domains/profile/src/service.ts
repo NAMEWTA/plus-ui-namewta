@@ -1,5 +1,6 @@
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
 import type {
+  AccountCandidate,
   ApiResponse,
   AssignCommand,
   BindingCommand,
@@ -85,6 +86,7 @@ export interface PersonArchiveService {
   create(input: PersonCreateCommand): Promise<ApiResponse<ProfileCommandResult>>;
   decide(applicationId: Identifier, input: DecisionCommand): Promise<ApiResponse<ProfileCommandResult>>;
   detail(profileId: Identifier): Promise<ApiResponse<PersonProfileDetail>>;
+  eligibleUsers(keyword: string): Promise<ApiResponse<AccountCandidate[]>>;
   material(profileId: Identifier, materialRefId: Identifier): Promise<ApiResponse<OssAccessUrl>>;
   page(query: PersonArchiveQuery): Promise<ApiResponse<PageResult<PersonProfileSummary>>>;
   review(applicationId: Identifier): Promise<ApiResponse<ReviewContext>>;
@@ -99,6 +101,7 @@ export interface EnterpriseArchiveService {
   create(input: EnterpriseCreateCommand): Promise<ApiResponse<ProfileCommandResult>>;
   decide(applicationId: Identifier, input: DecisionCommand): Promise<ApiResponse<ProfileCommandResult>>;
   detail(profileId: Identifier): Promise<ApiResponse<EnterpriseProfileDetail>>;
+  eligibleUsers(keyword: string): Promise<ApiResponse<AccountCandidate[]>>;
   material(profileId: Identifier, materialRefId: Identifier): Promise<ApiResponse<OssAccessUrl>>;
   page(query: EnterpriseArchiveQuery): Promise<ApiResponse<PageResult<EnterpriseProfileSummary>>>;
   review(applicationId: Identifier): Promise<ApiResponse<ReviewContext>>;
@@ -148,6 +151,7 @@ function createPersonArchive(request: <T>(config: HttpRequest) => Promise<ApiRes
   const base = '/profile/person/archive';
   return Object.freeze<PersonArchiveService>({
     page: query => request({ url: base, method: 'get', params: query }),
+    eligibleUsers: keyword => request({ url: `${base}/eligible-users`, method: 'get', params: { keyword } }),
     detail: profileId => request({ url: `${base}/${segment(profileId)}`, method: 'get' }),
     review: applicationId =>
       request({ url: `${base}/application/${segment(applicationId)}/review-context`, method: 'get' }),
@@ -174,6 +178,7 @@ function createEnterpriseArchive(
   const base = '/profile/enterprise/archive';
   return Object.freeze<EnterpriseArchiveService>({
     page: query => request({ url: base, method: 'get', params: query }),
+    eligibleUsers: keyword => request({ url: `${base}/eligible-users`, method: 'get', params: { keyword } }),
     detail: profileId => request({ url: `${base}/${segment(profileId)}`, method: 'get' }),
     review: applicationId =>
       request({ url: `${base}/application/${segment(applicationId)}/review-context`, method: 'get' }),

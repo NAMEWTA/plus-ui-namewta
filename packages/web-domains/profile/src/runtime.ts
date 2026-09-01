@@ -1,4 +1,4 @@
-import type { Identifier, OssAccessUrl, ProfileService } from '@namewta/domain-profile';
+import type { Identifier, OssAccessUrl, ProfileService, ProfileType } from '@namewta/domain-profile';
 import type { Component } from 'vue';
 
 export interface ProfileUserOption {
@@ -19,7 +19,7 @@ export interface ProfileWebRuntime {
   downloadMaterial(access: OssAccessUrl): Promise<void> | void;
   error(message: string): void;
   fileUpload: Component;
-  findUsers(keyword: string): Promise<readonly ProfileUserOption[]>;
+  findUsers(profileType: ProfileType, keyword: string): Promise<readonly ProfileUserOption[]>;
   hasPermission(permission: string): boolean;
   service: ProfileService;
   success(message: string): void;

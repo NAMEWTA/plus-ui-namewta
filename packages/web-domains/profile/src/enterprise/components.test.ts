@@ -10,6 +10,7 @@ describe('enterprise profile page contracts', () => {
     expect(detail).toContain('法定代表人是企业法定字段');
     expect(detail).toContain('认证负责人是当前绑定的系统账户');
     expect(detail).toContain('runtime.findUsers');
+    expect(detail).toContain("findUsers('ENTERPRISE'");
     expect(detail).toContain('currentVersion.legalDocumentNumber');
     expect(detail).toContain('currentVersion.businessScope');
     expect(detail).toContain('currentVersion.registeredCapital');

@@ -15,6 +15,12 @@
         <el-descriptions-item label="性别">{{ detail.profile.gender }}</el-descriptions-item>
         <el-descriptions-item label="出生日期">{{ detail.profile.birthDate }}</el-descriptions-item>
       </el-descriptions>
+      <el-descriptions v-if="currentVersion" class="current-version" title="当前个人版本" :column="2" border>
+        <el-descriptions-item label="有效期起">{{ currentVersion.validFrom || '未填写' }}</el-descriptions-item>
+        <el-descriptions-item label="有效期止">{{ currentVersion.validUntil || '长期' }}</el-descriptions-item>
+        <el-descriptions-item label="来源类型">{{ currentVersion.sourceType }}</el-descriptions-item>
+        <el-descriptions-item label="来源编号">{{ currentVersion.sourceId }}</el-descriptions-item>
+      </el-descriptions>
       <el-tabs>
         <el-tab-pane label="版本历史">
           <el-table :data="detail.versions" row-key="versionId">
@@ -23,6 +29,22 @@
             <el-table-column prop="status" label="状态" />
             <el-table-column prop="publishedTime" label="发布时间" />
           </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="不可变来源">
+          <el-collapse>
+            <el-collapse-item
+              v-for="source in detail.sources"
+              :key="source.sourceId"
+              :title="`${source.sourceType} #${source.sourceId}`"
+            >
+              <el-descriptions :column="2" border>
+                <el-descriptions-item label="操作账户">{{ source.operatorUserId }}</el-descriptions-item>
+                <el-descriptions-item label="发生时间">{{ source.occurredTime }}</el-descriptions-item>
+                <el-descriptions-item label="原因" :span="2">{{ source.reason }}</el-descriptions-item>
+              </el-descriptions>
+              <pre>{{ formatSnapshot(source.fieldSnapshotJson) }}</pre>
+            </el-collapse-item>
+          </el-collapse>
         </el-tab-pane>
         <el-tab-pane label="绑定历史">
           <el-table :data="detail.bindings" row-key="bindingId">
@@ -111,6 +133,9 @@ const identity = reactive<PersonIdentity>({
   validUntil: ''
 });
 const readonly = computed(() => detail.value?.profile.status === 'REVOKED');
+const currentVersion = computed(
+  () => detail.value?.versions.find(item => item.status === 'CURRENT') ?? detail.value?.versions[0]
+);
 const currentBinding = computed(() =>
   detail.value?.bindings.find(item => item.status === 'ACTIVE' || item.status === 'SUSPENDED')
 );
@@ -129,8 +154,7 @@ async function load() {
   loading.value = true;
   try {
     detail.value = (await props.runtime.service.person.archive.detail(props.profileId)).data;
-    const current = detail.value.versions[0];
-    if (current) Object.assign(identity, current);
+    if (currentVersion.value) Object.assign(identity, currentVersion.value);
   } catch (error) {
     props.runtime.error(safeErrorMessage(error));
   } finally {
@@ -152,7 +176,7 @@ async function searchUsers(keyword: string) {
   }
   userLoading.value = true;
   try {
-    userOptions.value = await props.runtime.findUsers(keyword.trim());
+    userOptions.value = await props.runtime.findUsers('PERSON', keyword.trim());
   } catch (error) {
     props.runtime.error(safeErrorMessage(error));
   } finally {
@@ -181,7 +205,7 @@ async function execute() {
       await archive.revise(props.profileId, {
         identity,
         reason: reason.value.trim(),
-        expectedVersion: detail.value.versions[0]?.versionNo ?? 0
+        expectedVersion: currentVersion.value?.versionNo ?? 0
       });
     else if (command.value === 'assign')
       await archive.assign(props.profileId, { userId: userId.value, reason: reason.value.trim() });
@@ -195,7 +219,7 @@ async function execute() {
     } else
       await archive.revoke(props.profileId, {
         reason: reason.value.trim(),
-        expectedVersion: detail.value.versions[0]?.versionNo ?? 0
+        expectedVersion: currentVersion.value?.versionNo ?? 0
       });
     props.runtime.success('档案状态已更新');
     commandVisible.value = false;
@@ -208,6 +232,14 @@ async function execute() {
   }
 }
 onMounted(load);
+
+function formatSnapshot(value: string) {
+  try {
+    return JSON.stringify(JSON.parse(value), null, 2);
+  } catch {
+    return value;
+  }
+}
 </script>
 
 <style scoped>
@@ -216,5 +248,15 @@ onMounted(load);
   flex-wrap: wrap;
   gap: 8px;
   margin: 12px 0;
+}
+.current-version {
+  margin-top: 12px;
+}
+pre {
+  margin: 8px 0;
+  padding: 12px;
+  overflow: auto;
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color);
 }
 </style>

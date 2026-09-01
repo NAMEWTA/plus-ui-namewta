@@ -17,6 +17,9 @@ describe('person profile page contracts', () => {
     expect(detail).toContain('请填写操作原因');
     expect(detail).toContain('runtime.confirm');
     expect(detail).toContain('runtime.findUsers');
+    expect(detail).toContain("findUsers('PERSON'");
+    expect(detail).toContain('不可变来源');
+    expect(detail).toContain('currentVersion.validUntil');
     expect(detail).not.toMatch(/\bdelete\b|\bexport\b|console\./i);
   });
 
@@ -24,6 +27,7 @@ describe('person profile page contracts', () => {
     expect(review).toContain('archive.review(applicationId.value)');
     expect(review).toContain('archive.reviewMaterial(applicationId.value');
     expect(review).toContain('completeWorkflowTask');
+    expect(review).toContain("decision.value === 'APPROVE' ? 'APPROVED' : 'REJECTED'");
     expect(review).toContain('archive.decide(applicationId.value');
     expect(review).not.toMatch(/console\./);
   });

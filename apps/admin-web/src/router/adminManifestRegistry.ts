@@ -1,6 +1,7 @@
 import { adminDomainModule, requirePasswordPolicy, validatePassword } from '@namewta/domain-admin';
 import { aiDomainModule } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
+import { profileDomainModule } from '@namewta/domain-profile';
 import { systemDomainModule } from '@namewta/domain-system';
 import { monitorPermissions } from '@namewta/domain-system/monitor';
 import { workflowDomainModule } from '@namewta/domain-workflow';
@@ -13,6 +14,7 @@ import {
 import { createAdminWebDomain } from '@namewta/web-domain-admin';
 import { createAiWebDomain, type AiWebRuntime } from '@namewta/web-domain-ai';
 import { createDemoWebDomain, type DemoWebRuntime } from '@namewta/web-domain-demo';
+import { createProfileWebDomain, type ProfileWebRuntime } from '@namewta/web-domain-profile';
 import { createLiveMonitorDictRefs, createMonitorWebDomain, type MonitorWebRuntime } from '@namewta/web-domain-system';
 import { createLiveSystemDictRefs, createSystemWebDomain, type SystemWebRuntime } from '@namewta/web-domain-system';
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
@@ -25,6 +27,7 @@ import {
   identityAccessService,
   monitorService,
   openApiService,
+  profileService,
   systemService,
   workflowService
 } from '@/application/services';
@@ -133,6 +136,52 @@ export const adminWorkflowWebRuntime = {
   }
 };
 const workflowManifest = createWorkflowWebDomain(adminWorkflowWebRuntime);
+
+export const adminProfileWebRuntime: ProfileWebRuntime = {
+  service: profileService,
+  fileUpload: WorkflowFileUpload,
+  closeCurrentPage: () => import('@/application/host/navigation').then(({ default: tab }) => tab.closePage()),
+  completeWorkflowTask: async command => {
+    await workflowService.completeTask({
+      taskId: command.taskId,
+      message: command.comment,
+      variables: command.variables ?? {}
+    });
+  },
+  confirm: async message => {
+    const { default: modal } = await import('@/application/host/feedback');
+    await modal.confirm(message);
+  },
+  success: message => {
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgSuccess(message));
+  },
+  error: message => {
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgError(message));
+  },
+  warning: message => {
+    void import('@/application/host/feedback').then(({ default: modal }) => modal.msgWarning(message));
+  },
+  hasPermission: permission => createAdminAccessEvaluator().hasPermission(permission),
+  downloadMaterial: access => {
+    const link = document.createElement('a');
+    link.href = access.url;
+    link.rel = 'noopener noreferrer';
+    link.download = access.fileName;
+    link.style.display = 'none';
+    document.body.append(link);
+    link.click();
+    link.remove();
+  },
+  findUsers: async (profileType, keyword) => {
+    const archive = profileType === 'PERSON' ? profileService.person.archive : profileService.enterprise.archive;
+    const response = await archive.eligibleUsers(keyword);
+    return response.data.map(user => ({
+      userId: user.userId,
+      label: `${user.nickName || user.userName} (${user.userName})`
+    }));
+  }
+};
+const profileManifest = createProfileWebDomain(adminProfileWebRuntime);
 
 export const adminSystemWebRuntime: SystemWebRuntime = {
   service: systemService,
@@ -259,7 +308,14 @@ const adminExternalMonitorManifest: WebDomainManifest<Component> = Object.freeze
 
 const runtime = composeAppRuntime<Component>({
   appId: 'admin-web',
-  domainModules: [adminDomainModule, demoDomainModule, workflowDomainModule, systemDomainModule, aiDomainModule],
+  domainModules: [
+    adminDomainModule,
+    demoDomainModule,
+    workflowDomainModule,
+    systemDomainModule,
+    aiDomainModule,
+    profileDomainModule
+  ],
   manifests: [
     createAdminWebDomain({
       service: identityAccessService,
@@ -272,9 +328,10 @@ const runtime = composeAppRuntime<Component>({
     systemManifest,
     aiManifest,
     monitorManifest,
+    profileManifest,
     adminExternalMonitorManifest
   ],
-  selectedDomainIds: ['admin', 'demo', 'workflow', 'system', 'ai'],
+  selectedDomainIds: ['admin', 'demo', 'workflow', 'system', 'ai', 'profile'],
   selectedManifestIds: [
     'web-domain-admin',
     'web-domain-demo',
@@ -282,6 +339,7 @@ const runtime = composeAppRuntime<Component>({
     'web-domain-system',
     'web-domain-ai',
     'web-domain-system-monitor',
+    'web-domain-profile',
     'admin-external-monitor'
   ]
 });

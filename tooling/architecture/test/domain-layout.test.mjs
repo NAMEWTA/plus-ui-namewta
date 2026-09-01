@@ -5,12 +5,13 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const workspaceRoot = join(dirname(fileURLToPath(import.meta.url)), '../../..');
-const canonicalDomains = ['admin', 'ai', 'demo', 'system', 'workflow'];
+const canonicalDomains = ['admin', 'ai', 'demo', 'profile', 'system', 'workflow'];
 const removedDomains = ['identity-access', 'system-admin', 'devtools', 'operations', 'gen'];
 const backendModules = {
   admin: 'ruoyi-admin',
   ai: 'ruoyi-ai',
   demo: 'ruoyi-demo',
+  profile: 'ruoyi-profile',
   system: 'ruoyi-system',
   workflow: 'ruoyi-workflow'
 };

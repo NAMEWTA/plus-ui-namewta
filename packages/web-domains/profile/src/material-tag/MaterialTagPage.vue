@@ -43,8 +43,8 @@
         <template #default="{ row }">
           <el-switch
             :model-value="row.enabled"
-            :disabled="!canManage || !canChangeMaterialLifecycle(row)"
-            @change="value => changeStatus(row, Boolean(value))"
+            :disabled="!canManage || !canChangeMaterialLifecycle(row as MaterialNode)"
+            @change="value => changeStatus(row as MaterialNode, Boolean(value))"
           />
         </template>
       </el-table-column>
@@ -52,25 +52,32 @@
         <template #default="{ row }">
           <el-tooltip content="新增子级" placement="top">
             <el-button
-              v-if="canManage && allowedChildTypes(row).length"
+              v-if="canManage && allowedChildTypes(row as MaterialNode).length"
               link
               type="primary"
               icon="Plus"
               aria-label="新增子级"
-              @click="openCreate(row)"
+              @click="openCreate(row as MaterialNode)"
             />
           </el-tooltip>
           <el-tooltip content="修改" placement="top">
-            <el-button v-if="canManage" link type="primary" icon="Edit" aria-label="修改" @click="openEdit(row)" />
+            <el-button
+              v-if="canManage"
+              link
+              type="primary"
+              icon="Edit"
+              aria-label="修改"
+              @click="openEdit(row as MaterialNode)"
+            />
           </el-tooltip>
           <el-tooltip content="归档" placement="top">
             <el-button
-              v-if="canManage && canChangeMaterialLifecycle(row)"
+              v-if="canManage && canChangeMaterialLifecycle(row as MaterialNode)"
               link
               type="danger"
               icon="FolderDelete"
               aria-label="归档"
-              @click="archiveNode(row)"
+              @click="archiveNode(row as MaterialNode)"
             />
           </el-tooltip>
         </template>

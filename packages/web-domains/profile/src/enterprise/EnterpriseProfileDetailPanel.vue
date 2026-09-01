@@ -231,7 +231,7 @@ async function searchUsers(keyword: string) {
   }
   userLoading.value = true;
   try {
-    userOptions.value = await props.runtime.findUsers(keyword.trim());
+    userOptions.value = await props.runtime.findUsers('ENTERPRISE', keyword.trim());
   } catch (error) {
     props.runtime.error(safeEnterpriseErrorMessage(error));
   } finally {

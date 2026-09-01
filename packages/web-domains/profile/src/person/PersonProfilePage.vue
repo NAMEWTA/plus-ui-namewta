@@ -194,7 +194,7 @@ async function searchUsers(keyword: string) {
   }
   userLoading.value = true;
   try {
-    userOptions.value = await runtime.findUsers(keyword.trim());
+    userOptions.value = await runtime.findUsers('PERSON', keyword.trim());
   } catch (error) {
     runtime.error(safeErrorMessage(error));
   } finally {

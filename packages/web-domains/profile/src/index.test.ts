@@ -47,6 +47,7 @@ describe('profile web manifest', () => {
 
   it('requires host-owned authorization, download, user lookup and workflow actions', () => {
     expectTypeOf<ProfileWebRuntime['hasPermission']>().toEqualTypeOf<(permission: string) => boolean>();
+    expectTypeOf<Parameters<ProfileWebRuntime['findUsers']>>().toEqualTypeOf<['ENTERPRISE' | 'PERSON', string]>();
     expectTypeOf<ProfileWebRuntime['findUsers']>().returns.toEqualTypeOf<
       Promise<readonly { label: string; userId: string | number }[]>
     >();

@@ -118,7 +118,7 @@ async function overrideReview() {
   saving.value = true;
   try {
     await runtime.service.person.archive.decide(applicationId.value, {
-      decision: decision.value,
+      decision: decision.value === 'APPROVE' ? 'APPROVED' : 'REJECTED',
       reason: reason.value.trim()
     });
     runtime.success('管理员决定已生效');

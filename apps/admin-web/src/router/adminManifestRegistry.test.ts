@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { adminAiWebRuntime, adminSystemWebRuntime, resolveAdminWebRegistration } from './adminManifestRegistry';
+import {
+  adminAiWebRuntime,
+  adminProfileWebRuntime,
+  adminSystemWebRuntime,
+  resolveAdminWebRegistration
+} from './adminManifestRegistry';
 
 vi.mock('@/application/services', () => {
   const createService = () => {
@@ -9,6 +14,9 @@ vi.mock('@/application/services', () => {
     return service;
   };
   const getClientContext = vi.fn();
+  const personEligibleUsers = vi.fn();
+  const enterpriseEligibleUsers = vi.fn();
+  const completeTask = vi.fn();
   return {
     aiService: createService(),
     demoService: createService(),
@@ -17,8 +25,12 @@ vi.mock('@/application/services', () => {
     }),
     monitorService: createService(),
     openApiService: createService(),
+    profileService: {
+      person: { archive: { eligibleUsers: personEligibleUsers } },
+      enterprise: { archive: { eligibleUsers: enterpriseEligibleUsers } }
+    },
     systemService: createService(),
-    workflowService: createService()
+    workflowService: { completeTask }
   };
 });
 vi.mock('@/application/access', () => ({
@@ -93,6 +105,57 @@ describe('admin selected manifest registry', () => {
     expect(resolveAdminWebRegistration('monitor/snailai/index', 'system')).toMatchObject({ componentName: 'SnailAi' });
     expect(resolveAdminWebRegistration('monitor/nacos/index', 'system')).toMatchObject({ componentName: 'Nacos' });
     expect(resolveAdminWebRegistration('monitor/report/index', 'system')).toBeUndefined();
+    expect(resolveAdminWebRegistration('profile/materialTag/index', 'profile')).toMatchObject({
+      componentName: 'ProfileMaterialTag'
+    });
+    expect(resolveAdminWebRegistration('profile/person/index', 'profile')).toMatchObject({
+      componentName: 'PersonProfile'
+    });
+    expect(resolveAdminWebRegistration('profile/person/detail', 'profile')).toMatchObject({
+      componentName: 'PersonProfileDetail'
+    });
+    expect(resolveAdminWebRegistration('profile/person/review', 'profile')).toMatchObject({
+      componentName: 'PersonProfileReview'
+    });
+    expect(resolveAdminWebRegistration('profile/enterprise/index', 'profile')).toMatchObject({
+      componentName: 'EnterpriseProfile'
+    });
+    expect(resolveAdminWebRegistration('profile/enterprise/detail', 'profile')).toMatchObject({
+      componentName: 'EnterpriseProfileDetail'
+    });
+    expect(resolveAdminWebRegistration('profile/enterprise/review', 'profile')).toMatchObject({
+      componentName: 'EnterpriseProfileReview'
+    });
+  });
+
+  it('adapts profile candidate search and workflow completion through closed host ports', async () => {
+    const services = await import('@/application/services');
+    vi.mocked(services.profileService.person.archive.eligibleUsers).mockResolvedValue({
+      data: [{ userId: 7, userName: 'alice', nickName: 'Alice' }]
+    });
+    vi.mocked(services.profileService.enterprise.archive.eligibleUsers).mockResolvedValue({
+      data: [{ userId: 8, userName: 'owner', nickName: '' }]
+    });
+
+    await expect(adminProfileWebRuntime.findUsers('PERSON', 'ali')).resolves.toEqual([
+      { userId: 7, label: 'Alice (alice)' }
+    ]);
+    await expect(adminProfileWebRuntime.findUsers('ENTERPRISE', 'own')).resolves.toEqual([
+      { userId: 8, label: 'owner (owner)' }
+    ]);
+    await adminProfileWebRuntime.completeWorkflowTask({
+      taskId: 'task-1',
+      comment: 'checked',
+      variables: { profileDecision: 'APPROVE' }
+    });
+
+    expect(services.profileService.person.archive.eligibleUsers).toHaveBeenCalledWith('ali');
+    expect(services.profileService.enterprise.archive.eligibleUsers).toHaveBeenCalledWith('own');
+    expect(services.workflowService.completeTask).toHaveBeenCalledWith({
+      taskId: 'task-1',
+      message: 'checked',
+      variables: { profileDecision: 'APPROVE' }
+    });
   });
 
   it('probes the same-origin chat document with an abortable HTML request', async () => {

@@ -28,6 +28,17 @@ const domainResources = {
     'test-demo': ['TestDemoController', '/demo/demo'],
     'test-tree': ['TestTreeController', '/demo/tree']
   },
+  profile: {
+    'material-tags': ['MaterialTagController', '/profile/material-tags'],
+    'person/application': ['PersonApplicationController', '/profile/person/application'],
+    'person/rebind': ['PersonRebindController', '/profile/person/rebind'],
+    'person/materials': ['PersonMaterialController', '/profile/person/materials'],
+    'person/archive': ['PersonAdminController', '/profile/person/archive'],
+    'enterprise/application': ['EnterpriseApplicationController', '/profile/enterprise/application'],
+    'enterprise/transfer': ['EnterpriseTransferController', '/profile/enterprise/transfer'],
+    'enterprise/materials': ['EnterpriseMaterialController', '/profile/enterprise/materials'],
+    'enterprise/archive': ['EnterpriseAdminController', '/profile/enterprise/archive']
+  },
   system: {
     client: ['SysClientController', '/system/client'],
     config: ['SysConfigController', '/system/config'],
@@ -66,6 +77,7 @@ const webResources = {
   admin: ['auth'],
   ai: ['snail-ai'],
   demo: ['test-demo', 'test-tree'],
+  profile: ['material-tag', 'person', 'enterprise'],
   system: [
     'client',
     'config',
@@ -123,9 +135,7 @@ test('keeps domain package names aligned one-to-one with backend modules', async
     assert.match(source, new RegExp(`id: ['"]${name}['"]`));
     assert.match(
       source,
-      new RegExp(
-        `backendModules: (?:Object\\.freeze\\()?\\[['"]${backendModules[name]}['"]\\](?:\\))?`
-      )
+      new RegExp(`backendModules: (?:Object\\.freeze\\()?\\[['"]${backendModules[name]}['"]\\](?:\\))?`)
     );
   }
 
@@ -147,11 +157,29 @@ test('keeps consumed Controller resources traceable through typed domain entries
       assert.match(source, new RegExp(`controller: ['"]${controller}['"]`));
       assert.match(source, new RegExp(`basePath: ['"]${basePath.replaceAll('/', '\\/')}['"]`));
       assert.equal(packageJson.exports[`./${resource}`], `./src/${resource}/index.ts`);
+      if (domain === 'profile') {
+        assert.equal(await exists(join(directory, 'service.ts')), true, `${domain}/${resource} needs service.ts`);
+        assert.doesNotMatch(source, /export\s+\*/u, `${domain}/${resource} must use explicit exports`);
+        assert.doesNotMatch(source, /HttpClient|\.request\s*\(/u, `${domain}/${resource} index must stay thin`);
+      }
     }
   }
 });
 
-test('keeps web pages mirrored under their owning Controller resources', async () => {
+test('keeps the profile root as an explicit compatibility facade', async () => {
+  const source = await readFile(join(workspaceRoot, 'packages/domains/profile/src/index.ts'), 'utf8');
+  const service = await readFile(join(workspaceRoot, 'packages/domains/profile/src/service.ts'), 'utf8');
+  const types = await readFile(join(workspaceRoot, 'packages/domains/profile/src/types.ts'), 'utf8');
+  assert.doesNotMatch(source, /export\s+\*/u);
+  assert.doesNotMatch(source, /HttpClient|\.request\s*\(/u);
+  assert.doesNotMatch(service, /HttpRequest|\.request\s*\(/u);
+  assert.doesNotMatch(types, /(?:import|export).*from\s+['"]\.\//u);
+  assert.match(source, /createProfileService/u);
+  assert.match(source, /profilePermissions/u);
+  assert.match(source, /profileDomainModule/u);
+});
+
+test('keeps web pages reachable through explicit page-owner entries', async () => {
   for (const [domain, resources] of Object.entries(webResources)) {
     const packageJson = JSON.parse(
       await readFile(join(workspaceRoot, 'packages/web-domains', domain, 'package.json'), 'utf8')

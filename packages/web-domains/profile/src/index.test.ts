@@ -1,12 +1,39 @@
-import { profileDomainModule, profilePermissions } from '@namewta/domain-profile';
+import type { Component } from 'vue';
+import { createProfileService, profileDomainModule, profilePermissions } from '@namewta/domain-profile';
 import { composeAppRuntime } from '@namewta/platform-app-runtime';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import type { ProfileWebRuntime } from './runtime';
+import { createEnterpriseWebContribution } from './enterprise/registration';
 import { createProfileWebDomain } from './index';
+import { createMaterialTagWebContribution } from './material-tag/registration';
+import { createPersonWebContribution } from './person/registration';
 
-const runtime = { service: {} } as never;
+const runtime: ProfileWebRuntime = {
+  closeCurrentPage: () => {},
+  completeWorkflowTask: async () => {},
+  confirm: async () => {},
+  downloadMaterial: () => {},
+  error: () => {},
+  fileUpload: {} as Component,
+  findUsers: async () => [],
+  hasPermission: () => true,
+  service: createProfileService({ request: async <T>() => ({ data: null }) as T }),
+  success: () => {},
+  warning: () => {}
+};
 
 describe('profile web manifest', () => {
+  it('fails closed when the host runtime is missing', () => {
+    expect(() => createProfileWebDomain(undefined)).toThrow('ProfileWebRuntime is required');
+    expect(() => createMaterialTagWebContribution(undefined)).toThrow('ProfileWebRuntime is required');
+    expect(() => createPersonWebContribution(undefined)).toThrow('ProfileWebRuntime is required');
+    expect(() => createEnterpriseWebContribution(undefined)).toThrow('ProfileWebRuntime is required');
+    expect(() => createProfileWebDomain({ ...runtime, confirm: undefined } as never)).toThrow(
+      'ProfileWebRuntime is required'
+    );
+    expect(() => createProfileWebDomain({ ...runtime, service: {} } as never)).toThrow('ProfileWebRuntime is required');
+  });
+
   it('freezes menu, detail and workflow component keys before page tickets start', () => {
     const manifest = createProfileWebDomain(runtime);
     expect(manifest.registrations.map(item => [item.componentKey, item.componentName])).toEqual([

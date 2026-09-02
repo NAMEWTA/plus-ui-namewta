@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./material-tag": "./src/material-tag/index.ts",
+    "./person": "./src/person/index.ts",
+    "./enterprise": "./src/enterprise/index.ts"
   },
   "scripts": {
     "build": "vue-tsc --noEmit -p tsconfig.json",

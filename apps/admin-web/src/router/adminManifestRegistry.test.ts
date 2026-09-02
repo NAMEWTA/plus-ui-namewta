@@ -17,6 +17,21 @@ vi.mock('@/application/services', () => {
   const personEligibleUsers = vi.fn();
   const enterpriseEligibleUsers = vi.fn();
   const completeTask = vi.fn();
+  const methods = (names: readonly string[]) =>
+    Object.fromEntries(names.map(name => [name, vi.fn()]));
+  const archiveMethods = [
+    'assign',
+    'create',
+    'decide',
+    'detail',
+    'manageBinding',
+    'material',
+    'page',
+    'review',
+    'reviewMaterial',
+    'revise',
+    'revoke'
+  ];
   return {
     aiService: createService(),
     demoService: createService(),
@@ -26,8 +41,9 @@ vi.mock('@/application/services', () => {
     monitorService: createService(),
     openApiService: createService(),
     profileService: {
-      person: { archive: { eligibleUsers: personEligibleUsers } },
-      enterprise: { archive: { eligibleUsers: enterpriseEligibleUsers } }
+      materialTags: methods(['archive', 'changeStatus', 'create', 'tree', 'update']),
+      person: { archive: { ...methods(archiveMethods), eligibleUsers: personEligibleUsers } },
+      enterprise: { archive: { ...methods(archiveMethods), eligibleUsers: enterpriseEligibleUsers } }
     },
     systemService: createService(),
     workflowService: { completeTask }

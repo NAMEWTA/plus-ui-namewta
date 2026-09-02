@@ -1,6 +1,6 @@
 import type { OpenApiSchema } from '@namewta/api-contracts';
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
-import type { ApiResponse, PageResult } from './index';
+import type { ApiResponse, PageResult } from './types';
 import type {
   ConfigForm,
   ConfigQuery,

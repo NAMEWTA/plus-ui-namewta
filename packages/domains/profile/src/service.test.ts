@@ -1,6 +1,6 @@
 import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
 import { describe, expect, it, vi } from 'vitest';
-import type { EnterpriseIdentity, PersonIdentity } from './types';
+import type { EnterpriseIdentity, PersonIdentity } from './index';
 import { profilePermissions } from './permissions';
 import { createProfileService } from './service';
 
@@ -35,6 +35,16 @@ const enterpriseIdentity: EnterpriseIdentity = {
 };
 
 describe('profile service contracts', () => {
+  it('keeps legacy application methods aligned with dedicated resource services', () => {
+    const service = createProfileService(fixtureHttp([]));
+
+    expect(service.person.application.probeRebind).toBe(service.person.rebind.probe);
+    expect(service.person.application.matchRebind).toBe(service.person.rebind.match);
+    expect(service.person.application.confirmRebind).toBe(service.person.rebind.confirm);
+    expect(service.enterprise.application.sendTransfer).toBe(service.enterprise.transfer.send);
+    expect(service.enterprise.application.confirmTransfer).toBe(service.enterprise.transfer.confirm);
+  });
+
   it('uses exact application, privacy probe and transfer endpoints', async () => {
     const requests: HttpRequest[] = [];
     const service = createProfileService(fixtureHttp(requests));

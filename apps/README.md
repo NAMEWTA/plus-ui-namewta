@@ -2,8 +2,7 @@
 
 ## 当前状态
 
-- `admin-web` 是当前唯一已激活、可构建和部署的浏览器 App。
-- `client-web`、`mobile-web`、`miniapp-taro` 是仅含 README 的未来终端占位，不属于工作区包。
+- `admin-web` 是管理端，`home-web` 是应用用户端；两个 App 都是可构建和部署的浏览器入口。
 
 ## 目录职责
 
@@ -11,7 +10,7 @@
 
 App 可从 `packages/**` 的公开入口组合所需能力，但不得导入其他 App、深层导入包内部，也不得重新拥有可复用领域规则。
 
-相较上游单 App 结构，这里只保存“这个终端如何组装和交付”，不保存可复用的后端 API、领域类型或管理页面。新增 App 应复用 domain/web-domain/platform，而不是复制 `admin-web`。
+相较上游单 App 结构，这里只保存“这个终端如何组装和交付”，不保存可复用的后端 API、领域类型或管理页面。两个 App 都复用 domain/web-domain/platform，保持 Client、会话和动态菜单隔离。
 
 ## 激活新终端
 

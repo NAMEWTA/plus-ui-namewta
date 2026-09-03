@@ -4,6 +4,7 @@ import { createEnterpriseWebContribution } from './enterprise/registration';
 import { createMaterialTagWebContribution } from './material-tag/registration';
 import { createPersonWebContribution } from './person/registration';
 import { requireProfileWebRuntime, type ProfileWebRuntime } from './runtime';
+export { createProfileSelfWebDomain, requireProfileSelfWebRuntime, type ProfileSelfWebRuntime } from './self';
 
 export {
   requireProfileWebRuntime,

@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./material-tag": "./src/material-tag/index.ts",
     "./person": "./src/person/index.ts",
-    "./enterprise": "./src/enterprise/index.ts"
+    "./enterprise": "./src/enterprise/index.ts",
+    "./self": "./src/self/index.ts"
   },
   "scripts": {
     "build": "vue-tsc --noEmit -p tsconfig.json",

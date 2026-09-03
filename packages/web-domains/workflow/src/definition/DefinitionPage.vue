@@ -157,7 +157,7 @@
                 fixed="right"
                 label="操作"
                 align="center"
-                width="236"
+                width="300"
                 class-name="small-padding fixed-width"
               >
                 <template #default="scope">
@@ -214,6 +214,17 @@
                       @click="handlePublish(scope.row)"
                     >
                       发布流程
+                    </el-button>
+                    <el-button
+                      v-hasPermi="['workflow:definition:publish']"
+                      link
+                      type="warning"
+                      v-if="scope.row.isPublish === 1"
+                      size="small"
+                      icon="Close"
+                      @click="handleUnPublish(scope.row)"
+                    >
+                      取消发布
                     </el-button>
                   </div>
                 </template>
@@ -529,6 +540,20 @@ const handlePublish = async (row?: Partial<FlowDefinitionVo>) => {
   await handleQuery();
   runtime.success('发布成功');
 };
+
+/** 取消发布流程定义 */
+const handleUnPublish = async (row?: Partial<FlowDefinitionVo>) => {
+  if (!row?.id) return;
+  await runtime.confirm(
+    `是否确认取消发布流程定义编码为【${row.flowCode}】版本为【${row.version}】的数据项？取消发布后该流程将不能被新申请使用。`
+  );
+  setLoading(true);
+  await runtime.service.unpublishDefinition(String(row.id)).finally(() => setLoading(false));
+  activeName.value = '1';
+  await handleQuery();
+  runtime.success('取消发布成功');
+};
+
 /** 挂起/激活 */
 const handleProcessDefState = async (row: Partial<FlowDefinitionVo>, status: number | string | boolean) => {
   let msg: string;

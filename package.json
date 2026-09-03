@@ -15,7 +15,7 @@
     "architecture:check": "namewta-architecture check --root .",
     "architecture:test": "pnpm --filter @namewta/architecture test",
     "build": "pnpm build:prod",
-    "build:dev": "pnpm architecture:check && pnpm --filter @namewta/admin-web build:dev && pnpm build:workspace:non-admin",
+    "build:dev": "pnpm architecture:check && pnpm --filter @namewta/admin-web build:dev && pnpm --filter @namewta/home-web build:dev && pnpm build:workspace:non-admin",
     "build:prod": "pnpm build:workspace",
     "build:workspace": "pnpm architecture:check && pnpm --filter '!ruoyi-vue-plus' --if-present build",
     "build:workspace:non-admin": "pnpm --filter '!ruoyi-vue-plus' --filter '!@namewta/admin-web' --if-present build",

@@ -2,8 +2,8 @@
   <section class="identity-login" aria-labelledby="identity-login-title">
     <div class="identity-login__intro">
       <p class="identity-login__eyebrow">CLIENT WORKSPACE</p>
-      <h1 id="identity-login-title">客户服务入口</h1>
-      <p>登录客户工作台，查看服务资料并处理示例业务。</p>
+      <h1 id="identity-login-title">{{ runtime.title ?? '客户服务入口' }}</h1>
+      <p>{{ runtime.description ?? '登录客户工作台，查看服务资料并处理示例业务。' }}</p>
     </div>
 
     <el-form class="identity-login__form" label-position="top" @submit.prevent="submit">

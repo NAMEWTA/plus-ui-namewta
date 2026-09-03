@@ -63,6 +63,34 @@ export interface SessionPort {
   logout(): Promise<void>;
 }
 
+export type UploadIdentifier = string | number;
+
+export interface UploadItem {
+  id?: UploadIdentifier;
+  name: string;
+  url: string;
+  uid?: string | number;
+}
+
+export interface UploadResult {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface UploadClient {
+  upload(
+    file: File,
+    options: {
+      policy?: string;
+      signal: AbortSignal;
+      onProgress?: (percent: number) => void;
+    }
+  ): Promise<UploadResult>;
+  resolve(ids: readonly UploadIdentifier[]): Promise<readonly UploadItem[]>;
+  remove(id: UploadIdentifier): Promise<void>;
+}
+
 export function requireClientContext(context: ClientContext): ClientContext {
   if (typeof context.clientId !== 'string' || context.clientId.trim() === '') {
     throw new Error('ClientContext.clientId is required');

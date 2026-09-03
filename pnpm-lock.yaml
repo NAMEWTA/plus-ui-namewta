@@ -137,6 +137,9 @@ importers:
       '@namewta/adapter-crypto-browser':
         specifier: workspace:*
         version: link:../../packages/adapters/crypto-browser
+      '@namewta/adapter-oss-upload-browser':
+        specifier: workspace:*
+        version: link:../../packages/adapters/oss-upload-browser
       '@namewta/adapter-storage-browser':
         specifier: workspace:*
         version: link:../../packages/adapters/storage-browser
@@ -164,6 +167,9 @@ importers:
       '@namewta/platform-auth':
         specifier: workspace:*
         version: link:../../packages/platform/auth
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../packages/platform/contracts
       '@namewta/platform-permission':
         specifier: workspace:*
         version: link:../../packages/platform/permission
@@ -185,6 +191,9 @@ importers:
       '@namewta/web-domain-workflow':
         specifier: workspace:*
         version: link:../../packages/web-domains/workflow
+      '@namewta/web-kit-file-upload':
+        specifier: workspace:*
+        version: link:../../packages/web-kit/file-upload
       '@namewta/web-kit-permission':
         specifier: workspace:*
         version: link:../../packages/web-kit/permission
@@ -344,6 +353,22 @@ importers:
       '@types/crypto-js':
         specifier: 4.2.2
         version: 4.2.2
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/adapters/oss-upload-browser:
+    dependencies:
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+    devDependencies:
       oxlint:
         specifier: 'catalog:'
         version: 1.75.0
@@ -766,6 +791,34 @@ importers:
       vue-router:
         specifier: 'catalog:'
         version: 5.2.0(@vue/compiler-sfc@3.5.40)(pinia@4.0.2(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.40(typescript@6.0.3)))(rolldown@1.1.5)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))(vue@3.5.40(typescript@6.0.3))
+    devDependencies:
+      '@vue/compiler-sfc':
+        specifier: 'catalog:'
+        version: 3.5.40
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+      vue-tsc:
+        specifier: 3.3.8
+        version: 3.3.8(typescript@6.0.3)
+
+  packages/web-kit/file-upload:
+    dependencies:
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+      element-plus:
+        specifier: 'catalog:'
+        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.40(typescript@6.0.3)
     devDependencies:
       '@vue/compiler-sfc':
         specifier: 'catalog:'

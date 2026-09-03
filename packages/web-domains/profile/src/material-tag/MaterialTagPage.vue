@@ -50,9 +50,12 @@
       </el-table-column>
       <el-table-column label="操作" width="150" fixed="right" align="center">
         <template #default="{ row }">
-          <el-tooltip content="新增子级" placement="top">
+          <el-tooltip
+            v-if="canManage && allowedChildTypes(row as MaterialNode).length"
+            content="新增子级"
+            placement="top"
+          >
             <el-button
-              v-if="canManage && allowedChildTypes(row as MaterialNode).length"
               link
               type="primary"
               icon="Plus"
@@ -60,9 +63,8 @@
               @click="openCreate(row as MaterialNode)"
             />
           </el-tooltip>
-          <el-tooltip content="修改" placement="top">
+          <el-tooltip v-if="canManage" content="修改" placement="top">
             <el-button
-              v-if="canManage"
               link
               type="primary"
               icon="Edit"
@@ -70,9 +72,12 @@
               @click="openEdit(row as MaterialNode)"
             />
           </el-tooltip>
-          <el-tooltip content="归档" placement="top">
+          <el-tooltip
+            v-if="canManage && canChangeMaterialLifecycle(row as MaterialNode)"
+            content="归档"
+            placement="top"
+          >
             <el-button
-              v-if="canManage && canChangeMaterialLifecycle(row as MaterialNode)"
               link
               type="danger"
               icon="FolderDelete"

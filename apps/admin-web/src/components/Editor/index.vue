@@ -15,12 +15,12 @@
 
 <script setup lang="ts">
 import '@wangeditor-next/editor/dist/css/style.css';
+import type { UploadResult } from '@namewta/platform-contracts';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor-next/editor';
 import type { PropType } from 'vue';
 import { Editor as WangEditor, Toolbar as EditorToolbar } from '@wangeditor-next/editor-for-vue';
 import modal from '@/application/host/feedback';
-import { systemService } from '@/application/services';
-import { uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
+import { ossUploadClient, systemService } from '@/application/services';
 import { propTypes } from '@/utils/propTypes';
 
 const OSS_MARKER_RE = /oss:\/\/([\w-]+)/g;
@@ -90,9 +90,10 @@ const uploadToOss = async (
   const controller = new AbortController();
   activeUploads.add(controller);
   try {
-    const result = await uploadDirectToOss(file, { signal: controller.signal, policy });
-    ossUrlToId.set(result.url, result.ossId);
-    return result;
+    const result: UploadResult = await ossUploadClient.upload(file, { signal: controller.signal, policy });
+    const uploaded = { url: result.url, fileName: result.name, ossId: result.id };
+    ossUrlToId.set(uploaded.url, uploaded.ossId);
+    return uploaded;
   } finally {
     activeUploads.delete(controller);
   }

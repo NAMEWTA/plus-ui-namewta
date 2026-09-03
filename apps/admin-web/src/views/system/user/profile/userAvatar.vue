@@ -60,8 +60,8 @@ import 'vue-cropper/dist/index.css';
 import type { UploadRawFile } from 'element-plus';
 import { VueCropper } from 'vue-cropper';
 import modal from '@/application/host/feedback';
-import { systemService } from '@/application/services';
-import { getDirectOssUploadErrorMessage, uploadDirectToOss } from '@/hooks/oss/useDirectOssUpload';
+import { ossUploadClient, systemService } from '@/application/services';
+import { getDirectOssUploadErrorMessage } from '@/hooks/oss/useDirectOssUpload';
 import { useUserStore } from '@/store/modules/user';
 
 interface Options {
@@ -140,8 +140,8 @@ const uploadImg = async () => {
         type: data.type || 'image/png',
         lastModified: Date.now()
       });
-      const result = await uploadDirectToOss(file, { signal: new AbortController().signal, policy: 'avatar' });
-      await systemService.users.updateProfile({ avatar: result.ossId });
+      const result = await ossUploadClient.upload(file, { signal: new AbortController().signal, policy: 'avatar' });
+      await systemService.users.updateProfile({ avatar: result.id });
       open.value = false;
       options.img = result.url;
       userStore.setAvatar(options.img);

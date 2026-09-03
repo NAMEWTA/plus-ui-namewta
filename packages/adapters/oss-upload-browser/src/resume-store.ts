@@ -1,18 +1,15 @@
-interface OssResumeRecord {
-  fingerprint: string;
-  uploadToken: string;
-  expiresAt: string;
-  fileName: string;
-  fileSize: number;
-  contentType: string;
-}
+import type { OssResumeRecord, OssResumeStore } from './types';
 
 const DATABASE = 'ruoyi-oss-upload';
 const STORE = 'sessions';
 
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DATABASE, 1);
+    if (!globalThis.indexedDB) {
+      reject(new Error('IndexedDB unavailable'));
+      return;
+    }
+    const request = globalThis.indexedDB.open(DATABASE, 1);
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains(STORE)) {
         request.result.createObjectStore(STORE, { keyPath: 'fingerprint' });
@@ -23,7 +20,7 @@ function openDatabase(): Promise<IDBDatabase> {
   });
 }
 
-async function transact<T>(mode: IDBTransactionMode, operation: (store: IDBObjectStore) => IDBRequest<T>) {
+async function transact<T>(mode: IDBTransactionMode, operation: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
   const database = await openDatabase();
   try {
     return await new Promise<T>((resolve, reject) => {
@@ -36,14 +33,10 @@ async function transact<T>(mode: IDBTransactionMode, operation: (store: IDBObjec
   }
 }
 
-export function getOssResumeRecord(fingerprint: string) {
-  return transact<OssResumeRecord | undefined>('readonly', store => store.get(fingerprint));
-}
-
-export function putOssResumeRecord(record: OssResumeRecord) {
-  return transact<IDBValidKey>('readwrite', store => store.put(record));
-}
-
-export function removeOssResumeRecord(fingerprint: string) {
-  return transact<undefined>('readwrite', store => store.delete(fingerprint));
+export function createIndexedDbResumeStore(): OssResumeStore {
+  return {
+    get: fingerprint => transact<OssResumeRecord | undefined>('readonly', store => store.get(fingerprint)),
+    put: record => transact<IDBValidKey>('readwrite', store => store.put(record)),
+    remove: fingerprint => transact<undefined>('readwrite', store => store.delete(fingerprint))
+  };
 }

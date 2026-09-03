@@ -5,6 +5,7 @@ import { createProfileService } from '@namewta/domain-profile';
 import { createOpenApiService, createSystemService } from '@namewta/domain-system';
 import { createMonitorService } from '@namewta/domain-system/monitor';
 import { createWorkflowDefinitionService } from '@namewta/domain-workflow';
+import { createOssUploadClient } from '@namewta/adapter-oss-upload-browser';
 import { adminHttp } from './http';
 import { session } from './session';
 
@@ -17,6 +18,12 @@ const domainHttp = {
 
 export const systemService = createSystemService(domainHttp);
 export const openApiService = createOpenApiService(domainHttp);
+
+export const ossUploadClient = createOssUploadClient({
+  clientId: import.meta.env.VITE_APP_CLIENT_ID,
+  gateway: systemService.resources.oss,
+  getToken: session.getToken
+});
 
 export const identityAccessService = createIdentityAccessService({
   client: { clientId: import.meta.env.VITE_APP_CLIENT_ID },

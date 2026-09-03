@@ -1,27 +1,15 @@
-import type { OssPresignedRequest } from '@namewta/domain-system';
+import type { OssPresignedRequest, OssTransfer } from './types';
 
-export interface OssTransferProgress {
-  loaded: number;
-  total: number;
-}
-
-/** 独立 XHR 数据面，只发送签名合同要求的 Header。 */
-export function transferToOss(
-  request: OssPresignedRequest,
-  body: Blob,
-  signal: AbortSignal,
-  onProgress?: (progress: OssTransferProgress) => void
-): Promise<string | undefined> {
-  return new Promise((resolve, reject) => {
+export const transferToOss: OssTransfer = (request: OssPresignedRequest, body, signal, onProgress) =>
+  new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     const abort = () => xhr.abort();
     const cleanup = () => signal.removeEventListener('abort', abort);
+
     xhr.open(request.method, request.url, true);
     Object.entries(request.requiredHeaders || {}).forEach(([name, value]) => xhr.setRequestHeader(name, value));
     xhr.upload.onprogress = event => {
-      if (event.lengthComputable) {
-        onProgress?.({ loaded: event.loaded, total: event.total });
-      }
+      if (event.lengthComputable) onProgress?.({ loaded: event.loaded, total: event.total });
     };
     xhr.onload = () => {
       cleanup();
@@ -33,7 +21,7 @@ export function transferToOss(
     };
     xhr.onerror = () => {
       cleanup();
-      reject(new Error('OSS 网络请求失败'));
+      reject(new Error('OSS 网络请求失败，请检查对象存储 Bucket 的 CORS 是否允许当前前端 Origin、PUT 方法及签名请求头'));
     };
     xhr.onabort = () => {
       cleanup();
@@ -46,4 +34,3 @@ export function transferToOss(
     }
     xhr.send(body);
   });
-}

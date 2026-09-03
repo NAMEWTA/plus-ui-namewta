@@ -24,6 +24,7 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@namewta/adapter-oss-upload-browser": "workspace:*",
     "@element-plus/icons-vue": "2.3.2",
     "@highlightjs/vue-plugin": "2.1.2",
     "@iconify/vue": "^5.0.1",
@@ -38,6 +39,7 @@
     "@namewta/domain-workflow": "workspace:*",
     "@namewta/platform-app-runtime": "workspace:*",
     "@namewta/platform-auth": "workspace:*",
+    "@namewta/platform-contracts": "workspace:*",
     "@namewta/platform-permission": "workspace:*",
     "@namewta/web-domain-admin": "workspace:*",
     "@namewta/web-domain-ai": "workspace:*",
@@ -46,6 +48,7 @@
     "@namewta/web-domain-system": "workspace:*",
     "@namewta/web-domain-workflow": "workspace:*",
     "@namewta/web-kit-permission": "workspace:*",
+    "@namewta/web-kit-file-upload": "workspace:*",
     "@vueuse/core": "14.3.0",
     "@wangeditor-next/editor": "5.7.16",
     "@wangeditor-next/editor-for-vue": "5.1.14",

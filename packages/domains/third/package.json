@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit -p tsconfig.json", "lint": "oxlint src" },
+  "scripts": { "build": "tsc --noEmit -p tsconfig.json", "lint": "oxlint src", "test": "vitest run src --passWithNoTests", "typecheck": "tsc --noEmit -p tsconfig.json" },
   "dependencies": { "@namewta/platform-app-runtime": "workspace:*", "@namewta/platform-contracts": "workspace:*" },
-  "devDependencies": { "oxlint": "catalog:", "typescript": "catalog:" }
+  "devDependencies": { "oxlint": "catalog:", "typescript": "catalog:", "vitest": "4.1.10" }
 }

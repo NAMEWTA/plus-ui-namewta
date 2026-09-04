@@ -62,6 +62,7 @@
           <el-form-item label="Query 白名单 JSON"><el-input v-model="form.querySchemaJson" type="textarea" :rows="2" placeholder='{"allowed":["id"]}' /></el-form-item>
           <el-form-item label="Header 白名单 JSON"><el-input v-model="form.headerSchemaJson" type="textarea" :rows="2" placeholder='{"allowed":["Accept"]}' /></el-form-item>
           <el-form-item label="Body 白名单 JSON"><el-input v-model="form.bodySchemaJson" type="textarea" :rows="2" placeholder='{"allowed":["name"]}' /></el-form-item>
+          <el-form-item label="共享头覆盖 JSON"><el-input v-model="form.overrideJson" type="textarea" :rows="2" placeholder='{"headers":{"X-Version":"v2"}}' /></el-form-item>
           <el-form-item label="响应脱敏字段 JSON"><el-input v-model="form.sensitiveFieldsJson" type="textarea" :rows="2" placeholder='["phone"]' /></el-form-item>
         </template>
       </el-form>

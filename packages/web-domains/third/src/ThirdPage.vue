@@ -8,7 +8,7 @@
         </div>
       </template>
       <el-form :inline="true" @submit.prevent="load">
-        <el-form-item v-if="kind !== 'statistics' && kind !== 'invocations'" label="供应商">
+        <el-form-item label="供应商">
           <el-input v-model="providerCode" clearable placeholder="供应商编码" @keyup.enter="load" />
         </el-form-item>
         <el-form-item v-if="kind === 'endpoints'" label="供应商 ID">
@@ -67,7 +67,8 @@
         </template>
       </el-form>
       <template #footer>
-        <el-button type="primary" :loading="saving" @click="save">保存</el-button>
+        <el-button v-if="editing" v-hasPermi="[permission + ':edit']" type="primary" :loading="saving" @click="save">保存</el-button>
+        <el-button v-else v-hasPermi="[permission + ':add']" type="primary" :loading="saving" @click="save">保存</el-button>
         <el-button @click="dialogVisible = false">取消</el-button>
       </template>
     </el-dialog>
@@ -85,14 +86,16 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-divider />
-      <el-form :model="credentialForm" label-width="120px">
-        <el-form-item label="Provider code"><el-input v-model="credentialForm.providerCode" disabled /></el-form-item>
-        <el-form-item label="Endpoint code"><el-input v-model="credentialForm.endpointCode" disabled /></el-form-item>
-        <el-form-item label="凭据类型"><el-input v-model="credentialForm.credentialType" /></el-form-item>
-        <el-form-item label="凭据 JSON"><el-input v-model="credentialForm.secretJson" type="textarea" :rows="4" show-password placeholder="保存时加密，不会回显" /></el-form-item>
-        <el-form-item label="启用"><el-switch v-model="credentialForm.enabled" /></el-form-item>
-      </el-form>
+      <div v-hasPermi="['third:credential:add']">
+        <el-divider />
+        <el-form :model="credentialForm" label-width="120px">
+          <el-form-item label="Provider code"><el-input v-model="credentialForm.providerCode" disabled /></el-form-item>
+          <el-form-item label="Endpoint code"><el-input v-model="credentialForm.endpointCode" disabled /></el-form-item>
+          <el-form-item label="凭据类型"><el-input v-model="credentialForm.credentialType" /></el-form-item>
+          <el-form-item label="凭据 JSON"><el-input v-model="credentialForm.secretJson" type="textarea" :rows="4" show-password placeholder="保存时加密，不会回显" /></el-form-item>
+          <el-form-item label="启用"><el-switch v-model="credentialForm.enabled" /></el-form-item>
+        </el-form>
+      </div>
       <template #footer>
         <el-button v-hasPermi="['third:credential:add']" type="primary" :loading="credentialSaving" @click="saveCredential">保存</el-button>
         <el-button @click="credentialDialogVisible = false">取消</el-button>

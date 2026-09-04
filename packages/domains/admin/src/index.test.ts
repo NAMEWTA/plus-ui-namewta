@@ -288,6 +288,44 @@ describe('identity access domain', () => {
     expect(Object.isFrozen(menus[0]?.children?.[0])).toBe(true);
   });
 
+  it('normalizes nullable optional menu transport fields from the Java backend', async () => {
+    const harness = createHarness({
+      '/system/menu/getRouters': {
+        data: [
+          {
+            path: '/system',
+            component: 'Layout',
+            redirect: null,
+            permissions: null,
+            meta: {
+              title: '绯荤粺绠＄悊',
+              activeMenu: null,
+              icon: null,
+              link: null,
+              noCache: null
+            },
+            children: [{ path: 'user', component: 'system/user/index', children: null, meta: null }]
+          }
+        ]
+      }
+    });
+    const service = createIdentityAccessService({
+      client: { clientId: 'client-proof' },
+      http: harness.http,
+      identity: harness.identity,
+      session: harness.session
+    });
+
+    await expect(service.getMenus()).resolves.toEqual([
+      {
+        path: '/system',
+        component: 'Layout',
+        meta: { title: '绯荤粺绠＄悊' },
+        children: [{ path: 'user', component: 'system/user/index' }]
+      }
+    ]);
+  });
+
   it.each([
     { data: [{ path: '/system', children: [{ path: 42, component: 'system/user/index' }] }] },
     { data: [{ path: '/system', children: {} }] },

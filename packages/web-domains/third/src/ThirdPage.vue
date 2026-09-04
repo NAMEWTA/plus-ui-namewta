@@ -25,7 +25,8 @@
         </el-table-column>
         <el-table-column v-if="editable" label="操作" width="250" fixed="right">
           <template #default="scope">
-            <el-button v-if="kind !== 'credentials'" v-hasPermi="[permission + ':edit']" link type="primary" icon="Edit" @click="editRow(scope.row)">编辑</el-button>
+            <el-button v-hasPermi="[permission + ':edit']" link type="primary" icon="Edit" @click="editRow(scope.row)">编辑</el-button>
+            <el-button v-if="kind === 'providers' || kind === 'endpoints'" v-hasPermi="['third:credential:list']" link type="primary" icon="Key" @click="openCredentials(scope.row)">凭据</el-button>
             <el-button v-hasPermi="[permission + ':remove']" link type="danger" icon="Delete" @click="remove(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -63,17 +64,37 @@
           <el-form-item label="Body 白名单 JSON"><el-input v-model="form.bodySchemaJson" type="textarea" :rows="2" placeholder='{"allowed":["name"]}' /></el-form-item>
           <el-form-item label="响应脱敏字段 JSON"><el-input v-model="form.sensitiveFieldsJson" type="textarea" :rows="2" placeholder='["phone"]' /></el-form-item>
         </template>
-        <template v-else>
-          <el-form-item label="供应商编码" prop="providerCode"><el-input v-model="form.providerCode" /></el-form-item>
-          <el-form-item label="接口编码"><el-input v-model="form.endpointCode" placeholder="留空表示供应商级凭据" /></el-form-item>
-          <el-form-item label="凭据类型" prop="credentialType"><el-input v-model="form.credentialType" placeholder="API_KEY" /></el-form-item>
-          <el-form-item label="凭据 JSON" prop="secretJson"><el-input v-model="form.secretJson" type="textarea" :rows="5" show-password placeholder="保存时加密，页面不回显" /></el-form-item>
-          <el-form-item label="启用"><el-switch v-model="form.enabled" /></el-form-item>
-        </template>
       </el-form>
       <template #footer>
         <el-button type="primary" :loading="saving" @click="save">保存</el-button>
         <el-button @click="dialogVisible = false">取消</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="credentialDialogVisible" title="凭据管理" width="680px" destroy-on-close>
+      <el-table :data="credentialRows" border>
+        <el-table-column prop="credentialType" label="类型" />
+        <el-table-column prop="scopeType" label="作用范围" />
+        <el-table-column prop="kekVersion" label="版本" />
+        <el-table-column prop="expiresAt" label="过期时间" />
+        <el-table-column label="操作" width="160">
+          <template #default="scope">
+            <el-button v-hasPermi="['third:credential:add']" link type="primary" @click="replaceCredential(scope.row)">替换</el-button>
+            <el-button v-hasPermi="['third:credential:remove']" link type="danger" @click="removeCredential(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-divider />
+      <el-form :model="credentialForm" label-width="120px">
+        <el-form-item label="Provider code"><el-input v-model="credentialForm.providerCode" disabled /></el-form-item>
+        <el-form-item label="Endpoint code"><el-input v-model="credentialForm.endpointCode" disabled /></el-form-item>
+        <el-form-item label="凭据类型"><el-input v-model="credentialForm.credentialType" /></el-form-item>
+        <el-form-item label="凭据 JSON"><el-input v-model="credentialForm.secretJson" type="textarea" :rows="4" show-password placeholder="保存时加密，不会回显" /></el-form-item>
+        <el-form-item label="启用"><el-switch v-model="credentialForm.enabled" /></el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button v-hasPermi="['third:credential:add']" type="primary" :loading="credentialSaving" @click="saveCredential">保存</el-button>
+        <el-button @click="credentialDialogVisible = false">取消</el-button>
       </template>
     </el-dialog>
   </div>
@@ -84,13 +105,16 @@ import type { CredentialSummary, Endpoint, Invocation, Provider, Statistic } fro
 import { computed, onMounted, reactive, ref } from 'vue';
 import type { ThirdWebRuntime } from './runtime';
 
-const props = defineProps<{ runtime: ThirdWebRuntime; kind: 'providers' | 'endpoints' | 'credentials' | 'invocations' | 'statistics' }>();
+const props = defineProps<{ runtime: ThirdWebRuntime; kind: 'providers' | 'endpoints' | 'invocations' | 'statistics' }>();
 const loading = ref(false);
 const saving = ref(false);
 const rows = ref<Array<Provider | Endpoint | CredentialSummary | Invocation | Statistic>>([]);
 const providerCode = ref('');
 const providerId = ref('');
 const dialogVisible = ref(false);
+const credentialDialogVisible = ref(false);
+const credentialSaving = ref(false);
+const credentialRows = ref<CredentialSummary[]>([]);
 const editing = ref(false);
 const methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 const requestModes = ['JSON', 'QUERY', 'FORM'];
@@ -100,7 +124,6 @@ const form = reactive<Record<string, any>>({});
 const config = computed(() => ({
   providers: { title: '三方供应商', permission: 'third:provider', editable: true, columns: [{ label: '编码', prop: 'providerCode' }, { label: '名称', prop: 'providerName' }, { label: 'Base URL', prop: 'baseUrl' }] },
   endpoints: { title: '三方接口', permission: 'third:endpoint', editable: true, columns: [{ label: '供应商', prop: 'providerCode' }, { label: '接口编码', prop: 'endpointCode' }, { label: '方法', prop: 'httpMethod' }, { label: '路径', prop: 'relativePath' }] },
-  credentials: { title: '凭据摘要', permission: 'third:credential', editable: true, columns: [{ label: '供应商', prop: 'providerCode' }, { label: '接口', prop: 'endpointCode' }, { label: '类型', prop: 'credentialType' }, { label: '版本', prop: 'version' }, { label: '过期时间', prop: 'expiresAt' }] },
   invocations: { title: '调用明细', permission: 'third:invocation', editable: false, columns: [{ label: '请求 ID', prop: 'requestId' }, { label: '接口', prop: 'endpointCode' }, { label: '状态', prop: 'logicalStatus' }, { label: '失败分类', prop: 'failureCategory' }, { label: '耗时', prop: 'durationMs' }] },
   statistics: { title: '调用统计', permission: 'third:statistics', editable: false, columns: [{ label: '接口', prop: 'endpointCode' }, { label: '日期', prop: 'statDate' }, { label: '调用次数', prop: 'attemptCount' }, { label: '成功', prop: 'successCount' }, { label: '失败', prop: 'failureCount' }, { label: '限流拒绝', prop: 'rejectedCount' }] }
 }[props.kind]));
@@ -125,8 +148,7 @@ async function load() {
   try {
     const service = props.runtime.service;
     const response = props.kind === 'providers' ? await service.listProviders(providerCode.value)
-      : props.kind === 'endpoints' ? await service.listEndpoints(providerId.value || undefined, providerCode.value || undefined)
-        : props.kind === 'credentials' ? await service.listCredentials(providerCode.value)
+        : props.kind === 'endpoints' ? await service.listEndpoints(providerId.value || undefined, providerCode.value || undefined)
           : props.kind === 'invocations' ? await service.listInvocations(providerCode.value)
             : await service.listStatistics(providerCode.value);
     rows.value = response.data ?? [];
@@ -150,7 +172,6 @@ async function save() {
     const service = props.runtime.service;
     if (props.kind === 'providers') await service.saveProvider(form as any);
     else if (props.kind === 'endpoints') await service.saveEndpoint(form as any);
-    else if (props.kind === 'credentials') await service.saveCredential(form as any);
     dialogVisible.value = false;
     props.runtime.success?.('保存成功');
     await load();
@@ -173,12 +194,62 @@ async function toggleStatus(row: Provider | Endpoint, enabled: boolean) {
   }
 }
 
-async function remove(row: Provider | Endpoint | CredentialSummary) {
+async function remove(row: Provider | Endpoint) {
   await props.runtime.confirm?.('确认删除当前配置？');
   if (props.kind === 'providers') await props.runtime.service.deleteProvider((row as Provider).providerId);
-  else if (props.kind === 'endpoints') await props.runtime.service.deleteEndpoint((row as Endpoint).endpointId);
-  else await props.runtime.service.deleteCredential((row as CredentialSummary).credentialId);
+  else await props.runtime.service.deleteEndpoint((row as Endpoint).endpointId);
   await load();
+}
+
+const credentialForm = reactive<{ credentialId?: string | number; providerCode: string; endpointCode?: string; credentialType: string; secretJson: string; enabled: boolean }>({
+  providerCode: '', endpointCode: '', credentialType: 'API_KEY', secretJson: '', enabled: true
+});
+
+async function openCredentials(row: Provider | Endpoint) {
+  credentialForm.providerCode = row.providerCode;
+  credentialForm.endpointCode = props.kind === 'endpoints' ? (row as Endpoint).endpointCode : '';
+  credentialForm.credentialId = undefined;
+  credentialForm.credentialType = 'API_KEY';
+  credentialForm.secretJson = '';
+  credentialForm.enabled = true;
+  credentialDialogVisible.value = true;
+  try {
+    await refreshCredentials();
+  } catch (error) {
+    props.runtime.error?.(String(error));
+  }
+}
+
+async function refreshCredentials() {
+  const response = await props.runtime.service.listCredentials(credentialForm.providerCode, credentialForm.endpointCode || undefined);
+  credentialRows.value = response.data ?? [];
+}
+
+function replaceCredential(row: CredentialSummary) {
+  credentialForm.credentialId = row.credentialId;
+  credentialForm.credentialType = row.credentialType;
+  credentialForm.secretJson = '';
+  credentialForm.enabled = row.enabled === '0';
+}
+
+async function saveCredential() {
+  credentialSaving.value = true;
+  try {
+    await props.runtime.service.saveCredential(credentialForm);
+    credentialForm.secretJson = '';
+    props.runtime.success?.('保存成功');
+    await refreshCredentials();
+  } catch (error) {
+    props.runtime.error?.(String(error));
+  } finally {
+    credentialSaving.value = false;
+  }
+}
+
+async function removeCredential(row: CredentialSummary) {
+  await props.runtime.confirm?.('确认删除当前凭据？');
+  await props.runtime.service.deleteCredential(row.credentialId);
+  await refreshCredentials();
 }
 
 onMounted(load);

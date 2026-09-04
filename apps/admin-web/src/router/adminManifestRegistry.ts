@@ -5,6 +5,7 @@ import { profileDomainModule } from '@namewta/domain-profile';
 import { systemDomainModule } from '@namewta/domain-system';
 import { monitorPermissions } from '@namewta/domain-system/monitor';
 import { workflowDomainModule } from '@namewta/domain-workflow';
+import { thirdDomainModule } from '@namewta/domain-third';
 import {
   AppRuntimeError,
   composeAppRuntime,
@@ -18,6 +19,7 @@ import { createProfileWebDomain, type ProfileWebRuntime } from '@namewta/web-dom
 import { createLiveMonitorDictRefs, createMonitorWebDomain, type MonitorWebRuntime } from '@namewta/web-domain-system';
 import { createLiveSystemDictRefs, createSystemWebDomain, type SystemWebRuntime } from '@namewta/web-domain-system';
 import { createLiveWorkflowDictRefs, createWorkflowWebDomain } from '@namewta/web-domain-workflow';
+import { createThirdWebDomain, type ThirdWebRuntime } from '@namewta/web-domain-third';
 import { getActivePinia } from 'pinia';
 import { defineAsyncComponent, defineComponent, h, type Component } from 'vue';
 import { createAdminAccessEvaluator } from '@/application/access';
@@ -29,6 +31,7 @@ import {
   openApiService,
   profileService,
   systemService,
+  thirdService,
   workflowService
 } from '@/application/services';
 import { getToken } from '@/application/session';
@@ -241,6 +244,16 @@ export const adminSystemWebRuntime: SystemWebRuntime = {
   })
 };
 const systemManifest = createSystemWebDomain(adminSystemWebRuntime);
+const adminThirdWebRuntime: ThirdWebRuntime = {
+  service: thirdService,
+  confirm: async message => {
+    const { default: modal } = await import('@/application/host/feedback');
+    await modal.confirm(message);
+  },
+  success: message => void import('@/application/host/feedback').then(({ default: modal }) => modal.msgSuccess(message)),
+  error: message => void import('@/application/host/feedback').then(({ default: modal }) => modal.msgError(message))
+};
+const thirdManifest = createThirdWebDomain(adminThirdWebRuntime);
 
 export const adminMonitorWebRuntime: MonitorWebRuntime = {
   service: monitorService,
@@ -314,7 +327,8 @@ const runtime = composeAppRuntime<Component>({
     workflowDomainModule,
     systemDomainModule,
     aiDomainModule,
-    profileDomainModule
+    profileDomainModule,
+    thirdDomainModule
   ],
   manifests: [
     createAdminWebDomain({
@@ -329,9 +343,10 @@ const runtime = composeAppRuntime<Component>({
     aiManifest,
     monitorManifest,
     profileManifest,
-    adminExternalMonitorManifest
+    adminExternalMonitorManifest,
+    thirdManifest
   ],
-  selectedDomainIds: ['admin', 'demo', 'workflow', 'system', 'ai', 'profile'],
+  selectedDomainIds: ['admin', 'demo', 'workflow', 'system', 'ai', 'profile', 'third'],
   selectedManifestIds: [
     'web-domain-admin',
     'web-domain-demo',
@@ -340,7 +355,8 @@ const runtime = composeAppRuntime<Component>({
     'web-domain-ai',
     'web-domain-system-monitor',
     'web-domain-profile',
-    'admin-external-monitor'
+    'admin-external-monitor',
+    'web-domain-third'
   ]
 });
 

@@ -160,9 +160,11 @@ async function load() {
 
 function openForm() { editing.value = false; resetForm(); dialogVisible.value = true; }
 
-async function editRow(row: Provider | Endpoint) {
+async function editRow(row: unknown) {
   editing.value = true;
-  const value = props.kind === 'providers' ? await props.runtime.service.getProvider((row as Provider).providerId) : await props.runtime.service.getEndpoint((row as Endpoint).endpointId);
+  const value = props.kind === 'providers'
+    ? await props.runtime.service.getProvider((row as Provider).providerId)
+    : await props.runtime.service.getEndpoint((row as Endpoint).endpointId);
   Object.assign(form, value.data ?? row);
   dialogVisible.value = true;
 }
@@ -183,7 +185,7 @@ async function save() {
   }
 }
 
-async function toggleStatus(row: Provider | Endpoint, enabled: boolean) {
+async function toggleStatus(row: unknown, enabled: boolean) {
   try {
     const status = enabled ? '0' : '1';
     if (props.kind === 'providers') await props.runtime.service.changeProviderStatus((row as Provider).providerId, status);
@@ -195,7 +197,7 @@ async function toggleStatus(row: Provider | Endpoint, enabled: boolean) {
   }
 }
 
-async function remove(row: Provider | Endpoint) {
+async function remove(row: unknown) {
   await props.runtime.confirm?.('确认删除当前配置？');
   if (props.kind === 'providers') await props.runtime.service.deleteProvider((row as Provider).providerId);
   else await props.runtime.service.deleteEndpoint((row as Endpoint).endpointId);
@@ -206,9 +208,10 @@ const credentialForm = reactive<{ credentialId?: string | number; providerCode: 
   providerCode: '', endpointCode: '', credentialType: 'API_KEY', secretJson: '', enabled: true
 });
 
-async function openCredentials(row: Provider | Endpoint) {
-  credentialForm.providerCode = row.providerCode;
-  credentialForm.endpointCode = props.kind === 'endpoints' ? (row as Endpoint).endpointCode : '';
+async function openCredentials(row: unknown) {
+  const configRow = row as Provider | Endpoint;
+  credentialForm.providerCode = configRow.providerCode;
+  credentialForm.endpointCode = props.kind === 'endpoints' ? (configRow as Endpoint).endpointCode : '';
   credentialForm.credentialId = undefined;
   credentialForm.credentialType = 'API_KEY';
   credentialForm.secretJson = '';
@@ -226,11 +229,12 @@ async function refreshCredentials() {
   credentialRows.value = response.data ?? [];
 }
 
-function replaceCredential(row: CredentialSummary) {
-  credentialForm.credentialId = row.credentialId;
-  credentialForm.credentialType = row.credentialType;
+function replaceCredential(row: unknown) {
+  const credential = row as CredentialSummary;
+  credentialForm.credentialId = credential.credentialId;
+  credentialForm.credentialType = credential.credentialType;
   credentialForm.secretJson = '';
-  credentialForm.enabled = row.enabled === '0';
+  credentialForm.enabled = credential.enabled === '0';
 }
 
 async function saveCredential() {
@@ -247,9 +251,9 @@ async function saveCredential() {
   }
 }
 
-async function removeCredential(row: CredentialSummary) {
+async function removeCredential(row: unknown) {
   await props.runtime.confirm?.('确认删除当前凭据？');
-  await props.runtime.service.deleteCredential(row.credentialId);
+  await props.runtime.service.deleteCredential((row as CredentialSummary).credentialId);
   await refreshCredentials();
 }
 

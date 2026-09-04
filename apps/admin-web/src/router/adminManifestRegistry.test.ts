@@ -46,6 +46,7 @@ vi.mock('@/application/services', () => {
       enterprise: { archive: { ...methods(archiveMethods), eligibleUsers: enterpriseEligibleUsers } }
     },
     systemService: createService(),
+    thirdService: createService(),
     workflowService: { completeTask }
   };
 });
@@ -101,6 +102,7 @@ describe('admin selected manifest registry', () => {
     expect(resolveAdminWebRegistration('system/oss/index', 'system')).toMatchObject({ componentName: 'Oss' });
     expect(resolveAdminWebRegistration('system/dict/index', 'system')).toMatchObject({ componentName: 'Dict' });
     expect(resolveAdminWebRegistration('system/openApi/index', 'system')).toMatchObject({ componentName: 'OpenApi' });
+    expect(resolveAdminWebRegistration('third/provider/index', 'third')).toMatchObject({ componentName: 'ThirdProvider' });
     expect(resolveAdminWebRegistration('system/devtools/index', 'system')).toBeUndefined();
     expect(resolveAdminWebRegistration('ai/chat/index', 'ai')).toMatchObject({
       componentName: 'AiChatPage'

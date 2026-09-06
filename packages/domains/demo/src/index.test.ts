@@ -7,7 +7,7 @@ describe('demo domain', () => {
     expect(demoDomainModule).toEqual({
       id: 'demo',
       backendModules: ['ruoyi-demo'],
-      capabilities: ['demo-table', 'demo-tree']
+      capabilities: ['demo-table', 'demo-tree', 'demo-rich-text']
     });
   });
 

@@ -1,7 +1,7 @@
 import { createOssUploadClient, transferToOss, type OssTransfer } from '@namewta/adapter-oss-upload-browser';
 import { createIdentityAccessService } from '@namewta/domain-admin';
 import { createAiService } from '@namewta/domain-ai';
-import { createDemoService } from '@namewta/domain-demo';
+import { createDemoService, createRichTextService, type RichTextAssetAccess, type RichTextAssetKind } from '@namewta/domain-demo';
 import { createNotificationService } from '@namewta/domain-notify';
 import { createProfileService } from '@namewta/domain-profile';
 import { createOpenApiService, createSystemService } from '@namewta/domain-system';
@@ -51,7 +51,22 @@ export const identityAccessService = createIdentityAccessService({
 
 export const workflowService = createWorkflowDefinitionService(domainHttp);
 export const profileService = createProfileService(domainHttp);
-export const demoService = createDemoService(domainHttp);
+const richTextAssets = {
+  upload: async (file: File, kind: RichTextAssetKind, options: { signal: AbortSignal; onProgress?: (percent: number) => void }) => {
+    const policy = `richtext-${kind === 'attachment' ? 'file' : kind}`;
+    const result = await ossUploadClient.upload(file, { policy, signal: options.signal, onProgress: options.onProgress });
+    return { ossId: String(result.id), fileName: result.name };
+  },
+  resolve: async (ossIds: readonly string[], options: { signal: AbortSignal; richTextId?: string }) => {
+    const response = await domainHttp.request<{ data?: readonly RichTextAssetAccess[] }>({
+      url: '/demo/rich-text/assets',
+      method: 'get',
+      params: { ossIds: ossIds.join(','), richTextId: options.richTextId },
+    });
+    return Array.isArray(response.data) ? response.data : [];
+  }
+};
+export const demoService = createDemoService(domainHttp, createRichTextService(domainHttp, richTextAssets));
 export const notificationService = createNotificationService(domainHttp);
 
 export const notificationDirectory = {

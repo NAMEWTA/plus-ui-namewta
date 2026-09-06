@@ -23,6 +23,9 @@ export const loadDemoPage = (runtime: DemoWebRuntime) =>
 export const loadTreePage = (runtime: DemoWebRuntime) =>
   runtimeView('Tree', requireDemoWebRuntime(runtime), () => import('./test-tree/TreePage.vue'));
 
+export const loadRichTextPage = (runtime: DemoWebRuntime) =>
+  runtimeView('RichTextDemo', requireDemoWebRuntime(runtime), () => import('./test-rich-text/RichTextPage.vue'));
+
 export function createDemoWebDomain(runtimeInput: DemoWebRuntime | undefined): WebDomainManifest<Component> {
   const runtime = requireDemoWebRuntime(runtimeInput);
   return Object.freeze({
@@ -48,6 +51,12 @@ export function createDemoWebDomain(runtimeInput: DemoWebRuntime | undefined): W
       Object.freeze({
         id: 'demo-tree',
         permissions: Object.freeze(['demo:tree:list', 'demo:tree:add', 'demo:tree:edit', 'demo:tree:remove'])
+      }),
+      Object.freeze({
+        id: 'demo-rich-text',
+        permissions: Object.freeze([
+          'demo:richtext:list', 'demo:richtext:query', 'demo:richtext:add', 'demo:richtext:edit', 'demo:richtext:remove', 'common:richtext:upload'
+        ])
       })
     ]),
     registrations: Object.freeze([
@@ -62,6 +71,12 @@ export function createDemoWebDomain(runtimeInput: DemoWebRuntime | undefined): W
         componentKey: 'demo/tree/index',
         componentName: 'Tree',
         load: () => loadTreePage(runtime)
+      }),
+      Object.freeze({
+        id: 'demo-rich-text',
+        componentKey: 'demo/rich-text/index',
+        componentName: 'RichTextDemo',
+        load: () => loadRichTextPage(runtime)
       })
     ])
   });

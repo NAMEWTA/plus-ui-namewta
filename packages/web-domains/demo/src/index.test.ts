@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createDemoWebDomain, type DemoWebRuntime } from './index';
+import type { RichTextService } from '@namewta/domain-demo';
 
 const runtime = (): DemoWebRuntime => ({
   service: {
+    richText: { list: vi.fn(), get: vi.fn(), create: vi.fn(), update: vi.fn(), remove: vi.fn(), assets: { upload: vi.fn(), resolve: vi.fn() } } as RichTextService,
     addDemo: vi.fn(),
     addTree: vi.fn(),
     deleteDemo: vi.fn(),
@@ -32,11 +34,13 @@ describe('demo web domain public manifest', () => {
         id: 'demo-table',
         permissions: ['demo:demo:list', 'demo:demo:add', 'demo:demo:edit', 'demo:demo:remove', 'demo:demo:export']
       },
-      { id: 'demo-tree', permissions: ['demo:tree:list', 'demo:tree:add', 'demo:tree:edit', 'demo:tree:remove'] }
+      { id: 'demo-tree', permissions: ['demo:tree:list', 'demo:tree:add', 'demo:tree:edit', 'demo:tree:remove'] },
+      { id: 'demo-rich-text', permissions: ['demo:richtext:list', 'demo:richtext:query', 'demo:richtext:add', 'demo:richtext:edit', 'demo:richtext:remove', 'common:richtext:upload'] }
     ]);
     expect(manifest.registrations).toMatchObject([
       { id: 'demo-table', componentKey: 'demo/demo/index', componentName: 'Demo' },
-      { id: 'demo-tree', componentKey: 'demo/tree/index', componentName: 'Tree' }
+      { id: 'demo-tree', componentKey: 'demo/tree/index', componentName: 'Tree' },
+      { id: 'demo-rich-text', componentKey: 'demo/rich-text/index', componentName: 'RichTextDemo' }
     ]);
     expect(Object.isFrozen(manifest.registrations)).toBe(true);
     expect(manifest.registrations.every(Object.isFrozen)).toBe(true);

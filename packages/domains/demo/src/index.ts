@@ -1,6 +1,8 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
 import type { ApiErrorInfo, HttpClient } from '@namewta/platform-contracts';
 import { projectDemoTransport, type DemoTransport } from './transport';
+import { createRichTextService, type RichTextService } from './rich-text';
+export * from './rich-text';
 
 export * from './transport';
 
@@ -80,6 +82,7 @@ export interface TreeQuery {
 }
 
 export interface DemoService {
+  richText: RichTextService;
   addDemo(data: DemoForm): Promise<ApiResponse>;
   addTree(data: TreeForm): Promise<ApiResponse>;
   deleteDemo(id: string | number | Array<string | number>): Promise<ApiResponse>;
@@ -95,7 +98,7 @@ export interface DemoService {
 export const demoDomainModule: DomainModule = Object.freeze({
   id: 'demo',
   backendModules: ['ruoyi-demo'],
-  capabilities: ['demo-table', 'demo-tree']
+  capabilities: ['demo-table', 'demo-tree', 'demo-rich-text']
 });
 
 const encodeId = (id: string | number): string => encodeURIComponent(String(id));
@@ -103,8 +106,9 @@ const encodeId = (id: string | number): string => encodeURIComponent(String(id))
 const encodeIds = (id: string | number | Array<string | number>): string =>
   Array.isArray(id) ? id.map(encodeId).join(',') : encodeId(id);
 
-export function createDemoService(http: HttpClient): DemoService {
+export function createDemoService(http: HttpClient, richText?: RichTextService): DemoService {
   return Object.freeze({
+    richText: richText ?? createRichTextService(http, { upload: async () => { throw new Error('Rich-text assets port is not configured'); }, resolve: async () => [] }),
     listDemo: async query => {
       const response = await http.request<ApiResponse<PageResult<DemoTransport>>>({
         url: '/demo/demo/list',

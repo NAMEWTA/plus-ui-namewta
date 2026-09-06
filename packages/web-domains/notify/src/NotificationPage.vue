@@ -52,8 +52,13 @@ const statusFallback: Record<string, { label: string; tag: 'success' | 'warning'
 function dictLabel(options: Array<{ label: string; value: string }>, value?: string) {
   return options.find(item => item.value === value)?.label ?? '未知';
 }
+const channelFallback: Record<string, string> = {
+  IN_APP: '\u7ad9\u5185\u4fe1',
+  SMS: '\u77ed\u4fe1',
+  MAIL: '\u90ae\u4ef6'
+};
 function channelLabel(value?: string) {
-  return dictLabel(channelDict.value, value);
+  return channelDict.value.find(item => item.value === value)?.label ?? channelFallback[value ?? ''] ?? '\u5176\u4ed6';
 }
 function statusLabel(value?: string) {
   return dictLabel(statusDict.value, value) === '未知'

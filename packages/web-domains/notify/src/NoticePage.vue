@@ -254,8 +254,15 @@ const rules: FormRules<NoticeDraft> = {
 function dictLabel(options: NotifyDictOption[], value?: string) {
   return options.find(item => item.value === value)?.label ?? '未知';
 }
+const channelFallback: Record<string, string> = {
+  IN_APP: '\u7ad9\u5185\u4fe1',
+  SMS: '\u77ed\u4fe1',
+  MAIL: '\u90ae\u4ef6'
+};
 function channelLabel(channels: NotificationChannel[] = ['IN_APP']) {
-  return channels.map(value => dictLabel(channelDict.value, value)).join('、');
+  return channels
+    .map(value => channelDict.value.find(item => item.value === value)?.label ?? channelFallback[value] ?? '\u5176\u4ed6')
+    .join('\u3001');
 }
 function targetLabel(row: Pick<NotifyNotice, 'recipientType' | 'recipientIds' | 'userTypeIds'>) {
   if (!row.recipientType || row.recipientType === 'ALL') return '全部正常用户';

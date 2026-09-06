@@ -65,52 +65,12 @@ export interface DictTypeQuery extends PageQuery {
   dictName: string;
   dictType: string;
 }
-export interface MessageVO extends BaseEntity {
-  messageId: ResourceIdentifier;
-  category: string;
-  type: string;
-  source: string;
-  title: string;
-  message: string;
-  content?: string;
-  data?: Record<string, unknown> | null;
-  path?: string;
-}
-export interface MessageBoxVO {
-  systemList: MessageVO[];
-  noticeList: MessageVO[];
-  workflowList: MessageVO[];
-}
 export type SocialBindingUrl = string;
 export interface SocialAuthVO extends BaseEntity {
   id: ResourceIdentifier;
   source: string;
   avatar: string;
   userName: string;
-}
-export interface NoticeVO extends BaseEntity {
-  noticeId: number;
-  noticeTitle: string;
-  noticeType: string;
-  noticeContent: string;
-  status: string;
-  remark: string;
-  createByName: string;
-}
-export interface NoticeQuery extends PageQuery {
-  noticeTitle: string;
-  createByName: string;
-  status: string;
-  noticeType: string;
-}
-export interface NoticeForm {
-  noticeId: ResourceIdentifier | undefined;
-  noticeTitle: string;
-  noticeType: string;
-  noticeContent: string;
-  status: string;
-  remark: string;
-  createByName: string;
 }
 export interface OssVO extends BaseEntity {
   ossId: ResourceIdentifier;

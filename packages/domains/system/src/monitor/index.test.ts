@@ -6,11 +6,9 @@ describe('monitor transport and security contracts', () => {
     const request = vi.fn().mockResolvedValue({ data: {} });
     const service = createMonitorService({ request });
     await service.loginInfo.delete(['a/b', 2]);
-    await service.notifications.attachmentUrl('n/1', 'o?2');
     await service.online.removeCurrent('token/value');
     expect(request.mock.calls.map(([value]) => value)).toEqual([
       { url: '/monitor/loginInfo/a%2Fb,2', method: 'delete' },
-      { url: '/monitor/notify/n%2F1/attachments/o%3F2/download-url', method: 'get' },
       { url: '/monitor/online/myself/token%2Fvalue', method: 'delete' }
     ]);
   });
@@ -23,10 +21,6 @@ describe('monitor transport and security contracts', () => {
     await service.loginInfo.list(page);
     await service.loginInfo.unlock('user');
     await service.loginInfo.clean();
-    await service.notifications.list(page);
-    await service.notifications.get(1);
-    await service.notifications.delete(1);
-    await service.notifications.clean();
     await service.online.list(page);
     await service.online.forceLogout('token');
     await service.online.current();
@@ -38,10 +32,6 @@ describe('monitor transport and security contracts', () => {
       'GET /monitor/loginInfo/list',
       'GET /monitor/loginInfo/unlock/user',
       'DELETE /monitor/loginInfo/clean',
-      'GET /monitor/notify/list',
-      'GET /monitor/notify/1',
-      'DELETE /monitor/notify/1',
-      'DELETE /monitor/notify/clean',
       'GET /monitor/online/list',
       'DELETE /monitor/online/token',
       'GET /monitor/online',

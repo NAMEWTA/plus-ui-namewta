@@ -93,10 +93,10 @@ async function installAdminApi(page: Page, state: AdminState, messageBoxCode = 2
       state.logoutRequests += 1;
       return fulfillJson(route, { code: 200, data: null });
     }
-    if (path === '/resource/message/box') {
+    if (path === '/notify/inbox') {
       return fulfillJson(route, {
         code: messageBoxCode,
-        data: { systemList: [], noticeList: [], workflowList: [] }
+        data: []
       });
     }
     if (path === '/resource/message/close') return fulfillJson(route, { code: 200, data: null });

@@ -1,3 +1,5 @@
+import type { ApiErrorInfo } from '@namewta/platform-contracts';
+
 export interface BaseEntity {
   createBy?: string;
   createDept?: string | number;
@@ -23,6 +25,7 @@ export interface ApiResponse<T = unknown> {
   code?: number;
   data: T;
   msg?: string;
+  error?: ApiErrorInfo;
 }
 
 export interface PageResult<T = unknown> {

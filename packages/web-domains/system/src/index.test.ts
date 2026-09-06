@@ -26,7 +26,6 @@ describe('system web manifest', () => {
       ['system/post/index', 'Post'],
       ['system/dict/index', 'Dict'],
       ['system/config/index', 'Config'],
-      ['system/notice/index', 'Notice'],
       ['system/openApi/index', 'OpenApi'],
       ['system/oss/index', 'Oss'],
       ['system/oss/config', 'OssConfig']
@@ -45,7 +44,6 @@ describe('system web manifest', () => {
         'system:post:list',
         'system:dict:list',
         'system:config:list',
-        'system:notice:list',
         'system:openApi:self',
         'system:openApi:list',
         'system:openApi:remove',

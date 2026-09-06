@@ -142,17 +142,20 @@ const installBaselineApi = async (page: Page, state: BaselineApiState) => {
         ]
       });
     }
-    if (path === '/resource/message/box') {
-      return fulfillJson(route, {
-        code: state.messageBoxCode ?? 200,
-        data: { systemList: [], noticeList: [], workflowList: [] }
-      });
-    }
     if (path === '/resource/message/close') {
       return fulfillJson(route, { code: 200, data: null });
     }
+    if (path === '/resource/message/ticket') {
+      return fulfillJson(route, { code: 200, data: 'test-push-ticket' });
+    }
     if (path === '/resource/message') {
       return route.fulfill({ contentType: 'text/event-stream', body: '' });
+    }
+    if (path === '/notify/inbox') {
+      return fulfillJson(route, {
+        code: state.messageBoxCode ?? 200,
+        data: []
+      });
     }
     if (path === '/demo/demo/list') {
       return fulfillJson(route, { code: 200, rows: [], total: 0 });

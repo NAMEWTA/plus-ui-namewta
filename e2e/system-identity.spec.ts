@@ -68,8 +68,8 @@ async function installAdminApi(page: Page, state: AdminState) {
       });
     }
     if (path === '/system/menu/getRouters') return json(route, { code: 200, data: routes });
-    if (path === '/resource/message/box') {
-      return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
+    if (path === '/notify/inbox') {
+      return json(route, { code: 200, data: [] });
     }
     if (path === '/resource/message/close') return json(route, { code: 200, data: null });
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });

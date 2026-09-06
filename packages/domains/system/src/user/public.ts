@@ -4,6 +4,7 @@ import type { HttpClient } from '@namewta/platform-contracts';
 export type SystemUserTransport = OpenApiSchema<'SysUserVo'>;
 
 export interface UserSummary {
+  phoneNumber?: string;
   deptName?: string;
   nickName: string;
   status?: string;
@@ -12,6 +13,7 @@ export interface UserSummary {
 }
 
 export interface UserQuery {
+  keyword?: string;
   createTime?: readonly string[];
   deptId?: string | number;
   pageNum?: number;
@@ -54,6 +56,7 @@ export const projectUserSummary = (source: SystemUserTransport): UserSummary => 
     userId: source.userId ?? '',
     userName: source.userName,
     nickName: source.nickName ?? '',
+    phoneNumber: source.phoneNumber,
     deptName: source.deptName,
     status: source.status
   };

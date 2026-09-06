@@ -47,8 +47,16 @@
                 <svg-icon v-else icon-class="guide" class-name="menu-icon" />
               </div>
               <div class="search-item__info">
-                <div class="menu-title" v-html="highlightText(item.fullTitle)"></div>
-                <div class="menu-path" v-html="highlightText(item.path)"></div>
+                <div class="menu-title">
+                  <template v-for="(part, partIndex) in highlightParts(item.fullTitle)" :key="`title-${partIndex}`">
+                    <span v-if="part.match" class="highlight">{{ part.text }}</span><template v-else>{{ part.text }}</template>
+                  </template>
+                </div>
+                <div class="menu-path">
+                  <template v-for="(part, partIndex) in highlightParts(item.path)" :key="`path-${partIndex}`">
+                    <span v-if="part.match" class="highlight">{{ part.text }}</span><template v-else>{{ part.text }}</template>
+                  </template>
+                </div>
               </div>
               <svg-icon v-show="index === state.activeIndex" icon-class="enter" class-name="search-enter" />
             </div>
@@ -266,14 +274,19 @@ const activeStyle = (index: number) => {
   };
 };
 
-const highlightText = (text: string) => {
-  if (!text || !state.menuQuery) {
-    return text;
+const highlightParts = (text: string) => {
+  if (!text || !state.menuQuery) return [{ text, match: false }];
+  const reg = new RegExp(`(${escapeRegExp(state.menuQuery)})`, 'gi');
+  const parts: Array<{ text: string; match: boolean }> = [];
+  let lastIndex = 0;
+  for (const match of text.matchAll(reg)) {
+    const index = match.index ?? 0;
+    if (index > lastIndex) parts.push({ text: text.slice(lastIndex, index), match: false });
+    parts.push({ text: match[0], match: true });
+    lastIndex = index + match[0].length;
   }
-
-  const escapedKeyword = escapeRegExp(state.menuQuery);
-  const reg = new RegExp(`(${escapedKeyword})`, 'gi');
-  return text.replace(reg, '<span class="highlight">$1</span>');
+  if (lastIndex < text.length) parts.push({ text: text.slice(lastIndex), match: false });
+  return parts.length ? parts : [{ text, match: false }];
 };
 
 const escapeRegExp = (value: string) => {

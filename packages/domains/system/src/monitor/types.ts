@@ -1,3 +1,5 @@
+import type { ApiErrorInfo } from '@namewta/platform-contracts';
+
 export interface PageQuery {
   pageNum: number;
   pageSize: number;
@@ -13,6 +15,7 @@ export interface ApiResponse<T = unknown> {
   code?: number;
   data: T;
   msg?: string;
+  error?: ApiErrorInfo;
 }
 export interface PageResult<T> {
   rows: T[];

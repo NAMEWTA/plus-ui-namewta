@@ -1,4 +1,4 @@
-import type { HttpClient, HttpRequest } from '@namewta/platform-contracts';
+import type { ApiErrorInfo, HttpClient, HttpRequest } from '@namewta/platform-contracts';
 import { describe, expect, expectTypeOf, it, vi } from 'vitest';
 import {
   createSystemResourceService,
@@ -13,12 +13,6 @@ describe('system resource transports', () => {
     const http: HttpClient = {
       request: vi.fn(async request => {
         requests.push(request);
-        if (request.url.includes('/attachments/download-urls')) {
-          return {
-            code: 200,
-            data: { attachment: { url: 'https://files.example.test/notice', fileName: 'notice', expiresAt: 'later' } }
-          } as never;
-        }
         if (request.url.includes('/download-url')) {
           return {
             code: 200,
@@ -91,12 +85,6 @@ describe('system resource transports', () => {
     await service.configs.updateByKey('site/name', 'NAMEWTA');
     await service.configs.delete(['config/1', 2]);
     await service.configs.refreshCache();
-    await service.notices.list(query as never);
-    await service.notices.get('notice/1');
-    await service.notices.attachmentUrls('notice/1');
-    await service.notices.add(form);
-    await service.notices.update(form);
-    await service.notices.delete(['notice/1', 2]);
     await service.oss.list(query as never);
     await service.oss.listByIds(['oss/1', 2]);
     await service.oss.initUpload(form);
@@ -112,7 +100,6 @@ describe('system resource transports', () => {
     await service.ossConfigs.update(ossConfigForm);
     await service.ossConfigs.delete(['config/1', 2]);
     await service.ossConfigs.changeStatus('oss/1', '0', 'primary');
-    await service.messages.box();
     await service.social.list();
 
     expect(requests).toEqual([
@@ -137,12 +124,6 @@ describe('system resource transports', () => {
       { url: '/system/config/updateByKey', method: 'put', data: { configKey: 'site/name', configValue: 'NAMEWTA' } },
       { url: '/system/config/config%2F1,2', method: 'delete' },
       { url: '/system/config/refreshCache', method: 'delete' },
-      { url: '/system/notice/list', method: 'get', params: query },
-      { url: '/system/notice/notice%2F1', method: 'get' },
-      { url: '/system/notice/notice%2F1/attachments/download-urls', method: 'get' },
-      { url: '/system/notice', method: 'post', data: form },
-      { url: '/system/notice', method: 'put', data: form },
-      { url: '/system/notice/notice%2F1,2', method: 'delete' },
       { url: '/resource/oss/list', method: 'get', params: query },
       { url: '/resource/oss/listByIds/oss%2F1,2', method: 'get' },
       { url: '/resource/oss/uploads', method: 'post', data: form },
@@ -166,7 +147,6 @@ describe('system resource transports', () => {
         method: 'post',
         data: { ossConfigId: 'oss/1', status: '0', configKey: 'primary' }
       },
-      { url: '/resource/message/box', method: 'get' },
       { url: '/system/social/list', method: 'get' }
     ]);
   });
@@ -273,25 +253,13 @@ describe('system resource transports', () => {
     await expect(service.oss.listByIds(1)).rejects.toBe(failure);
   });
 
-  it.each(['javascript:alert(1)', 'https://user:secret@files.example.test/file', 'https://bad host/file'])(
-    'rejects unsafe notice attachment URL %s at the domain boundary',
-    async url => {
-      const request: HttpClient['request'] = async () =>
-        ({ data: { attachment: { url, fileName: 'notice.txt', expiresAt: 'later' } } }) as never;
-      const service = createSystemResourceService({ request });
-
-      await expect(service.notices.attachmentUrls(1)).rejects.toEqual(
-        expect.objectContaining({ code: 'unsafe-resource-url', message: '资源地址不可用' })
-      );
-    }
-  );
-
   it('exposes the concrete system social list result type', () => {
     const service = createSystemResourceService({ request: vi.fn() });
     expectTypeOf(service.social.list).returns.resolves.toEqualTypeOf<{
       code?: number;
       data: SocialAuthVO[];
       msg?: string;
+      error?: ApiErrorInfo;
     }>();
   });
 });

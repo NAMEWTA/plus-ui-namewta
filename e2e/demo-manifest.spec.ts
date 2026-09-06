@@ -85,8 +85,8 @@ async function installApi(page: Page, state: ApiState, mode: MenuMode) {
         data: [{ id: 1, parentId: 0, deptId: 10, userId: 20, treeName: 'manifest-root', children: [] }]
       });
     }
-    if (path === '/resource/message/box')
-      return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
+    if (path === '/notify/inbox')
+      return json(route, { code: 200, data: [] });
     if (path === '/resource/message/close') return json(route, { code: 200, data: null });
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
     state.unknownRequests.push(`${request.method()} ${path}`);

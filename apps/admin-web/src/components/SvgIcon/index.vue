@@ -1,13 +1,20 @@
 <template>
-  <Icon v-if="isIconify" :icon="normalizedIcon" :class="svgClass" :style="iconStyle" aria-hidden="true" />
+  <Icon
+    v-if="resolvedIcon.kind === 'iconify'"
+    :icon="resolvedIcon.value"
+    :class="svgClass"
+    :style="iconStyle"
+    aria-hidden="true"
+  />
   <svg v-else :class="svgClass" aria-hidden="true" :style="iconStyle">
-    <use :xlink:href="iconName" :fill="color" />
+    <use :xlink:href="resolvedIcon.value" :fill="color" />
   </svg>
 </template>
 
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { propTypes } from '@/utils/propTypes';
+import { resolveIcon } from './iconRegistry';
 
 const props = defineProps({
   iconClass: propTypes.string.isRequired,
@@ -15,9 +22,7 @@ const props = defineProps({
   color: propTypes.string.def(''),
   size: propTypes.string.def('')
 });
-const normalizedIcon = computed(() => props.iconClass?.replace(/^i-/, ''));
-const isIconify = computed(() => normalizedIcon.value?.includes(':'));
-const iconName = computed(() => `#icon-${normalizedIcon.value}`);
+const resolvedIcon = computed(() => resolveIcon(props.iconClass));
 const svgClass = computed(() => {
   if (props.className) {
     return `svg-icon ${props.className}`;

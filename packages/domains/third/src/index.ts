@@ -1,7 +1,7 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
-import type { HttpClient } from '@namewta/platform-contracts';
+import type { ApiErrorInfo, HttpClient } from '@namewta/platform-contracts';
 
-export interface ApiResponse<T = unknown> { code?: number; data?: T; msg?: string }
+export interface ApiResponse<T = unknown> { code?: number; data?: T; msg?: string; error?: ApiErrorInfo }
 export interface Provider {
   providerId: string | number; providerCode: string; providerName: string; baseUrl: string; status: string;
   timeoutConnectMs: number; timeoutReadMs: number; rateLimit: number; concurrencyLimit: number;

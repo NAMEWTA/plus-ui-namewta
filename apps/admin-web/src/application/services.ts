@@ -1,14 +1,16 @@
+import { createOssUploadClient, transferToOss, type OssTransfer } from '@namewta/adapter-oss-upload-browser';
 import { createIdentityAccessService } from '@namewta/domain-admin';
 import { createAiService } from '@namewta/domain-ai';
 import { createDemoService } from '@namewta/domain-demo';
+import { createNotificationService } from '@namewta/domain-notify';
 import { createProfileService } from '@namewta/domain-profile';
 import { createOpenApiService, createSystemService } from '@namewta/domain-system';
 import { createMonitorService } from '@namewta/domain-system/monitor';
-import { createWorkflowDefinitionService } from '@namewta/domain-workflow';
 import { createThirdService } from '@namewta/domain-third';
-import { createOssUploadClient, transferToOss, type OssTransfer } from '@namewta/adapter-oss-upload-browser';
+import { createWorkflowDefinitionService } from '@namewta/domain-workflow';
 import { adminHttp } from './http';
 import { session } from './session';
+import type { NotifyUserCandidatePage } from '@namewta/domain-notify';
 
 type AdminDomainRequest = Parameters<typeof adminHttp.request>[0];
 
@@ -50,6 +52,25 @@ export const identityAccessService = createIdentityAccessService({
 export const workflowService = createWorkflowDefinitionService(domainHttp);
 export const profileService = createProfileService(domainHttp);
 export const demoService = createDemoService(domainHttp);
+export const notificationService = createNotificationService(domainHttp);
+
+export const notificationDirectory = {
+  searchUsers: (keyword: string, page = 1, pageSize = 20) =>
+    keyword.trim()
+      ? domainHttp.request<{ data: NotifyUserCandidatePage }>({
+          url: '/notify/recipients/search',
+          method: 'get',
+          params: { pageNum: page, pageSize, keyword: keyword.trim() }
+        })
+      : Promise.resolve({ data: { rows: [], total: 0 } }),
+  usersByIds: (ids: readonly (string | number)[]) =>
+    domainHttp.request<{ data: Array<{ userId: string | number; userName?: string; nickName?: string; phoneNumber?: string; status?: string }> }>({
+      url: '/notify/recipients/by-ids',
+      method: 'get',
+      params: { userIds: ids.join(',') }
+    }),
+  userTypes: () => systemService.userTypes.options()
+};
 export const monitorService = createMonitorService(domainHttp);
 export const aiService = createAiService(domainHttp);
 export const thirdService = createThirdService(domainHttp);

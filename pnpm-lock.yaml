@@ -128,6 +128,9 @@ importers:
       '@highlightjs/vue-plugin':
         specifier: 2.1.2
         version: 2.1.2(highlight.js@11.11.1)(vue@3.5.40(typescript@6.0.3))
+      '@iconify-json/tabler':
+        specifier: 1.2.3
+        version: 1.2.3
       '@iconify/vue':
         specifier: ^5.0.1
         version: 5.0.1(vue@3.5.40(typescript@6.0.3))
@@ -152,6 +155,9 @@ importers:
       '@namewta/domain-demo':
         specifier: workspace:*
         version: link:../../packages/domains/demo
+      '@namewta/domain-notify':
+        specifier: workspace:*
+        version: link:../../packages/domains/notify
       '@namewta/domain-profile':
         specifier: workspace:*
         version: link:../../packages/domains/profile
@@ -176,6 +182,9 @@ importers:
       '@namewta/platform-permission':
         specifier: workspace:*
         version: link:../../packages/platform/permission
+      '@namewta/platform-validation':
+        specifier: workspace:*
+        version: link:../../packages/platform/validation
       '@namewta/web-domain-admin':
         specifier: workspace:*
         version: link:../../packages/web-domains/admin
@@ -185,6 +194,9 @@ importers:
       '@namewta/web-domain-demo':
         specifier: workspace:*
         version: link:../../packages/web-domains/demo
+      '@namewta/web-domain-notify':
+        specifier: workspace:*
+        version: link:../../packages/web-domains/notify
       '@namewta/web-domain-profile':
         specifier: workspace:*
         version: link:../../packages/web-domains/profile
@@ -500,6 +512,9 @@ importers:
       '@namewta/platform-contracts':
         specifier: workspace:*
         version: link:../../platform/contracts
+      '@namewta/platform-validation':
+        specifier: workspace:*
+        version: link:../../platform/validation
     devDependencies:
       oxlint:
         specifier: 'catalog:'
@@ -534,6 +549,28 @@ importers:
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
 
   packages/domains/demo:
+    dependencies:
+      '@namewta/api-contracts':
+        specifier: workspace:*
+        version: link:../../api-contracts
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../platform/app-runtime
+      '@namewta/platform-contracts':
+        specifier: workspace:*
+        version: link:../../platform/contracts
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
+  packages/domains/notify:
     dependencies:
       '@namewta/api-contracts':
         specifier: workspace:*
@@ -711,6 +748,18 @@ importers:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
 
+  packages/platform/validation:
+    devDependencies:
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 4.1.10
+        version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+
   packages/web-domains/admin:
     dependencies:
       '@namewta/domain-admin':
@@ -800,6 +849,34 @@ importers:
       vitest:
         specifier: 4.1.10
         version: 4.1.10(@types/node@26.1.1)(vite@8.1.5(@types/node@26.1.1)(jiti@2.7.0)(sass@1.102.0)(yaml@2.9.0))
+      vue-tsc:
+        specifier: 3.3.8
+        version: 3.3.8(typescript@6.0.3)
+
+  packages/web-domains/notify:
+    dependencies:
+      '@namewta/domain-notify':
+        specifier: workspace:*
+        version: link:../../domains/notify
+      '@namewta/platform-app-runtime':
+        specifier: workspace:*
+        version: link:../../platform/app-runtime
+      element-plus:
+        specifier: 'catalog:'
+        version: 2.14.3(vue@3.5.40(typescript@6.0.3))
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.40(typescript@6.0.3)
+    devDependencies:
+      '@vue/compiler-sfc':
+        specifier: 'catalog:'
+        version: 3.5.40
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.75.0
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
       vue-tsc:
         specifier: 3.3.8
         version: 3.3.8(typescript@6.0.3)
@@ -1120,6 +1197,9 @@ packages:
     peerDependencies:
       highlight.js: ^11.0.1
       vue: ^3
+
+  '@iconify-json/tabler@1.2.3':
+    resolution: {integrity: sha512-km0P/1Gtp/bFhvBQQmDkMx3nNIkNmU57WCYl9b8Envl81m3bhVVT85A8FtWChQxMXsYv3cTNuwMq/WZGfcY9vQ==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -3428,6 +3508,10 @@ snapshots:
     dependencies:
       highlight.js: 11.11.1
       vue: 3.5.40(typescript@6.0.3)
+
+  '@iconify-json/tabler@1.2.3':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify/types@2.0.0': {}
 

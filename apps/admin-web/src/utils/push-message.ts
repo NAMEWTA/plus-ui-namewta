@@ -21,27 +21,40 @@ export const NOTICE_GROUP = {
 
 export interface PushMessagePayload {
   messageId?: string | number;
+  title?: string;
+  category?: string;
   type?: string;
   source?: string;
   message?: string;
-  data?: Record<string, any> | null;
+  data?: Record<string, unknown> | null;
   path?: string;
   timestamp?: number;
 }
 
 const MESSAGE_CENTER_TYPES = new Set<string>([PUSH_MESSAGE_TYPE.MESSAGE, PUSH_MESSAGE_TYPE.NOTICE]);
+const record = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+const text = (value: unknown) => (typeof value === 'string' ? value : undefined);
+const identifier = (value: unknown) =>
+  typeof value === 'string' || (typeof value === 'number' && Number.isSafeInteger(value)) ? value : undefined;
 
 export const parsePushMessage = (raw: string): PushMessagePayload => {
   try {
-    const payload = JSON.parse(raw) as PushMessagePayload;
+    const payload: unknown = JSON.parse(raw);
+    if (!record(payload)) throw new Error('推送消息必须为对象');
+    const data = record(payload.data) ? payload.data : null;
     return {
-      type: payload.type ?? PUSH_MESSAGE_TYPE.MESSAGE,
-      source: payload.source ?? 'backend',
-      messageId: payload.messageId,
-      message: payload.message ?? '',
-      data: payload.data ?? null,
-      path: payload.path,
-      timestamp: payload.timestamp ?? Date.now()
+      type: text(payload.type) ?? PUSH_MESSAGE_TYPE.MESSAGE,
+      source: text(payload.source) ?? PUSH_MESSAGE_SOURCE.BACKEND,
+      // Notify 实时事件的 notificationId 与已持久化收件箱 messageId 相同。
+      messageId: identifier(payload.messageId) ?? identifier(data?.notificationId),
+      title: text(payload.title) ?? text(data?.title),
+      category: text(payload.category) ?? text(data?.category),
+      message: text(payload.message) ?? '',
+      data,
+      path: text(payload.path) ?? text(data?.path),
+      timestamp:
+        typeof payload.timestamp === 'number' && Number.isFinite(payload.timestamp) ? payload.timestamp : Date.now()
     };
   } catch {
     return {
@@ -61,10 +74,21 @@ export const shouldAppendNotice = (payload: PushMessagePayload) => {
 };
 
 export const resolveNoticeGroup = (payload: PushMessagePayload) => {
-  if (payload.type === PUSH_MESSAGE_TYPE.NOTICE || payload.source === PUSH_MESSAGE_SOURCE.NOTICE) {
+  if (
+    payload.category === NOTICE_GROUP.NOTICE ||
+    payload.category === NOTICE_GROUP.WORKFLOW ||
+    payload.category === NOTICE_GROUP.SYSTEM
+  ) {
+    return payload.category;
+  }
+  if (
+    payload.type === PUSH_MESSAGE_TYPE.NOTICE ||
+    payload.source === PUSH_MESSAGE_SOURCE.NOTICE ||
+    payload.path?.startsWith('/notify/notice')
+  ) {
     return NOTICE_GROUP.NOTICE;
   }
-  if (payload.source === PUSH_MESSAGE_SOURCE.WORKFLOW) {
+  if (payload.source === PUSH_MESSAGE_SOURCE.WORKFLOW || payload.path?.startsWith('/workflow')) {
     return NOTICE_GROUP.WORKFLOW;
   }
   return NOTICE_GROUP.SYSTEM;

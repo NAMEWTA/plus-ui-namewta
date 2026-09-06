@@ -3,7 +3,6 @@ export { default as SystemConfigPage } from './config/ConfigPage.vue';
 export { default as SystemDepartmentPage } from './dept/DepartmentPage.vue';
 export { default as SystemDictPage } from './dict-type/DictPage.vue';
 export { default as SystemMenuPage } from './menu/MenuPage.vue';
-export { default as SystemNoticePage } from './notice/NoticePage.vue';
 export { default as SystemOssConfigPage } from './oss-config/OssConfigPage.vue';
 export { default as SystemOssPage } from './oss/OssPage.vue';
 export { default as SystemPostPage } from './post/PostPage.vue';

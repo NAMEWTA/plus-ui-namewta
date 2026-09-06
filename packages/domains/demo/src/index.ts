@@ -1,5 +1,5 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
-import type { HttpClient } from '@namewta/platform-contracts';
+import type { ApiErrorInfo, HttpClient } from '@namewta/platform-contracts';
 import { projectDemoTransport, type DemoTransport } from './transport';
 
 export * from './transport';
@@ -26,6 +26,7 @@ export interface ApiResponse<T = unknown> {
   code?: number;
   data?: T;
   msg?: string;
+  error?: ApiErrorInfo;
 }
 
 export interface DemoVO {

@@ -555,30 +555,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/system/notice": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * 修改通知公告。
-         * @description 修改通知公告。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:edit`<br><br>
-         */
-        put: operations["edit_8"];
-        /**
-         * 新增通知公告，并向在线用户广播公告摘要。
-         * @description 新增通知公告，并向在线用户广播公告摘要。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:add`<br><br>
-         */
-        post: operations["add_8"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/system/menu": {
         parameters: {
             query?: never;
@@ -591,12 +567,12 @@ export interface paths {
          * 修改菜单。
          * @description 修改菜单。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:edit`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        put: operations["edit_9"];
+        put: operations["edit_8"];
         /**
          * 新增菜单。
          * @description 新增菜单。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:add`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        post: operations["add_9"];
+        post: operations["add_8"];
         delete?: never;
         options?: never;
         head?: never;
@@ -615,12 +591,12 @@ export interface paths {
          * 修改字典类型。
          * @description 修改字典类型。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:edit`<br><br>
          */
-        put: operations["edit_10"];
+        put: operations["edit_9"];
         /**
          * 新增字典类型。
          * @description 新增字典类型。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:add`<br><br>
          */
-        post: operations["add_10"];
+        post: operations["add_9"];
         delete?: never;
         options?: never;
         head?: never;
@@ -639,12 +615,12 @@ export interface paths {
          * 修改字典数据。
          * @description 修改字典数据。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:edit`<br><br>
          */
-        put: operations["edit_11"];
+        put: operations["edit_10"];
         /**
          * 新增字典数据。
          * @description 新增字典数据。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:add`<br><br>
          */
-        post: operations["add_11"];
+        post: operations["add_10"];
         delete?: never;
         options?: never;
         head?: never;
@@ -663,12 +639,12 @@ export interface paths {
          * 修改部门。
          * @description 修改部门。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dept:edit`<br><br>
          */
-        put: operations["edit_12"];
+        put: operations["edit_11"];
         /**
          * 新增部门。
          * @description 新增部门。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dept:add`<br><br>
          */
-        post: operations["add_12"];
+        post: operations["add_11"];
         delete?: never;
         options?: never;
         head?: never;
@@ -687,12 +663,12 @@ export interface paths {
          * 修改参数配置。
          * @description 修改参数配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:config:edit`<br><br>
          */
-        put: operations["edit_13"];
+        put: operations["edit_12"];
         /**
          * 新增参数配置。
          * @description 新增参数配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:config:add`<br><br>
          */
-        post: operations["add_13"];
+        post: operations["add_12"];
         delete?: never;
         options?: never;
         head?: never;
@@ -731,12 +707,12 @@ export interface paths {
          * 修改客户端配置，避免重复占用同一个客户端 key。
          * @description 修改客户端配置，避免重复占用同一个客户端 key。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:client:edit`<br><br>
          */
-        put: operations["edit_14"];
+        put: operations["edit_13"];
         /**
          * 新增客户端配置，入库前先校验客户端 key 是否唯一。
          * @description 新增客户端配置，入库前先校验客户端 key 是否唯一。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:client:add`<br><br>
          */
-        post: operations["add_14"];
+        post: operations["add_13"];
         delete?: never;
         options?: never;
         head?: never;
@@ -775,12 +751,12 @@ export interface paths {
          * 修改测试树表
          * @description 修改测试树表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:edit`<br><br>
          */
-        put: operations["edit_15"];
+        put: operations["edit_14"];
         /**
          * 新增测试树表
          * @description 新增测试树表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:add`<br><br>
          */
-        post: operations["add_15"];
+        post: operations["add_14"];
         delete?: never;
         options?: never;
         head?: never;
@@ -799,12 +775,12 @@ export interface paths {
          * 修改测试单表
          * @description 修改测试单表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:edit`<br><br>
          */
-        put: operations["edit_16"];
+        put: operations["edit_15"];
         /**
          * 新增测试单表
          * @description 新增测试单表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:add`<br><br>
          */
-        post: operations["add_16"];
+        post: operations["add_15"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1155,6 +1131,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/third/provider": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:provider:add`<br><br> */
+        post: operations["add_16"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/provider/{providerId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:provider:edit`<br><br> */
+        post: operations["status"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/provider/{providerId}/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:provider:remove`<br><br> */
+        post: operations["remove"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/provider/save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:provider:edit`<br><br> */
+        post: operations["save"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/endpoint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:endpoint:add`<br><br> */
+        post: operations["add_17"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/endpoint/{endpointId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:endpoint:edit`<br><br> */
+        post: operations["status_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/endpoint/{endpointId}/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:endpoint:remove`<br><br> */
+        post: operations["remove_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/endpoint/save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:endpoint:edit`<br><br> */
+        post: operations["save_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/credential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:credential:add`<br><br> */
+        post: operations["save_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/credential/{credentialId}/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:credential:remove`<br><br> */
+        post: operations["remove_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/system/userType/export": {
         parameters: {
             query?: never;
@@ -1309,6 +1455,176 @@ export interface paths {
          * @description 导出岗位列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:post:export`<br><br>
          */
         post: operations["export_5"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/users/{userId}/credential/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:edit`<br><br> */
+        post: operations["resetUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/users/{userId}/credential/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:edit`<br><br> */
+        post: operations["enableUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/users/{userId}/credential/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:edit`<br><br> */
+        post: operations["disableUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/users/{userId}/credential/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:remove`<br><br> */
+        post: operations["deleteUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/users/{userId}/credential/create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:add`<br><br> */
+        post: operations["createUser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/self/credential/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:self`<br><br> */
+        post: operations["resetSelf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/self/credential/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:self`<br><br> */
+        post: operations["enableSelf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/self/credential/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:self`<br><br> */
+        post: operations["disableSelf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/self/credential/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:self`<br><br> */
+        post: operations["deleteSelf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/self/credential/create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:self`<br><br> */
+        post: operations["createSelf"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1586,7 +1902,7 @@ export interface paths {
          * 新增对象存储配置。
          * @description 新增对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:add`<br><br>
          */
-        post: operations["add_17"];
+        post: operations["add_18"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1606,7 +1922,7 @@ export interface paths {
          * 批量删除对象存储配置。
          * @description 批量删除对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:remove`<br><br>
          */
-        post: operations["remove"];
+        post: operations["remove_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1626,7 +1942,7 @@ export interface paths {
          * 修改对象存储配置。
          * @description 修改对象存储配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:edit`<br><br>
          */
-        post: operations["edit_17"];
+        post: operations["edit_16"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1647,6 +1963,942 @@ export interface paths {
          * @description 切换对象存储配置启用状态，并同步更新当前生效配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:edit`<br><br>
          */
         post: operations["changeStatus_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/verification/providers/{providerCode}/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 callback HTTP 请求。
+         * @description 处理 callback HTTP 请求。<br><h3>访问权限</h3><br>> **权限策略**：忽略权限检查<br>
+         */
+        post: operations["callback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/rebind/unbind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 unbind HTTP 请求。
+         * @description 处理 unbind HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:apply`<br><br>
+         */
+        post: operations["unbind"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/rebind/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 submit HTTP 请求。
+         * @description 处理 submit HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:apply`<br><br>
+         */
+        post: operations["submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/rebind/probe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 probe HTTP 请求。
+         * @description 处理 probe HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:apply`<br><br>
+         */
+        post: operations["probe"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/rebind/match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 match HTTP 请求。
+         * @description 处理 match HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:apply`<br><br>
+         */
+        post: operations["match"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/rebind/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 confirm HTTP 请求。
+         * @description 处理 confirm HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:apply`<br><br>
+         */
+        post: operations["confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/materials/{ownerType}/{ownerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 list HTTP 请求。
+         * @description 处理 list HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:material` | `profile:person:query` | `profile:person:review` | `profile:person:manage` | `profile:person:override`<br><br>
+         */
+        get: operations["list"];
+        put?: never;
+        /**
+         * 处理 attach HTTP 请求。
+         * @description 处理 attach HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:material`<br><br>
+         */
+        post: operations["attach"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/materials/{ownerType}/{ownerId}/{materialRefId}/detach": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 detach HTTP 请求。
+         * @description 处理 detach HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:material`<br><br>
+         */
+        post: operations["detach"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/{profileId}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 revoke HTTP 请求。
+         * @description 处理 revoke HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:override`<br><br>
+         */
+        post: operations["revoke"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/{profileId}/revision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 revise HTTP 请求。
+         * @description 处理 revise HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:override`<br><br>
+         */
+        post: operations["revise"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/{profileId}/binding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 manageBinding HTTP 请求。
+         * @description 处理 manageBinding HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:manage`<br><br>
+         */
+        post: operations["manageBinding"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/{profileId}/assign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 assign HTTP 请求。
+         * @description 处理 assign HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:override`<br><br>
+         */
+        post: operations["assign"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/application/{applicationId}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 decide HTTP 请求。
+         * @description 处理 decide HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:override`<br><br>
+         */
+        post: operations["decide"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/admin-create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 create HTTP 请求。
+         * @description 处理 create HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:override`<br><br>
+         */
+        post: operations["create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/application": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 current HTTP 请求。
+         * @description 处理 current HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:apply`<br><br>
+         */
+        get: operations["current"];
+        put?: never;
+        /**
+         * 处理 save HTTP 请求。
+         * @description 处理 save HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:apply`<br><br>
+         */
+        post: operations["save_3"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/application/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 submit HTTP 请求。
+         * @description 处理 submit HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:apply`<br><br>
+         */
+        post: operations["submit_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/material-tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 create HTTP 请求。
+         * @description 处理 create HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:material-tag:manage`<br><br>
+         */
+        post: operations["create_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/material-tags/{materialNodeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 update HTTP 请求。
+         * @description 处理 update HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:material-tag:manage`<br><br>
+         */
+        post: operations["update"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/material-tags/{materialNodeId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 status HTTP 请求。
+         * @description 处理 status HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:material-tag:manage`<br><br>
+         */
+        post: operations["status_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/material-tags/{materialNodeId}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 archive HTTP 请求。
+         * @description 处理 archive HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:material-tag:manage`<br><br>
+         */
+        post: operations["archive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/verification/providers/{providerCode}/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 callback HTTP 请求。
+         * @description 处理 callback HTTP 请求。<br><h3>访问权限</h3><br>> **权限策略**：忽略权限检查<br>
+         */
+        post: operations["callback_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/transfer/unbind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 unbind HTTP 请求。
+         * @description 处理 unbind HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:apply`<br><br>
+         */
+        post: operations["unbind_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/transfer/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 send HTTP 请求。
+         * @description 处理 send HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:apply`<br><br>
+         */
+        post: operations["send"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/transfer/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 confirm HTTP 请求。
+         * @description 处理 confirm HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:apply`<br><br>
+         */
+        post: operations["confirm_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/materials/{ownerType}/{ownerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 list HTTP 请求。
+         * @description 处理 list HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:material` | `profile:enterprise:query` | `profile:enterprise:review` | `profile:enterprise:manage` | `profile:enterprise:override`<br><br>
+         */
+        get: operations["list_1"];
+        put?: never;
+        /**
+         * 处理 attach HTTP 请求。
+         * @description 处理 attach HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:material`<br><br>
+         */
+        post: operations["attach_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/materials/{ownerType}/{ownerId}/{materialRefId}/detach": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 detach HTTP 请求。
+         * @description 处理 detach HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:material`<br><br>
+         */
+        post: operations["detach_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/{profileId}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 revoke HTTP 请求。
+         * @description 处理 revoke HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:override`<br><br>
+         */
+        post: operations["revoke_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/{profileId}/revision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 revise HTTP 请求。
+         * @description 处理 revise HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:override`<br><br>
+         */
+        post: operations["revise_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/{profileId}/binding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 manageBinding HTTP 请求。
+         * @description 处理 manageBinding HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:manage`<br><br>
+         */
+        post: operations["manageBinding_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/{profileId}/assign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 assign HTTP 请求。
+         * @description 处理 assign HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:override`<br><br>
+         */
+        post: operations["assign_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/application/{applicationId}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 decide HTTP 请求。
+         * @description 处理 decide HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:override`<br><br>
+         */
+        post: operations["decide_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/admin-create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 create HTTP 请求。
+         * @description 处理 create HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:override`<br><br>
+         */
+        post: operations["create_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/application": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 current HTTP 请求。
+         * @description 处理 current HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:apply`<br><br>
+         */
+        get: operations["current_1"];
+        put?: never;
+        /**
+         * 处理 save HTTP 请求。
+         * @description 处理 save HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:apply`<br><br>
+         */
+        post: operations["save_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/application/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 submit HTTP 请求。
+         * @description 处理 submit HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:apply`<br><br>
+         */
+        post: operations["submit_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/application/probe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理 probe HTTP 请求。
+         * @description 处理 probe HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:apply`<br><br>
+         */
+        post: operations["probe_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 提交通知。
+         * @description 提交通知。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notification:submit`<br><br>
+         */
+        post: operations["submit_3"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notification/{notificationId}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 重试通知。
+         * @description 重试通知。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notification:retry`<br><br>
+         */
+        post: operations["retry_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notification/{notificationId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 取消通知。
+         * @description 取消通知。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notification:cancel`<br><br>
+         */
+        post: operations["cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notice/{noticeId}/retract": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 撤回公告。
+         * @description 撤回公告。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notice:retract`<br><br>
+         */
+        post: operations["retract"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notice/{noticeId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 发布公告并提交统一通知。
+         * @description 发布公告并提交统一通知。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notice:publish`<br><br>
+         */
+        post: operations["publish_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notice/save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 新增或修改公告草稿。
+         * @description 新增或修改公告草稿。
+         */
+        post: operations["save_5"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notice/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 删除公告。
+         * @description 删除公告。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notice:remove`<br><br>
+         */
+        post: operations["remove_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/inbox/{messageId}/seen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 标记已见。
+         * @description 标记已见。
+         */
+        post: operations["seen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/inbox/{messageId}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 标记已读。
+         * @description 标记已读。
+         */
+        post: operations["read"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/inbox/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 将当前用户全部收件消息标记为已读。
+         * @description 将当前用户全部收件消息标记为已读。
+         */
+        post: operations["readAll"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/callback/{channel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 接收供应商状态回调。
+         * @description 接收供应商状态回调。<br><h3>访问权限</h3><br>> **权限策略**：忽略权限检查<br>
+         */
+        post: operations["callback_2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1768,7 +3020,7 @@ export interface paths {
          *      <p>
          *      3.5.0 版本 增加 rewriteBatchedStatements=true 批处理参数 使 MP 原生批处理可以达到同样的速度
          */
-        post: operations["add_18"];
+        post: operations["add_19"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2132,7 +3384,7 @@ export interface paths {
          * 分页查询流程 SpEL 表达式定义列表。
          * @description 分页查询流程 SpEL 表达式定义列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:spel:list`<br><br>
          */
-        get: operations["list"];
+        get: operations["list_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2172,7 +3424,7 @@ export interface paths {
          * 分页查询请假列表。
          * @description 分页查询请假列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:leave:list`<br><br>
          */
-        get: operations["list_1"];
+        get: operations["list_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2372,7 +3624,7 @@ export interface paths {
          * 分页查询流程定义列表。
          * @description 分页查询流程定义列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:definition:list`<br><br>
          */
-        get: operations["list_2"];
+        get: operations["list_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2399,7 +3651,7 @@ export interface paths {
          * 删除流程分类，删除前校验默认分类、子节点和绑定流程定义。
          * @description 删除流程分类，删除前校验默认分类、子节点和绑定流程定义。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:category:remove`<br><br>
          */
-        delete: operations["remove_1"];
+        delete: operations["remove_5"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2416,7 +3668,7 @@ export interface paths {
          * 查询流程分类列表。
          * @description 查询流程分类列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:category:list`<br><br>
          */
-        get: operations["list_3"];
+        get: operations["list_5"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2669,6 +3921,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/third/statistics/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:statistics:list`<br><br> */
+        get: operations["statistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/provider/{providerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:provider:query`<br><br> */
+        get: operations["get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/provider/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:provider:list`<br><br> */
+        get: operations["list_6"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/invocation/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:invocation:list`<br><br> */
+        get: operations["invocations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/endpoint/{endpointId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:endpoint:query`<br><br> */
+        get: operations["get_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/endpoint/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:endpoint:list`<br><br> */
+        get: operations["list_7"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/third/credential/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `third:credential:list`<br><br> */
+        get: operations["list_8"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/system/userType/{userTypeId}": {
         parameters: {
             query?: never;
@@ -2720,27 +4091,7 @@ export interface paths {
          * 获取启用中的登录域下拉列表。
          * @description 获取启用中的登录域下拉列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:userType:query`<br><br>
          */
-        get: operations["optionselect"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/system/userType/optionselect": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 获取启用中的登录域下拉列表。
-         * @description 获取启用中的登录域下拉列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:userType:query`<br><br>
-         */
-        get: operations["optionselect_1"];
+        get: operations["options"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2760,7 +4111,7 @@ export interface paths {
          * 分页查询登录域列表。
          * @description 分页查询登录域列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:userType:list`<br><br>
          */
-        get: operations["list_4"];
+        get: operations["list_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2800,7 +4151,7 @@ export interface paths {
          * 根据用户ID串批量获取用户基础信息
          * @description 根据用户ID串批量获取用户基础信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:query`<br><br>
          */
-        get: operations["optionselect_2"];
+        get: operations["optionselect"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2820,7 +4171,7 @@ export interface paths {
          * 分页查询用户列表。
          * @description 分页查询用户列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:list`<br><br>
          */
-        get: operations["list_5"];
+        get: operations["list_10"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2960,7 +4311,7 @@ export interface paths {
          * 查询当前登录用户的社会化账号绑定列表。
          * @description 查询当前登录用户的社会化账号绑定列表。
          */
-        get: operations["list_6"];
+        get: operations["list_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3000,7 +4351,7 @@ export interface paths {
          * 获取角色选择框列表
          * @description 获取角色选择框列表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:role:query`<br><br>
          */
-        get: operations["optionselect_3"];
+        get: operations["optionselect_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3020,7 +4371,7 @@ export interface paths {
          * 分页查询角色列表。
          * @description 分页查询角色列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:role:list`<br><br>
          */
-        get: operations["list_7"];
+        get: operations["list_12"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3120,7 +4471,7 @@ export interface paths {
          * 获取岗位选择框列表
          * @description 获取岗位选择框列表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:post:query`<br><br>
          */
-        get: operations["optionselect_4"];
+        get: operations["optionselect_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3140,7 +4491,7 @@ export interface paths {
          * 分页查询岗位列表。
          * @description 分页查询岗位列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:post:list`<br><br>
          */
-        get: operations["list_8"];
+        get: operations["list_13"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3169,18 +4520,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/system/notice/{noticeId}": {
+    "/system/openApi/users": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * 根据通知公告编号获取详细信息
-         * @description 根据通知公告编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:query`<br><br>
-         */
-        get: operations["getInfo_11"];
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:list`<br><br> */
+        get: operations["users"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3189,15 +4537,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/system/notice/{noticeId}/attachments/download-urls": {
+    "/system/openApi/users/{userId}/interfaces": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:query`<br><br> */
-        get: operations["attachmentDownloads"];
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:list`<br><br> */
+        get: operations["userInterfaces"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3206,18 +4554,83 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/system/notice/list": {
+    "/system/openApi/users/{userId}/interfaces/{interfaceId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * 分页查询通知公告列表。
-         * @description 分页查询通知公告列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:list`<br><br>
-         */
-        get: operations["list_9"];
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:query`<br><br> */
+        get: operations["userInterface"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/users/{userId}/credential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:query`<br><br> */
+        get: operations["getUserCredential"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/self/interfaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:self`<br><br> */
+        get: operations["selfInterfaces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/self/interfaces/{interfaceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:self`<br><br> */
+        get: operations["selfInterface"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/system/openApi/self/credential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:openApi:self`<br><br> */
+        get: operations["getSelfCredential"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3237,14 +4650,14 @@ export interface paths {
          * 根据菜单编号获取详细信息
          * @description 根据菜单编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:query`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        get: operations["getInfo_12"];
+        get: operations["getInfo_11"];
         put?: never;
         post?: never;
         /**
          * 删除菜单
          * @description 删除菜单<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:remove`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        delete: operations["remove_2"];
+        delete: operations["remove_6"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3301,7 +4714,7 @@ export interface paths {
          * 查询菜单列表。
          * @description 查询菜单列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:list`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        get: operations["list_10"];
+        get: operations["list_14"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3341,7 +4754,7 @@ export interface paths {
          * 查询字典类型详细
          * @description 查询字典类型详细<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:query`<br><br>
          */
-        get: operations["getInfo_13"];
+        get: operations["getInfo_12"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3361,7 +4774,7 @@ export interface paths {
          * 获取字典类型下拉选择列表。
          * @description 获取字典类型下拉选择列表。
          */
-        get: operations["optionselect_5"];
+        get: operations["optionselect_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3381,7 +4794,7 @@ export interface paths {
          * 分页查询字典类型列表。
          * @description 分页查询字典类型列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:list`<br><br>
          */
-        get: operations["list_11"];
+        get: operations["list_15"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3401,7 +4814,7 @@ export interface paths {
          * 查询字典数据详细
          * @description 查询字典数据详细<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:query`<br><br>
          */
-        get: operations["getInfo_14"];
+        get: operations["getInfo_13"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3441,7 +4854,7 @@ export interface paths {
          * 分页查询字典数据列表。
          * @description 分页查询字典数据列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:list`<br><br>
          */
-        get: operations["list_12"];
+        get: operations["list_16"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3461,14 +4874,14 @@ export interface paths {
          * 根据部门编号获取详细信息
          * @description 根据部门编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dept:query`<br><br>
          */
-        get: operations["getInfo_15"];
+        get: operations["getInfo_14"];
         put?: never;
         post?: never;
         /**
          * 删除部门
          * @description 删除部门<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dept:remove`<br><br>
          */
-        delete: operations["remove_3"];
+        delete: operations["remove_7"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3485,7 +4898,7 @@ export interface paths {
          * 获取部门选择框列表
          * @description 获取部门选择框列表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dept:query`<br><br>
          */
-        get: operations["optionselect_6"];
+        get: operations["optionselect_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3505,7 +4918,7 @@ export interface paths {
          * 查询部门列表。
          * @description 查询部门列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dept:list`<br><br>
          */
-        get: operations["list_13"];
+        get: operations["list_17"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3545,7 +4958,7 @@ export interface paths {
          * 根据参数编号获取详细信息
          * @description 根据参数编号获取详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:config:query`<br><br>
          */
-        get: operations["getInfo_16"];
+        get: operations["getInfo_15"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3565,7 +4978,7 @@ export interface paths {
          * 分页查询参数配置列表。
          * @description 分页查询参数配置列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:config:list`<br><br>
          */
-        get: operations["list_14"];
+        get: operations["list_18"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3605,7 +5018,7 @@ export interface paths {
          * 获取单个客户端的详细配置信息。
          * @description 获取单个客户端的详细配置信息。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:client:query`<br><br>
          */
-        get: operations["getInfo_17"];
+        get: operations["getInfo_16"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3625,7 +5038,7 @@ export interface paths {
          * 分页查询客户端管理列表。
          * @description 分页查询客户端管理列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:client:list`<br><br>
          */
-        get: operations["list_15"];
+        get: operations["list_19"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3736,7 +5149,7 @@ export interface paths {
          * 分页查询 OSS 对象存储列表。
          * @description 分页查询 OSS 对象存储列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:oss:list`<br><br>
          */
-        get: operations["list_16"];
+        get: operations["list_20"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3776,7 +5189,7 @@ export interface paths {
          * 获取单个对象存储配置详情。
          * @description 获取单个对象存储配置详情。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:list`<br><br>
          */
-        get: operations["getInfo_18"];
+        get: operations["getInfo_17"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3796,7 +5209,7 @@ export interface paths {
          * 分页查询对象存储配置列表。
          * @description 分页查询对象存储配置列表。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:ossConfig:list`<br><br>
          */
-        get: operations["list_17"];
+        get: operations["list_21"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3814,9 +5227,25 @@ export interface paths {
         };
         /**
          * 建立当前登录用户的 SSE 连接。
-         * @description 建立当前登录用户的 SSE 连接。
+         * @description 建立当前登录用户的 SSE 连接。<br><h3>访问权限</h3><br>> **权限策略**：忽略权限检查<br>
          */
         get: operations["connect"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/resource/message/ticket": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["issue_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3845,26 +5274,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/resource/message/box": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * 查询当前用户消息盒子数据
-         * @description 查询当前用户消息盒子数据
-         */
-        get: operations["getBox"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/resource/email/code": {
         parameters: {
             query?: never;
@@ -3885,6 +5294,460 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/profile/person/materials/{ownerType}/{ownerId}/{materialRefId}/access-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 accessUrl HTTP 请求。
+         * @description 处理 accessUrl HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:material` | `profile:person:query` | `profile:person:review` | `profile:person:manage` | `profile:person:override`<br><br>
+         */
+        get: operations["accessUrl"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 page HTTP 请求。
+         * @description 处理 page HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:query`<br><br>
+         */
+        get: operations["page"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/{profileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 detail HTTP 请求。
+         * @description 处理 detail HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:query`<br><br>
+         */
+        get: operations["detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/{profileId}/material/{materialRefId}/access-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 material HTTP 请求。
+         * @description 处理 material HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:material`<br><br>
+         */
+        get: operations["material"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/eligible-users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 eligibleUsers HTTP 请求。
+         * @description 处理 eligibleUsers HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:override`<br><br>
+         */
+        get: operations["eligibleUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/application/{applicationId}/review-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 reviewContext HTTP 请求。
+         * @description 处理 reviewContext HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:review`<br><br>
+         */
+        get: operations["reviewContext"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/person/archive/application/{applicationId}/material/{materialRefId}/access-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 reviewMaterial HTTP 请求。
+         * @description 处理 reviewMaterial HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:person:review`<br><br>
+         */
+        get: operations["reviewMaterial"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/material-tags/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 tree HTTP 请求。
+         * @description 处理 tree HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:material-tag:query` | `profile:person:material` | `profile:enterprise:material` | `profile:person:override` | `profile:enterprise:override`<br><br>
+         */
+        get: operations["tree"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/materials/{ownerType}/{ownerId}/{materialRefId}/access-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 accessUrl HTTP 请求。
+         * @description 处理 accessUrl HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:material` | `profile:enterprise:query` | `profile:enterprise:review` | `profile:enterprise:manage` | `profile:enterprise:override`<br><br>
+         */
+        get: operations["accessUrl_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 page HTTP 请求。
+         * @description 处理 page HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:query`<br><br>
+         */
+        get: operations["page_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/{profileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 detail HTTP 请求。
+         * @description 处理 detail HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:query`<br><br>
+         */
+        get: operations["detail_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/{profileId}/material/{materialRefId}/access-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 material HTTP 请求。
+         * @description 处理 material HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:material`<br><br>
+         */
+        get: operations["material_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/eligible-users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 eligibleUsers HTTP 请求。
+         * @description 处理 eligibleUsers HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:override`<br><br>
+         */
+        get: operations["eligibleUsers_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/application/{applicationId}/review-context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 reviewContext HTTP 请求。
+         * @description 处理 reviewContext HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:review`<br><br>
+         */
+        get: operations["reviewContext_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/profile/enterprise/archive/application/{applicationId}/material/{materialRefId}/access-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 处理 reviewMaterial HTTP 请求。
+         * @description 处理 reviewMaterial HTTP 请求。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `profile:enterprise:review`<br><br>
+         */
+        get: operations["reviewMaterial_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/recipients/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notice:add` | `notify:notice:edit`<br><br> */
+        get: operations["search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/recipients/by-ids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notice:add` | `notify:notice:edit`<br><br> */
+        get: operations["byIds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notification/{notificationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 查询通知。
+         * @description 查询通知。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notification:query`<br><br>
+         */
+        get: operations["query"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notice/{noticeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 公告详情。
+         * @description 公告详情。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notice:query`<br><br>
+         */
+        get: operations["get_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/notice/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 公告分页。
+         * @description 公告分页。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:notice:list`<br><br>
+         */
+        get: operations["list_22"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/monitor/snapshot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 查询通知详情。
+         * @description 查询通知详情。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:monitor:query`<br><br>
+         */
+        get: operations["snapshot"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/monitor/deliveries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 按接收人和渠道查询投递日志。
+         * @description 按接收人和渠道查询投递日志。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `notify:monitor:list`<br><br>
+         */
+        get: operations["deliveries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notify/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 查询当前用户收件箱。
+         * @description 查询当前用户收件箱。
+         */
+        get: operations["list_23"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/monitor/operlog/list": {
         parameters: {
             query?: never;
@@ -3896,7 +5759,7 @@ export interface paths {
          * 分页查询操作日志记录。
          * @description 分页查询操作日志记录。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:operlog:list`<br><br>
          */
-        get: operations["list_18"];
+        get: operations["list_24"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3916,7 +5779,7 @@ export interface paths {
          * 获取当前登录用户的在线设备列表，仅返回当前账号仍有效的 token 会话。
          * @description 获取当前登录用户的在线设备列表，仅返回当前账号仍有效的 token 会话。
          */
-        get: operations["getInfo_19"];
+        get: operations["getInfo_18"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3936,58 +5799,7 @@ export interface paths {
          * 获取在线用户监控列表，并按 IP 或用户名条件过滤当前有效会话。
          * @description 获取在线用户监控列表，并按 IP 或用户名条件过滤当前有效会话。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:online:list`<br><br>
          */
-        get: operations["list_19"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/monitor/notify/{notifyLogId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notify:query`<br><br> */
-        get: operations["detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/monitor/notify/{notifyLogId}/attachments/{ossId}/download-url": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notify:query`<br><br> */
-        get: operations["attachmentDownload"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/monitor/notify/list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notify:list`<br><br> */
-        get: operations["list_20"];
+        get: operations["list_25"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4027,7 +5839,7 @@ export interface paths {
          * 分页查询系统访问记录。
          * @description 分页查询系统访问记录。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:logininfo:list`<br><br>
          */
-        get: operations["list_21"];
+        get: operations["list_26"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4047,7 +5859,7 @@ export interface paths {
          * 获取 Redis 缓存监控信息。
          * @description 获取 Redis 缓存监控信息。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:cache:list`<br><br>
          */
-        get: operations["getInfo_20"];
+        get: operations["getInfo_19"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4067,7 +5879,7 @@ export interface paths {
          * 发布消息
          * @description 发布消息
          */
-        get: operations["send"];
+        get: operations["send_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4087,7 +5899,7 @@ export interface paths {
          * 获取测试树表详细信息
          * @description 获取测试树表详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:query`<br><br>
          */
-        get: operations["getInfo_21"];
+        get: operations["getInfo_20"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4107,7 +5919,7 @@ export interface paths {
          * 查询测试树表列表
          * @description 查询测试树表列表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:list`<br><br>
          */
-        get: operations["list_22"];
+        get: operations["list_27"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4753,7 +6565,7 @@ export interface paths {
          * 删除队列数据
          * @description 删除队列数据
          */
-        get: operations["remove_4"];
+        get: operations["remove_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4773,7 +6585,7 @@ export interface paths {
          * 获取队列数据
          * @description 获取队列数据
          */
-        get: operations["get"];
+        get: operations["get_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4793,7 +6605,27 @@ export interface paths {
          * 添加队列数据
          * @description 添加队列数据
          */
-        get: operations["add_19"];
+        get: operations["add_20"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/demo/openapi/echo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 回显调用方传入的消息，用于验证 OpenAPI 接口目录和签名调用。
+         * @description 回显调用方传入的消息，用于验证 OpenAPI 接口目录和签名调用。
+         */
+        get: operations["echo"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4813,7 +6645,7 @@ export interface paths {
          * 发布一条 MQTT 测试消息。
          * @description 发布一条 MQTT 测试消息。
          */
-        get: operations["send_1"];
+        get: operations["send_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4957,7 +6789,7 @@ export interface paths {
          *      <p>
          *      测试使用 user.register.success
          */
-        get: operations["get_1"];
+        get: operations["get_4"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5145,7 +6977,7 @@ export interface paths {
          * 获取测试单表详细信息
          * @description 获取测试单表详细信息<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:query`<br><br>
          */
-        get: operations["getInfo_22"];
+        get: operations["getInfo_21"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5165,7 +6997,7 @@ export interface paths {
          * 自定义分页查询
          * @description 自定义分页查询<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:list`<br><br>
          */
-        get: operations["page"];
+        get: operations["page_2"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5185,7 +7017,7 @@ export interface paths {
          * 查询测试单表列表
          * @description 查询测试单表列表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:list`<br><br>
          */
-        get: operations["list_23"];
+        get: operations["list_28"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5491,7 +7323,7 @@ export interface paths {
          * 批量删除流程 SpEL 表达式定义。
          * @description 批量删除流程 SpEL 表达式定义。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:spel:remove`<br><br>
          */
-        delete: operations["remove_5"];
+        delete: operations["remove_9"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5511,7 +7343,7 @@ export interface paths {
          * 批量删除请假单。
          * @description 批量删除请假单。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:leave:remove`<br><br>
          */
-        delete: operations["remove_6"];
+        delete: operations["remove_10"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5591,7 +7423,7 @@ export interface paths {
          * 批量删除流程定义。
          * @description 批量删除流程定义。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `workflow:definition:remove`<br><br>
          */
-        delete: operations["remove_7"];
+        delete: operations["remove_11"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5611,7 +7443,7 @@ export interface paths {
          * 批量删除登录域。仍被引用时拒绝删除。
          * @description 批量删除登录域。仍被引用时拒绝删除。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:userType:remove`<br><br>
          */
-        delete: operations["remove_8"];
+        delete: operations["remove_12"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5631,7 +7463,7 @@ export interface paths {
          * 删除用户
          * @description 删除用户<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:user:remove`<br><br>
          */
-        delete: operations["remove_9"];
+        delete: operations["remove_13"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5651,7 +7483,7 @@ export interface paths {
          * 删除角色
          * @description 删除角色<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:role:remove`<br><br>
          */
-        delete: operations["remove_10"];
+        delete: operations["remove_14"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5671,27 +7503,7 @@ export interface paths {
          * 删除岗位
          * @description 删除岗位<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:post:remove`<br><br>
          */
-        delete: operations["remove_11"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/system/notice/{noticeIds}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * 删除通知公告
-         * @description 删除通知公告<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notice:remove`<br><br>
-         */
-        delete: operations["remove_12"];
+        delete: operations["remove_15"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5711,7 +7523,7 @@ export interface paths {
          * 批量级联删除菜单
          * @description 批量级联删除菜单<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:menu:remove`<br><br>**角色校验：**<br><br>- `superadmin`<br>
          */
-        delete: operations["remove_13"];
+        delete: operations["remove_16"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5731,7 +7543,7 @@ export interface paths {
          * 删除字典类型
          * @description 删除字典类型<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:remove`<br><br>
          */
-        delete: operations["remove_14"];
+        delete: operations["remove_17"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5771,7 +7583,7 @@ export interface paths {
          * 删除字典数据
          * @description 删除字典数据<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:dict:remove`<br><br>
          */
-        delete: operations["remove_15"];
+        delete: operations["remove_18"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5791,7 +7603,7 @@ export interface paths {
          * 删除参数配置
          * @description 删除参数配置<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:config:remove`<br><br>
          */
-        delete: operations["remove_16"];
+        delete: operations["remove_19"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5831,7 +7643,7 @@ export interface paths {
          * 批量删除客户端配置。
          * @description 批量删除客户端配置。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:client:remove`<br><br>
          */
-        delete: operations["remove_17"];
+        delete: operations["remove_20"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5851,7 +7663,7 @@ export interface paths {
          * 删除OSS对象存储
          * @description 删除OSS对象存储<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:oss:remove`<br><br>
          */
-        delete: operations["remove_18"];
+        delete: operations["remove_21"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5888,7 +7700,7 @@ export interface paths {
          * 批量删除操作日志记录
          * @description 批量删除操作日志记录<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:operlog:remove`<br><br>
          */
-        delete: operations["remove_19"];
+        delete: operations["remove_22"];
         options?: never;
         head?: never;
         patch?: never;
@@ -5948,41 +7760,7 @@ export interface paths {
          * 强退当前账号下指定在线设备，避免误踢其他账号的会话。
          * @description 强退当前账号下指定在线设备，避免误踢其他账号的会话。
          */
-        delete: operations["remove_20"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/monitor/notify/{notifyLogIds}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notify:remove`<br><br> */
-        delete: operations["remove_21"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/monitor/notify/clean": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** @description <br><h3>访问权限</h3><br>**权限校验：**<br><br>- `system:notify:remove`<br><br> */
-        delete: operations["clean_1"];
+        delete: operations["remove_23"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6002,7 +7780,7 @@ export interface paths {
          * 批量删除登录日志
          * @description 批量删除登录日志<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:logininfo:remove`<br><br>
          */
-        delete: operations["remove_22"];
+        delete: operations["remove_24"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6022,7 +7800,7 @@ export interface paths {
          * 清空系统访问记录。
          * @description 清空系统访问记录。<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `monitor:logininfo:remove`<br><br>
          */
-        delete: operations["clean_2"];
+        delete: operations["clean_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6042,7 +7820,7 @@ export interface paths {
          * 删除测试树表
          * @description 删除测试树表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:tree:remove`<br><br>
          */
-        delete: operations["remove_23"];
+        delete: operations["remove_25"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6062,7 +7840,7 @@ export interface paths {
          * 删除测试单表
          * @description 删除测试单表<br><h3>访问权限</h3><br>**权限校验：**<br><br>- `demo:demo:remove`<br><br>
          */
-        delete: operations["remove_24"];
+        delete: operations["remove_26"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6082,7 +7860,7 @@ export interface paths {
          * 删除批量方法
          * @description 删除批量方法
          */
-        delete: operations["remove_25"];
+        delete: operations["remove_27"];
         options?: never;
         head?: never;
         patch?: never;
@@ -6112,6 +7890,14 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ErrorInfo: {
+            code?: string;
+            args?: {
+                [key: string]: unknown;
+            };
+            field?: string;
+            violations?: components["schemas"]["ErrorInfo"][];
+        };
         /** @description 响应信息主体 */
         RVoid: {
             /**
@@ -6123,6 +7909,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: unknown;
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 流程spel表达式定义业务对象 flow_spel */
         FlowSpelBo: {
@@ -6206,6 +7994,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["TestLeaveVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 请假视图对象 test_leave */
         TestLeaveVo: {
@@ -6268,6 +8058,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: boolean;
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         FlowDefinition: {
             /** Format: int64 */
@@ -6298,74 +8090,74 @@ export interface components {
             userList?: components["schemas"]["User"][];
         };
         Node: {
-            listenerPath?: string;
-            tenantId?: string;
             /** Format: int64 */
-            definitionId?: number;
-            coordinate?: string;
-            anyNodeSkip?: string;
-            skipList?: components["schemas"]["Skip"][];
-            updateBy?: string;
+            id?: number;
+            version?: string;
+            /** Format: int32 */
+            nodeType?: number;
             ext?: string;
+            delFlag?: string;
+            updateBy?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
             /** Format: date-time */
             updateTime?: string;
-            delFlag?: string;
             nodeCode?: string;
             nodeName?: string;
-            /** Format: int32 */
-            nodeType?: number;
             nodeRatio?: string;
+            /** Format: int64 */
+            definitionId?: number;
             formCustom?: string;
             formPath?: string;
             permissionFlag?: string;
-            /** Format: int64 */
-            id?: number;
-            version?: string;
+            anyNodeSkip?: string;
+            tenantId?: string;
+            listenerPath?: string;
+            skipList?: components["schemas"]["Skip"][];
+            coordinate?: string;
             listenerType?: string;
         };
         Skip: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            nodeId?: number;
+            delFlag?: string;
+            updateBy?: string;
+            /** Format: date-time */
+            createTime?: string;
+            createBy?: string;
+            /** Format: date-time */
+            updateTime?: string;
+            /** Format: int64 */
+            definitionId?: number;
+            nextNodeCode?: string;
+            nowNodeCode?: string;
+            tenantId?: string;
+            skipName?: string;
+            skipType?: string;
+            skipCondition?: string;
+            coordinate?: string;
             /** Format: int32 */
             nowNodeType?: number;
             /** Format: int32 */
             nextNodeType?: number;
-            tenantId?: string;
-            /** Format: int64 */
-            definitionId?: number;
-            skipCondition?: string;
-            nextNodeCode?: string;
-            coordinate?: string;
-            skipType?: string;
-            skipName?: string;
-            nowNodeCode?: string;
-            updateBy?: string;
-            /** Format: date-time */
-            createTime?: string;
-            createBy?: string;
-            /** Format: date-time */
-            updateTime?: string;
-            delFlag?: string;
-            /** Format: int64 */
-            nodeId?: number;
-            /** Format: int64 */
-            id?: number;
         };
         User: {
-            tenantId?: string;
+            /** Format: int64 */
+            id?: number;
+            delFlag?: string;
             updateBy?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
             /** Format: date-time */
             updateTime?: string;
-            delFlag?: string;
             /** Format: int64 */
             associated?: number;
             processedBy?: string;
-            /** Format: int64 */
-            id?: number;
+            tenantId?: string;
             type?: string;
         };
         /** @description 流程分类业务对象 wf_category */
@@ -6402,12 +8194,11 @@ export interface components {
             deptId?: number;
             /** @description 用户账号 */
             userName: string;
+            /** @description 账号、昵称或手机号的统一模糊检索词，仅用于查询。 */
+            keyword?: string;
             /** @description 用户昵称 */
             nickName: string;
-            /**
-             * Format: email
-             * @description 用户邮箱
-             */
+            /** @description 用户邮箱 */
             email?: string;
             /** @description 手机号码 */
             phoneNumber?: string;
@@ -6485,10 +8276,7 @@ export interface components {
         SysUserProfileBo: {
             /** @description 用户昵称 */
             nickName?: string;
-            /**
-             * Format: email
-             * @description 用户邮箱
-             */
+            /** @description 用户邮箱 */
             email?: string;
             /** @description 手机号码 */
             phoneNumber?: string;
@@ -6598,26 +8386,6 @@ export interface components {
             params?: {
                 [key: string]: unknown;
             };
-        };
-        /** @description 通知公告业务对象 sys_notice */
-        SysNoticeBo: {
-            /**
-             * Format: int64
-             * @description 公告ID
-             */
-            noticeId?: number;
-            /** @description 公告标题 */
-            noticeTitle: string;
-            /** @description 公告类型（1通知 2公告） */
-            noticeType?: string;
-            /** @description 公告内容 */
-            noticeContent?: string;
-            /** @description 公告状态（0正常 1关闭） */
-            status?: string;
-            /** @description 备注 */
-            remark?: string;
-            /** @description 创建人名称 */
-            createByName?: string;
         };
         /** @description 菜单权限业务对象 sys_menu */
         SysMenuBo: {
@@ -6744,10 +8512,7 @@ export interface components {
             leader?: number;
             /** @description 联系电话 */
             phone?: string;
-            /**
-             * Format: email
-             * @description 邮箱
-             */
+            /** @description 邮箱 */
             email?: string;
             /** @description 部门状态（0正常 1停用） */
             status?: string;
@@ -7015,6 +8780,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["StartProcessReturnDTO"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 启动流程后的返回结果对象。 */
         StartProcessReturnDTO: {
@@ -7081,6 +8848,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["FlowNode"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 办理任务请求对象 */
         CompleteTaskBo: {
@@ -7196,35 +8965,35 @@ export interface components {
             };
         };
         Instance: {
-            /** Format: int32 */
-            activityStatus?: number;
-            tenantId?: string;
-            defJson?: string;
             /** Format: int64 */
-            definitionId?: number;
-            updateBy?: string;
+            id?: number;
+            /** Format: int32 */
+            nodeType?: number;
+            variable?: string;
             ext?: string;
+            delFlag?: string;
+            updateBy?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
             /** Format: date-time */
             updateTime?: string;
-            delFlag?: string;
-            businessId?: string;
-            nodeCode?: string;
-            nodeName?: string;
-            /** Format: int32 */
-            nodeType?: number;
             flowStatus?: string;
-            variable?: string;
+            nodeCode?: string;
+            businessId?: string;
+            nodeName?: string;
             flowName?: string;
             variableMap?: {
                 [key: string]: unknown;
             };
-            formCustom?: string;
-            formPath?: string;
             /** Format: int64 */
-            id?: number;
+            definitionId?: number;
+            formCustom?: string;
+            /** Format: int32 */
+            activityStatus?: number;
+            formPath?: string;
+            tenantId?: string;
+            defJson?: string;
         };
         NodeJson: {
             /** Format: int32 */
@@ -7293,32 +9062,90 @@ export interface components {
             data?: unknown;
         };
         Form: {
-            tenantId?: string;
-            /** Format: int32 */
-            isPublish?: number;
+            /** Format: int64 */
+            id?: number;
+            version?: string;
             formContent?: string;
-            formCode?: string;
-            formName?: string;
-            /** Format: int32 */
-            formType?: number;
-            updateBy?: string;
             ext?: string;
+            delFlag?: string;
+            updateBy?: string;
             /** Format: date-time */
             createTime?: string;
             createBy?: string;
             /** Format: date-time */
             updateTime?: string;
-            delFlag?: string;
+            /** Format: int32 */
+            isPublish?: number;
             formPath?: string;
-            /** Format: int64 */
-            id?: number;
-            version?: string;
+            tenantId?: string;
+            /** Format: int32 */
+            formType?: number;
+            formCode?: string;
+            formName?: string;
         };
         ApiResultInstance: {
             /** Format: int32 */
             code?: number;
             msg?: string;
             data?: components["schemas"]["Instance"];
+        };
+        ThirdProviderBo: {
+            /** Format: int64 */
+            providerId?: number;
+            providerCode: string;
+            providerName: string;
+            baseUrl: string;
+            status?: string;
+            /** Format: int32 */
+            timeoutConnectMs?: number;
+            /** Format: int32 */
+            timeoutReadMs?: number;
+            /** Format: int32 */
+            rateLimit?: number;
+            /** Format: int32 */
+            concurrencyLimit?: number;
+            sharedHeadersJson?: string;
+            remark?: string;
+        };
+        ThirdEndpointBo: {
+            /** Format: int64 */
+            endpointId?: number;
+            /** Format: int64 */
+            providerId: number;
+            providerCode: string;
+            endpointCode: string;
+            endpointName: string;
+            httpMethod: string;
+            relativePath: string;
+            requestMode: string;
+            responseMode: string;
+            pathSchemaJson?: string;
+            querySchemaJson?: string;
+            headerSchemaJson?: string;
+            bodySchemaJson?: string;
+            responseSchemaJson?: string;
+            overrideJson?: string;
+            status?: string;
+            idempotent?: boolean;
+            /** Format: int32 */
+            rateLimit?: number;
+            /** Format: int32 */
+            concurrencyLimit?: number;
+            /** Format: int32 */
+            retryCount?: number;
+            sensitiveFieldsJson?: string;
+            adapterCode?: string;
+        };
+        ThirdCredentialBo: {
+            /** Format: int64 */
+            credentialId?: number;
+            providerCode: string;
+            endpointCode?: string;
+            credentialType: string;
+            secretJson: string;
+            enabled: boolean;
+            /** Format: date-time */
+            expiresAt?: string;
         };
         /** @description 临时密码签发请求。 */
         TemporaryPasswordIssueBo: {
@@ -7339,6 +9166,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["TemporaryPasswordVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 一次性临时密码签发响应。 */
         TemporaryPasswordVo: {
@@ -7369,6 +9198,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["ResetPasswordCandidateVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 用户初始化或永久重置使用的可编辑密码候选。 */
         ResetPasswordCandidateVo: {
@@ -7532,6 +9363,76 @@ export interface components {
              */
             roleId?: number;
         };
+        /** @description One-time create/reset result. AppSecret is never part of a summary model. */
+        OpenApiCredentialIssued: {
+            /** Format: int64 */
+            credentialId?: number;
+            /** Format: int64 */
+            ownerUserId?: number;
+            appKey?: string;
+            appSecret?: string;
+            appName?: string;
+            status?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            remark?: string;
+            /** Format: date-time */
+            createTime?: string;
+            /** Format: date-time */
+            updateTime?: string;
+        };
+        /** @description 响应信息主体 */
+        ROpenApiCredentialIssued: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["OpenApiCredentialIssued"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description Persisted credential fields safe for repeated transport. */
+        OpenApiCredentialSummary: {
+            /** Format: int64 */
+            credentialId?: number;
+            /** Format: int64 */
+            ownerUserId?: number;
+            appKey?: string;
+            appName?: string;
+            status?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            remark?: string;
+            /** Format: date-time */
+            createTime?: string;
+            /** Format: date-time */
+            updateTime?: string;
+        };
+        /** @description 响应信息主体 */
+        ROpenApiCredentialSummary: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["OpenApiCredentialSummary"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description Credential creation input. The owner is deliberately absent. */
+        OpenApiCredentialCreateRequest: {
+            appName: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            remark?: string;
+        };
         /** @description 响应信息主体 */
         RString: {
             /**
@@ -7543,6 +9444,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: string;
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         OpenApiUserVO: {
             openId?: string;
@@ -7562,6 +9465,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["OpenApiUserVO"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         InitRequest: {
             policy: string;
@@ -7610,6 +9515,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["InitResponse"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         SignPartsRequest: {
             partNumbers: number[];
@@ -7625,6 +9532,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SignPartsResponse"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         SignPartsResponse: {
             parts?: components["schemas"]["SignedPart"][];
@@ -7669,6 +9578,8 @@ export interface components {
              * @description 响应业务数据
              */
             data?: number;
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         DryRunReport: {
             targetConfigKey?: string;
@@ -7695,6 +9606,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["DryRunReport"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 对象存储配置业务对象 sys_oss_config */
         SysOssConfigBo: {
@@ -7729,6 +9642,852 @@ export interface components {
             remark?: string;
             /** @description 桶权限类型（0=PRIVATE，2=PUBLIC_READ） */
             accessPolicy: string;
+        };
+        /** @description CallbackRequest HTTP 接口，负责参数校验和响应包装。 */
+        CallbackRequest: {
+            providerRequestId: string;
+            /** Format: int64 */
+            timestampEpochSecond?: number;
+            payload: string;
+            signature: string;
+        };
+        /** @description 响应信息主体 */
+        RPersonVerificationCallbackOutcome: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /**
+             * @description 响应业务数据
+             * @enum {string}
+             */
+            data?: "ACCEPTED" | "IDEMPOTENT" | "LATE_IGNORED";
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonRebindUnbindVo 对外返回模型。 */
+        PersonRebindUnbindVo: {
+            status?: string;
+        };
+        /** @description 响应信息主体 */
+        RPersonRebindUnbindVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonRebindUnbindVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonRebindSubmitBo 请求参数模型。 */
+        PersonRebindSubmitBo: {
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description PersonRebindSubmissionVo 对外返回模型。 */
+        PersonRebindSubmissionVo: {
+            status?: string;
+            /** Format: int32 */
+            snapshotVersion?: number;
+            /** Format: int32 */
+            version?: number;
+        };
+        /** @description 响应信息主体 */
+        RPersonRebindSubmissionVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonRebindSubmissionVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonRebindProbeBo 请求参数模型。 */
+        PersonRebindProbeBo: {
+            documentTypeCode: string;
+            documentNumber: string;
+        };
+        /** @description PersonRebindProbeVo 对外返回模型。 */
+        PersonRebindProbeVo: {
+            status?: string;
+        };
+        /** @description 响应信息主体 */
+        RPersonRebindProbeVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonRebindProbeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonRebindIdentityBo 请求参数模型。 */
+        PersonRebindIdentityBo: {
+            fullName: string;
+            documentTypeCode: string;
+            documentNumber: string;
+            gender: string;
+            /** Format: date */
+            birthDate: string;
+            /** Format: date */
+            validFrom?: string;
+            /** Format: date */
+            validUntil?: string;
+        };
+        /** @description PersonRebindMatchBo 请求参数模型。 */
+        PersonRebindMatchBo: {
+            identity: components["schemas"]["PersonRebindIdentityBo"];
+        };
+        /** @description PersonRebindMatchVo 对外返回模型。 */
+        PersonRebindMatchVo: {
+            status?: string;
+            maskedPhone?: string;
+        };
+        /** @description 响应信息主体 */
+        RPersonRebindMatchVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonRebindMatchVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonRebindConfirmBo 请求参数模型。 */
+        PersonRebindConfirmBo: {
+            identity: components["schemas"]["PersonRebindIdentityBo"];
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description PersonRebindConfirmationVo 对外返回模型。 */
+        PersonRebindConfirmationVo: {
+            status?: string;
+            maskedPhone?: string;
+            /** Format: int32 */
+            version?: number;
+        };
+        /** @description 响应信息主体 */
+        RPersonRebindConfirmationVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonRebindConfirmationVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description AttachRequest HTTP 接口，负责参数校验和响应包装。 */
+        AttachRequest: {
+            /** Format: int64 */
+            ossId?: number;
+            /** Format: int64 */
+            materialNodeId?: number;
+        };
+        MaterialOwnerKey: {
+            /** @enum {string} */
+            profileType?: "PERSON" | "ENTERPRISE";
+            /** @enum {string} */
+            ownerType?: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+            /** Format: int64 */
+            ownerId?: number;
+        };
+        MaterialReferenceView: {
+            /** Format: int64 */
+            materialRefId?: number;
+            owner?: components["schemas"]["MaterialOwnerKey"];
+            /** Format: int64 */
+            ossId?: number;
+            /** Format: int64 */
+            materialNodeId?: number;
+            materialTagCode?: string;
+            materialTagName?: string;
+            fileName?: string;
+            /** Format: int64 */
+            fileSize?: number;
+            fileExtension?: string;
+            mimeType?: string;
+            attached?: boolean;
+            immutableEvidence?: boolean;
+            /** Format: date-time */
+            attachedTime?: string;
+            /** Format: date-time */
+            detachedTime?: string;
+            /** Format: int32 */
+            version?: number;
+        };
+        /** @description 响应信息主体 */
+        RMaterialReferenceView: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["MaterialReferenceView"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonAdminRevokeBo 请求参数模型。 */
+        PersonAdminRevokeBo: {
+            reason: string;
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description PersonAdminResultVo 对外返回模型。 */
+        PersonAdminResultVo: {
+            status?: string;
+            /** Format: int64 */
+            profileId?: number;
+            /** Format: int64 */
+            versionId?: number;
+            /** Format: int64 */
+            bindingId?: number;
+            /** Format: int32 */
+            version?: number;
+        };
+        /** @description 响应信息主体 */
+        RPersonAdminResultVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonAdminResultVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonAdminIdentityBo 请求参数模型。 */
+        PersonAdminIdentityBo: {
+            fullName: string;
+            documentTypeCode: string;
+            documentNumber: string;
+            gender: string;
+            /** Format: date */
+            birthDate: string;
+            /** Format: date */
+            validFrom?: string;
+            /** Format: date */
+            validUntil?: string;
+        };
+        /** @description PersonAdminReviseBo 请求参数模型。 */
+        PersonAdminReviseBo: {
+            identity: components["schemas"]["PersonAdminIdentityBo"];
+            reason: string;
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description PersonAdminBindingBo 请求参数模型。 */
+        PersonAdminBindingBo: {
+            action: string;
+            reason: string;
+            /** Format: int32 */
+            expectedBindingVersion?: number;
+        };
+        /** @description PersonAdminAssignBo 请求参数模型。 */
+        PersonAdminAssignBo: {
+            /** Format: int64 */
+            userId?: number;
+            reason: string;
+        };
+        /** @description PersonAdminDecisionBo 请求参数模型。 */
+        PersonAdminDecisionBo: {
+            decision: string;
+            reason: string;
+        };
+        /** @description PersonAdminCreateBo 请求参数模型。 */
+        PersonAdminCreateBo: {
+            identity: components["schemas"]["PersonAdminIdentityBo"];
+            /** Format: int64 */
+            bindUserId?: number;
+            reason: string;
+            materials?: components["schemas"]["PersonAdminMaterialBo"][];
+        };
+        /** @description PersonAdminMaterialBo 请求参数模型。 */
+        PersonAdminMaterialBo: {
+            /** Format: int64 */
+            ossId?: number;
+            /** Format: int64 */
+            materialNodeId?: number;
+        };
+        /** @description PersonApplicationSaveBo 请求参数模型。 */
+        PersonApplicationSaveBo: {
+            fullName?: string;
+            documentTypeCode?: string;
+            documentNumber?: string;
+            gender?: string;
+            /** Format: date */
+            birthDate?: string;
+            /** Format: date */
+            validFrom?: string;
+            /** Format: date */
+            validUntil?: string;
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description PersonApplicationVo 对外返回模型。 */
+        PersonApplicationVo: {
+            /** Format: int64 */
+            personApplicationId?: number;
+            status?: string;
+            fullName?: string;
+            documentTypeCode?: string;
+            documentNumber?: string;
+            gender?: string;
+            /** Format: date */
+            birthDate?: string;
+            /** Format: date */
+            validFrom?: string;
+            /** Format: date */
+            validUntil?: string;
+            providerCode?: string;
+            /** Format: int32 */
+            snapshotVersion?: number;
+            /** Format: int32 */
+            version?: number;
+            /** Format: date-time */
+            submittedTime?: string;
+            /** Format: date-time */
+            finishedTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RPersonApplicationVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonApplicationVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonApplicationSubmitBo 请求参数模型。 */
+        PersonApplicationSubmitBo: {
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        MaterialNodeCommand: {
+            /** Format: int64 */
+            parentId?: number;
+            /** @enum {string} */
+            nodeType?: "CATEGORY" | "TAG";
+            /** @enum {string} */
+            scope?: "PERSON" | "ENTERPRISE" | "COMMON";
+            materialTagCode?: string;
+            nodeName?: string;
+            systemRequired?: boolean;
+            /** Format: int32 */
+            orderNum?: number;
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        MaterialNodeView: {
+            /** Format: int64 */
+            materialNodeId?: number;
+            /** Format: int64 */
+            parentId?: number;
+            /** @enum {string} */
+            nodeType?: "CATEGORY" | "TAG";
+            /** Format: int32 */
+            nodeDepth?: number;
+            /** @enum {string} */
+            scope?: "PERSON" | "ENTERPRISE" | "COMMON";
+            materialTagCode?: string;
+            nodeName?: string;
+            systemRequired?: boolean;
+            enabled?: boolean;
+            /** Format: int32 */
+            orderNum?: number;
+            /** Format: int32 */
+            version?: number;
+            children?: components["schemas"]["MaterialNodeView"][];
+        };
+        /** @description 响应信息主体 */
+        RMaterialNodeView: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["MaterialNodeView"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 材料节点状态变更请求。 */
+        StatusCommand: {
+            enabled?: boolean;
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description 材料节点版本变更请求。 */
+        VersionCommand: {
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description 响应信息主体 */
+        REnterpriseVerificationCallbackOutcome: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /**
+             * @description 响应业务数据
+             * @enum {string}
+             */
+            data?: "ACCEPTED" | "IDEMPOTENT" | "LATE_IGNORED";
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description EnterpriseTransferVo 对外返回模型。 */
+        EnterpriseTransferVo: {
+            status?: string;
+            challengeId?: string;
+            /** Format: int64 */
+            expiresInSeconds?: number;
+        };
+        /** @description 响应信息主体 */
+        REnterpriseTransferVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["EnterpriseTransferVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description EnterpriseTransferSendBo 请求参数模型。 */
+        EnterpriseTransferSendBo: {
+            fullName: string;
+            documentLastFour: string;
+            phone: string;
+        };
+        /** @description EnterpriseTransferConfirmBo 请求参数模型。 */
+        EnterpriseTransferConfirmBo: {
+            challengeId: string;
+            code: string;
+        };
+        /** @description EnterpriseAdminRevokeBo 请求参数模型。 */
+        EnterpriseAdminRevokeBo: {
+            reason: string;
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description EnterpriseAdminResultVo 对外返回模型。 */
+        EnterpriseAdminResultVo: {
+            status?: string;
+            /** Format: int64 */
+            profileId?: number;
+            /** Format: int64 */
+            versionId?: number;
+            /** Format: int64 */
+            bindingId?: number;
+            /** Format: int32 */
+            version?: number;
+        };
+        /** @description 响应信息主体 */
+        REnterpriseAdminResultVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["EnterpriseAdminResultVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description EnterpriseAdminIdentityBo 请求参数模型。 */
+        EnterpriseAdminIdentityBo: {
+            enterpriseName: string;
+            unifiedCreditCode: string;
+            enterpriseType: string;
+            legalRepresentativeName: string;
+            legalDocumentTypeCode: string;
+            legalDocumentNumber: string;
+            /** Format: date */
+            establishedDate: string;
+            /** Format: date */
+            businessTermFrom?: string;
+            /** Format: date */
+            businessTermUntil?: string;
+            registeredAddress: string;
+            businessScope: string;
+            contactName?: string;
+            contactPhone?: string;
+            email?: string;
+            registeredCapital?: number;
+            industryCode?: string;
+            website?: string;
+        };
+        /** @description EnterpriseAdminReviseBo 请求参数模型。 */
+        EnterpriseAdminReviseBo: {
+            identity: components["schemas"]["EnterpriseAdminIdentityBo"];
+            reason: string;
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description EnterpriseAdminBindingBo 请求参数模型。 */
+        EnterpriseAdminBindingBo: {
+            action: string;
+            reason: string;
+            /** Format: int32 */
+            expectedBindingVersion?: number;
+        };
+        /** @description EnterpriseAdminAssignBo 请求参数模型。 */
+        EnterpriseAdminAssignBo: {
+            /** Format: int64 */
+            userId?: number;
+            reason: string;
+        };
+        /** @description EnterpriseAdminDecisionBo 请求参数模型。 */
+        EnterpriseAdminDecisionBo: {
+            decision: string;
+            reason: string;
+        };
+        /** @description EnterpriseAdminCreateBo 请求参数模型。 */
+        EnterpriseAdminCreateBo: {
+            identity: components["schemas"]["EnterpriseAdminIdentityBo"];
+            /** Format: int64 */
+            bindUserId?: number;
+            reason: string;
+            materials?: components["schemas"]["EnterpriseAdminMaterialBo"][];
+        };
+        /** @description EnterpriseAdminMaterialBo 请求参数模型。 */
+        EnterpriseAdminMaterialBo: {
+            /** Format: int64 */
+            ossId?: number;
+            /** Format: int64 */
+            materialNodeId?: number;
+        };
+        /** @description EnterpriseApplicationSaveBo 请求参数模型。 */
+        EnterpriseApplicationSaveBo: {
+            enterpriseName?: string;
+            unifiedCreditCode?: string;
+            enterpriseType?: string;
+            legalRepresentativeName?: string;
+            legalDocumentTypeCode?: string;
+            legalDocumentNumber?: string;
+            handlerIsLegalRepresentative?: boolean;
+            /** Format: date */
+            establishedDate?: string;
+            /** Format: date */
+            businessTermFrom?: string;
+            /** Format: date */
+            businessTermUntil?: string;
+            registeredAddress?: string;
+            businessScope?: string;
+            contactName?: string;
+            contactPhone?: string;
+            email?: string;
+            registeredCapital?: number;
+            industryCode?: string;
+            website?: string;
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description EnterpriseApplicationVo 对外返回模型。 */
+        EnterpriseApplicationVo: {
+            /** Format: int64 */
+            enterpriseApplicationId?: number;
+            status?: string;
+            enterpriseName?: string;
+            unifiedCreditCode?: string;
+            enterpriseType?: string;
+            legalRepresentativeName?: string;
+            legalDocumentTypeCode?: string;
+            legalDocumentNumber?: string;
+            handlerIsLegalRepresentative?: boolean;
+            /** Format: date */
+            establishedDate?: string;
+            /** Format: date */
+            businessTermFrom?: string;
+            /** Format: date */
+            businessTermUntil?: string;
+            registeredAddress?: string;
+            businessScope?: string;
+            contactName?: string;
+            contactPhone?: string;
+            email?: string;
+            registeredCapital?: number;
+            industryCode?: string;
+            website?: string;
+            providerCode?: string;
+            /** Format: int32 */
+            snapshotVersion?: number;
+            /** Format: int32 */
+            version?: number;
+            /** Format: date-time */
+            submittedTime?: string;
+            /** Format: date-time */
+            finishedTime?: string;
+        };
+        /** @description 响应信息主体 */
+        REnterpriseApplicationVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["EnterpriseApplicationVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description EnterpriseApplicationSubmitBo 请求参数模型。 */
+        EnterpriseApplicationSubmitBo: {
+            /** Format: int32 */
+            expectedVersion?: number;
+        };
+        /** @description EnterpriseApplicationProbeBo 请求参数模型。 */
+        EnterpriseApplicationProbeBo: {
+            unifiedCreditCode: string;
+        };
+        /** @description EnterpriseApplicationProbeVo 对外返回模型。 */
+        EnterpriseApplicationProbeVo: {
+            status?: string;
+        };
+        /** @description 响应信息主体 */
+        REnterpriseApplicationProbeVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["EnterpriseApplicationProbeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 统一通知提交命令。 */
+        NotificationCommand: {
+            /** @description 通知应用标识 */
+            appId?: string;
+            /** @description 业务场景编码 */
+            sceneCode?: string;
+            /** @description 业务类型 */
+            bizType?: string;
+            /** @description 业务主键 */
+            bizId?: string;
+            /** @description 接收者类型 */
+            recipientType?: string;
+            /** @description 接收者标识 */
+            recipientIds?: string[];
+            /** @description 逻辑模板编码 */
+            templateCode?: string;
+            /** @description 模板参数 */
+            templateParams?: {
+                [key: string]: unknown;
+            };
+            /** @description 请求渠道 */
+            channels?: ("IN_APP" | "SMS" | "MAIL")[];
+            /**
+             * @description 编排策略
+             * @enum {string}
+             */
+            strategy?: "ALL" | "ORDERED_FALLBACK" | "ESCALATION";
+            /**
+             * @description 执行模式
+             * @enum {string}
+             */
+            mode?: "SYNC" | "ASYNC";
+            /**
+             * Format: int32
+             * @description 优先级
+             */
+            priority?: number;
+            /**
+             * Format: date-time
+             * @description 计划时间
+             */
+            scheduledAt?: string;
+            /**
+             * Format: date-time
+             * @description 截止时间
+             */
+            expiresAt?: string;
+            /** @description 幂等键 */
+            idempotencyKey?: string;
+            /** @description 脱敏元数据 */
+            metadata?: {
+                [key: string]: string;
+            };
+        };
+        /** @description 单渠道投递结果。 */
+        DeliveryReceipt: {
+            /** @description 接收者标识 */
+            recipientId?: string;
+            /**
+             * @description 渠道
+             * @enum {string}
+             */
+            channel?: "IN_APP" | "SMS" | "MAIL";
+            /**
+             * @description 投递状态
+             * @enum {string}
+             */
+            status?: "QUEUED" | "PROCESSING" | "ACCEPTED" | "PARTIAL_FAILURE" | "DELIVERED" | "UNDELIVERABLE" | "UNKNOWN" | "FAILED" | "CANCELLED" | "EXPIRED";
+            /** @description 供应商消息标识 */
+            providerMessageId?: string;
+        };
+        /** @description 通知提交结果。 */
+        NotificationReceipt: {
+            /** @description 通知主键 */
+            notificationId?: string;
+            /**
+             * @description 聚合状态
+             * @enum {string}
+             */
+            status?: "QUEUED" | "PROCESSING" | "ACCEPTED" | "PARTIAL_FAILURE" | "DELIVERED" | "UNDELIVERABLE" | "UNKNOWN" | "FAILED" | "CANCELLED" | "EXPIRED";
+            /** @description 是否进入 Outbox */
+            outboxQueued?: boolean;
+            /** @description 是否需要后续回执 */
+            followUpRequired?: boolean;
+            /** @description 渠道投递结果 */
+            deliveries?: components["schemas"]["DeliveryReceipt"][];
+        };
+        /** @description 响应信息主体 */
+        RNotificationReceipt: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["NotificationReceipt"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 通知重试命令。 */
+        NotificationRetryCommand: {
+            /** @description 通知主键 */
+            notificationId?: string;
+            /** @description 可选投递主键 */
+            deliveryId?: string;
+            /** @description 重试原因 */
+            reason?: string;
+            /** @description 重试幂等键 */
+            idempotencyKey?: string;
+        };
+        /** @description 响应信息主体 */
+        RRetryReceipt: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["RetryReceipt"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 通知重试结果。 */
+        RetryReceipt: {
+            /** @description 通知主键 */
+            notificationId?: string;
+            /**
+             * @description 状态
+             * @enum {string}
+             */
+            status?: "QUEUED" | "PROCESSING" | "ACCEPTED" | "PARTIAL_FAILURE" | "DELIVERED" | "UNDELIVERABLE" | "UNKNOWN" | "FAILED" | "CANCELLED" | "EXPIRED";
+        };
+        /** @description 取消尚未完成通知命令。 */
+        NotificationCancelCommand: {
+            /** @description 通知主键 */
+            notificationId?: string;
+            /** @description 取消原因 */
+            reason?: string;
+        };
+        /** @description 通知取消结果。 */
+        CancelReceipt: {
+            /** @description 通知主键 */
+            notificationId?: string;
+            /**
+             * @description 状态
+             * @enum {string}
+             */
+            status?: "QUEUED" | "PROCESSING" | "ACCEPTED" | "PARTIAL_FAILURE" | "DELIVERED" | "UNDELIVERABLE" | "UNKNOWN" | "FAILED" | "CANCELLED" | "EXPIRED";
+        };
+        /** @description 响应信息主体 */
+        RCancelReceipt: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["CancelReceipt"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 通知中心公告写入参数。 */
+        NotifyNoticeBo: {
+            /** Format: int64 */
+            noticeId?: number;
+            noticeTitle: string;
+            noticeType: string;
+            noticeContent: string;
+            /** @description ALL 全部正常用户；USER 指定用户；USER_TYPE 匹配任一启用类型。 */
+            recipientType?: string;
+            /** @description 指定用户 ID 快照，只在 USER 模式非空。 */
+            recipientIds?: number[];
+            /** @description 用户类型 ID 快照，只在 USER_TYPE 模式非空。 */
+            userTypeIds?: number[];
+            /** @description 本次发布选择的渠道，缺省为站内信。 */
+            channels?: string[];
+            status?: string;
+            remark?: string;
         };
         /** @description 操作日志记录业务对象 sys_oper_log */
         SysOperLogBo: {
@@ -7931,10 +10690,7 @@ export interface components {
             username: string;
             /** @description 用户密码 */
             password?: string;
-            /**
-             * Format: email
-             * @description 可选邮箱。
-             */
+            /** @description 可选邮箱。 */
             email?: string;
             /** @description 可选手机号码。 */
             phoneNumber?: string;
@@ -7973,6 +10729,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["LoginVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         OpenApiEmbedTokenRequest: {
             openId: string;
@@ -8247,6 +11005,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultFlowTaskVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 历史任务视图 */
         FlowHisTaskVo: {
@@ -8370,6 +11130,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultFlowHisTaskVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RFlowTaskVo: {
@@ -8382,6 +11144,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["FlowTaskVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RListNode: {
@@ -8394,6 +11158,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["Node"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RListUserDTO: {
@@ -8406,6 +11172,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["UserDTO"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 用户 */
         UserDTO: {
@@ -8473,6 +11241,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["FlowSpelVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultFlowSpelVo: {
@@ -8495,6 +11265,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultFlowSpelVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultTestLeaveVo: {
@@ -8517,6 +11289,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultTestLeaveVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 流程实例查询条件对象。 */
         FlowInstanceBo: {
@@ -8627,6 +11401,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultFlowInstanceVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RMapStringObject: {
@@ -8641,6 +11417,8 @@ export interface components {
             data?: {
                 [key: string]: unknown;
             };
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RFlowInstanceVo: {
@@ -8653,33 +11431,35 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["FlowInstanceVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         Definition: {
-            listenerPath?: string;
-            /** Format: int32 */
-            activityStatus?: number;
-            tenantId?: string;
-            modelValue?: string;
-            /** Format: int32 */
-            isPublish?: number;
-            nodeList?: components["schemas"]["Node"][];
-            userList?: components["schemas"]["User"][];
-            updateBy?: string;
-            ext?: string;
-            /** Format: date-time */
-            createTime?: string;
-            category?: string;
-            createBy?: string;
-            /** Format: date-time */
-            updateTime?: string;
-            delFlag?: string;
-            flowCode?: string;
-            flowName?: string;
-            formCustom?: string;
-            formPath?: string;
             /** Format: int64 */
             id?: number;
             version?: string;
+            ext?: string;
+            delFlag?: string;
+            updateBy?: string;
+            /** Format: date-time */
+            createTime?: string;
+            createBy?: string;
+            /** Format: date-time */
+            updateTime?: string;
+            category?: string;
+            flowCode?: string;
+            flowName?: string;
+            nodeList?: components["schemas"]["Node"][];
+            formCustom?: string;
+            /** Format: int32 */
+            activityStatus?: number;
+            /** Format: int32 */
+            isPublish?: number;
+            formPath?: string;
+            tenantId?: string;
+            modelValue?: string;
+            userList?: components["schemas"]["User"][];
+            listenerPath?: string;
             listenerType?: string;
         };
         /** @description 响应信息主体 */
@@ -8693,6 +11473,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["Definition"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 流程定义视图 */
         FlowDefinitionVo: {
@@ -8765,6 +11547,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultFlowDefinitionVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 流程分类视图对象 wf_category */
         FlowCategoryVo: {
@@ -8806,6 +11590,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["FlowCategoryVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RListFlowCategoryVo: {
@@ -8818,6 +11604,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["FlowCategoryVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RListTreeString: {
@@ -8830,6 +11618,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["TreeString"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         TreeNodeConfig: {
             idKey?: string;
@@ -8841,10 +11631,10 @@ export interface components {
             deep?: number;
         };
         TreeString: {
-            weight?: unknown;
-            parentId?: string;
             id?: string;
+            parentId?: string;
             config?: components["schemas"]["TreeNodeConfig"];
+            weight?: unknown;
             name?: {
                 empty?: boolean;
             };
@@ -9000,6 +11790,135 @@ export interface components {
             framework?: string;
         };
         /** @description 响应信息主体 */
+        RObject: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: unknown;
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 响应信息主体 */
+        RThirdProviderVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["ThirdProviderVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        ThirdProviderVo: {
+            /** Format: int64 */
+            providerId?: number;
+            providerCode?: string;
+            providerName?: string;
+            baseUrl?: string;
+            status?: string;
+            /** Format: int32 */
+            timeoutConnectMs?: number;
+            /** Format: int32 */
+            timeoutReadMs?: number;
+            /** Format: int32 */
+            rateLimit?: number;
+            /** Format: int32 */
+            concurrencyLimit?: number;
+            sharedHeadersJson?: string;
+            remark?: string;
+            /** Format: int32 */
+            version?: number;
+            /** Format: date-time */
+            createTime?: string;
+            /** Format: date-time */
+            updateTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RListThirdProviderVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["ThirdProviderVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 响应信息主体 */
+        RThirdEndpointVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["ThirdEndpointVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        ThirdEndpointVo: {
+            /** Format: int64 */
+            endpointId?: number;
+            /** Format: int64 */
+            providerId?: number;
+            providerCode?: string;
+            endpointCode?: string;
+            endpointName?: string;
+            httpMethod?: string;
+            relativePath?: string;
+            requestMode?: string;
+            responseMode?: string;
+            pathSchemaJson?: string;
+            querySchemaJson?: string;
+            headerSchemaJson?: string;
+            bodySchemaJson?: string;
+            responseSchemaJson?: string;
+            overrideJson?: string;
+            status?: string;
+            idempotent?: boolean;
+            /** Format: int32 */
+            rateLimit?: number;
+            /** Format: int32 */
+            concurrencyLimit?: number;
+            /** Format: int32 */
+            retryCount?: number;
+            sensitiveFieldsJson?: string;
+            adapterCode?: string;
+            /** Format: int32 */
+            version?: number;
+            /** Format: date-time */
+            createTime?: string;
+            /** Format: date-time */
+            updateTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RListThirdEndpointVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["ThirdEndpointVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 响应信息主体 */
         RSysUserTypeVo: {
             /**
              * Format: int32
@@ -9010,6 +11929,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysUserTypeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 登录域视图对象 sys_user_type */
         SysUserTypeVo: {
@@ -9048,6 +11969,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysUserTypeRelVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 用户登录域关系视图对象 sys_user_type_rel */
         SysUserTypeRelVo: {
@@ -9093,6 +12016,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysUserTypeVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultSysUserTypeVo: {
@@ -9115,6 +12040,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysUserTypeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 用户信息视图对象 sys_user */
         ProfileUserVo: {
@@ -9175,6 +12102,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["ProfileVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RListSysUserVo: {
@@ -9187,6 +12116,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysUserVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultSysUserVo: {
@@ -9209,6 +12140,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysUserVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RUserInfoVo: {
@@ -9221,6 +12154,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["UserInfoVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 登录用户信息 */
         UserInfoVo: {
@@ -9242,6 +12177,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysUserInfoVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 用户信息 */
         SysUserInfoVo: {
@@ -9267,6 +12204,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysSocialVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 社会化关系视图对象 sys_social */
         SysSocialVo: {
@@ -9340,6 +12279,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysRoleVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RListSysRoleVo: {
@@ -9352,6 +12293,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysRoleVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultSysRoleVo: {
@@ -9374,6 +12317,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysRoleVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 角色部门列表树信息 */
         DeptTreeSelectVo: {
@@ -9393,6 +12338,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["DeptTreeSelectVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RSysPostVo: {
@@ -9405,6 +12352,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysPostVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RListSysPostVo: {
@@ -9417,6 +12366,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysPostVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultSysPostVo: {
@@ -9439,9 +12390,19 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysPostVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description Super-admin search row with an optional safe credential summary. */
+        OpenApiCredentialUserSummary: {
+            /** Format: int64 */
+            userId?: number;
+            userName?: string;
+            nickName?: string;
+            credential?: components["schemas"]["OpenApiCredentialSummary"];
         };
         /** @description 响应信息主体 */
-        RSysNoticeVo: {
+        RListOpenApiCredentialUserSummary: {
             /**
              * Format: int32
              * @description 响应状态码
@@ -9450,46 +12411,43 @@ export interface components {
             /** @description 响应提示信息 */
             msg?: string;
             /** @description 响应业务数据 */
-            data?: components["schemas"]["SysNoticeVo"];
+            data?: components["schemas"]["OpenApiCredentialUserSummary"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
-        /** @description 通知公告视图对象 sys_notice */
-        SysNoticeVo: {
-            /**
-             * Format: int64
-             * @description 公告ID
-             */
-            noticeId?: number;
-            /** @description 公告标题 */
-            noticeTitle?: string;
-            /** @description 公告类型（1通知 2公告） */
-            noticeType?: string;
-            /** @description 公告内容 */
-            noticeContent?: string;
-            /** @description 公告状态（0正常 1关闭） */
-            status?: string;
-            /** @description 备注 */
-            remark?: string;
-            /**
-             * Format: int64
-             * @description 创建者
-             */
-            createBy?: number;
-            /** @description 创建人名称 */
-            createByName?: string;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createTime?: string;
+        /** @description Raw Sa-Token constraints attached to one mapped handler. */
+        OpenApiAccessRule: {
+            permissions?: components["schemas"]["PermissionRule"][];
+            roles?: components["schemas"]["RoleRule"][];
         };
-        OssDownloadUrl: {
-            url?: string;
-            /** Format: date-time */
-            expiresAt?: string;
-            fileName?: string;
+        /** @description Credential-independent catalog view of one callable operation. */
+        OpenApiCatalogItem: {
+            interfaceId?: string;
+            summary?: string;
+            method?: string;
+            path?: string;
+            accessRule?: components["schemas"]["OpenApiAccessRule"];
+            parameters?: components["schemas"]["OpenApiParameterDefinition"][];
+            requestSchema?: string;
+            responseSchema?: string;
+            curlExample?: string;
+            javaExample?: string;
+        };
+        /** @description Spring MVC parameter with a Swagger-resolved schema. */
+        OpenApiParameterDefinition: {
+            name?: string;
+            location?: string;
+            required?: boolean;
+            schema?: string;
+        };
+        PermissionRule: {
+            values?: string[];
+            /** @enum {string} */
+            mode?: "AND" | "OR";
+            orRoles?: string[];
         };
         /** @description 响应信息主体 */
-        RMapLongOssDownloadUrl: {
+        RListOpenApiCatalogItem: {
             /**
              * Format: int32
              * @description 响应状态码
@@ -9498,22 +12456,17 @@ export interface components {
             /** @description 响应提示信息 */
             msg?: string;
             /** @description 响应业务数据 */
-            data?: {
-                [key: string]: components["schemas"]["OssDownloadUrl"];
-            };
+            data?: components["schemas"]["OpenApiCatalogItem"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
-        /** @description 表格分页数据对象 */
-        PageResultSysNoticeVo: {
-            /**
-             * Format: int64
-             * @description 总记录数
-             */
-            total?: number;
-            /** @description 列表数据 */
-            rows?: components["schemas"]["SysNoticeVo"][];
+        RoleRule: {
+            values?: string[];
+            /** @enum {string} */
+            mode?: "AND" | "OR";
         };
         /** @description 响应信息主体 */
-        RPageResultSysNoticeVo: {
+        ROpenApiCatalogItem: {
             /**
              * Format: int32
              * @description 响应状态码
@@ -9522,7 +12475,9 @@ export interface components {
             /** @description 响应提示信息 */
             msg?: string;
             /** @description 响应业务数据 */
-            data?: components["schemas"]["PageResultSysNoticeVo"];
+            data?: components["schemas"]["OpenApiCatalogItem"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RSysMenuVo: {
@@ -9535,6 +12490,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysMenuVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 菜单权限视图对象 sys_menu */
         SysMenuVo: {
@@ -9617,6 +12574,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["MenuTreeSelectVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RListSysMenuVo: {
@@ -9629,12 +12588,17 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysMenuVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 路由显示信息 */
         MetaVo: {
             /** @description 设置该路由在侧边栏和面包屑中展示的名字 */
             title?: string;
-            /** @description 设置该路由的图标，对应路径src/assets/icons/svg */
+            /**
+             * @description 设置该路由的图标。支持本地 SVG 名称（对应前端 src/assets/icons/svg）、
+             *      离线 Tabler 名称（tabler:users）以及显式的外部 Iconify 名称。
+             */
             icon?: string;
             /** @description 设置为true，则不会被 <keep-alive>缓存 */
             noCache?: boolean;
@@ -9654,6 +12618,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["RouterVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 路由配置信息 */
         RouterVo: {
@@ -9689,6 +12655,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysDictTypeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 字典类型视图对象 sys_dict_type */
         SysDictTypeVo: {
@@ -9720,6 +12688,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysDictTypeVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultSysDictTypeVo: {
@@ -9742,6 +12712,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysDictTypeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RSysDictDataVo: {
@@ -9754,6 +12726,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysDictDataVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 字典数据视图对象 sys_dict_data */
         SysDictDataVo: {
@@ -9798,6 +12772,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysDictDataVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultSysDictDataVo: {
@@ -9820,6 +12796,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysDictDataVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RSysDeptVo: {
@@ -9832,6 +12810,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysDeptVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 部门视图对象 sys_dept */
         SysDeptVo: {
@@ -9890,6 +12870,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysDeptVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RSysConfigVo: {
@@ -9902,6 +12884,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysConfigVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 参数配置视图对象 sys_config */
         SysConfigVo: {
@@ -9947,6 +12931,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysConfigVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RSysClientVo: {
@@ -9959,6 +12945,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysClientVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 授权管理视图对象 sys_client */
         SysClientVo: {
@@ -10039,6 +13027,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysClientVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         OssAccessUrl: {
             accessType?: string;
@@ -10058,6 +13048,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["OssAccessUrl"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RResumeResponse: {
@@ -10070,6 +13062,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["ResumeResponse"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         ResumeResponse: {
             uploadToken?: string;
@@ -10126,6 +13120,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["BatchView"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         ItemView: {
             /** Format: int64 */
@@ -10158,6 +13154,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["ItemView"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description OSS对象存储分页查询对象 sys_oss */
         SysOssBo: {
@@ -10215,6 +13213,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysOssVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description OSS对象存储视图对象 sys_oss */
         SysOssVo: {
@@ -10275,6 +13275,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysOssVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RSysOssConfigVo: {
@@ -10287,6 +13289,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["SysOssConfigVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 对象存储配置视图对象 sys_oss_config */
         SysOssConfigVo: {
@@ -10341,13 +13345,15 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysOssConfigVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         SseEmitter: {
             /** Format: int64 */
             timeout?: number;
         };
         /** @description 响应信息主体 */
-        RSysMessageBoxVo: {
+        RListMaterialReferenceView: {
             /**
              * Format: int32
              * @description 响应状态码
@@ -10356,45 +13362,699 @@ export interface components {
             /** @description 响应提示信息 */
             msg?: string;
             /** @description 响应业务数据 */
-            data?: components["schemas"]["SysMessageBoxVo"];
+            data?: components["schemas"]["MaterialReferenceView"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
-        /** @description 消息盒子视图对象 */
-        SysMessageBoxVo: {
-            /** @description 系统消息 */
-            systemList?: components["schemas"]["SysMessageVo"][];
-            /** @description 通知公告消息 */
-            noticeList?: components["schemas"]["SysMessageVo"][];
-            /** @description 工作流消息 */
-            workflowList?: components["schemas"]["SysMessageVo"][];
+        /**
+         * @description 个人档案材料访问地址响应。
+         *
+         *      <p>该响应只描述 Profile 对外的 HTTP 数据，不暴露 system 模块的内部类型。</p>
+         */
+        PersonProfileAccessUrl: {
+            /** @description 访问类型 */
+            accessType?: string;
+            /** @description 访问地址 */
+            url?: string;
+            /**
+             * Format: date-time
+             * @description 私有地址过期时间
+             */
+            expiresAt?: string;
+            /** @description 文件名 */
+            fileName?: string;
         };
-        /** @description 消息记录视图对象 sys_message */
-        SysMessageVo: {
+        /** @description 响应信息主体 */
+        RPersonProfileAccessUrl: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonProfileAccessUrl"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonAdminQueryBo 请求参数模型。 */
+        PersonAdminQueryBo: {
+            fullName?: string;
+            documentNumber?: string;
+            status?: string;
+            /** Format: int32 */
+            pageNum?: number;
+            /** Format: int32 */
+            pageSize?: number;
+        };
+        /** @description 表格分页数据对象 */
+        PageResultPersonProfileSummaryVo: {
             /**
              * Format: int64
-             * @description 消息ID
+             * @description 总记录数
              */
-            messageId?: number;
-            /** @description 消息分组 */
-            category?: string;
-            /** @description 消息类型 */
-            type?: string;
-            /** @description 消息来源 */
-            source?: string;
-            /** @description 标题 */
-            title?: string;
-            /** @description 摘要消息 */
-            message?: string;
-            /** @description 详细内容 */
-            content?: string;
-            /** @description 扩展数据 */
-            data?: unknown;
-            /** @description 前端跳转路径 */
-            path?: string;
+            total?: number;
+            /** @description 列表数据 */
+            rows?: components["schemas"]["PersonProfileSummaryVo"][];
+        };
+        /** @description PersonProfileSummaryVo 对外返回模型。 */
+        PersonProfileSummaryVo: {
+            /** Format: int64 */
+            profileId?: number;
+            /** Format: int64 */
+            previousProfileId?: number;
+            fullName?: string;
+            documentTypeCode?: string;
+            documentNumber?: string;
+            gender?: string;
+            /** Format: date */
+            birthDate?: string;
+            status?: string;
+            /** Format: int64 */
+            bindingUserId?: number;
+            bindingStatus?: string;
+            /** Format: date-time */
+            createTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RPageResultPersonProfileSummaryVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PageResultPersonProfileSummaryVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonProfileAuditVo 对外返回模型。 */
+        PersonProfileAuditVo: {
+            /** Format: int64 */
+            auditId?: number;
+            operationType?: string;
+            /** Format: int64 */
+            operatorUserId?: number;
+            capability?: string;
+            reason?: string;
+            beforeStatus?: string;
+            afterStatus?: string;
+            result?: string;
+            failureCategory?: string;
+            /** Format: date-time */
+            occurredTime?: string;
+        };
+        /** @description PersonProfileBindingVo 对外返回模型。 */
+        PersonProfileBindingVo: {
+            /** Format: int64 */
+            bindingId?: number;
+            /** Format: int64 */
+            userId?: number;
+            status?: string;
+            /** Format: int32 */
+            bindingVersion?: number;
+            sourceType?: string;
+            /** Format: int64 */
+            sourceId?: number;
+            /** Format: date-time */
+            boundTime?: string;
+            /** Format: date-time */
+            unboundTime?: string;
+        };
+        /** @description PersonProfileDetailVo 对外返回模型。 */
+        PersonProfileDetailVo: {
+            profile?: components["schemas"]["PersonProfileSummaryVo"];
+            versions?: components["schemas"]["PersonProfileVersionVo"][];
+            bindings?: components["schemas"]["PersonProfileBindingVo"][];
+            sources?: components["schemas"]["PersonProfileSourceVo"][];
+            audits?: components["schemas"]["PersonProfileAuditVo"][];
+            currentMaterials?: components["schemas"]["MaterialReferenceView"][];
+        };
+        /** @description PersonProfileSourceVo 对外返回模型。 */
+        PersonProfileSourceVo: {
+            /** Format: int64 */
+            sourceId?: number;
+            sourceType?: string;
+            /** Format: int64 */
+            operatorUserId?: number;
+            reason?: string;
+            fieldSnapshotJson?: string;
+            /** Format: date-time */
+            occurredTime?: string;
+        };
+        /** @description PersonProfileVersionVo 对外返回模型。 */
+        PersonProfileVersionVo: {
+            /** Format: int64 */
+            versionId?: number;
+            /** Format: int32 */
+            versionNo?: number;
+            sourceType?: string;
+            /** Format: int64 */
+            sourceId?: number;
+            fullName?: string;
+            documentTypeCode?: string;
+            documentNumber?: string;
+            gender?: string;
+            /** Format: date */
+            birthDate?: string;
+            /** Format: date */
+            validFrom?: string;
+            /** Format: date */
+            validUntil?: string;
+            status?: string;
+            /** Format: date-time */
+            publishedTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RPersonProfileDetailVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonProfileDetailVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonAccountCandidateVo 对外返回模型。 */
+        PersonAccountCandidateVo: {
+            /** Format: int64 */
+            userId?: number;
+            userName?: string;
+            nickName?: string;
+        };
+        /** @description 响应信息主体 */
+        RListPersonAccountCandidateVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonAccountCandidateVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description PersonReviewContextVo 对外返回模型。 */
+        PersonReviewContextVo: {
+            /** Format: int64 */
+            applicationId?: number;
+            /** Format: int64 */
+            applicantUserId?: number;
+            status?: string;
+            /** Format: int32 */
+            submissionSeq?: number;
+            /** Format: int32 */
+            decisionVersion?: number;
+            /** Format: int32 */
+            version?: number;
+            /** Format: int64 */
+            submissionId?: number;
+            fieldSnapshotJson?: string;
+            /** Format: date-time */
+            submittedTime?: string;
+            materials?: components["schemas"]["MaterialReferenceView"][];
+        };
+        /** @description 响应信息主体 */
+        RPersonReviewContextVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PersonReviewContextVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 响应信息主体 */
+        RListMaterialNodeView: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["MaterialNodeView"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 企业档案材料访问地址响应。 */
+        EnterpriseProfileAccessUrl: {
+            /** @description 访问类型 */
+            accessType?: string;
+            /** @description 访问地址 */
+            url?: string;
+            /**
+             * Format: date-time
+             * @description 私有地址过期时间
+             */
+            expiresAt?: string;
+            /** @description 文件名 */
+            fileName?: string;
+        };
+        /** @description 响应信息主体 */
+        REnterpriseProfileAccessUrl: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["EnterpriseProfileAccessUrl"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description EnterpriseAdminQueryBo 请求参数模型。 */
+        EnterpriseAdminQueryBo: {
+            enterpriseName?: string;
+            unifiedCreditCode?: string;
+            status?: string;
+            /** Format: int32 */
+            pageNum?: number;
+            /** Format: int32 */
+            pageSize?: number;
+        };
+        /** @description EnterpriseProfileSummaryVo 对外返回模型。 */
+        EnterpriseProfileSummaryVo: {
+            /** Format: int64 */
+            profileId?: number;
+            /** Format: int64 */
+            previousProfileId?: number;
+            enterpriseName?: string;
+            unifiedCreditCode?: string;
+            enterpriseType?: string;
+            legalRepresentativeName?: string;
+            status?: string;
+            /** Format: int64 */
+            bindingUserId?: number;
+            bindingStatus?: string;
+            /** Format: date-time */
+            createTime?: string;
+        };
+        /** @description 表格分页数据对象 */
+        PageResultEnterpriseProfileSummaryVo: {
+            /**
+             * Format: int64
+             * @description 总记录数
+             */
+            total?: number;
+            /** @description 列表数据 */
+            rows?: components["schemas"]["EnterpriseProfileSummaryVo"][];
+        };
+        /** @description 响应信息主体 */
+        RPageResultEnterpriseProfileSummaryVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PageResultEnterpriseProfileSummaryVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description EnterpriseProfileAuditVo 对外返回模型。 */
+        EnterpriseProfileAuditVo: {
+            /** Format: int64 */
+            auditId?: number;
+            operationType?: string;
+            /** Format: int64 */
+            operatorUserId?: number;
+            capability?: string;
+            reason?: string;
+            beforeStatus?: string;
+            afterStatus?: string;
+            result?: string;
+            failureCategory?: string;
+            /** Format: date-time */
+            occurredTime?: string;
+        };
+        /** @description EnterpriseProfileBindingVo 对外返回模型。 */
+        EnterpriseProfileBindingVo: {
+            /** Format: int64 */
+            bindingId?: number;
+            /** Format: int64 */
+            userId?: number;
+            status?: string;
+            /** Format: int32 */
+            bindingVersion?: number;
+            sourceType?: string;
+            /** Format: int64 */
+            sourceId?: number;
+            /** Format: date-time */
+            boundTime?: string;
+            /** Format: date-time */
+            unboundTime?: string;
+        };
+        /** @description EnterpriseProfileDetailVo 对外返回模型。 */
+        EnterpriseProfileDetailVo: {
+            profile?: components["schemas"]["EnterpriseProfileSummaryVo"];
+            versions?: components["schemas"]["EnterpriseProfileVersionVo"][];
+            bindings?: components["schemas"]["EnterpriseProfileBindingVo"][];
+            sources?: components["schemas"]["EnterpriseProfileSourceVo"][];
+            audits?: components["schemas"]["EnterpriseProfileAuditVo"][];
+            currentMaterials?: components["schemas"]["MaterialReferenceView"][];
+        };
+        /** @description EnterpriseProfileSourceVo 对外返回模型。 */
+        EnterpriseProfileSourceVo: {
+            /** Format: int64 */
+            sourceId?: number;
+            sourceType?: string;
+            /** Format: int64 */
+            operatorUserId?: number;
+            reason?: string;
+            fieldSnapshotJson?: string;
+            /** Format: date-time */
+            occurredTime?: string;
+        };
+        /** @description EnterpriseProfileVersionVo 对外返回模型。 */
+        EnterpriseProfileVersionVo: {
+            /** Format: int64 */
+            versionId?: number;
+            /** Format: int32 */
+            versionNo?: number;
+            sourceType?: string;
+            /** Format: int64 */
+            sourceId?: number;
+            enterpriseName?: string;
+            unifiedCreditCode?: string;
+            enterpriseType?: string;
+            legalRepresentativeName?: string;
+            legalDocumentTypeCode?: string;
+            legalDocumentNumber?: string;
+            /** Format: date */
+            establishedDate?: string;
+            /** Format: date */
+            businessTermFrom?: string;
+            /** Format: date */
+            businessTermUntil?: string;
+            registeredAddress?: string;
+            businessScope?: string;
+            contactName?: string;
+            contactPhone?: string;
+            email?: string;
+            registeredCapital?: number;
+            industryCode?: string;
+            website?: string;
+            status?: string;
+            /** Format: date-time */
+            publishedTime?: string;
+        };
+        /** @description 响应信息主体 */
+        REnterpriseProfileDetailVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["EnterpriseProfileDetailVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description EnterpriseAccountCandidateVo 对外返回模型。 */
+        EnterpriseAccountCandidateVo: {
+            /** Format: int64 */
+            userId?: number;
+            userName?: string;
+            nickName?: string;
+        };
+        /** @description 响应信息主体 */
+        RListEnterpriseAccountCandidateVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["EnterpriseAccountCandidateVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description EnterpriseReviewContextVo 对外返回模型。 */
+        EnterpriseReviewContextVo: {
+            /** Format: int64 */
+            applicationId?: number;
+            /** Format: int64 */
+            applicantUserId?: number;
+            status?: string;
+            /** Format: int32 */
+            submissionSeq?: number;
+            /** Format: int32 */
+            decisionVersion?: number;
+            /** Format: int32 */
+            version?: number;
+            /** Format: int64 */
+            submissionId?: number;
+            fieldSnapshotJson?: string;
+            /** Format: date-time */
+            submittedTime?: string;
+            materials?: components["schemas"]["MaterialReferenceView"][];
+        };
+        /** @description 响应信息主体 */
+        REnterpriseReviewContextVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["EnterpriseReviewContextVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 通知目标选择器使用的最小用户视图。 */
+        NotifyRecipientUserVo: {
+            /** Format: int64 */
+            userId?: number;
+            userName?: string;
+            nickName?: string;
+            phoneNumber?: string;
+            status?: string;
+        };
+        /** @description 表格分页数据对象 */
+        PageResultNotifyRecipientUserVo: {
+            /**
+             * Format: int64
+             * @description 总记录数
+             */
+            total?: number;
+            /** @description 列表数据 */
+            rows?: components["schemas"]["NotifyRecipientUserVo"][];
+        };
+        /** @description 响应信息主体 */
+        RPageResultNotifyRecipientUserVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PageResultNotifyRecipientUserVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 响应信息主体 */
+        RListNotifyRecipientUserVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["NotifyRecipientUserVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 通知状态快照。 */
+        NotificationSnapshot: {
+            /** @description 通知主键 */
+            notificationId?: string;
+            /**
+             * @description 聚合状态
+             * @enum {string}
+             */
+            status?: "QUEUED" | "PROCESSING" | "ACCEPTED" | "PARTIAL_FAILURE" | "DELIVERED" | "UNDELIVERABLE" | "UNKNOWN" | "FAILED" | "CANCELLED" | "EXPIRED";
             /**
              * Format: date-time
              * @description 创建时间
              */
+            createdAt?: string;
+            /** @description 投递明细 */
+            deliveries?: components["schemas"]["DeliveryReceipt"][];
+        };
+        /** @description 响应信息主体 */
+        RNotificationSnapshot: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["NotificationSnapshot"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 通知中心公告展示对象。 */
+        NotifyNoticeVo: {
+            /** Format: int64 */
+            noticeId?: number;
+            noticeTitle?: string;
+            noticeType?: string;
+            noticeContent?: string;
+            recipientType?: string;
+            recipientIds?: number[];
+            userTypeIds?: number[];
+            channels?: string[];
+            status?: string;
+            lifecycle?: string;
+            /** Format: date-time */
+            publishedAt?: string;
+            /** Format: date-time */
+            retractedAt?: string;
+            remark?: string;
+            /** Format: int64 */
+            createBy?: number;
+            /** Format: date-time */
             createTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RNotifyNoticeVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["NotifyNoticeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 表格分页数据对象 */
+        PageResultNotifyNoticeVo: {
+            /**
+             * Format: int64
+             * @description 总记录数
+             */
+            total?: number;
+            /** @description 列表数据 */
+            rows?: components["schemas"]["NotifyNoticeVo"][];
+        };
+        /** @description 响应信息主体 */
+        RPageResultNotifyNoticeVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["PageResultNotifyNoticeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 通知监控安全投影，不暴露内部实体和敏感目标。 */
+        NotificationDeliveryView: {
+            /** Format: int64 */
+            deliveryId?: number;
+            /** Format: int64 */
+            intentId?: number;
+            /** Format: int64 */
+            userId?: number;
+            channel?: string;
+            status?: string;
+            /** Format: int32 */
+            attemptCount?: number;
+            providerMessageId?: string;
+            errorCode?: string;
+            /** Format: date-time */
+            acceptedAt?: string;
+            /** Format: date-time */
+            deliveredAt?: string;
+            /** Format: date-time */
+            readAt?: string;
+            /** Format: date-time */
+            createTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RListNotificationDeliveryView: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["NotificationDeliveryView"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
+        };
+        /** @description 当前用户收件箱消息及其阅读状态。 */
+        NotifyInboxMessageVo: {
+            /** Format: int64 */
+            messageId?: number;
+            category?: string;
+            noticeType?: string;
+            channels?: string[];
+            type?: string;
+            source?: string;
+            title?: string;
+            message?: string;
+            content?: string;
+            path?: string;
+            /** Format: date-time */
+            createTime?: string;
+            /** Format: date-time */
+            seenTime?: string;
+            /** Format: date-time */
+            readTime?: string;
+        };
+        /** @description 响应信息主体 */
+        RListNotifyInboxMessageVo: {
+            /**
+             * Format: int32
+             * @description 响应状态码
+             */
+            code?: number;
+            /** @description 响应提示信息 */
+            msg?: string;
+            /** @description 响应业务数据 */
+            data?: components["schemas"]["NotifyInboxMessageVo"][];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 表格分页数据对象 */
         PageResultSysOperLogVo: {
@@ -10417,6 +14077,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysOperLogVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 操作日志记录视图对象 sys_oper_log */
         SysOperLogVo: {
@@ -10514,6 +14176,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysUserOnline"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 当前在线会话 */
         SysUserOnline: {
@@ -10541,199 +14205,6 @@ export interface components {
              */
             loginTime?: number;
         };
-        /** @description 响应信息主体 */
-        RSysNotifyDetailVo: {
-            /**
-             * Format: int32
-             * @description 响应状态码
-             */
-            code?: number;
-            /** @description 响应提示信息 */
-            msg?: string;
-            /** @description 响应业务数据 */
-            data?: components["schemas"]["SysNotifyDetailVo"];
-        };
-        /** @description 单个物理目标的一次 Provider 调用结果。 */
-        SysNotifyDeliveryLog: {
-            /**
-             * Format: int64
-             * @description 创建部门
-             */
-            createDept?: number;
-            /**
-             * Format: int64
-             * @description 创建者
-             */
-            createBy?: number;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createTime?: string;
-            /**
-             * Format: int64
-             * @description 更新者
-             */
-            updateBy?: number;
-            /**
-             * Format: date-time
-             * @description 更新时间
-             */
-            updateTime?: string;
-            /** Format: int64 */
-            notifyDeliveryLogId?: number;
-            /** Format: int64 */
-            notifyLogId?: number;
-            targetType?: string;
-            targetRole?: string;
-            targetValue?: string;
-            providerKey?: string;
-            providerMessageId?: string;
-            /** Format: int32 */
-            attemptNo?: number;
-            status?: string;
-            /** Format: int64 */
-            costTime?: number;
-            errorCode?: string;
-            errorMessage?: string;
-            /** Format: int32 */
-            version?: number;
-            delFlag?: string;
-        };
-        /** @description 通知完整详情。调用入口必须具备 system:notify:query 权限。 */
-        SysNotifyDetailVo: {
-            notification?: components["schemas"]["SysNotifyLog"];
-            deliveries?: components["schemas"]["SysNotifyDeliveryLog"][];
-            attachmentOssIds?: number[];
-        };
-        /** @description 一次逻辑通知的完整监控快照。 */
-        SysNotifyLog: {
-            /**
-             * Format: int64
-             * @description 创建部门
-             */
-            createDept?: number;
-            /**
-             * Format: int64
-             * @description 创建者
-             */
-            createBy?: number;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createTime?: string;
-            /**
-             * Format: int64
-             * @description 更新者
-             */
-            updateBy?: number;
-            /**
-             * Format: date-time
-             * @description 更新时间
-             */
-            updateTime?: string;
-            /** Format: int64 */
-            notifyLogId?: number;
-            requestId?: string;
-            originalRequestId?: string;
-            bizType?: string;
-            bizId?: string;
-            channel?: string;
-            providerKey?: string;
-            subject?: string;
-            content?: string;
-            contentType?: string;
-            templateCode?: string;
-            templateParams?: string;
-            contentSnapshot?: string;
-            attachmentOssIds?: string;
-            status?: string;
-            errorCode?: string;
-            errorMessage?: string;
-            /** Format: int64 */
-            clientPk?: number;
-            /** Format: int64 */
-            userId?: number;
-            traceId?: string;
-            /** Format: int32 */
-            version?: number;
-            delFlag?: string;
-        };
-        /** @description 响应信息主体 */
-        ROssDownloadUrl: {
-            /**
-             * Format: int32
-             * @description 响应状态码
-             */
-            code?: number;
-            /** @description 响应提示信息 */
-            msg?: string;
-            /** @description 响应业务数据 */
-            data?: components["schemas"]["OssDownloadUrl"];
-        };
-        /** @description 全局通知监控筛选条件。clientPk 仅为显式审计筛选，不是行隔离条件。 */
-        SysNotifyQuery: {
-            requestId?: string;
-            originalRequestId?: string;
-            bizType?: string;
-            bizId?: string;
-            channel?: string;
-            providerKey?: string;
-            status?: string;
-            providerMessageId?: string;
-            traceId?: string;
-            /** Format: int64 */
-            clientPk?: number;
-            /** Format: date-time */
-            beginTime?: string;
-            /** Format: date-time */
-            endTime?: string;
-        };
-        /** @description 表格分页数据对象 */
-        PageResultSysNotifyListVo: {
-            /**
-             * Format: int64
-             * @description 总记录数
-             */
-            total?: number;
-            /** @description 列表数据 */
-            rows?: components["schemas"]["SysNotifyListVo"][];
-        };
-        /** @description 响应信息主体 */
-        RPageResultSysNotifyListVo: {
-            /**
-             * Format: int32
-             * @description 响应状态码
-             */
-            code?: number;
-            /** @description 响应提示信息 */
-            msg?: string;
-            /** @description 响应业务数据 */
-            data?: components["schemas"]["PageResultSysNotifyListVo"];
-        };
-        /** @description 通知列表安全投影，不包含正文和完整目标。 */
-        SysNotifyListVo: {
-            /** Format: int64 */
-            notifyLogId?: number;
-            requestId?: string;
-            originalRequestId?: string;
-            bizType?: string;
-            bizId?: string;
-            channel?: string;
-            providerKey?: string;
-            status?: string;
-            errorCode?: string;
-            errorMessage?: string;
-            /** Format: int64 */
-            clientPk?: number;
-            /** Format: int64 */
-            userId?: number;
-            traceId?: string;
-            /** Format: date-time */
-            createTime?: string;
-            maskedTargets?: string[];
-        };
         /** @description 表格分页数据对象 */
         PageResultSysLoginInfoVo: {
             /**
@@ -10755,6 +14226,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultSysLoginInfoVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 系统访问记录视图对象 sys_login_info */
         SysLoginInfoVo: {
@@ -10814,6 +14287,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["CacheListInfoVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RTestTreeVo: {
@@ -10826,6 +14301,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["TestTreeVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 测试树表视图对象 test_tree */
         TestTreeVo: {
@@ -10868,18 +14345,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["TestTreeVo"][];
-        };
-        /** @description 响应信息主体 */
-        RObject: {
-            /**
-             * Format: int32
-             * @description 响应状态码
-             */
-            code?: number;
-            /** @description 响应提示信息 */
-            msg?: string;
-            /** @description 响应业务数据 */
-            data?: unknown;
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RTestSensitive: {
@@ -10892,6 +14359,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["TestSensitive"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 脱敏测试对象。 */
         TestSensitive: {
@@ -10919,6 +14388,8 @@ export interface components {
             data?: {
                 [key: string]: string[];
             };
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         BlobResourceContents: components["schemas"]["ResourceContents"] & {
             uri?: string;
@@ -10946,6 +14417,8 @@ export interface components {
             data?: {
                 [key: string]: components["schemas"]["McpResourceReadResult"];
             };
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         ResourceContents: unknown;
         TextResourceContents: components["schemas"]["ResourceContents"] & {
@@ -11023,6 +14496,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["McpDemoHandleResult"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         ResourceLink: {
             type: "ResourceLink";
@@ -11069,6 +14544,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["TestI18nBo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 响应信息主体 */
         RMapStringTestDemoEncrypt: {
@@ -11083,6 +14560,8 @@ export interface components {
             data?: {
                 [key: string]: components["schemas"]["TestDemoEncrypt"];
             };
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 测试加密字段实体。 */
         TestDemoEncrypt: {
@@ -11157,6 +14636,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["TestDemoVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 测试单表视图对象 test_demo */
         TestDemoVo: {
@@ -11235,6 +14716,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["PageResultTestDemoVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 图片验证码响应对象。 */
         CaptchaVo: {
@@ -11256,6 +14739,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["CaptchaVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         /** @description 客户端公开认证上下文，仅返回前端展示注册入口所需字段。 */
         AuthClientContextVo: {
@@ -11286,6 +14771,8 @@ export interface components {
             msg?: string;
             /** @description 响应业务数据 */
             data?: components["schemas"]["AuthClientContextVo"];
+            /** @description 机器可读的错误合同，旧客户端可继续使用 code/msg/data。 */
+            error?: components["schemas"]["ErrorInfo"];
         };
         OpenApiAgentToolVO: {
             /** Format: int64 */
@@ -12591,10 +16078,10 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 公告参数 */
+        /** @description 菜单参数 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysNoticeBo"];
+                "application/json": components["schemas"]["SysMenuBo"];
             };
         };
         responses: {
@@ -12625,10 +16112,10 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 公告参数 */
+        /** @description 菜单参数 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysNoticeBo"];
+                "application/json": components["schemas"]["SysMenuBo"];
             };
         };
         responses: {
@@ -12659,10 +16146,10 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 菜单参数 */
+        /** @description 字典类型参数 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysMenuBo"];
+                "application/json": components["schemas"]["SysDictTypeBo"];
             };
         };
         responses: {
@@ -12693,10 +16180,10 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 菜单参数 */
+        /** @description 字典类型参数 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysMenuBo"];
+                "application/json": components["schemas"]["SysDictTypeBo"];
             };
         };
         responses: {
@@ -12727,10 +16214,10 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 字典类型参数 */
+        /** @description 字典数据参数 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysDictTypeBo"];
+                "application/json": components["schemas"]["SysDictDataBo"];
             };
         };
         responses: {
@@ -12761,10 +16248,10 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 字典类型参数 */
+        /** @description 字典数据参数 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysDictTypeBo"];
+                "application/json": components["schemas"]["SysDictDataBo"];
             };
         };
         responses: {
@@ -12795,10 +16282,10 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 字典数据参数 */
+        /** @description 部门参数 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysDictDataBo"];
+                "application/json": components["schemas"]["SysDeptBo"];
             };
         };
         responses: {
@@ -12829,10 +16316,10 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description 字典数据参数 */
+        /** @description 部门参数 */
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SysDictDataBo"];
+                "application/json": components["schemas"]["SysDeptBo"];
             };
         };
         responses: {
@@ -12857,74 +16344,6 @@ export interface operations {
         };
     };
     edit_12: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 部门参数 */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SysDeptBo"];
-            };
-        };
-        responses: {
-            /** @description 操作结果 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    add_12: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** @description 部门参数 */
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SysDeptBo"];
-            };
-        };
-        responses: {
-            /** @description 操作结果 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    edit_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -12958,7 +16377,7 @@ export interface operations {
             };
         };
     };
-    add_13: {
+    add_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -13026,7 +16445,7 @@ export interface operations {
             };
         };
     };
-    edit_14: {
+    edit_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -13060,7 +16479,7 @@ export interface operations {
             };
         };
     };
-    add_14: {
+    add_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -13128,73 +16547,73 @@ export interface operations {
             };
         };
     };
+    edit_14: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestTreeBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    add_14: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestTreeBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     edit_15: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TestTreeBo"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    add_15: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TestTreeBo"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    edit_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -13227,7 +16646,7 @@ export interface operations {
             };
         };
     };
-    add_16: {
+    add_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -13978,6 +17397,330 @@ export interface operations {
             };
         };
     };
+    add_16: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThirdProviderBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    status: {
+        parameters: {
+            query: {
+                status: string;
+            };
+            header?: never;
+            path: {
+                providerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                providerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    save: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThirdProviderBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    add_17: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThirdEndpointBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    status_1: {
+        parameters: {
+            query: {
+                status: string;
+            };
+            header?: never;
+            path: {
+                endpointId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    remove_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                endpointId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    save_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThirdEndpointBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    save_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThirdCredentialBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    remove_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                credentialId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     export_2: {
         parameters: {
             query: {
@@ -14228,6 +17971,314 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    resetUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialIssued"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    enableUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialSummary"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    disableUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialSummary"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    deleteUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    createUser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenApiCredentialCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialIssued"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    resetSelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialIssued"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    enableSelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialSummary"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    disableSelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialSummary"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    deleteSelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    createSelf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenApiCredentialCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialIssued"];
+                };
             };
             /** @description Unauthorized */
             401: {
@@ -14694,7 +18745,7 @@ export interface operations {
             };
         };
     };
-    add_17: {
+    add_18: {
         parameters: {
             query?: never;
             header?: never;
@@ -14728,7 +18779,7 @@ export interface operations {
             };
         };
     };
-    remove: {
+    remove_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -14760,7 +18811,7 @@ export interface operations {
             };
         };
     };
-    edit_17: {
+    edit_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -14809,6 +18860,1673 @@ export interface operations {
         };
         responses: {
             /** @description 操作结果 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    callback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                providerCode: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CallbackRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonVerificationCallbackOutcome"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    unbind: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonRebindUnbindVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonRebindSubmitBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonRebindSubmissionVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    probe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonRebindProbeBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonRebindProbeVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    match: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonRebindMatchBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonRebindMatchVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    confirm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonRebindConfirmBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonRebindConfirmationVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerType: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+                ownerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListMaterialReferenceView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    attach: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerType: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+                ownerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttachRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RMaterialReferenceView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    detach: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerType: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+                ownerId: number;
+                materialRefId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    revoke: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonAdminRevokeBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    revise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonAdminReviseBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    manageBinding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonAdminBindingBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    assign: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonAdminAssignBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    decide: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonAdminDecisionBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonAdminCreateBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    current: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonApplicationVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    save_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonApplicationSaveBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonApplicationVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    submit_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonApplicationSubmitBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonApplicationVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    create_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaterialNodeCommand"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RMaterialNodeView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                materialNodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaterialNodeCommand"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RMaterialNodeView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    status_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                materialNodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StatusCommand"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    archive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                materialNodeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionCommand"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    callback_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                providerCode: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CallbackRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseVerificationCallbackOutcome"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    unbind_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseTransferVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    send: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseTransferSendBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseTransferVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    confirm_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseTransferConfirmBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseTransferVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    list_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerType: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+                ownerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListMaterialReferenceView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    attach_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerType: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+                ownerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttachRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RMaterialReferenceView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    detach_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerType: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+                ownerId: number;
+                materialRefId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    revoke_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseAdminRevokeBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    revise_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseAdminReviseBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    manageBinding_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseAdminBindingBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    assign_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseAdminAssignBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    decide_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseAdminDecisionBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    create_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseAdminCreateBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseAdminResultVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    current_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseApplicationVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    save_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseApplicationSaveBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseApplicationVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    submit_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseApplicationSubmitBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseApplicationVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    probe_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnterpriseApplicationProbeBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseApplicationProbeVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    submit_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationCommand"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RNotificationReceipt"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    retry_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["NotificationRetryCommand"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RRetryReceipt"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["NotificationCancelCommand"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RCancelReceipt"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    retract: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                noticeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    publish_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                noticeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    save_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotifyNoticeBo"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    remove_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": number[];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    seen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                messageId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                messageId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    readAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RVoid"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    callback_2: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description HMAC-SHA256 签名 */
+                "X-Notify-Signature": string;
+            };
+            path: {
+                /** @description 渠道 */
+                channel: string;
+            };
+            cookie?: never;
+        };
+        /** @description 原始 JSON 回调数据，必须包含 providerMessageId 和 status */
+        requestBody: {
+            content: {
+                "application/json": string;
+            };
+        };
+        responses: {
+            /** @description 处理结果 */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -15009,7 +20727,7 @@ export interface operations {
             };
         };
     };
-    add_18: {
+    add_19: {
         parameters: {
             query?: never;
             header?: never;
@@ -15665,7 +21383,7 @@ export interface operations {
             };
         };
     };
-    list: {
+    list_2: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -15731,7 +21449,7 @@ export interface operations {
             };
         };
     };
-    list_1: {
+    list_3: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -16061,7 +21779,7 @@ export interface operations {
             };
         };
     };
-    list_2: {
+    list_4: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -16127,7 +21845,7 @@ export interface operations {
             };
         };
     };
-    remove_1: {
+    remove_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -16159,7 +21877,7 @@ export interface operations {
             };
         };
     };
-    list_3: {
+    list_5: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -16643,6 +22361,225 @@ export interface operations {
             };
         };
     };
+    statistics: {
+        parameters: {
+            query: {
+                providerCode: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RObject"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                providerId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RThirdProviderVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    list_6: {
+        parameters: {
+            query?: {
+                keyword?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListThirdProviderVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    invocations: {
+        parameters: {
+            query: {
+                providerCode: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RObject"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    get_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                endpointId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RThirdEndpointVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    list_7: {
+        parameters: {
+            query?: {
+                providerId?: number;
+                keyword?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListThirdEndpointVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    list_8: {
+        parameters: {
+            query: {
+                providerCode: string;
+                endpointCode?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RObject"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     getInfo_5: {
         parameters: {
             query?: never;
@@ -16707,7 +22644,7 @@ export interface operations {
             };
         };
     };
-    optionselect: {
+    options: {
         parameters: {
             query?: never;
             header?: never;
@@ -16736,36 +22673,7 @@ export interface operations {
             };
         };
     };
-    optionselect_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 登录域列表 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RListSysUserTypeVo"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    list_4: {
+    list_9: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -16831,7 +22739,7 @@ export interface operations {
             };
         };
     };
-    optionselect_2: {
+    optionselect: {
         parameters: {
             query?: {
                 /** @description 用户ID串 */
@@ -16865,7 +22773,7 @@ export interface operations {
             };
         };
     };
-    list_5: {
+    list_10: {
         parameters: {
             query: {
                 /** @description 用户查询条件 */
@@ -17091,7 +22999,7 @@ export interface operations {
             };
         };
     };
-    list_6: {
+    list_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -17152,7 +23060,7 @@ export interface operations {
             };
         };
     };
-    optionselect_3: {
+    optionselect_1: {
         parameters: {
             query?: {
                 /** @description 角色ID串 */
@@ -17184,7 +23092,7 @@ export interface operations {
             };
         };
     };
-    list_7: {
+    list_12: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -17350,7 +23258,7 @@ export interface operations {
             };
         };
     };
-    optionselect_4: {
+    optionselect_2: {
         parameters: {
             query?: {
                 /** @description 岗位ID串 */
@@ -17384,7 +23292,7 @@ export interface operations {
             };
         };
     };
-    list_8: {
+    list_13: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -17450,25 +23358,25 @@ export interface operations {
             };
         };
     };
-    getInfo_11: {
+    users: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description 公告ID */
-                noticeId: number;
+            query?: {
+                keyword?: string;
+                limit?: number;
             };
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 公告详情 */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["RSysNoticeVo"];
+                    "*/*": components["schemas"]["RListOpenApiCredentialUserSummary"];
                 };
             };
             /** @description Unauthorized */
@@ -17482,12 +23390,12 @@ export interface operations {
             };
         };
     };
-    attachmentDownloads: {
+    userInterfaces: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                noticeId: number;
+                userId: number;
             };
             cookie?: never;
         };
@@ -17499,7 +23407,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["RMapLongOssDownloadUrl"];
+                    "*/*": components["schemas"]["RListOpenApiCatalogItem"];
                 };
             };
             /** @description Unauthorized */
@@ -17513,27 +23421,85 @@ export interface operations {
             };
         };
     };
-    list_9: {
+    userInterface: {
         parameters: {
-            query: {
-                /** @description 查询条件 */
-                notice: components["schemas"]["SysNoticeBo"];
-                /** @description 分页参数 */
-                pageQuery: components["schemas"]["PageQuery"];
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+                interfaceId: string;
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCatalogItem"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    getUserCredential: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialSummary"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    selfInterfaces: {
+        parameters: {
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description 公告分页结果 */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["RPageResultSysNoticeVo"];
+                    "*/*": components["schemas"]["RListOpenApiCatalogItem"];
                 };
             };
             /** @description Unauthorized */
@@ -17547,7 +23513,67 @@ export interface operations {
             };
         };
     };
-    getInfo_12: {
+    selfInterface: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                interfaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCatalogItem"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    getSelfCredential: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ROpenApiCredentialSummary"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    getInfo_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -17579,7 +23605,7 @@ export interface operations {
             };
         };
     };
-    remove_2: {
+    remove_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -17675,7 +23701,7 @@ export interface operations {
             };
         };
     };
-    list_10: {
+    list_14: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -17736,7 +23762,7 @@ export interface operations {
             };
         };
     };
-    getInfo_13: {
+    getInfo_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -17768,7 +23794,7 @@ export interface operations {
             };
         };
     };
-    optionselect_5: {
+    optionselect_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -17797,7 +23823,7 @@ export interface operations {
             };
         };
     };
-    list_11: {
+    list_15: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -17831,7 +23857,7 @@ export interface operations {
             };
         };
     };
-    getInfo_14: {
+    getInfo_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -17895,7 +23921,7 @@ export interface operations {
             };
         };
     };
-    list_12: {
+    list_16: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -17929,7 +23955,7 @@ export interface operations {
             };
         };
     };
-    getInfo_15: {
+    getInfo_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -17961,7 +23987,7 @@ export interface operations {
             };
         };
     };
-    remove_3: {
+    remove_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -17993,7 +24019,7 @@ export interface operations {
             };
         };
     };
-    optionselect_6: {
+    optionselect_4: {
         parameters: {
             query?: {
                 /** @description 部门ID串 */
@@ -18025,7 +24051,7 @@ export interface operations {
             };
         };
     };
-    list_13: {
+    list_17: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -18089,7 +24115,7 @@ export interface operations {
             };
         };
     };
-    getInfo_16: {
+    getInfo_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -18121,7 +24147,7 @@ export interface operations {
             };
         };
     };
-    list_14: {
+    list_18: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -18187,7 +24213,7 @@ export interface operations {
             };
         };
     };
-    getInfo_17: {
+    getInfo_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -18219,7 +24245,7 @@ export interface operations {
             };
         };
     };
-    list_15: {
+    list_19: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -18411,7 +24437,7 @@ export interface operations {
             };
         };
     };
-    list_16: {
+    list_20: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -18477,7 +24503,7 @@ export interface operations {
             };
         };
     };
-    getInfo_18: {
+    getInfo_17: {
         parameters: {
             query?: never;
             header?: never;
@@ -18509,7 +24535,7 @@ export interface operations {
             };
         };
     };
-    list_17: {
+    list_21: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -18545,7 +24571,9 @@ export interface operations {
     };
     connect: {
         parameters: {
-            query?: never;
+            query: {
+                ticket: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -18559,6 +24587,35 @@ export interface operations {
                 };
                 content: {
                     "text/event-stream": components["schemas"]["SseEmitter"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    issue_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RString"];
                 };
             };
             /** @description Unauthorized */
@@ -18588,35 +24645,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    getBox: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 消息盒子数据 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RSysMessageBoxVo"];
                 };
             };
             /** @description Unauthorized */
@@ -18662,7 +24690,737 @@ export interface operations {
             };
         };
     };
-    list_18: {
+    accessUrl: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerType: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+                ownerId: number;
+                materialRefId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonProfileAccessUrl"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    page: {
+        parameters: {
+            query: {
+                query: components["schemas"]["PersonAdminQueryBo"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPageResultPersonProfileSummaryVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonProfileDetailVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    material: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+                materialRefId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonProfileAccessUrl"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    eligibleUsers: {
+        parameters: {
+            query: {
+                keyword: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListPersonAccountCandidateVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    reviewContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonReviewContextVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    reviewMaterial: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: number;
+                materialRefId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPersonProfileAccessUrl"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    tree: {
+        parameters: {
+            query: {
+                scope: "PERSON" | "ENTERPRISE" | "COMMON";
+                includeDisabled?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListMaterialNodeView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    accessUrl_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ownerType: "WORKING" | "SUBMISSION" | "SOURCE" | "VERSION";
+                ownerId: number;
+                materialRefId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseProfileAccessUrl"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    page_1: {
+        parameters: {
+            query: {
+                query: components["schemas"]["EnterpriseAdminQueryBo"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPageResultEnterpriseProfileSummaryVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    detail_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseProfileDetailVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    material_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                profileId: number;
+                materialRefId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseProfileAccessUrl"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    eligibleUsers_1: {
+        parameters: {
+            query: {
+                keyword: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListEnterpriseAccountCandidateVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    reviewContext_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseReviewContextVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    reviewMaterial_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: number;
+                materialRefId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["REnterpriseProfileAccessUrl"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query: {
+                keyword: string;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPageResultNotifyRecipientUserVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    byIds: {
+        parameters: {
+            query: {
+                userIds: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListNotifyRecipientUserVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    query: {
+        parameters: {
+            query?: {
+                includeContent?: boolean;
+            };
+            header?: never;
+            path: {
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RNotificationSnapshot"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    get_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                noticeId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RNotifyNoticeVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    list_22: {
+        parameters: {
+            query: {
+                query: components["schemas"]["NotifyNoticeBo"];
+                pageQuery: components["schemas"]["PageQuery"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RPageResultNotifyNoticeVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    snapshot: {
+        parameters: {
+            query: {
+                /** @description 通知编号 */
+                notificationId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 通知快照 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RNotificationSnapshot"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    deliveries: {
+        parameters: {
+            query?: {
+                /** @description 用户编号，可选 */
+                userId?: number;
+                /** @description 渠道，可选 */
+                channel?: string;
+                /** @description 状态，可选 */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 投递日志 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListNotificationDeliveryView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    list_23: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RListNotifyInboxMessageVo"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    list_24: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -18696,7 +25454,7 @@ export interface operations {
             };
         };
     };
-    getInfo_19: {
+    getInfo_18: {
         parameters: {
             query?: never;
             header?: never;
@@ -18725,7 +25483,7 @@ export interface operations {
             };
         };
     };
-    list_19: {
+    list_25: {
         parameters: {
             query: {
                 /** @description IP地址 */
@@ -18746,101 +25504,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RPageResultSysUserOnline"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                notifyLogId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RSysNotifyDetailVo"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    attachmentDownload: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                notifyLogId: number;
-                ossId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ROssDownloadUrl"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    list_20: {
-        parameters: {
-            query: {
-                query: components["schemas"]["SysNotifyQuery"];
-                pageQuery: components["schemas"]["PageQuery"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RPageResultSysNotifyListVo"];
                 };
             };
             /** @description Unauthorized */
@@ -18886,7 +25549,7 @@ export interface operations {
             };
         };
     };
-    list_21: {
+    list_26: {
         parameters: {
             query: {
                 /** @description 查询条件 */
@@ -18920,7 +25583,7 @@ export interface operations {
             };
         };
     };
-    getInfo_20: {
+    getInfo_19: {
         parameters: {
             query?: never;
             header?: never;
@@ -18956,7 +25619,7 @@ export interface operations {
             };
         };
     };
-    send: {
+    send_1: {
         parameters: {
             query: {
                 /** @description 目标用户 */
@@ -18990,7 +25653,7 @@ export interface operations {
             };
         };
     };
-    getInfo_21: {
+    getInfo_20: {
         parameters: {
             query?: never;
             header?: never;
@@ -19022,7 +25685,7 @@ export interface operations {
             };
         };
     };
-    list_22: {
+    list_27: {
         parameters: {
             query: {
                 bo: components["schemas"]["TestTreeBo"];
@@ -19961,7 +26624,7 @@ export interface operations {
             };
         };
     };
-    remove_4: {
+    remove_8: {
         parameters: {
             query: {
                 /** @description 队列名 */
@@ -19997,7 +26660,7 @@ export interface operations {
             };
         };
     };
-    get: {
+    get_3: {
         parameters: {
             query: {
                 /** @description 队列名 */
@@ -20029,7 +26692,7 @@ export interface operations {
             };
         };
     };
-    add_19: {
+    add_20: {
         parameters: {
             query: {
                 /** @description 队列名 */
@@ -20061,7 +26724,39 @@ export interface operations {
             };
         };
     };
-    send_1: {
+    echo: {
+        parameters: {
+            query?: {
+                /** @description 待回显的消息，未传入时使用默认示例文本 */
+                message?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 包含回显消息的统一响应结果 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RString"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    send_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -20292,7 +26987,7 @@ export interface operations {
             };
         };
     };
-    get_1: {
+    get_4: {
         parameters: {
             query: {
                 /** @description 国际化code */
@@ -20555,7 +27250,7 @@ export interface operations {
             };
         };
     };
-    getInfo_22: {
+    getInfo_21: {
         parameters: {
             query?: never;
             header?: never;
@@ -20587,7 +27282,7 @@ export interface operations {
             };
         };
     };
-    page: {
+    page_2: {
         parameters: {
             query: {
                 bo: components["schemas"]["TestDemoBo"];
@@ -20619,7 +27314,7 @@ export interface operations {
             };
         };
     };
-    list_23: {
+    list_28: {
         parameters: {
             query: {
                 bo: components["schemas"]["TestDemoBo"];
@@ -21088,7 +27783,7 @@ export interface operations {
             };
         };
     };
-    remove_5: {
+    remove_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -21120,7 +27815,7 @@ export interface operations {
             };
         };
     };
-    remove_6: {
+    remove_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -21248,7 +27943,7 @@ export interface operations {
             };
         };
     };
-    remove_7: {
+    remove_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -21280,7 +27975,7 @@ export interface operations {
             };
         };
     };
-    remove_8: {
+    remove_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -21312,7 +28007,7 @@ export interface operations {
             };
         };
     };
-    remove_9: {
+    remove_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -21344,7 +28039,7 @@ export interface operations {
             };
         };
     };
-    remove_10: {
+    remove_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -21376,7 +28071,7 @@ export interface operations {
             };
         };
     };
-    remove_11: {
+    remove_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -21408,39 +28103,7 @@ export interface operations {
             };
         };
     };
-    remove_12: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description 公告ID串 */
-                noticeIds: number[];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 操作结果 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    remove_13: {
+    remove_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -21472,7 +28135,7 @@ export interface operations {
             };
         };
     };
-    remove_14: {
+    remove_17: {
         parameters: {
             query?: never;
             header?: never;
@@ -21533,7 +28196,7 @@ export interface operations {
             };
         };
     };
-    remove_15: {
+    remove_18: {
         parameters: {
             query?: never;
             header?: never;
@@ -21565,7 +28228,7 @@ export interface operations {
             };
         };
     };
-    remove_16: {
+    remove_19: {
         parameters: {
             query?: never;
             header?: never;
@@ -21626,7 +28289,7 @@ export interface operations {
             };
         };
     };
-    remove_17: {
+    remove_20: {
         parameters: {
             query?: never;
             header?: never;
@@ -21658,7 +28321,7 @@ export interface operations {
             };
         };
     };
-    remove_18: {
+    remove_21: {
         parameters: {
             query?: never;
             header?: never;
@@ -21721,7 +28384,7 @@ export interface operations {
             };
         };
     };
-    remove_19: {
+    remove_22: {
         parameters: {
             query?: never;
             header?: never;
@@ -21814,7 +28477,7 @@ export interface operations {
             };
         };
     };
-    remove_20: {
+    remove_23: {
         parameters: {
             query?: never;
             header?: never;
@@ -21846,67 +28509,7 @@ export interface operations {
             };
         };
     };
-    remove_21: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                notifyLogIds: number[];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    clean_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["RVoid"];
-                };
-            };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-        };
-    };
-    remove_22: {
+    remove_24: {
         parameters: {
             query?: never;
             header?: never;
@@ -21938,7 +28541,7 @@ export interface operations {
             };
         };
     };
-    clean_2: {
+    clean_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -21967,7 +28570,7 @@ export interface operations {
             };
         };
     };
-    remove_23: {
+    remove_25: {
         parameters: {
             query?: never;
             header?: never;
@@ -21999,7 +28602,7 @@ export interface operations {
             };
         };
     };
-    remove_24: {
+    remove_26: {
         parameters: {
             query?: never;
             header?: never;
@@ -22031,7 +28634,7 @@ export interface operations {
             };
         };
     };
-    remove_25: {
+    remove_27: {
         parameters: {
             query?: never;
             header?: never;

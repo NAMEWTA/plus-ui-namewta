@@ -12,7 +12,6 @@ const menus = [
     children: [
       { path: 'dict', name: 'SystemDictProof', component: 'system/dict/index', meta: { title: '字典管理' } },
       { path: 'config', name: 'SystemConfigProof', component: 'system/config/index', meta: { title: '参数设置' } },
-      { path: 'notice', name: 'SystemNoticeProof', component: 'system/notice/index', meta: { title: '通知公告' } },
       { path: 'oss', name: 'SystemOssProof', component: 'system/oss/index', meta: { title: '文件管理' } },
       {
         path: 'oss-config/index',
@@ -78,17 +77,14 @@ async function installApi(page: Page, state: State, permissions: string[]) {
       });
     }
     if (path === '/system/menu/getRouters') return json(route, { code: 200, data: menus });
-    if (path === '/resource/message/box') {
+    if (path === '/notify/inbox') {
       state.requests.push({ clientId: request.headers()['clientid'] ?? '', method, path });
       return json(route, {
         code: 200,
-        data: {
-          systemList: [{ messageId: 1, title: '系统资源消息', message: '已完成' }],
-          noticeList: [],
-          workflowList: []
-        }
+        data: [{ messageId: 1, title: '系统资源消息', message: '已完成', category: 'system' }]
       });
     }
+    if (path === '/resource/message/ticket') return json(route, { code: 200, data: 'test-push-ticket' });
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
     if (path.startsWith('/system/dict/data/type/')) return json(route, { code: 200, data: [] });
     if (path === '/system/dict/data/list' && method === 'GET') {
@@ -181,7 +177,6 @@ async function installApi(page: Page, state: State, permissions: string[]) {
     const resourcePaths = new Set([
       '/system/dict/type/list',
       '/system/config/list',
-      '/system/notice/list',
       '/resource/oss/list',
       '/resource/oss/7/download-url',
       '/resource/oss/8/download-url',
@@ -206,7 +201,6 @@ async function installApi(page: Page, state: State, permissions: string[]) {
           data: { rows: [{ dictId: 1, dictName: '资源状态', dictType: 'resource_status' }], total: 1 }
         });
       }
-      if (path === '/system/notice/list') return json(route, { code: 200, data: { rows: [], total: 0 } });
       if (path === '/resource/oss/config/list') return json(route, { code: 200, data: { rows: [], total: 0 } });
       if (path === '/system/config/configKey/sys.oss.previewListResource')
         return json(route, { code: 200, data: 'true' });
@@ -328,7 +322,7 @@ test('admin selects resource manifests and keeps message/config/dict/OSS request
   expect(state.requests.every(item => item.clientId === adminClientId)).toBe(true);
   expect(state.requests.map(item => `${item.method} ${item.path}`)).toEqual(
     expect.arrayContaining([
-      'GET /resource/message/box',
+      'GET /notify/inbox',
       'GET /system/dict/type/list',
       'GET /system/dict/data/list',
       'GET /system/config/list',

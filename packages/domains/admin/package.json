@@ -17,7 +17,8 @@
   "dependencies": {
     "@namewta/api-contracts": "workspace:*",
     "@namewta/platform-app-runtime": "workspace:*",
-    "@namewta/platform-contracts": "workspace:*"
+    "@namewta/platform-contracts": "workspace:*",
+    "@namewta/platform-validation": "workspace:*"
   },
   "devDependencies": {
     "oxlint": "catalog:",

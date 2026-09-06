@@ -81,8 +81,8 @@ async function installApi(page: Page, state: State) {
       });
     }
     if (path === '/system/menu/getRouters') return json(route, { code: 200, data: menus });
-    if (path === '/resource/message/box') {
-      return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
+    if (path === '/notify/inbox') {
+      return json(route, { code: 200, data: [] });
     }
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
     if (path === '/system/dict/data/type/sys_yes_no') {

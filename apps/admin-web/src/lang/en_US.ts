@@ -1,4 +1,13 @@
 export default {
+  validation: {
+    format: { invalid: 'Invalid format' },
+    email: { invalid: 'Invalid email format' },
+    phone: { mobile: { invalid: 'Invalid mainland mobile number' }, telephone: { invalid: 'Invalid telephone number' }, e164: { invalid: 'Invalid international phone number' } },
+    idCard: { mainland: { format: 'Invalid mainland identity card format', date: 'Invalid mainland identity card birth date', checksum: 'Invalid mainland identity card checksum' }, hk: { invalid: 'Invalid Hong Kong identity card format' }, mo: { invalid: 'Invalid Macao identity card format' }, tw: { invalid: 'Invalid Taiwan identity card format' } },
+    permit: { hkMacao: { invalid: 'Invalid Hong Kong/Macao residence permit format' }, tw: { invalid: 'Invalid Taiwan residence permit format' } },
+    travelPermit: { hkMacao: { invalid: 'Invalid Hong Kong/Macao mainland travel permit format' }, tw: { invalid: 'Invalid Taiwan mainland travel permit format' } },
+    creditCode: { format: 'Invalid unified social credit code format', character: 'Unified social credit code contains an invalid character', checksum: 'Invalid unified social credit code checksum' }
+  },
   // 路由国际化
   route: {
     dashboard: 'Dashboard',

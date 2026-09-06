@@ -1,7 +1,7 @@
 <template>
   <div class="p-2 app-container iframe-page">
     <el-alert v-if="failure" :title="failure" type="error" :closable="false" show-icon />
-    <div v-else-if="safeUrl" class="iframe-page__inner"><IFrame v-model:src="safeUrl" /></div>
+    <div v-else-if="safeUrl" class="iframe-page__inner"><IFrame :src="safeUrl" /></div>
   </div>
 </template>
 <script setup lang="ts">

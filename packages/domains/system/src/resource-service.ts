@@ -11,10 +11,6 @@ import type {
   DictTypeForm,
   DictTypeQuery,
   DictTypeVO,
-  MessageBoxVO,
-  NoticeForm,
-  NoticeQuery,
-  NoticeVO,
   OssCompletedPart,
   OssConfigAccessPolicy,
   OssConfigForm,
@@ -109,10 +105,8 @@ export interface SystemResourceService {
   dictData: ReturnType<typeof createDictDataService>;
   dictTypes: ReturnType<typeof createDictTypeService>;
   configs: ReturnType<typeof createConfigService>;
-  notices: ReturnType<typeof createNoticeService>;
   oss: ReturnType<typeof createOssService>;
   ossConfigs: ReturnType<typeof createOssConfigService>;
-  messages: { box(): Promise<ApiResponse<MessageBoxVO>> };
   social: {
     list(): Promise<ApiResponse<SocialAuthVO[]>>;
   };
@@ -156,24 +150,6 @@ function createConfigService(request: Request) {
       request({ url: '/system/config/updateByKey', method: 'put', data: { configKey: key, configValue: value } }),
     delete: (ids: ResourceIdentifierList) => request({ url: '/system/config/' + segment(ids), method: 'delete' }),
     refreshCache: () => request({ url: '/system/config/refreshCache', method: 'delete' })
-  });
-}
-
-function createNoticeService(request: Request) {
-  return Object.freeze({
-    list: (params: NoticeQuery) => request<PageResult<NoticeVO>>({ url: '/system/notice/list', method: 'get', params }),
-    get: (id: ResourceIdentifier) => request<NoticeVO>({ url: '/system/notice/' + segment(id), method: 'get' }),
-    attachmentUrls: async (id: ResourceIdentifier) => {
-      const response = await request<Record<string, OssDownloadUrl>>({
-        url: `/system/notice/${segment(id)}/attachments/download-urls`,
-        method: 'get'
-      });
-      Object.values(response.data).forEach(item => requireSafeUrl(item.url));
-      return response;
-    },
-    add: (data: NoticeForm) => request({ url: '/system/notice', method: 'post', data }),
-    update: (data: NoticeForm) => request({ url: '/system/notice', method: 'put', data }),
-    delete: (ids: ResourceIdentifierList) => request({ url: '/system/notice/' + segment(ids), method: 'delete' })
   });
 }
 
@@ -267,10 +243,8 @@ export function createSystemResourceService(http: HttpClient): SystemResourceSer
     dictData: createDictDataService(request),
     dictTypes: createDictTypeService(request),
     configs: createConfigService(request),
-    notices: createNoticeService(request),
     oss: createOssService(request),
     ossConfigs: createOssConfigService(request),
-    messages: Object.freeze({ box: () => request<MessageBoxVO>({ url: '/resource/message/box', method: 'get' }) }),
     social: Object.freeze({
       list: () => request<SocialAuthVO[]>({ url: '/system/social/list', method: 'get' })
     })

@@ -1,192 +1,132 @@
-import type { MessageVO } from '@namewta/domain-system';
+import type { NotifyInboxMessage } from '@namewta/domain-notify';
 import { ElNotification } from 'element-plus';
-import { systemService } from '@/application/services';
+import { adminHttp } from '@/application/http';
+import { notificationService } from '@/application/services';
 import { getToken } from '@/application/session';
 import { useNoticeStore } from '@/store/modules/notice';
-import { useUserStore } from '@/store/modules/user';
-import { isMessageRead } from '@/utils/message-read';
+import { createPushConnection, createPushUrl } from '@/utils/push-connection';
 import { parsePushMessage, resolveNoticeGroup, resolveNoticeTitle, shouldAppendNotice } from '@/utils/push-message';
 
-let closePushConnection: (() => void) | undefined;
-let stopPushWatchers: Array<() => void> = [];
-const KICKED_MESSAGE = 'kicked';
+let pushConnection: ReturnType<typeof createPushConnection> | undefined;
 let pushKicked = false;
 let resumePushTimer: ReturnType<typeof setTimeout> | undefined;
+let inboxRequest = 0;
+let removeResumeListeners: (() => void) | undefined;
 
-const formatNoticeTime = (timestamp?: number | string) => {
-  const time = timestamp ? new Date(timestamp) : new Date();
-  return time.toLocaleString();
+const refreshInbox = () => {
+  void refreshMessageInbox().catch(error => console.warn('消息盒子刷新失败:', error));
 };
 
-const appendNotice = (raw: string) => {
-  const payload = parsePushMessage(raw);
-  if (!shouldAppendNotice(payload)) {
+/** 通知所有收件箱视图刷新，消息盒子也重新读取服务端事实。 */
+export const refreshMessageInbox = async () => {
+  window.dispatchEvent(new Event('notify:inbox-updated'));
+  await initMessageBox();
+};
+
+const handlePushMessage = (raw: string) => {
+  if (raw === 'kicked') {
+    pushKicked = true;
+    pushConnection?.close();
     return;
   }
-  const userId = useUserStore().userId;
-  const title = resolveNoticeTitle(payload);
-  useNoticeStore().addNotice({
-    messageId: payload.messageId,
-    title,
-    category: resolveNoticeGroup(payload),
-    type: payload.type,
-    source: payload.source,
-    message: payload.message ?? '',
-    content: payload.data?.noticeContent,
-    data: payload.data,
-    path: payload.path,
-    read: isMessageRead(userId, payload.messageId),
-    timestamp: payload.timestamp ?? Date.now(),
-    time: formatNoticeTime(payload.timestamp)
-  });
+  const payload = parsePushMessage(raw);
+  if (!shouldAppendNotice(payload)) return;
+
+  // 实时事件只提示和刷新；消息列表与已读状态统一来自 Notify 收件箱。
+  refreshInbox();
   ElNotification({
-    title,
+    title: payload.title || resolveNoticeTitle(payload),
     message: payload.message ?? '',
     type: 'success',
     duration: 3000
   });
 };
 
-const handlePushMessage = (raw: string) => {
-  if (raw === KICKED_MESSAGE) {
-    pushKicked = true;
-    closePush();
-    return;
-  }
-  appendNotice(raw);
-};
-
-const toNoticeItem = (item: MessageVO) => {
-  const userId = useUserStore().userId;
-  const timestamp = item.createTime ? new Date(item.createTime).getTime() : Date.now();
+const toNoticeItem = (item: NotifyInboxMessage) => {
+  const parsedTime = item.createTime ? new Date(item.createTime).getTime() : 0;
+  const timestamp = Number.isFinite(parsedTime) ? parsedTime : 0;
   return {
     messageId: item.messageId,
     title: item.title,
     category: resolveNoticeGroup(item),
-    type: item.type,
-    source: item.source,
+    type: item.type ?? 'message',
+    source: item.source ?? 'backend',
     message: item.message ?? '',
     content: item.content,
     data: item.data ?? null,
     path: item.path,
-    read: isMessageRead(userId, item.messageId),
+    read: Boolean(item.readTime),
     timestamp,
-    time: formatNoticeTime(timestamp)
+    time: timestamp ? new Date(timestamp).toLocaleString() : ''
   };
 };
 
-const buildSseUrl = (path: string) => {
-  return `${import.meta.env.VITE_APP_BASE_API}${path}?Authorization=Bearer ${getToken()}&clientid=${import.meta.env.VITE_APP_CLIENT_ID}`;
+const requestPushTicket = async () => {
+  const body = await adminHttp.request<{ data?: unknown }>({
+    url: `${import.meta.env.VITE_APP_MESSAGE_PATH || '/resource/message'}/ticket`,
+    method: 'get',
+    timeout: 10000
+  });
+  if (typeof body.data !== 'string' || !body.data) throw new Error('推送票据不可用');
+  return body.data;
 };
 
-const buildWsUrl = (path: string) => {
-  const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-  return `${protocol}${window.location.host}${buildSseUrl(path)}`;
-};
-
-const initSsePush = (url: string) => {
-  const { data, error, close } = useEventSource(url, [], {
-    autoReconnect: {
-      retries: 5,
-      delay: 5000,
-      onFailed() {
-        console.warn('SSE connection failed after 5 retries');
-      }
-    }
-  });
-  closePushConnection = close;
-
-  const stopErrorWatch = watch(error, () => {
-    console.warn('SSE connection error:', error.value);
-    error.value = null;
-  });
-
-  const stopDataWatch = watch(data, () => {
-    if (!data.value) return;
-    handlePushMessage(data.value);
-    data.value = null;
-  });
-  stopPushWatchers.push(stopErrorWatch, stopDataWatch);
-};
-
-const initWsPush = (url: string) => {
-  const { close } = useWebSocket(url, {
-    autoReconnect: {
-      retries: 3,
-      delay: 1000,
-      onFailed() {
-        console.warn('websocket重连失败');
-      }
-    },
-    heartbeat: {
-      message: 'ping',
-      interval: 10000,
-      pongTimeout: 2000
-    },
-    onMessage: (_, e) => {
-      if (String(e.data) === 'pong') {
-        return;
-      }
-      handlePushMessage(String(e.data));
-    }
-  });
-  closePushConnection = close;
-};
-
-export const initPush = () => {
+export const initPush = async () => {
   closePush();
-  if (import.meta.env.VITE_APP_MESSAGE_ENABLED === 'false') {
-    return;
-  }
-  pushKicked = false;
+  if (import.meta.env.VITE_APP_MESSAGE_ENABLED === 'false' || !getToken()) return;
+
   const path = import.meta.env.VITE_APP_MESSAGE_PATH || '/resource/message';
-  const transport = import.meta.env.VITE_APP_MESSAGE_TRANSPORT || 'sse';
-  if (transport.toLowerCase() === 'websocket') {
-    initWsPush(buildWsUrl(path));
-    return;
-  }
-  initSsePush(buildSseUrl(path));
+  const transport = import.meta.env.VITE_APP_MESSAGE_TRANSPORT?.toLowerCase() === 'websocket' ? 'websocket' : 'sse';
+  pushConnection = createPushConnection({
+    transport,
+    requestTicket: requestPushTicket,
+    createUrl: ticket =>
+      createPushUrl(import.meta.env.VITE_APP_BASE_API, path, window.location.origin, ticket, transport),
+    onMessage: handlePushMessage,
+    onConnected: refreshInbox,
+    onError: error => console.warn('推送连接中断，正在重连:', error)
+  });
+  window.addEventListener('focus', resumePushIfNeeded);
+  document.addEventListener('visibilitychange', resumePushIfNeeded);
+  window.addEventListener('online', resumePushIfNeeded);
+  removeResumeListeners = () => {
+    window.removeEventListener('focus', resumePushIfNeeded);
+    document.removeEventListener('visibilitychange', resumePushIfNeeded);
+    window.removeEventListener('online', resumePushIfNeeded);
+  };
+  await pushConnection.start();
 };
 
 export const initMessageBox = async () => {
-  if (import.meta.env.VITE_APP_MESSAGE_ENABLED === 'false') {
+  const currentRequest = ++inboxRequest;
+  const token = getToken();
+  if (import.meta.env.VITE_APP_MESSAGE_ENABLED === 'false' || !token) {
     useNoticeStore().clearNotice();
     return;
   }
-  const { data } = await systemService.resources.messages.box();
-  const notices = [...(data?.systemList ?? []), ...(data?.noticeList ?? []), ...(data?.workflowList ?? [])].map(
-    toNoticeItem
-  );
-  useNoticeStore().setNotices(notices);
+  const { data } = await notificationService.inbox.list();
+  if (currentRequest !== inboxRequest || token !== getToken()) return;
+  useNoticeStore().setNotices((data ?? []).map(toNoticeItem));
 };
 
 export const closePush = () => {
-  closePushConnection?.();
-  closePushConnection = undefined;
-  stopPushWatchers.forEach(stop => stop());
-  stopPushWatchers = [];
+  pushKicked = false;
+  inboxRequest++;
+  clearTimeout(resumePushTimer);
+  resumePushTimer = undefined;
+  pushConnection?.close();
+  pushConnection = undefined;
+  removeResumeListeners?.();
+  removeResumeListeners = undefined;
 };
 
 const resumePushIfNeeded = () => {
-  if (!pushKicked || !getToken() || document.visibilityState !== 'visible') {
-    return;
-  }
-  if (resumePushTimer) {
-    clearTimeout(resumePushTimer);
-  }
-  resumePushTimer = setTimeout(async () => {
+  if (!pushKicked || !getToken() || document.visibilityState !== 'visible') return;
+  clearTimeout(resumePushTimer);
+  resumePushTimer = setTimeout(() => {
     resumePushTimer = undefined;
-    if (!pushKicked || !getToken() || document.visibilityState !== 'visible') {
-      return;
-    }
-    try {
-      await initMessageBox();
-    } finally {
-      initPush();
-    }
+    if (pushKicked && getToken() && document.visibilityState === 'visible') void initPush();
   }, 300);
 };
 
-window.addEventListener('focus', resumePushIfNeeded);
-document.addEventListener('visibilitychange', resumePushIfNeeded);
-window.addEventListener('online', resumePushIfNeeded);
+if (import.meta.hot) import.meta.hot.dispose(closePush);

@@ -442,8 +442,8 @@ async function installRuntimeApi(page: Page, state: RuntimeState) {
           expiresAt: '2099-01-01'
         }
       });
-    if (path === '/resource/message/box' && method === 'GET')
-      return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
+    if (path === '/notify/inbox' && method === 'GET')
+      return json(route, { code: 200, data: [] });
     if (path === '/resource/message' && method === 'GET')
       return route.fulfill({ contentType: 'text/event-stream', body: '' });
     state.unknown.push(`${method} ${path}`);

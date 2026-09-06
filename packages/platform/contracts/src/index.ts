@@ -49,6 +49,13 @@ export interface PresentedError {
   message: string;
 }
 
+export interface ApiErrorInfo {
+  code: string;
+  args?: Readonly<Record<string, unknown>>;
+  field?: string;
+  violations?: readonly ApiErrorInfo[];
+}
+
 export interface ErrorPresenter {
   confirmSessionExpired(): Promise<void>;
   present(error: PresentedError): void;

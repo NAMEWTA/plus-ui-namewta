@@ -47,7 +47,6 @@ export function createSystemWebDomain(runtime: SystemWebRuntime): WebDomainManif
     ['system-post', 'system/post/index', 'Post', () => import('./post/PostPage.vue')],
     ['system-dict', 'system/dict/index', 'Dict', () => import('./dict-type/DictPage.vue')],
     ['system-config', 'system/config/index', 'Config', () => import('./config/ConfigPage.vue')],
-    ['system-notice', 'system/notice/index', 'Notice', () => import('./notice/NoticePage.vue')],
     ['system-open-api', 'system/openApi/index', 'OpenApi', () => import('./open-api/OpenApiAdminPage.vue')],
     ['system-oss', 'system/oss/index', 'Oss', () => import('./oss/OssPage.vue')],
     ['system-oss-config', 'system/oss/config', 'OssConfig', () => import('./oss-config/OssConfigPage.vue')]
@@ -72,7 +71,6 @@ export function createSystemWebDomain(runtime: SystemWebRuntime): WebDomainManif
         post: ['list', 'query', 'add', 'edit', 'remove', 'export'],
         dict: ['list', 'query', 'add', 'edit', 'remove', 'export'],
         config: ['list', 'query', 'add', 'edit', 'remove', 'export'],
-        notice: ['list', 'query', 'add', 'edit', 'remove'],
         openApi: ['self', 'list', 'query', 'add', 'edit', 'remove'],
         oss: ['list', 'query', 'upload', 'download', 'edit', 'remove'],
         ossConfig: ['list', 'query', 'add', 'edit', 'remove']

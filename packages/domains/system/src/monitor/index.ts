@@ -9,14 +9,10 @@ import type {
   IdentifierList,
   LoginInfoQuery,
   LoginInfoVO,
-  NotifyDetailVO,
-  NotifyListVO,
-  NotifyQuery,
   OnlineQuery,
   OnlineVO,
   OperLogQuery,
   OperLogVO,
-  OssDownloadUrl,
   PageResult
 } from './types';
 
@@ -90,13 +86,6 @@ export interface MonitorService {
     unlock(userNames: string | readonly string[]): Promise<ApiResponse>;
     clean(): Promise<ApiResponse>;
   };
-  readonly notifications: {
-    list(query: NotifyQuery): Promise<ApiResponse<PageResult<NotifyListVO>>>;
-    get(id: Identifier): Promise<ApiResponse<NotifyDetailVO>>;
-    attachmentUrl(id: Identifier, ossId: Identifier): Promise<ApiResponse<OssDownloadUrl>>;
-    delete(ids: IdentifierList): Promise<ApiResponse>;
-    clean(): Promise<ApiResponse>;
-  };
   readonly online: {
     list(query: OnlineQuery): Promise<ApiResponse<PageResult<OnlineVO>>>;
     forceLogout(tokenId: string): Promise<ApiResponse>;
@@ -126,18 +115,6 @@ export function createMonitorService(http: HttpClient): MonitorService {
       unlock: (names: string | readonly string[]) =>
         request({ url: '/monitor/loginInfo/unlock/' + segment(names), method: 'get' }),
       clean: () => request({ url: '/monitor/loginInfo/clean', method: 'delete' })
-    }),
-    notifications: Object.freeze({
-      list: (params: NotifyQuery) =>
-        request<PageResult<NotifyListVO>>({ url: '/monitor/notify/list', method: 'get', params }),
-      get: (id: Identifier) => request<NotifyDetailVO>({ url: '/monitor/notify/' + segment(id), method: 'get' }),
-      attachmentUrl: (id: Identifier, ossId: Identifier) =>
-        request<OssDownloadUrl>({
-          url: `/monitor/notify/${segment(id)}/attachments/${segment(ossId)}/download-url`,
-          method: 'get'
-        }),
-      delete: (ids: IdentifierList) => request({ url: '/monitor/notify/' + segment(ids), method: 'delete' }),
-      clean: () => request({ url: '/monitor/notify/clean', method: 'delete' })
     }),
     online: Object.freeze({
       list: (params: OnlineQuery) =>

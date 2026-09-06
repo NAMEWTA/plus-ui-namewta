@@ -39,6 +39,8 @@ vi.mock('@/application/services', () => {
       get: (target, property) => (property === 'getClientContext' ? getClientContext : Reflect.get(target, property))
     }),
     monitorService: createService(),
+    notificationService: createService(),
+    notificationDirectory: { searchUsers: vi.fn(), usersByIds: vi.fn(), userTypes: vi.fn() },
     openApiService: createService(),
     profileService: {
       materialTags: methods(['archive', 'changeStatus', 'create', 'tree', 'update']),
@@ -111,8 +113,9 @@ describe('admin selected manifest registry', () => {
     expect(resolveAdminWebRegistration('monitor/online/index', 'system')).toMatchObject({
       componentName: 'Online'
     });
-    expect(resolveAdminWebRegistration('monitor/notify/index', 'system')).toMatchObject({
-      componentName: 'NotifyMonitor'
+    expect(resolveAdminWebRegistration('monitor/notify/index', 'system')).toBeUndefined();
+    expect(resolveAdminWebRegistration('notify/monitor/index', 'notify')).toMatchObject({
+      componentName: 'NotificationMonitor'
     });
     expect(resolveAdminWebRegistration('monitor/admin/index', 'system')).toMatchObject({
       componentName: 'MonitorAdmin'

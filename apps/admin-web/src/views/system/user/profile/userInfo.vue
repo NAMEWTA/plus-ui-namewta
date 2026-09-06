@@ -25,6 +25,8 @@
 
 <script setup lang="ts">
 import type { UserProfileForm } from '@namewta/domain-system';
+import { toElementPlusValidator } from '@namewta/platform-validation';
+import { useI18n } from 'vue-i18n';
 import modal from '@/application/host/feedback';
 import tab from '@/application/host/navigation';
 import { systemService } from '@/application/services';
@@ -37,12 +39,13 @@ const props = defineProps({
 });
 const userForm = computed(() => props.user);
 const userRef = ref<ElFormInstance>();
+const { t } = useI18n();
 const rule: ElFormRules = {
   nickName: [{ required: true, message: '用户昵称不能为空', trigger: 'blur' }],
   email: [
     { required: true, message: '邮箱地址不能为空', trigger: 'blur' },
     {
-      type: 'email',
+      validator: toElementPlusValidator('EMAIL', (code, args) => t(code, args)),
       message: '请输入正确的邮箱地址',
       trigger: ['blur', 'change']
     }
@@ -54,7 +57,7 @@ const rule: ElFormRules = {
       trigger: 'blur'
     },
     {
-      pattern: /^1[3456789][0-9]\d{8}$/,
+      validator: toElementPlusValidator('MAINLAND_MOBILE', (code, args) => t(code, args)),
       message: '请输入正确的手机号码',
       trigger: 'blur'
     }

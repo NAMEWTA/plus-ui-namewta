@@ -6,6 +6,7 @@ declare module 'vue-router' {
     affix?: boolean;
     noCache?: boolean;
     activeMenu?: string;
+    /** 本地 SVG 名称、tabler:name，或显式外部 Iconify 名称 */
     icon?: string;
     breadcrumb?: boolean;
   }

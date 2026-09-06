@@ -1,5 +1,5 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
-import type { HttpClient } from '@namewta/platform-contracts';
+import type { ApiErrorInfo, HttpClient } from '@namewta/platform-contracts';
 import {
   createUserQueryPort,
   projectUserSummary,
@@ -16,6 +16,7 @@ export interface ApiResponse<T = unknown> {
   code?: number;
   data?: T;
   msg?: string;
+  error?: ApiErrorInfo;
 }
 export interface PageResult<T> {
   rows: T[];
@@ -434,7 +435,11 @@ export function createWorkflowDefinitionService(http: HttpClient): WorkflowDefin
         url: '/workflow/task/currentTaskAllUser/' + segment(taskId),
         method: 'get'
       });
-      return { ...response, data: response.data?.map(projectUserSummary) ?? [] };
+      return { ...response, data: response.data?.map(source => {
+        // 任务参与人只需要展示身份，手机号仅由需要联系信息的目录消费者使用。
+        const { phoneNumber: _phoneNumber, ...user } = projectUserSummary(source);
+        return user;
+      }) ?? [] };
     },
     getNextNodes: data =>
       request<Record<string, unknown>[]>({ url: '/workflow/task/getNextNodeList', method: 'post', data }),

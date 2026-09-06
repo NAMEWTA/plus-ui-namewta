@@ -19,4 +19,4 @@
 `pnpm --filter @namewta/home-web lint`、`typecheck`、`test`、`build`。
 
 ## Read Next
-终端组合与领域边界读取 [前端 Skill](../../../.agents/skills/plus-ui-frontend-conventions/SKILL.md)；Profile 合同读取 [domain-profile](../../packages/domains/profile/AGENTS.md) 和 [web-domain-profile](../../packages/web-domains/profile/AGENTS.md)。
+终端组合与领域边界读取 [前端 Skill](../../../.agents/skills/namewta-fullstack-development/SKILL.md)；Profile 合同读取 [domain-profile](../../packages/domains/profile/AGENTS.md) 和 [web-domain-profile](../../packages/web-domains/profile/AGENTS.md)。

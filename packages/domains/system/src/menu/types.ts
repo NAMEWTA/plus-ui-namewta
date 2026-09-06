@@ -65,6 +65,7 @@ export interface MenuVO extends BaseEntity {
   menuType: MenuType;
   visible: string;
   status: string;
+  /** 图标协议：本地 SVG 名称、tabler:name，或显式外部 Iconify 名称 */
   icon: string;
   activeMenu: string;
   ext: string;
@@ -90,6 +91,7 @@ export interface MenuForm {
   menuType?: MenuType;
   visible?: string;
   status?: string;
+  /** 图标协议：本地 SVG 名称、tabler:name，或显式外部 Iconify 名称 */
   icon?: string;
   activeMenu?: string;
   ext?: string;

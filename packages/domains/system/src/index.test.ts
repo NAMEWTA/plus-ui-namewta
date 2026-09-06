@@ -279,14 +279,11 @@ describe('system transport contracts', () => {
         'post',
         'dict',
         'config',
-        'notice',
         'oss',
         'oss-config',
-        'message',
         'social',
         'monitor-cache',
         'monitor-login-info',
-        'monitor-notify',
         'monitor-online',
         'monitor-operlog'
       ]

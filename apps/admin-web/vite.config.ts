@@ -1,6 +1,6 @@
+import autoprefixer from 'autoprefixer'; // css自动添加兼容性前缀
 import { defineConfig, loadEnv } from 'vite';
 import createPlugins from './vite/plugins';
-import autoprefixer from 'autoprefixer'; // css自动添加兼容性前缀
 
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd());
@@ -29,6 +29,15 @@ export default defineConfig(({ mode, command }) => {
       port: Number(env.VITE_APP_PORT),
       open: true,
       proxy: {
+        // Nacos 控制台会读取父窗口地址，开发环境也必须通过同源入口嵌入。
+        ...(env.VITE_APP_NACOS_PROXY_TARGET
+          ? {
+              '^/nacos(?:/|$)': {
+                target: env.VITE_APP_NACOS_PROXY_TARGET,
+                changeOrigin: true
+              }
+            }
+          : {}),
         [env.VITE_APP_BASE_API]: {
           target: env.VITE_APP_PROXY_TARGET || 'http://localhost:8080',
           changeOrigin: true,

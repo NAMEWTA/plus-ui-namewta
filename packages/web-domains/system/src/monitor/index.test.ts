@@ -22,7 +22,6 @@ describe('monitor web manifest', () => {
       'monitor/cache/index',
       'monitor/operlog/index',
       'monitor/logininfo/index',
-      'monitor/notify/index'
     ]);
     expect(manifest.permissions.flatMap(item => item.permissions)).toEqual(
       expect.arrayContaining([
@@ -30,9 +29,6 @@ describe('monitor web manifest', () => {
         'monitor:online:batchLogout',
         'monitor:operlog:export',
         'monitor:logininfo:unlock',
-        'system:notify:list',
-        'system:notify:query',
-        'system:notify:remove'
       ])
     );
   });

@@ -1,26 +1,35 @@
 <template>
-  <div v-loading="loading" :style="'height:' + height">
-    <iframe :src="url" frameborder="no" style="width: 100%; height: 100%" scrolling="auto" />
+  <div v-loading="loading" :style="{ height }">
+    <iframe
+      :src="src"
+      :title="title"
+      frameborder="no"
+      style="width: 100%; height: 100%"
+      scrolling="auto"
+      @load="loading = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { propTypes } from '@/utils/propTypes';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-const props = defineProps({
-  src: propTypes.string.isRequired
-});
+const props = withDefaults(defineProps<{ src: string; title?: string }>(), { title: '外部控制台' });
 
-const height = ref(document.documentElement.clientHeight - 94.5 + 'px;');
+const height = ref(`${Math.max(document.documentElement.clientHeight - 94.5, 320)}px`);
 const loading = ref(true);
-const url = computed(() => props.src);
+const resize = () => {
+  height.value = `${Math.max(document.documentElement.clientHeight - 94.5, 320)}px`;
+};
 
+watch(
+  () => props.src,
+  () => {
+    loading.value = true;
+  }
+);
 onMounted(() => {
-  setTimeout(() => {
-    loading.value = false;
-  }, 300);
-  window.onresize = function temp() {
-    height.value = document.documentElement.clientHeight - 94.5 + 'px;';
-  };
+  window.addEventListener('resize', resize);
 });
+onBeforeUnmount(() => window.removeEventListener('resize', resize));
 </script>

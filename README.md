@@ -10,7 +10,7 @@
 | ------------ | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | 多 App 交付  | `admin-web` 管理端与 `home-web` 应用用户端均已激活；旧 Client Web、移动 Web 和小程序入口已清理 | 两个产品端共享领域架构，同时保持 Client、会话和菜单隔离 |
 | 领域复用     | 无界面 API、类型和业务服务进入 `packages/domains/*`，Vue 页面进入 `packages/web-domains/*`         | 新 App 直接组合已有能力，不重新创建后端接口和数据模型                 |
-| 前后端映射   | domain 名与后端 `admin/system/workflow/demo/profile/ai` 模块一致，资源目录与 Controller base path 一致 | 可从 Java Controller 或 URL 快速定位前端 API、类型和页面              |
+| 前后端映射   | domain 名与后端 `admin/system/workflow/demo/profile/notify/third/ai` 模块一致，资源目录与 Controller base path 一致 | 可从 Java Controller 或 URL 快速定位前端 API、类型和页面              |
 | 通用平台能力 | 认证、权限、HTTP 和运行时进入 `platform`，Axios、存储和加密进入 `adapters`，Web 壳层进入 `web-kit` | 动态路由、权限、字典、OSS、加密等能力可复用，同时允许不同终端替换实现 |
 | Client 安全  | App 使用显式 ClientId、独立会话命名空间和服务端 ClientContext；认证与路由失败关闭                  | 避免不同 App 之间的 Token、菜单和权限串用                             |
 | 动态菜单     | App 只注册已选择 web-domain manifest 中的页面，未知或未选择的组件键拒绝解析                        | 后端菜单仍动态驱动界面，但不能越过 App 的编译期能力边界               |
@@ -39,11 +39,11 @@ tooling/                 架构、OpenAPI 与未来脚手架工具
 
 当前激活 `admin-web` 管理端和 `home-web` 应用用户端。两者使用独立 Client 与会话命名空间，并共享后端授权和动态菜单合同；移动 Web、小程序和 Taro 适配器不在当前产品范围内。
 
-六个 headless domains 与后端模块一一对应：admin、system、workflow、demo、profile、ai。每个 App 只显式组合需要的 domain/web-domain，可以独立定制布局、样式和 CSS；`gen` 已从基座物理删除，不属于运行时领域。
+八个 headless domains 与后端模块一一对应：admin、system、workflow、demo、profile、notify、third、ai。每个 App 只显式组合需要的 domain/web-domain，可以独立定制布局、样式和 CSS；`gen` 已从基座物理删除，不属于运行时领域。
 
 包内第二层按 Controller 的稳定 HTTP 资源命名。例如 `SysClientController` 的 `/system/client` 对应 `packages/domains/system/src/client/`，页面对应 `packages/web-domains/system/src/client/`；`SysUserOnlineController` 对应两侧的 `system/src/monitor/online/`。Java 的 `Sys`、`Flw` 等实现前缀不进入目录名，公开使用 package exports，禁止包间深层导入。
 
-详细边界见 [架构基线](docs/architecture-baseline.md)、各目录 README，以及父聚合工作区 `../.agents/skills/plus-ui-frontend-conventions/SKILL.md`。项目开发 Skill 只在父工作区集中维护，本仓库不保留 `.claude` 或 `.codex` 副本。
+详细边界见 [架构基线](docs/architecture-baseline.md)、各目录 README，以及父聚合工作区 `../.agents/skills/namewta-fullstack-development/SKILL.md`。项目开发 Skill 只在父工作区集中维护，本仓库不保留 `.claude` 或 `.codex` 副本。
 
 动态导航由 `packages/platform/app-runtime` 投影服务端菜单，`apps/admin-web` 与 `apps/home-web` 各自维护导航状态，并只解析本 App 编译期已选择的 Web manifest。Vue 权限指令由 `packages/web-kit/permission` 提供，Admin 在自己的 directive 入口注入当前会话 evaluator；Home 对用户中心认证入口执行同等权限判断，这些前端可见性机制不替代后端鉴权。
 

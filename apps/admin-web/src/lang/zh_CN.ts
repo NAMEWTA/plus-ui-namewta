@@ -1,4 +1,13 @@
 export default {
+  validation: {
+    format: { invalid: '格式不正确' },
+    email: { invalid: '邮箱格式错误' },
+    phone: { mobile: { invalid: '手机号格式错误' }, telephone: { invalid: '电话号码格式错误' }, e164: { invalid: '国际电话号码格式错误' } },
+    idCard: { mainland: { format: '大陆身份证格式错误', date: '大陆身份证出生日期无效', checksum: '大陆身份证校验码错误' }, hk: { invalid: '香港居民身份证格式错误' }, mo: { invalid: '澳门居民身份证格式错误' }, tw: { invalid: '台湾居民身份证格式错误' } },
+    permit: { hkMacao: { invalid: '港澳居民居住证格式错误' }, tw: { invalid: '台湾居民居住证格式错误' } },
+    travelPermit: { hkMacao: { invalid: '港澳居民来往内地通行证格式错误' }, tw: { invalid: '台湾居民来往大陆通行证格式错误' } },
+    creditCode: { format: '统一社会信用代码格式错误', character: '统一社会信用代码包含非法字符', checksum: '统一社会信用代码校验码错误' }
+  },
   // 路由国际化
   route: {
     dashboard: '首页',

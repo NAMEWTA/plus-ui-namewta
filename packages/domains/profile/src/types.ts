@@ -1,3 +1,5 @@
+import type { ApiErrorInfo } from '@namewta/platform-contracts';
+
 export type Identifier = string | number;
 export type ProfileType = 'ENTERPRISE' | 'PERSON';
 export type MaterialOwnerType = 'SOURCE' | 'SUBMISSION' | 'VERSION' | 'WORKING';
@@ -6,6 +8,7 @@ export interface ApiResponse<T = null> {
   code?: number;
   data: T;
   msg?: string;
+  error?: ApiErrorInfo;
 }
 
 export interface PageResult<T> {

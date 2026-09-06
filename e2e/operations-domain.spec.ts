@@ -13,7 +13,7 @@ const menus = [
     component: 'monitor/snailjob/index',
     meta: { title: '任务调度' }
   },
-  { path: '/monitor-notify', name: 'NotifyProof', component: 'monitor/notify/index', meta: { title: '通知监控' } }
+  { path: '/notify-monitor', name: 'NotifyProof', component: 'notify/monitor/index', meta: { title: '通知监控' } }
 ];
 
 type ApiState = {
@@ -58,51 +58,18 @@ async function installApi(page: Page, permissions: string[], state: ApiState) {
       });
     if (path === '/monitor/online/session-1' && request.method() === 'DELETE')
       return json(route, { code: 200, data: null });
-    if (path === '/monitor/notify/list' && request.method() === 'GET')
+    if (path === '/notify/monitor/deliveries' && request.method() === 'GET')
       return json(route, {
         code: 200,
-        data: {
-          rows: [
-            {
-              notifyLogId: 71,
-              requestId: 'notify-proof',
-              channel: 'mail',
-              providerKey: 'proof',
-              status: 'FAILED',
-              maskedTargets: ['p***@example.test'],
-              createTime: Date.now()
-            }
-          ],
-          total: 1
-        }
+        data: [{ deliveryId: 71, userId: 11, channel: 'MAIL', status: 'DISPATCH_ERROR', providerMessageId: null, errorCode: 'DISPATCH_ERROR' }]
       });
-    if (path === '/monitor/notify/71' && request.method() === 'GET')
+    if (path === '/notify/monitor/snapshot' && request.method() === 'GET')
       return json(route, {
         code: 200,
-        data: {
-          notification: {
-            notifyLogId: 71,
-            requestId: 'notify-proof',
-            channel: 'mail',
-            providerKey: 'proof',
-            status: 'FAILED',
-            contentSnapshot: 'proof',
-            createTime: Date.now()
-          },
-          deliveries: [],
-          attachmentOssIds: [901]
-        }
+        data: { notificationId: '71', status: 'FAILED', createdAt: new Date().toISOString(), deliveries: [] }
       });
-    if (path === '/monitor/notify/71/attachments/901/download-url' && request.method() === 'GET') {
-      state.attachmentRequests += 1;
-      if (state.attachmentMode === 'failure') return json(route, { code: 500, msg: '附件授权服务不可用' });
-      return json(route, {
-        code: 200,
-        data: { url: 'https://files.example.test:99999/proof', fileName: 'proof.txt', expiresAt: 'later' }
-      });
-    }
-    if (path === '/resource/message/box')
-      return json(route, { code: 200, data: { systemList: [], noticeList: [], workflowList: [] } });
+    if (path === '/notify/inbox')
+      return json(route, { code: 200, data: [] });
     if (path === '/resource/message/close') return json(route, { code: 200, data: null });
     if (path === '/resource/message') return route.fulfill({ contentType: 'text/event-stream', body: '' });
     state.unknown.push(request.method() + ' ' + path);
@@ -155,41 +122,12 @@ test('permission denial renders no external frame', async ({ page }) => {
   expect(state.unknown).toEqual([]);
 });
 
-test('unsafe and failed attachment authorization stays visible and creates no download intent', async ({ page }) => {
+test('notification monitor uses the current notify contract and renders delivery status', async ({ page }) => {
   const state = createState();
-  const downloads: string[] = [];
-  page.on('download', download => downloads.push(download.suggestedFilename()));
-  await installApi(page, ['system:notify:list', 'system:notify:query'], state);
-  await page.addInitScript(() => {
-    localStorage.setItem('Admin-Token', 'operations-attachment-proof');
-    const intents: string[] = [];
-    Reflect.set(globalThis, '__operationsDownloadIntents', intents);
-    const click = HTMLAnchorElement.prototype.click;
-    HTMLAnchorElement.prototype.click = function () {
-      intents.push(this.href);
-      click.call(this);
-    };
-  });
-
-  await page.goto(`${adminUrl}/monitor-notify`);
-  const row = page
-    .locator('.monitor-notify-page .el-table__body tr')
-    .filter({ has: page.getByRole('cell', { name: '71', exact: true }) });
-  await expect(row).toBeVisible();
-  await row.locator('button').first().click();
-  const drawer = page.getByRole('dialog', { name: '通知详情' });
-  const attachment = drawer.getByRole('button', { name: '901' });
-  await expect(attachment).toBeVisible();
-
-  await attachment.click();
-  await expect(page.getByText('运维入口地址不安全', { exact: true })).toBeVisible();
-  state.attachmentMode = 'failure';
-  await attachment.click();
-  await expect(page.getByText('附件授权服务不可用', { exact: true })).toBeVisible();
-
-  expect(state.attachmentRequests).toBe(2);
-  expect(downloads).toEqual([]);
-  await expect.poll(() => page.evaluate(() => Reflect.get(globalThis, '__operationsDownloadIntents'))).toEqual([]);
-  expect(page.url()).toBe(`${adminUrl}/monitor-notify`);
+  await installApi(page, ['notify:monitor:list', 'notify:monitor:query'], state);
+  await page.addInitScript(() => localStorage.setItem('Admin-Token', 'operations-notify-proof'));
+  await page.goto(`${adminUrl}/notify-monitor`);
+  await expect(page.getByText('71', { exact: true })).toBeVisible();
+  await expect(page.getByText('投递异常', { exact: true })).toBeVisible();
   expect(state.unknown).toEqual([]);
 });

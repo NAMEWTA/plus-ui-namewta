@@ -19,4 +19,4 @@
 `pnpm architecture:check`、`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build:prod`。
 
 ## Read Next
-通用边界与命名读取父工作区 [plus-ui-frontend-conventions](../.agents/skills/plus-ui-frontend-conventions/SKILL.md)；具体包读取其同目录索引。
+通用边界与命名读取父工作区 [namewta-fullstack-development](../.agents/skills/namewta-fullstack-development/SKILL.md)；具体包读取其同目录索引。

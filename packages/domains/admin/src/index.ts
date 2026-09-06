@@ -1,5 +1,5 @@
 import type { DomainModule } from '@namewta/platform-app-runtime';
-import type { ClientContext, HttpClient, SessionStore } from '@namewta/platform-contracts';
+import type { ApiErrorInfo, ClientContext, HttpClient, SessionStore } from '@namewta/platform-contracts';
 import { requireClientContext } from '@namewta/platform-contracts';
 import {
   requirePasswordPolicy,
@@ -16,6 +16,7 @@ export interface ApiResponse<T = unknown> {
   code?: number;
   data?: T;
   msg?: string;
+  error?: ApiErrorInfo;
 }
 
 export interface LoginVerification {

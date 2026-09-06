@@ -1,4 +1,5 @@
 import type { OpenApiSchema } from '@namewta/api-contracts';
+import { validatePassword as validateSharedPassword } from '@namewta/platform-validation';
 
 export const passwordCharacterClasses = ['UPPERCASE', 'LOWERCASE', 'DIGIT', 'SPECIAL'] as const;
 
@@ -97,32 +98,6 @@ export function requirePasswordPolicy(context: ClientAuthContext): PasswordPolic
   return context.passwordPolicy ?? unavailable();
 }
 
-function violation(reason: PasswordViolationReason): PasswordPolicyViolation {
-  return Object.freeze({ reason });
-}
-
 export function validatePassword(policy: PasswordPolicy, password: string): readonly PasswordPolicyViolation[] {
-  const value = password ?? '';
-  const violations: PasswordPolicyViolation[] = [];
-  const codes = Array.from(value, character => character.charCodeAt(0));
-  if (value.length < policy.minimumLength) violations.push(violation('PASSWORD_TOO_SHORT'));
-  if (value.length > policy.maximumLength) violations.push(violation('PASSWORD_TOO_LONG'));
-  if (!codes.some(isUppercase)) violations.push(violation('PASSWORD_MISSING_UPPERCASE'));
-  if (!codes.some(isLowercase)) violations.push(violation('PASSWORD_MISSING_LOWERCASE'));
-  if (!codes.some(isDigit)) violations.push(violation('PASSWORD_MISSING_DIGIT'));
-  if (!codes.some(code => policy.allowedSpecialCharacters.includes(String.fromCharCode(code)))) {
-    violations.push(violation('PASSWORD_MISSING_SPECIAL'));
-  }
-  if (
-    codes.some(
-      code =>
-        !isUppercase(code) &&
-        !isLowercase(code) &&
-        !isDigit(code) &&
-        !policy.allowedSpecialCharacters.includes(String.fromCharCode(code))
-    )
-  ) {
-    violations.push(violation('PASSWORD_CONTAINS_DISALLOWED_CHARACTER'));
-  }
-  return Object.freeze(violations);
+  return Object.freeze(validateSharedPassword(policy, password).map(({ reason }) => Object.freeze({ reason })));
 }

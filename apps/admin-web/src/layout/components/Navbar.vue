@@ -33,7 +33,14 @@
         <!-- 消息 -->
         <el-tooltip :content="$t('navbar.message')" effect="dark" placement="bottom">
           <div>
-            <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
+            <el-popover
+              placement="bottom"
+              trigger="click"
+              transition="el-zoom-in-top"
+              :width="300"
+              :persistent="false"
+              @show="refreshMessageBox"
+            >
               <template #reference>
                 <el-badge :value="noticeStore.unreadCount.value > 0 ? noticeStore.unreadCount.value : ''" :max="99">
                   <div class="right-menu-item hover-effect message-trigger">
@@ -107,6 +114,7 @@ import { useAppStore } from '@/store/modules/app';
 import { useNoticeStore } from '@/store/modules/notice';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useUserStore } from '@/store/modules/user';
+import { initMessageBox } from '@/utils/push';
 import notice from './notice/index.vue';
 import TopBar from './TopBar/index.vue';
 import SearchMenu from './TopBar/search.vue';
@@ -119,6 +127,10 @@ const noticeStore = storeToRefs(useNoticeStore());
 const navType = computed(() => settingsStore.navType);
 const showLogo = computed(() => settingsStore.sidebarLogo);
 const displayName = computed(() => userStore.nickname || '管理员');
+
+const refreshMessageBox = () => {
+  void initMessageBox().catch(error => console.warn('消息盒子刷新失败:', error));
+};
 
 // 搜索菜单
 const searchMenuRef = ref<InstanceType<typeof SearchMenu>>();

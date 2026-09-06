@@ -33,12 +33,6 @@ export function createMonitorWebDomain(runtime: MonitorWebRuntime): WebDomainMan
       'LoginInfo',
       () => runtimeView('LoginInfo', runtime, () => import('./login-info/LoginInfoPage.vue'))
     ],
-    [
-      'system-monitor-notify',
-      'monitor/notify/index',
-      'NotifyMonitor',
-      () => runtimeView('NotifyMonitor', runtime, () => import('./notify/NotificationPage.vue'))
-    ]
   ] as const;
   const permissions = {
     online: ['list', 'query', 'batchLogout', 'forceLogout'],
@@ -50,18 +44,14 @@ export function createMonitorWebDomain(runtime: MonitorWebRuntime): WebDomainMan
     id: 'web-domain-system-monitor',
     domainId: 'system',
     messages: Object.freeze([]),
-    permissions: Object.freeze([
-      ...Object.entries(permissions).map(([slice, actions]) =>
+    permissions: Object.freeze(
+      Object.entries(permissions).map(([slice, actions]) =>
         Object.freeze({
           id: `monitor-${slice}`,
           permissions: Object.freeze(actions.map(action => `monitor:${slice}:${action}`))
         })
       ),
-      Object.freeze({
-        id: 'monitor-notify',
-        permissions: Object.freeze(['system:notify:list', 'system:notify:query', 'system:notify:remove'])
-      })
-    ]),
+    ),
     registrations: Object.freeze(
       registrations.map(([id, componentKey, componentName, load]) =>
         Object.freeze({ id, componentKey, componentName, load })

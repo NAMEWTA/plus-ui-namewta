@@ -20,7 +20,7 @@
       <el-input v-model="filterValue" class="p-2" placeholder="搜索图标" clearable @input="filterIcons" />
 
       <div class="iconify-panel">
-        <div class="iconify-heading">也可以直接输入 Iconify 图标名</div>
+        <div class="iconify-heading">外部 Iconify 图标名（需在线或额外注册）</div>
         <div class="iconify-form">
           <el-input
             v-model="customIcon"
@@ -32,10 +32,11 @@
         </div>
       </div>
 
+      <div class="icon-count">{{ iconNames.length }} 个图标</div>
       <el-scrollbar height="w-[200px]">
         <ul class="icon-list">
           <el-tooltip
-            v-for="(iconName, index) in iconNames"
+            v-for="(iconName, index) in visibleIconNames"
             :key="index"
             :content="iconName"
             placement="bottom"
@@ -54,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import icons from '@/components/IconSelect/requireIcons';
+import { filterIconNames, iconNames as availableIconNames } from './iconOptions';
 import { propTypes } from '@/utils/propTypes';
 
 const props = defineProps({
@@ -65,7 +66,8 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 const visible = ref(false);
 const { modelValue, width } = toRefs(props);
-const iconNames = ref<string[]>(icons);
+const iconNames = ref<string[]>([...availableIconNames]);
+const visibleIconNames = computed(() => iconNames.value.slice(0, 300));
 
 const filterValue = ref('');
 const customIcon = ref('');
@@ -75,9 +77,9 @@ const customIcon = ref('');
  */
 const filterIcons = () => {
   if (filterValue.value) {
-    iconNames.value = icons.filter(iconName => iconName.includes(filterValue.value));
+    iconNames.value = filterIconNames(filterValue.value);
   } else {
-    iconNames.value = icons;
+    iconNames.value = filterIconNames('');
   }
 };
 /**
@@ -116,6 +118,12 @@ watch(
 
 .iconify-panel {
   padding: 2px 4px 12px;
+}
+
+.icon-count {
+  padding: 0 8px;
+  color: var(--app-text-muted);
+  font-size: 12px;
 }
 
 .iconify-heading {

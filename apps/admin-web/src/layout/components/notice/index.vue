@@ -2,7 +2,7 @@
   <div v-loading="state.loading" class="layout-navbars-breadcrumb-user-news">
     <div class="head-box">
       <div class="head-box-title">消息盒子</div>
-      <div class="head-box-btn" @click="readAll">全部已读</div>
+      <el-button link type="primary" :loading="state.loading" @click="readAll">全部已读</el-button>
     </div>
     <el-tabs v-model="activeTab" class="message-tabs" stretch>
       <el-tab-pane :label="`系统 ${tabCount.system}`" name="system"></el-tab-pane>
@@ -11,7 +11,15 @@
     </el-tabs>
     <div v-loading="state.loading" class="content-box">
       <template v-if="currentNewsList.length > 0">
-        <div v-for="(v, k) in currentNewsList" :key="k" class="content-box-item" @click="onNewsClick(k)">
+        <div
+          v-for="v in currentNewsList"
+          :key="v.messageId"
+          class="content-box-item"
+          role="button"
+          tabindex="0"
+          @click="onNewsClick(v)"
+          @keydown.enter="onNewsClick(v)"
+        >
           <div class="item-conten">
             <div class="content-box-title">{{ v.title || '消息' }}</div>
             <div>{{ v.message }}</div>
@@ -25,34 +33,49 @@
       </template>
       <el-empty v-else :description="emptyDescription"></el-empty>
     </div>
+    <el-dialog v-model="detailVisible" title="通知详情" width="520px">
+      <el-descriptions v-if="selectedNews" :column="1" border>
+        <el-descriptions-item label="标题">{{ selectedNews.title || '通知' }}</el-descriptions-item>
+        <el-descriptions-item label="时间">{{ selectedNews.time }}</el-descriptions-item>
+        <el-descriptions-item label="内容">
+          {{ selectedNews.content || selectedNews.message || '-' }}
+        </el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <el-button v-if="selectedNews?.path" type="primary" @click="openNewsPath">查看业务</el-button>
+        <el-button @click="detailVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts" name="layoutBreadcrumbUserNews">
+import { ElMessage } from 'element-plus';
+import { notificationService } from '@/application/services';
 import router from '@/router';
-import { useNoticeStore } from '@/store/modules/notice';
-import { useUserStore } from '@/store/modules/user';
-import { markMessageRead, markMessageReadBatch } from '@/utils/message-read';
+import { useNoticeStore, type NoticeItem } from '@/store/modules/notice';
+import { refreshMessageInbox } from '@/utils/push';
 import { NOTICE_GROUP } from '@/utils/push-message';
 
 const noticeStore = useNoticeStore();
-const userStore = useUserStore();
 
 // 定义变量内容
 const state = reactive({
   loading: false
 });
 const activeTab = ref<string>(NOTICE_GROUP.SYSTEM);
+const detailVisible = ref(false);
+const selectedNews = ref<NoticeItem>();
 const newsList = computed(() => noticeStore.state.notices);
 
 const tabCount = computed(() => ({
-  system: newsList.value.filter((item: any) => (item.category || NOTICE_GROUP.SYSTEM) === NOTICE_GROUP.SYSTEM).length,
-  notice: newsList.value.filter((item: any) => item.category === NOTICE_GROUP.NOTICE).length,
-  workflow: newsList.value.filter((item: any) => item.category === NOTICE_GROUP.WORKFLOW).length
+  system: newsList.value.filter(item => (item.category || NOTICE_GROUP.SYSTEM) === NOTICE_GROUP.SYSTEM).length,
+  notice: newsList.value.filter(item => item.category === NOTICE_GROUP.NOTICE).length,
+  workflow: newsList.value.filter(item => item.category === NOTICE_GROUP.WORKFLOW).length
 }));
 
 const currentNewsList = computed(() => {
-  return newsList.value.filter((item: any) => {
+  return newsList.value.filter(item => {
     return (item.category || NOTICE_GROUP.SYSTEM) === activeTab.value;
   });
 });
@@ -67,24 +90,40 @@ const emptyDescription = computed(() => {
   return '暂无系统消息';
 });
 
-//点击消息，写入已读
-const onNewsClick = async (item: any) => {
-  const current = currentNewsList.value[item];
-  if (current?.messageId) {
-    markMessageRead(userStore.userId, current.messageId);
-    noticeStore.markRead(current.messageId);
-  }
-  if (current?.path) {
-    await router.push(current.path);
+// 已读事实由服务端维护，并同步刷新消息盒子和收件箱页面。
+const onNewsClick = async (current: NoticeItem) => {
+  selectedNews.value = current;
+  detailVisible.value = true;
+  if (!current.read && current.messageId && !state.loading) {
+    state.loading = true;
+    try {
+      await notificationService.inbox.read(current.messageId);
+      await refreshMessageInbox();
+    } catch (error) {
+      ElMessage.error(error instanceof Error ? error.message : '标记已读失败');
+    } finally {
+      state.loading = false;
+    }
   }
 };
 
-const readAll = () => {
-  const ids = newsList.value
-    .map((item: any) => item.messageId)
-    .filter((item: string | number | undefined) => item !== undefined && item !== null);
-  markMessageReadBatch(userStore.userId, ids);
-  noticeStore.markReadBatch(ids);
+const readAll = async () => {
+  if (state.loading) return;
+  state.loading = true;
+  try {
+    await notificationService.inbox.readAll();
+    await refreshMessageInbox();
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '全部已读失败');
+  } finally {
+    state.loading = false;
+  }
+};
+
+const openNewsPath = async () => {
+  if (!selectedNews.value?.path) return;
+  detailVisible.value = false;
+  await router.push(selectedNews.value.path);
 };
 </script>
 

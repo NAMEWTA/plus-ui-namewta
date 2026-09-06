@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { createUserQueryPort } from './public';
 
 describe('system public user seam', () => {
-  it('exposes only the workflow selection fields and preserves query requests', async () => {
+  it('exposes directory fields for workflow and notification selection and preserves queries', async () => {
     const requests: HttpRequest[] = [];
     const users = [
       {
@@ -31,7 +31,16 @@ describe('system public user seam', () => {
     await expect(port.list({ pageNum: 1, pageSize: 10, userName: 'owner' })).resolves.toEqual({
       code: 200,
       data: {
-        rows: [{ userId: '7', userName: 'owner', nickName: '流程负责人', deptName: '研发部', status: '0' }],
+        rows: [
+          {
+            userId: '7',
+            userName: 'owner',
+            nickName: '流程负责人',
+            phoneNumber: '13800000000',
+            deptName: '研发部',
+            status: '0'
+          }
+        ],
         total: 1
       }
     });
@@ -39,7 +48,16 @@ describe('system public user seam', () => {
     const projectedOptions = await port.options(['7', 'a/b']);
     expect(projectedOptions).toEqual({
       code: 200,
-      data: [{ userId: '7', userName: 'owner', nickName: '流程负责人', deptName: '研发部', status: '0' }]
+      data: [
+        {
+          userId: '7',
+          userName: 'owner',
+          nickName: '流程负责人',
+          phoneNumber: '13800000000',
+          deptName: '研发部',
+          status: '0'
+        }
+      ]
     });
     await port.departmentTree();
     expect(requests).toEqual([
@@ -48,7 +66,23 @@ describe('system public user seam', () => {
       { url: '/system/user/optionselect?userIds=7,a%2Fb', method: 'get' },
       { url: '/system/user/deptTree', method: 'get' }
     ]);
-    expect(JSON.stringify(projectedOptions)).not.toMatch(/must-not-cross|phoneNumber|roles|secret-role/);
+    expect(JSON.stringify(projectedOptions)).not.toMatch(/must-not-cross|roles|secret-role/);
+  });
+
+  it('uses the unified keyword without combining account and phone filters with AND', async () => {
+    const requests: HttpRequest[] = [];
+    const port = createUserQueryPort({
+      request: async request => {
+        requests.push(request);
+        return { data: { rows: [], total: 0 } } as never;
+      }
+    });
+    await port.list({ keyword: '138', pageNum: 2, pageSize: 20, status: '0' });
+    expect(requests[0]).toEqual({
+      url: '/system/user/list',
+      method: 'get',
+      params: { keyword: '138', pageNum: 2, pageSize: 20, status: '0' }
+    });
   });
 
   it('propagates query failures without inventing empty success data', async () => {

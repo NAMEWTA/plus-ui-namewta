@@ -1,6 +1,8 @@
 import { adminDomainModule, requirePasswordPolicy, validatePassword } from '@namewta/domain-admin';
 import { aiDomainModule } from '@namewta/domain-ai';
 import { demoDomainModule } from '@namewta/domain-demo';
+import { notifyDomainModule } from '@namewta/domain-notify';
+import { createNotifyWebDomain } from '@namewta/web-domain-notify';
 import { profileDomainModule } from '@namewta/domain-profile';
 import { systemDomainModule } from '@namewta/domain-system';
 import { monitorPermissions } from '@namewta/domain-system/monitor';
@@ -32,7 +34,9 @@ import {
   profileService,
   systemService,
   thirdService,
-  workflowService
+  workflowService,
+  notificationService,
+  notificationDirectory
 } from '@/application/services';
 import { getToken } from '@/application/session';
 import WorkflowTreePanel from '@/components/TreePanel/index.vue';
@@ -85,12 +89,9 @@ export const adminWorkflowWebRuntime = {
   fileUpload: WorkflowFileUpload,
   closeCurrentPage: () => import('@/application/host/navigation').then(({ default: tab }) => tab.closePage()),
   chartUrl: async instanceId => {
-    const { getToken } = await import('@/application/session');
     return (
       import.meta.env.VITE_APP_BASE_API +
       `/warm-flow-ui/index.html?id=${encodeURIComponent(instanceId)}&type=FlowChart&t=${Date.now()}` +
-      '&Authorization=Bearer ' +
-      encodeURIComponent(getToken() ?? '') +
       '&clientid=' +
       encodeURIComponent(import.meta.env.VITE_APP_CLIENT_ID)
     );
@@ -124,15 +125,12 @@ export const adminWorkflowWebRuntime = {
     });
   },
   designUrl: async (definitionId, disabled) => {
-    const { getToken } = await import('@/application/session');
     return (
       import.meta.env.VITE_APP_BASE_API +
       '/warm-flow-ui/index.html?id=' +
       encodeURIComponent(definitionId) +
       '&onlyDesignShow=' +
       String(disabled) +
-      '&Authorization=Bearer ' +
-      encodeURIComponent(getToken() ?? '') +
       '&clientid=' +
       encodeURIComponent(import.meta.env.VITE_APP_CLIENT_ID)
     );
@@ -290,6 +288,22 @@ export const adminMonitorWebRuntime: MonitorWebRuntime = {
   hasPermission: permission => createAdminAccessEvaluator().hasPermission(permission)
 };
 const monitorManifest = createMonitorWebDomain(adminMonitorWebRuntime);
+const notifyManifest = createNotifyWebDomain({
+  service: notificationService,
+  directory: notificationDirectory,
+  subscribeInbox: handler => {
+    window.addEventListener('notify:inbox-updated', handler);
+    return () => window.removeEventListener('notify:inbox-updated', handler);
+  },
+  inboxChanged: () => {
+    void import('@/utils/push')
+      .then(({ initMessageBox }) => initMessageBox())
+      .catch(error => console.warn('消息盒子刷新失败:', error));
+  },
+  hasPermission: permission => createAdminAccessEvaluator().hasPermission(permission),
+  navigate: path => import('@/router').then(({ default: router }) => router.push(path).then(() => undefined)),
+  dicts: (...types) => createLiveSystemDictRefs(types, () => import('@/utils/dict').then(({ useDict }) => useDict(...types)))
+});
 const AdminExternalMonitorPage = defineAsyncComponent(() => import('@/views/monitor/external/index.vue'));
 const adminExternalMonitorRegistrations = [
   ['admin-monitor-admin', 'monitor/admin/index', 'MonitorAdmin', 'monitor-admin'],
@@ -328,7 +342,8 @@ const runtime = composeAppRuntime<Component>({
     systemDomainModule,
     aiDomainModule,
     profileDomainModule,
-    thirdDomainModule
+    thirdDomainModule,
+    notifyDomainModule
   ],
   manifests: [
     createAdminWebDomain({
@@ -344,9 +359,10 @@ const runtime = composeAppRuntime<Component>({
     monitorManifest,
     profileManifest,
     adminExternalMonitorManifest,
-    thirdManifest
+    thirdManifest,
+    notifyManifest
   ],
-  selectedDomainIds: ['admin', 'demo', 'workflow', 'system', 'ai', 'profile', 'third'],
+  selectedDomainIds: ['admin', 'demo', 'workflow', 'system', 'ai', 'profile', 'third', 'notify'],
   selectedManifestIds: [
     'web-domain-admin',
     'web-domain-demo',
@@ -356,7 +372,8 @@ const runtime = composeAppRuntime<Component>({
     'web-domain-system-monitor',
     'web-domain-profile',
     'admin-external-monitor',
-    'web-domain-third'
+    'web-domain-third',
+    'web-domain-notify'
   ]
 });
 

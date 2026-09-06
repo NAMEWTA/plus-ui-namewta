@@ -5,12 +5,13 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const workspaceRoot = join(dirname(fileURLToPath(import.meta.url)), '../../..');
-const canonicalDomains = ['admin', 'ai', 'demo', 'profile', 'system', 'third', 'workflow'];
+const canonicalDomains = ['admin', 'ai', 'demo', 'notify', 'profile', 'system', 'third', 'workflow'];
 const removedDomains = ['identity-access', 'system-admin', 'devtools', 'operations', 'gen'];
 const backendModules = {
   admin: 'ruoyi-admin',
   ai: 'ruoyi-ai',
   demo: 'ruoyi-demo',
+  notify: 'ruoyi-notify',
   profile: 'ruoyi-profile',
   system: 'ruoyi-system',
   third: 'ruoyi-third',
@@ -28,6 +29,13 @@ const domainResources = {
   demo: {
     'test-demo': ['TestDemoController', '/demo/demo'],
     'test-tree': ['TestTreeController', '/demo/tree']
+  },
+  notify: {
+    monitor: ['NotificationMonitorController', '/notify/monitor'],
+    notification: ['NotificationController', '/notify/notification'],
+    notice: ['NotifyNoticeController', '/notify/notice'],
+    inbox: ['NotifyInboxController', '/notify/inbox'],
+    callback: ['ProviderCallbackController', '/notify/callback']
   },
   profile: {
     'material-tags': ['MaterialTagController', '/profile/material-tags'],
@@ -47,8 +55,6 @@ const domainResources = {
     'dict-data': ['SysDictDataController', '/system/dict/data'],
     'dict-type': ['SysDictTypeController', '/system/dict/type'],
     menu: ['SysMenuController', '/system/menu'],
-    message: ['SysMessageController', '/resource/message'],
-    notice: ['SysNoticeController', '/system/notice'],
     oss: ['SysOssController', '/resource/oss'],
     'oss-config': ['SysOssConfigController', '/resource/oss/config'],
     'oss-upload': ['SysOssUploadController', '/resource/oss/uploads'],
@@ -60,7 +66,6 @@ const domainResources = {
     'user-type': ['SysUserTypeController', '/system/userType'],
     'monitor/cache': ['CacheController', '/monitor/cache'],
     'monitor/login-info': ['SysLoginInfoController', '/monitor/loginInfo'],
-    'monitor/notify': ['SysNotifyController', '/monitor/notify'],
     'monitor/online': ['SysUserOnlineController', '/monitor/online'],
     'monitor/operlog': ['SysOperlogController', '/monitor/operlog']
   },
@@ -78,6 +83,7 @@ const webResources = {
   admin: ['auth'],
   ai: ['snail-ai'],
   demo: ['test-demo', 'test-tree'],
+  notify: ['monitor', 'notice', 'inbox'],
   profile: ['material-tag', 'person', 'enterprise'],
   system: [
     'client',
@@ -85,7 +91,6 @@ const webResources = {
     'dept',
     'dict-type',
     'menu',
-    'notice',
     'oss',
     'oss-config',
     'post',
@@ -94,7 +99,6 @@ const webResources = {
     'user-type',
     'monitor/cache',
     'monitor/login-info',
-    'monitor/notify',
     'monitor/online',
     'monitor/operlog'
   ],

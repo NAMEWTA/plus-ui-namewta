@@ -43,22 +43,28 @@ const controller = new AbortController();
 
 async function load() {
   loading.value = true;
-  try { rows.value = (await runtime.service.richText.list({ pageNum: 1, pageSize: 50 })).data?.rows ?? []; } finally { loading.value = false; }
+  try { rows.value = (await runtime.service.richText.list({ pageNum: 1, pageSize: 50 })).data?.rows ?? []; }
+  catch (error) { ElMessage.error(error instanceof Error ? error.message : '富文本列表加载失败'); }
+  finally { loading.value = false; }
 }
 async function edit(id: string) {
-  const response = await runtime.service.richText.get(id);
-  if (response.data) { editingId.value = id; title.value = response.data.title; html.value = response.data.html; }
+  try { const response = await runtime.service.richText.get(id);
+    if (response.data) { editingId.value = id; title.value = response.data.title; html.value = response.data.html; }
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '富文本加载失败'); }
 }
 async function save() {
   if (!editorState.value.valid || !title.value.trim()) { ElMessage.warning('请填写标题并等待上传完成'); return; }
-  const response = editingId.value
-    ? await runtime.service.richText.update(editingId.value, { title: title.value.trim(), html: html.value, version: rows.value.find(row => row.richTextId === editingId.value)?.version ?? 0 })
-    : await runtime.service.richText.create({ title: title.value.trim(), html: html.value });
-  if (response.data) { ElMessage.success('保存成功'); editingId.value = response.data.richTextId; await load(); }
+  try {
+    const response = editingId.value
+      ? await runtime.service.richText.update(editingId.value, { title: title.value.trim(), html: html.value, version: rows.value.find(row => row.richTextId === editingId.value)?.version ?? 0 })
+      : await runtime.service.richText.create({ title: title.value.trim(), html: html.value });
+    if (response.data) { ElMessage.success('保存成功'); editingId.value = response.data.richTextId; await load(); }
+  } catch (error) { ElMessage.error(error instanceof Error ? error.message : '富文本保存失败'); }
 }
 async function remove(id: string, version: number) {
   await ElMessageBox.confirm('确认删除该文档？', '提示');
-  await runtime.service.richText.remove(id, version); ElMessage.success('删除成功'); if (editingId.value === id) reset(); await load();
+  try { await runtime.service.richText.remove(id, version); ElMessage.success('删除成功'); if (editingId.value === id) reset(); await load(); }
+  catch (error) { ElMessage.error(error instanceof Error ? error.message : '富文本删除失败'); }
 }
 function reset() { editingId.value = undefined; title.value = ''; html.value = '<p></p>'; }
 onMounted(() => void load());

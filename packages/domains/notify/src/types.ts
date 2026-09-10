@@ -81,6 +81,58 @@ export interface NotifyNoticeQuery {
   status?: string;
 }
 
+export type NotifyConfigChannel = 'MAIL' | 'SMS';
+
+export interface NotifyChannelAccount {
+  accountId?: string | number;
+  channel: NotifyConfigChannel;
+  configKey: string;
+  enabled?: string;
+  supplier?: string;
+  host?: string;
+  port?: number;
+  mailFrom?: string;
+  mailUser?: string;
+  mailPass?: string;
+  mailPassSet?: boolean;
+  sslEnable?: string;
+  starttlsEnable?: string;
+  accessKeyId?: string;
+  accessKeySecret?: string;
+  accessKeySecretSet?: boolean;
+  signature?: string;
+  sdkAppId?: string;
+  minuteMax: number;
+  remark?: string;
+  updateTime?: string;
+}
+
+export interface NotifySceneVariable {
+  name: string;
+  required: boolean;
+  example?: string;
+  description?: string;
+}
+
+export interface NotifySceneBinding {
+  sceneCode: string;
+  title: string;
+  variables: NotifySceneVariable[];
+  channel: NotifyConfigChannel;
+  bindingId?: string | number;
+  accountId?: string | number | null;
+  accountConfigKey?: string;
+  accountEnabled?: string;
+  mailSubject?: string;
+  mailBody?: string;
+  smsTemplateCode?: string;
+  smsParamMapping?: Record<string, string>;
+  templateMinuteMax?: number;
+  restricted?: string;
+  recipientMinuteMax?: number;
+  recipientDayMax?: number;
+}
+
 export interface NotifyInboxMessage {
   messageId: string;
   category: string;

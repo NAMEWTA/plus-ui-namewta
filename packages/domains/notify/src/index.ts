@@ -14,9 +14,13 @@ export type {
   NotificationSnapshot,
   NotificationStatus,
   NotifyInboxMessage,
+  NotifyChannelAccount,
+  NotifyConfigChannel,
   NotifyNotice,
   NotifyNoticeQuery,
   NotifyRecipientType,
+  NotifySceneBinding,
+  NotifySceneVariable,
   NotifyUserCandidate,
   NotifyUserCandidatePage,
   NotifyUserTypeOption

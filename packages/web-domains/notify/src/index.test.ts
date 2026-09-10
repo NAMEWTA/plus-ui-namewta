@@ -18,8 +18,10 @@ describe('通知 Web Domain', () => {
     expect(manifest.registrations.map(item => item.componentKey)).toEqual([
       'notify/monitor/index',
       'notify/notice/index',
-      'notify/inbox/index'
+      'notify/inbox/index',
+      'notify/config/index'
     ]);
     expect(manifest.permissions[0]?.permissions).toContain('notify:monitor:list');
+    expect(manifest.permissions.map(item => item.id)).toContain('notify-config');
   });
 });

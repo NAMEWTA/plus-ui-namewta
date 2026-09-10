@@ -29,4 +29,36 @@ describe('通知传输映射', () => {
       params: { channel: 'SMS', status: 'FAILED' }
     });
   });
+  it('映射通知配置账号、场景绑定和试发', async () => {
+    const request = vi.fn().mockResolvedValue({ data: { rows: [], total: 0 } });
+    const service = createNotificationService({ request } as never);
+    await service.config.accounts('MAIL', 1, 10);
+    expect(request).toHaveBeenLastCalledWith({
+      url: '/notify/config/account/list',
+      method: 'get',
+      params: { channel: 'MAIL', pageNum: 1, pageSize: 10 }
+    });
+    await service.config.saveScene({
+      sceneCode: 'auth-captcha',
+      channel: 'SMS',
+      smsTemplateCode: 'SMS_1',
+      smsParamMapping: { code: 'code' }
+    });
+    expect(request).toHaveBeenLastCalledWith({
+      url: '/notify/config/scene/save',
+      method: 'post',
+      data: {
+        sceneCode: 'auth-captcha',
+        channel: 'SMS',
+        smsTemplateCode: 'SMS_1',
+        smsParamMapping: { code: 'code' }
+      }
+    });
+    await service.config.testTemplate({ sceneCode: 'auth-captcha', channel: 'MAIL', target: 'a@b.c' });
+    expect(request).toHaveBeenLastCalledWith({
+      url: '/notify/config/test/template',
+      method: 'post',
+      data: { sceneCode: 'auth-captcha', channel: 'MAIL', target: 'a@b.c' }
+    });
+  });
 });

@@ -28,6 +28,17 @@ export function createNotifyWebDomain(runtime: NotifyWebRuntime): WebDomainManif
       Object.freeze({
         id: 'notify-inbox',
         permissions: Object.freeze(['notify:inbox:list', 'notify:inbox:seen', 'notify:inbox:read'])
+      }),
+      Object.freeze({
+        id: 'notify-config',
+        permissions: Object.freeze([
+          'notify:config:list',
+          'notify:config:query',
+          'notify:config:add',
+          'notify:config:edit',
+          'notify:config:remove',
+          'notify:config:test'
+        ])
       })
     ]),
     registrations: Object.freeze([
@@ -56,6 +67,15 @@ export function createNotifyWebDomain(runtime: NotifyWebRuntime): WebDomainManif
         load: async () => {
           const page = (await import('./InboxPage.vue')).default;
           return defineComponent({ name: 'NotifyInbox', setup: () => () => h(page, { runtime }) });
+        }
+      }),
+      Object.freeze({
+        id: 'notify-config',
+        componentKey: 'notify/config/index',
+        componentName: 'NotifyConfig',
+        load: async () => {
+          const page = (await import('./ConfigPage.vue')).default;
+          return defineComponent({ name: 'NotifyConfig', setup: () => () => h(page, { runtime }) });
         }
       })
     ])

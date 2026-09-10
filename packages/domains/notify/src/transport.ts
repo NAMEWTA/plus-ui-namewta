@@ -4,9 +4,12 @@ import type {
   NotificationDelivery,
   NotificationDeliveryQuery,
   NotificationSnapshot,
+  NotifyChannelAccount,
+  NotifyConfigChannel,
   NotifyInboxMessage,
   NotifyNotice,
-  NotifyNoticeQuery
+  NotifyNoticeQuery,
+  NotifySceneBinding
 } from './types';
 
 type ApiResponse<T> = { data: T; code?: number; msg?: string; error?: ApiErrorInfo };
@@ -38,6 +41,32 @@ export function createNotificationService(http: HttpClient) {
       seen: (messageId: string | number) => request<void>({ url: `/notify/inbox/${messageId}/seen`, method: 'post' }),
       read: (messageId: string | number) => request<void>({ url: `/notify/inbox/${messageId}/read`, method: 'post' }),
       readAll: () => request<void>({ url: '/notify/inbox/read-all', method: 'post' })
+    },
+    config: {
+      accounts: (channel: NotifyConfigChannel, pageNum = 1, pageSize = 10) =>
+        request<{ rows: NotifyChannelAccount[]; total: number }>({
+          url: '/notify/config/account/list',
+          method: 'get',
+          params: { channel, pageNum, pageSize }
+        }),
+      account: (accountId: string | number) =>
+        request<NotifyChannelAccount>({ url: `/notify/config/account/${accountId}`, method: 'get' }),
+      addAccount: (data: NotifyChannelAccount) =>
+        request<void>({ url: '/notify/config/account', method: 'post', data }),
+      editAccount: (data: NotifyChannelAccount) =>
+        request<void>({ url: '/notify/config/account/edit', method: 'post', data }),
+      changeStatus: (accountId: string | number, enabled: string) =>
+        request<void>({ url: '/notify/config/account/changeStatus', method: 'post', data: { accountId, enabled } }),
+      removeAccount: (accountId: string | number) =>
+        request<void>({ url: '/notify/config/account/remove', method: 'post', data: accountId }),
+      scenes: (channel: NotifyConfigChannel) =>
+        request<NotifySceneBinding[]>({ url: '/notify/config/scene/list', method: 'get', params: { channel } }),
+      saveScene: (data: Partial<NotifySceneBinding>) =>
+        request<void>({ url: '/notify/config/scene/save', method: 'post', data }),
+      testAccount: (data: { accountId: string | number; sceneCode?: string; target: string }) =>
+        request<string>({ url: '/notify/config/test/account', method: 'post', data }),
+      testTemplate: (data: { sceneCode: string; channel: NotifyConfigChannel; target: string }) =>
+        request<string>({ url: '/notify/config/test/template', method: 'post', data })
     }
   });
 }

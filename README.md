@@ -1,3 +1,5 @@
+> **FROZEN.** This repository is a read-only backup. Current NAMEWTA product development is **https://github.com/NAMEWTA/WTA-plus**. Do not open new features or force-push here.
+
 # NAMEWTA plus-ui
 
 本仓库是基于上游 Plus-UI 深度重构的 NAMEWTA 多 App 前端增强版。它保留 Vue 管理端能力，但不再以单 App 的 `src/api + src/views + src/store` 作为复用边界，而是把后端合同、领域规则、Web 页面和终端壳层拆分到明确的工作区包中。
